@@ -75,7 +75,7 @@ struct Window {
 		}
 		
 		// try to create it:
-		pointer = glfwCreateWindow(width, height, "", monitor, NULL);
+		pointer = glfwCreateWindow(width, height, "alicelib", monitor, NULL);
 		if (pointer == NULL) {
 			console.error("Failed to create GLFW window");
 			return false;
