@@ -1,13 +1,11 @@
 #ifndef AL_GL_H
 #define AL_GL_H
 
-// note: GLAD header generated from http://glad.dav1d.de/ with version 3.3 compat
-// TODO switch to non _debug.h/.c for production
-//#include <glad/glad.h>
-//#include <glad.cpp>
+// note: GLAD header generated from http://glad2.dav1d.de
+// for OpenGL 4.1, Compatibility, header-only enabled
 
-#include <glad/glad_debug.h>
-#include <glad_debug.cpp>
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/glad.h>
 
 #include <string>
 #include <fstream>

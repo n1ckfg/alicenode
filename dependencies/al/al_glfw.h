@@ -89,7 +89,18 @@ struct Window {
 		glfw_framebuffer_size_callback(pointer, width, height);
 		glfwSetFramebufferSizeCallback(pointer, glfw_framebuffer_size_callback);
 	
+		int version = gladLoadGLSimple((GLADsimpleloadproc) glfwGetProcAddress);
+		if (version == 0) {
+			console.error("Failed to initialize OpenGL context");
+			return false;
+		} else {
+			console.log("Loaded OpenGL %d.%d\n", version / 10, version % 10);
+		}
+
+	
 		// initialize OpenGL:
+		
+		/*
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			console.error("Failed to initialize OpenGL context");
 			return false;
@@ -97,6 +108,7 @@ struct Window {
 			console.error("Your system doesn't support OpenGL >= 2!");
 			return false;
 		}
+		*/
 		//console.log("GLAD initialized OpenGL %d.%d", GLVersion.major, GLVersion.minor);
 		console.log("OpenGL %s, GLSL %s", glGetString(GL_VERSION),
 			glGetString(GL_SHADING_LANGUAGE_VERSION));

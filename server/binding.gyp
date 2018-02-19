@@ -8,7 +8,6 @@
 		"include_dirs": [
 			"../dependencies/",
 			"../dependencies/al/",
-			"../dependencies/glad/include", 
 			"../dependencies/glad/src", 
 			"../dependencies/glfw3/include"
 		],
