@@ -6,25 +6,25 @@
 
 // how many glm headers do we really need?
 #define GLM_FORCE_RADIANS
-#include "glm/glm.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-#include "glm/mat4x4.hpp"
-#include "glm/gtc/quaternion.hpp"
+#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 
-#include "glm/gtc/matrix_access.hpp"
-#include "glm/gtc/matrix_inverse.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/noise.hpp"
-#include "glm/gtc/random.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/noise.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "glm/gtx/matrix_transform_2d.hpp"
-#include "glm/gtx/rotate_vector.hpp"
-#include "glm/gtx/string_cast.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtx/vector_angle.hpp"
+#include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 // unstable extensions
 //#include "glm/gtx/norm.hpp"

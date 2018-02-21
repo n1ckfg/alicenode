@@ -1,5 +1,10 @@
 {
-	"targets": [{
+	'variables': {
+    	'platform': '<(OS)',
+    	'build_arch': '<!(node -p "process.arch")',
+    	'build_win_platform': '<!(node -p "process.arch==\'ia32\'?\'Win32\':process.arch")',
+  	},
+  	"targets": [{
 		"target_name": "alice_services",
 		"type": "shared_library",
 		"sources": [ 
@@ -8,6 +13,7 @@
 		"include_dirs": [
 			"../dependencies/",
 			"../dependencies/al/",
+			"../dependencies/glm/",
 			"../dependencies/glad/src", 
 			"../dependencies/glfw3/include"
 		],
@@ -37,7 +43,13 @@
 				}
 			}],
 			['OS=="win"', {
-				
+				'link_settings': {
+					'libraries': [
+						'opengl32',
+						'-lGlu32.lib',
+						'../../dependencies/glfw3/win64/lib-vc2017/glfw3.lib'
+					]
+				},
 			}]
 		]
 	}]

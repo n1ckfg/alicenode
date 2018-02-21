@@ -1,5 +1,6 @@
-const fastcall = require('fastcall');
-const ref = fastcall.ref;
+//const fastcall = require('fastcall');
+//const ref = fastcall.ref;
+const ffi = require("ffi");
 const express = require('express');
 const http = require('http');
 const url = require('url');
@@ -77,6 +78,7 @@ process.on("exit", function(m) { console.log("server closing"); });
 console.log("server running");
 
 try {
+	/*
 	sim = new fastcall.Library('./build/Release/alice_services.dylib');
 	sim.declare(`
 	
@@ -90,6 +92,25 @@ try {
 	
 	function onframe() {
 		sim.interface.frame()
+		let t1 = getTime();
+		let dt = t1-t;
+		t = t1;
+		framecount++;
+		fpsAvg += 0.1*(1./dt - fpsAvg);
+		
+		send_all_clients("fps: " + Math.floor(fpsAvg));
+	}
+	*/
+	sim = ffi.Library('./build/Release/alice_services', {
+		init: ['int', []],
+		frame: ['int', []]
+	});
+
+	let res = sim.init();
+	console.log(res);
+	
+	function onframe() {
+		sim.frame()
 		let t1 = getTime();
 		let dt = t1-t;
 		t = t1;

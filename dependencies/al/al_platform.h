@@ -6,7 +6,7 @@
 #define STRUCT_ALIGN_BEGIN 
 //__declspec(align(8))
 #define STRUCT_ALIGN_END
-HANDLE console_mutex;
+#define AL_EXPORT __declspec(dllexport)
 #endif 
 
 #ifdef __APPLE__
@@ -14,5 +14,5 @@ HANDLE console_mutex;
 #define STRUCT_ALIGN_BEGIN
 #define STRUCT_ALIGN_END __attribute__((packed, aligned(8)))
 #endif
-
+#define AL_EXPORT 
 #endif // AL_PLATFORM_H

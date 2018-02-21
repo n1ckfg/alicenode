@@ -37,6 +37,7 @@ void glfw_key_callback(GLFWwindow* pointer, int keycode, int scancode, int downu
 }
 
 int setup() {
+	console.log("setup");
 	if (!window.open(isFullScreen)) return -1;
 	
 	glfwSetKeyCallback(window.pointer, glfw_key_callback);
@@ -83,12 +84,12 @@ int setup() {
 
 extern "C" {
 
-	int init() {
+	AL_EXPORT int init() {
 		setup();
 		return 12;
 	}
 	
-	int frame() {
+	AL_EXPORT int frame() {
 		glfwPollEvents();
 		glfwMakeContextCurrent(window.pointer);
 		
