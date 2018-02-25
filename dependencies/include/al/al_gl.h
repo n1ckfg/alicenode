@@ -144,7 +144,7 @@ struct Shader {
     void uniform(const std::string &name, bool value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), (int)value); }
     void uniform(const std::string &name, int value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), value); }
     void uniform(const std::string &name, float value) const { glUniform1f(glGetUniformLocation(program, name.c_str()), value); }
-    void uniform(const std::string &name, double value) const { glUniform1f(glGetUniformLocation(program, name.c_str()), value); }
+    void uniform(const std::string &name, double value) const { glUniform1f(glGetUniformLocation(program, name.c_str()), (GLfloat)value); }
     void uniform(const std::string &name, const glm::vec2 &value) const { glUniform2fv(glGetUniformLocation(program, name.c_str()), 1, &value[0]);  }
     void uniform(const std::string &name, const glm::vec3 &value) const { glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &value[0]);  }
     void uniform(const std::string &name, const glm::vec4 &value) const { glUniform4fv(glGetUniformLocation(program, name.c_str()), 1, &value[0]);  }
@@ -254,7 +254,7 @@ struct Vertex {
 
 struct SimpleMesh {
 	unsigned int VAO, VBO, EBO;
-	unsigned int vertex_count, index_count;
+	size_t vertex_count, index_count;
 	
 	SimpleMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) {
 		setup(vertices, indices);
@@ -264,7 +264,7 @@ struct SimpleMesh {
 		setup(&vertices[0], vertices.size(), &indices[0], indices.size());
 	}
 	
-	void setup(Vertex * vertices, unsigned int vertex_count, unsigned int * indices, unsigned int index_count) {
+	void setup(Vertex * vertices, size_t vertex_count, unsigned int * indices, size_t index_count) {
 		
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -296,13 +296,13 @@ struct SimpleMesh {
 	
 	void drawArrays() {
 		glBindVertexArray(VAO);
-   	 	glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+   	 	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertex_count);
     	glBindVertexArray(0);
 	} 
 	
 	void draw() {
 		glBindVertexArray(VAO);
-   	 	glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+   	 	glDrawElements(GL_TRIANGLES, (GLsizei)index_count, GL_UNSIGNED_INT, 0);
     	glBindVertexArray(0);
 	}
 };

@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "deque": "cpp",
+        "list": "cpp",
+        "memory": "cpp",
+        "streambuf": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "xhash": "cpp",
+        "xmemory0": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
+    }
+}

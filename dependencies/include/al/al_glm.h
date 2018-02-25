@@ -114,10 +114,10 @@ inline glm::quat quat_random() {
 	float sq1 = sqrtf(r3);
 	float sq2 = sqrtf(1.f-r3);
 	return glm::quat(
-		cosf((M_PI * 2) * r1) * sq1,
-		sinf((M_PI * 2) * r2) * sq2,
-		cosf((M_PI * 2) * r2) * sq1,
-		sinf((M_PI * 2) * r1) * sq2
+		cosf(float(M_PI * 2.) * r1) * sq1,
+		sinf(float(M_PI * 2.) * r2) * sq2,
+		cosf(float(M_PI * 2.) * r2) * sq1,
+		sinf(float(M_PI * 2.) * r1) * sq2
 	);
 }
 

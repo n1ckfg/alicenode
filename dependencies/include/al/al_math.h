@@ -101,7 +101,7 @@ inline T wrap(T x, T mod) {
 				// multiple wraps:
 				T div = x / mod;
 				// get fract:
-				T divl = (long)div;
+				T divl = (T)(long)div;
 				T fract = div - (T)divl;
 				return fract * mod;
 			} else {
@@ -114,7 +114,7 @@ inline T wrap(T x, T mod) {
 				// multiple wraps:
 				T div = x / mod;
 				// get fract:
-				T divl = (long)div;
+				T divl = (T)(long)div;
 				T fract = div - (T)divl;
 				T x1 = fract * mod;
 				return (x1 < T(0)) ? x1 + mod : x1;	
@@ -155,11 +155,11 @@ class rnd {
 public: 
 
 	static void seed() {
-		srand(time(NULL));
+		srand((unsigned int)time(NULL));
 	}
 
 	static int integer(int lim=2) {
-		return floorf(glm::linearRand(0.f, lim-0.0000001f));
+		return (int)floorf(glm::linearRand(0.f, lim-0.0000001f));
 	}
 
 	static float uni(float lim=1.f) {
