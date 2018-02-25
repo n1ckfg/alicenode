@@ -450,7 +450,7 @@ struct SimpleFBO {
 		texDrawShader->unuse();
 	}
 
-	void draw_no_shader() {e
+	void draw_no_shader() {
 		glBindTexture(GL_TEXTURE_2D, tex);
 		glBindVertexArray(VAO);
 		

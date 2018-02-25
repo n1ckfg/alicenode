@@ -6,6 +6,9 @@ const http = require('http');
 const url = require('url');
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
+
+const libext = process.platform == "win" ? "dll" : "dylib";
 
 // report status:
 process.on("exit", function(m) { console.log("server closing"); });
@@ -74,13 +77,13 @@ server.listen(8080, function() {
 	console.log('server listening on %d', server.address().port);
 });
 
-const sim = new fastcall.Library("sim.dll");
+const sim = new fastcall.Library("sim."+libext);
 sim.declare(`
 int sim(int x);
 `);
 console.log(sim.interface.sim(9));
 
-const renderer = new fastcall.Library("alice.dll");
+const renderer = new fastcall.Library("alice."+libext);
 renderer.declare(`
 int setup();
 int frame();
