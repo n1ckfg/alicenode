@@ -32,17 +32,7 @@ REM switch to 64-bit?
 REM @if "%PROCESSOR_ARCHITECTURE%" == "AMD64" if exist "%VCINSTALLDIR%vcvarsall.bat" call "%VCINSTALLDIR%vcvarsall.bat" amd64 )
 
 REM compile & link:
-cl /nologo /W3 /EHsc /O2 ^
-/I ../dependencies/include ^
-alice.cpp ^
-../dependencies/lib/win64/lib-vc2017/glfw3.lib ^
-user32.lib kernel32.lib shell32.lib gdi32.lib ^
-opengl32.lib ^
-/link /out:alice.exe
-
-REM winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
-
-@del alice.obj alice.exp
+REM cl /nologo /W3 /EHsc /O2 /I ../dependencies/include alice.cpp ../dependencies/lib/win64/lib-vc2017/glfw3.lib user32.lib kernel32.lib shell32.lib gdi32.lib opengl32.lib /link /out:alice.exe
 
 REM compile & link:
 cl /LD /W3 /EHsc /O2 ^
@@ -53,6 +43,14 @@ user32.lib kernel32.lib shell32.lib gdi32.lib ^
 opengl32.lib 
 
 @del alice.obj alice.exp
+
+REM compile & link:
+cl /LD /W3 /EHsc /O2 ^
+/I ../dependencies/include ^
+sim.cpp ^
+alice.lib
+
+@del sim.obj sim.exp
 
 :ENDLOCAL
 REM put things back

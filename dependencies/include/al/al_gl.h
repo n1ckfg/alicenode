@@ -4,7 +4,6 @@
 // note: GLAD header generated from http://glad2.dav1d.de
 // for OpenGL 4.1, Compatibility, header-only enabled
 
-#define GLAD_GL_IMPLEMENTATION
 #include <glad/glad.h>
 
 #include <string>
@@ -109,20 +108,19 @@ struct Shader {
        	glCompileShader(vid);
         checkCompileErrors(vid, "VERTEX");
         
-        const char * fcode = fragCode.c_str();
+       	const char * fcode = fragCode.c_str();
        	fid = glCreateShader(GL_FRAGMENT_SHADER);
        	glShaderSource(fid, 1, &fcode, NULL);
        	glCompileShader(fid);
         checkCompileErrors(fid, "FRAGMENT");
         
-        if (!geomCode.empty()) {
+       	if (!geomCode.empty()) {
             const char * gcode = geomCode.c_str();
             gid = glCreateShader(GL_GEOMETRY_SHADER);
             glShaderSource(gid, 1, &gcode, NULL);
             glCompileShader(gid);
             checkCompileErrors(gid, "GEOMETRY");
         }
-        
         
         // shader Program
         program = glCreateProgram();
@@ -231,7 +229,6 @@ struct SimpleTexture3D {
 	// 4-plane:
 	void submit(glm::ivec3 dim, glm::vec4 * data) {
 		glBindTexture(GL_TEXTURE_3D, tex);
-		glm::vec4 v = data[dim.x/2 + dim.y/2*dim.x + dim.z/2*dim.y*dim.x];
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, dim.x, dim.y, dim.z, 0, GL_RGBA, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
 		glBindTexture(GL_TEXTURE_3D, 0);

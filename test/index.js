@@ -10,6 +10,8 @@ const os = require("os");
 
 const libext = process.platform == "win" ? "dll" : "dylib";
 
+const client_path = path.join(__dirname, "client");
+
 // report status:
 process.on("exit", function(m) { console.log("server closing"); });
 
@@ -26,7 +28,7 @@ let fpsAvg = 0;
 const app = express();
 //app.use(function (req, res) { res.send({ msg: "hello" }); });
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/index.html'));
+    res.sendFile(path.join(client_path, 'index.html'));
 });
 const server = http.createServer(app);
 
@@ -77,20 +79,13 @@ server.listen(8080, function() {
 	console.log('server listening on %d', server.address().port);
 });
 
-const sim = new fastcall.Library("sim."+libext);
-sim.declare(`
-int sim(int x);
-`);
-console.log(sim.interface.sim(9));
 
 const renderer = new fastcall.Library("alice."+libext);
 renderer.declare(`
 int setup();
 int frame();
 `);
-
 res = renderer.interface.setup();
-
 console.log(res);
 
 function onframe() {
@@ -114,5 +109,26 @@ function onframeFast() {
 
 // slow version:
 setInterval(onframe, 1000/120);
+
+let sim;
+function loadsim() {
+	sim = new fastcall.Library("sim."+libext);
+	sim.declare(`
+	int onload();
+	int onunload();
+	`);
+	console.log(sim.interface.onload());
+}
+loadsim();
+
+setInterval(function() {
+	if (sim) {
+		console.log("reloading");
+		sim.interface.onunload();
+		sim.release();
+		console.log("released");
+	}	
+	loadsim();
+}, 3000)
 
 console.log("ok");

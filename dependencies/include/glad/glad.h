@@ -5935,7 +5935,7 @@ static int get_exts( int version, const char **out_exts, int *out_num_exts_i, co
     } else {
         int index;
         int num_exts_i = 0;
-        const char **exts_i;
+        const char **exts_i = NULL;
         if (glGetStringi == NULL || glGetIntegerv == NULL) {
             return 0;
         }
@@ -5961,6 +5961,7 @@ static void free_exts(const char **exts_i) {
         exts_i = NULL;
     }
 }
+/*
 static int has_ext(int version, const char *exts, int num_exts_i, const char **exts_i, const char *ext) {
     if(version < 30) {
         const char *extensions;
@@ -5992,7 +5993,7 @@ static int has_ext(int version, const char *exts, int num_exts_i, const char **e
         }
     }
     return 0;
-}
+}*/
 
 static int find_extensionsGL( int version) {
     const char *exts = NULL;

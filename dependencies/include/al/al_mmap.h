@@ -1,0 +1,139 @@
+#ifndef AL_MMAP_H
+#define AL_MMAP_H
+
+#include "al_platform.h"
+
+// TODO: how many of these are really needed?
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+
+template<typename T>
+struct Mmap {
+
+	T * shared = 0;
+	int readWrite = 0;
+
+	// the memory map share:
+	#ifdef AL_WIN
+		HANDLE mmap_handle = 0;
+	#endif
+	
+	#ifdef AL_OSX
+		int fd = -1;
+	#endif
+
+	// Windows code is currently wrong
+	// See https://stackoverflow.com/questions/19498925/createfilemapping-returns-null
+
+	T * create(std::string path, bool readWrite=0) {
+		// TODO assert shared == 0
+		this->readWrite = readWrite;
+		console.log("mmap %s of size %d", path.c_str(), sizeof(T));
+		
+		#ifdef AL_OSX
+			// create:
+			fd = open(path.c_str(), readWrite ? O_CREAT | O_RDWR : O_RDONLY, 0666); // 0666 or 0644 or 0600?
+			if (fd == -1) {
+				console.error("Error opening file for writing");
+				return 0;
+			}   
+			// validate size
+			struct stat fileInfo = {0};
+			if (fstat(fd, &fileInfo) == -1) {
+				console.error("Error getting the file size");
+				return 0;
+			}
+			console.log("file %s is size %ji", path.c_str(), (intmax_t)fileInfo.st_size);
+			// stretch / verify size
+			if (readWrite) {
+				if (fileInfo.st_size < sizeof(T)) {
+					if (lseek(fd, sizeof(T)-1, SEEK_SET) == -1 || write(fd, "", 1) == -1) {
+						close(fd);
+						console.error("Error stretching the file");
+						return 0;
+					}
+					// update size
+					if (fstat(fd, &fileInfo) == -1) {
+						console.error("Error getting the file size");
+						return 0;
+					}
+				}
+			}
+			console.log("file %s is size %ji", path.c_str(), (intmax_t)fileInfo.st_size);
+			
+			if (fileInfo.st_size == 0) {
+				console.error("file %s is empty", path.c_str());
+				return 0;
+			} else if (fileInfo.st_size < sizeof(T)) {
+				console.error("file %s is too small", path.c_str());
+				return 0;
+			} 
+			
+			auto flag = PROT_READ;
+			if (readWrite) flag |= PROT_WRITE;			
+			shared = (T *)mmap(0, sizeof(T), flag, MAP_SHARED, fd, 0);
+			if (shared == MAP_FAILED) {
+				close(fd);
+				console.error("mmapping the file");
+				return 0;
+			}	
+			
+		#endif
+				
+		#ifdef AL_WIN
+			mmap_handle = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(T), name);
+			if (mmap_handle) {
+				shared = (T *)MapViewOfFile(mmap_handle, FILE_MAP_WRITE, 0, 0, sizeof(T));
+			}
+		#endif
+	
+	
+		// reader:
+		#ifdef AL_WIN
+			mmap_handle = OpenFileMappingA(FILE_MAP_READ, FALSE, "Inhabitat");
+			if (mmap_handle) {
+				shared = (T *)MapViewOfFile(mmap_handle, FILE_MAP_READ, 0, 0, sizeof(T));
+			}
+		#endif
+		
+		return shared;
+	}
+	
+	~Mmap() {
+		destroy();
+	}
+	
+	// sync writes changes to disk
+	bool sync() {
+		if (readWrite && msync(shared, sizeof(T), MS_SYNC) == -1) {
+			console.error("Could not sync the file to disk");
+			return false;
+		}
+		return true;
+	}
+	
+	void destroy(bool doSync=false) {
+		if (!shared) return;
+		
+		if (doSync) sync();
+		
+		#ifdef AL_OSX
+		// Don't forget to free the mmapped memory
+		if (munmap(shared, sizeof(T)) == -1) {
+			console.error("Error un-mmapping the file");
+		}
+		close(fd);
+		fd = -1;
+		#endif
+		
+		shared = 0;
+	}
+};
+
+#endif //AL_THREAD_H
