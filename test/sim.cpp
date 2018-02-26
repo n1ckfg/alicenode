@@ -21,7 +21,21 @@ float vertices[] = {
 State * state;
 Mmap<State> statemap;
 
+State * state1;
+Mmap<State> statemap1;
+
 void onFrame() {
+	int i = rnd::integer(100);
+	float y = state1->translations[i].y;
+	y = y + 0.1f;
+	if (y > 1.) y -= 2.;
+	state1->translations[i].y = y;
+	
+	// update GPU;
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &state->translations[0], GL_STATIC_DRAW);
+	
+
 	shader_test->use();
     shader_test->uniform("time", Alice::Instance().t);
     
@@ -48,6 +62,7 @@ extern "C" {
 
     	// import/allocate state
     	state = statemap.create("state.bin", true);
+    	state1 = statemap1.create("state.bin", true);
     	console.log("sim state %p should be size %d", state, sizeof(State));
     	//state_initialize();
     	console.log("initialized");
@@ -100,6 +115,7 @@ extern "C" {
     	
     	// export/free state
     	statemap.destroy(true);
+    	statemap1.destroy();
     
         return 0;
     }

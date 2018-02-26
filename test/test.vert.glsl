@@ -14,7 +14,7 @@ void main()
     vPos.xy += aOffset
     	+ (vec2(sin(time), cos(time)) * 0.1);
     
-    vPos.xy = vPos.xy * (gl_InstanceID / 100.0);
+    //vPos.xy = vPos.xy * (gl_InstanceID / 100.0);
     
     //vec2 offset = offsets[gl_InstanceID];
     //gl_Position = vec4(aPos.xy + offset, 0.0, 1.0);

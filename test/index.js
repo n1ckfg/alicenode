@@ -1,12 +1,21 @@
 const fastcall = require("fastcall")
 const express = require('express');
 const WebSocket = require('ws');
+const mmap = require("mmap-io");
 
 const http = require('http');
 const url = require('url');
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+
+function random (low, high) {
+    return Math.random() * (high - low) + low;
+}
+
+function randomInt (low, high) {
+    return Math.floor(Math.random() * (high - low) + low);
+}
 
 const libext = process.platform == "win" ? "dll" : "dylib";
 
@@ -80,6 +89,7 @@ server.listen(8080, function() {
 });
 
 
+
 const renderer = new fastcall.Library("alice."+libext);
 renderer.declare(`
 int setup();
@@ -89,6 +99,9 @@ res = renderer.interface.setup();
 console.log(res);
 
 function onframe() {
+
+	bufchange();
+
     let res = renderer.interface.frame()
     let t1 = getTime();
     let dt = t1-t;
@@ -121,6 +134,27 @@ function loadsim() {
 }
 loadsim();
 
+let statebuf
+{
+	const stats = fs.statSync("state.bin");
+	const fd = fs.openSync("state.bin", 'r+');
+	console.log(fd);
+	statebuf = mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
+	fs.closeSync(fd);
+	console.log(statebuf.byteLength, stats.size);
+	mmap.advise(statebuf, mmap.MADV_RANDOM);
+	
+	
+	//
+}
+function bufchange() {
+	let idx = randomInt(0, 100) * 8;
+	let v = statebuf.readFloatLE(idx);
+	v = v + 0.1;
+	if (v > 1.) v -= 2.;
+	statebuf.writeFloatLE(v, idx);
+}
+
 setInterval(function() {
 	if (sim) {
 		console.log("reloading");
@@ -130,5 +164,7 @@ setInterval(function() {
 	}	
 	loadsim();
 }, 3000)
+
+
 
 console.log("ok");
