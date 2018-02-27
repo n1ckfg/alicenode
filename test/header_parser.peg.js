@@ -60,7 +60,6 @@ initvalue = integer / null / true / false
 _ = [ \t\n\r]
 newline = [\n\r]
 
-
 true = ("true" / "TRUE") { return 1; }
 false = ("false" / "FALSE") { return 0; }
 null = ("null" / "NULL" / "nullptr") { return 0; }

@@ -156,6 +156,10 @@ function onframe() {
     fpsAvg += 0.1*(1./dt - fpsAvg);
     
     send_all_clients("fps: " + Math.floor(fpsAvg));
+    send_all_clients(statebuf);
+    
+    send_all_clients(res);
+    
     return res
 }
 
@@ -188,7 +192,7 @@ function bufchange() {}
 }
 
 function bufchange() {
-	let idx = randomInt(0, 100) * 8;
+	let idx = randomInt(0, 10) * 8;
 	let v = statebuf.readFloatLE(idx);
 	v = v + 0.1;
 	if (v > 1.) v -= 2.;

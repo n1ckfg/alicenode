@@ -27,7 +27,7 @@ State * state1;
 Mmap<State> statemap1;
 
 void onFrame() {
-	int i = rnd::integer(100);
+	int i = rnd::integer(NUM_TRIS);
 	float y = state1->translations[i].y;
 	y = y + 0.1f;
 	if (y > 1.) y -= 2.;
@@ -35,7 +35,7 @@ void onFrame() {
 	
 	// update GPU;
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &state->translations[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * NUM_TRIS, &state->translations[0], GL_STATIC_DRAW);
 	
 
 	shader_test->use();
@@ -44,12 +44,12 @@ void onFrame() {
     glBindVertexArray(VAO);
     // offset, vertex count
     //glDrawArrays(GL_TRIANGLES, 0, 3);
-    // draw 100 instances:
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 100);  
+    // draw instances:
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 3, NUM_TRIS);  
 }
 
 void state_initialize() {
-	for (int i=0; i<100; i++) {
+	for (int i=0; i<NUM_TRIS; i++) {
 		state->translations[i] = glm::diskRand(1.f);
 	}
 }
@@ -92,7 +92,7 @@ extern "C" {
 
 			glGenBuffers(1, &instanceVBO);
 			glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &state->translations[0], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * NUM_TRIS, &state->translations[0], GL_STATIC_DRAW);
 	
 			glEnableVertexAttribArray(2);
 			// attr location, element size & type, normalize?, source stride & offset

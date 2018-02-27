@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>websocket client example</title>
+    <title></title>
 </head>
 <body>
     
@@ -20,6 +20,8 @@
     
     <p id="fps"></p>
     <pre id="state"></pre>
+    
+    <pre id="data"></pre>
 
     <ul id="messages"></ul>
 
@@ -53,10 +55,13 @@
                     //log(encodeHexString(new Uint8Array(e.data)));
                     log("size: " + e.data.byteLength + " bytes");
                     
+                    let s = "";
                     let fv = new Float32Array(e.data);
                     for (var i = 0; i < fv.length; i+=2) {
-  						log(i + ": { " + fv[i] + ", " + fv[i+1] + " }");
+  						s += "<li>" + (i/2 + ": { " + fv[i] + ", " + fv[i+1] + " }</li>");
 					}
+					
+					document.getElementById('state').innerHTML = s;
                     
                 } else {
 					if (e.data.substring(0,4) == "fps:") {
