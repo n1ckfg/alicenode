@@ -3,6 +3,7 @@
 
 #ifdef  _MSC_VER
 #define AL_WIN
+#include <Windows.h>
 #define AL_EXPORT __declspec(dllexport)
 #endif 
 

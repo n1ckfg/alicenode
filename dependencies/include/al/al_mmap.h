@@ -9,8 +9,11 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
+
+#ifdef AL_OSX
 #include <unistd.h>
+#include <sys/mman.h>
+#endif
 
 
 template<typename T>
