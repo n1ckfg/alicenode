@@ -19,6 +19,7 @@
     </p>
     
     <p id="fps"></p>
+    <pre id="state"></pre>
 
     <ul id="messages"></ul>
 
@@ -31,7 +32,7 @@
             log('opening');
             var url = document.getElementById('server').value;
             ws = new WebSocket(ws_url);
-            ws.binaryType = 'arraybuffer'; // default is 'blob'
+            ws.binaryType = 'arraybuffer';
             ws.onopen = function() {
                 log('open');
                 sessionStorage.echoServer = url;
@@ -40,17 +41,28 @@
                 log('close');
             };
             ws.onmessage = function(e) {
-                if (e.data instanceof Blob) {
+                /*if (e.data instanceof Blob) {
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
                     };
                     reader.readAsArrayBuffer(e.data);
-                } else if (e.data instanceof ArrayBuffer) {
-                    log('received array buffer: ' + encodeHexString(new Uint8Array(e.data)));
+                } else */
+                if (e.data instanceof ArrayBuffer) {
+                    log('received array buffer: ');
+                    //log(encodeHexString(new Uint8Array(e.data)));
+                    log("size: " + e.data.byteLength + " bytes");
+                    
+                    let fv = new Float32Array(e.data);
+                    for (var i = 0; i < fv.length; i+=2) {
+  						log(i + ": { " + fv[i] + ", " + fv[i+1] + " }");
+					}
+                    
                 } else {
 					if (e.data.substring(0,4) == "fps:") {
 						document.getElementById('fps').innerHTML = e.data;
+					} else if (e.data.substring(0,6) == "state:") {
+						document.getElementById('state').innerHTML = e.data;
 					} else {
 					
 						log('received: ' + e.data);

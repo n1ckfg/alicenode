@@ -21,6 +21,8 @@ const libext = process.platform == "win" ? "dll" : "dylib";
 
 const client_path = path.join(__dirname, "client");
 
+let state_h = fs.readFileSync("state.h", "utf8");
+
 // report status:
 process.on("exit", function(m) { console.log("server closing"); });
 
@@ -31,6 +33,8 @@ function getTime() {
 let t = getTime();
 let framecount = 0;
 let fpsAvg = 0;
+
+let statebuf;
 
 // create an HTTP server
 // using express to serve html files easily
@@ -81,6 +85,10 @@ wss.on('connection', function(ws, req) {
 
 		// tell git-in-vr to push the atomic commits?
 	});
+	
+	// send a handshake?
+	ws.send("state:"+state_h);
+	ws.send(statebuf);
 	
 });
 
@@ -134,7 +142,6 @@ function loadsim() {
 }
 loadsim();
 
-let statebuf
 {
 	const stats = fs.statSync("state.bin");
 	const fd = fs.openSync("state.bin", 'r+');
@@ -155,6 +162,7 @@ function bufchange() {
 	statebuf.writeFloatLE(v, idx);
 }
 
+/*
 setInterval(function() {
 	if (sim) {
 		console.log("reloading");
@@ -164,7 +172,7 @@ setInterval(function() {
 	}	
 	loadsim();
 }, 3000)
-
+*/
 
 
 console.log("ok");
