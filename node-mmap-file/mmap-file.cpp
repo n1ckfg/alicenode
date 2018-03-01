@@ -136,6 +136,26 @@ void bufFreeCallback(char *p, void *hint) {
 #endif	
 }
 
+/*
+// sync writes changes to disk
+bool sync(void * shared, size_t size) {
+	if (!shared) return true;
+
+#ifdef MMAP_FILE_WIN 
+		if (!FlushViewOfFile(shared, 0)) {
+			console.error(GetLastErrorAsString()); 
+			return false;
+		}
+#else
+		if (msync(shared, size), MS_SYNC) == -1) {
+			console.error("Could not sync the file to disk");
+			return false;
+		}
+#endif 
+	return true;
+}
+*/
+
 // "buf.txt" [, "r"]
 // "buf.txt", "r+"
 NAN_METHOD(openSync) {
