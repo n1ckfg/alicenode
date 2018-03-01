@@ -126,13 +126,11 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 }
 
 void bufFreeCallback(char *p, void *hint) {
-	size_t size = (size_t)hint;
-	printf("bye %p %d\n", p, size);
-	
+	//printf("bye %p %d\n", p, size);
 #ifdef MMAP_FILE_WIN
 	UnmapViewOfFile(p);
 #else
-	munmap(p, size);
+	munmap(p, (size_t)hint);
 #endif	
 }
 
@@ -184,7 +182,7 @@ NAN_METHOD(openSync) {
 	if (readWrite) p[0] = 'y';
 	
 	
-	printf("path %s %d size %d rw %d p %p\n", *path, path.length(), (int)size, readWrite, p);
+	//printf("path %s %d size %d rw %d p %p\n", *path, path.length(), (int)size, readWrite, p);
 	
 	Nan::MaybeLocal<v8::Object> nanbuf = Nan::NewBuffer(p, size, bufFreeCallback, (void *)size);
 	
