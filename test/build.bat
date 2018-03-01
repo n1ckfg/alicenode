@@ -44,11 +44,15 @@ opengl32.lib
 
 @del alice.obj alice.exp
 
+dumpbin /exports alice.lib
+
 REM compile & link:
 cl /LD /W3 /EHsc /O2 ^
 /I ../dependencies/include ^
+alice.lib ^
 sim.cpp ^
-alice.lib
+user32.lib kernel32.lib shell32.lib gdi32.lib ^
+opengl32.lib 
 
 @del sim.obj sim.exp
 

@@ -1,9 +1,11 @@
-#include "alice.h"
+
+//#define GLAD_GL_IMPLEMENTATION
 
 #include "al/al_console.h"
 #include "al/al_math.h"
 #include "al/al_gl.h"
 #include "al/al_mmap.h"
+#include "alice.h"
 
 #include "state.h"
 

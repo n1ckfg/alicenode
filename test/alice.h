@@ -3,7 +3,7 @@
 
 #include "al/al_signals.h"
 
-struct Alice {
+struct AL_ALICE_EXPORT Alice {
 	
 	vdk::signal<void()> onFrame;
 		

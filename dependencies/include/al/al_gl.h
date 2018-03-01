@@ -3,7 +3,15 @@
 
 // note: GLAD header generated from http://glad2.dav1d.de
 // for OpenGL 4.1, Compatibility, header-only enabled
-
+// GLAD_GLAPI_EXPORT ensures that declspec(dllimport) or declspec(dllexport) is added to the gl functions
+#define GLAD_GLAPI_EXPORT
+#ifdef AL_IMPLEMENTATION
+	// if AL_IMPLEMENTATION is defined we are building the alice.dll
+	// GLAD_GLAPI_EXPORT_BUILD ensures that declspec(dllexport) is added to the gl functions
+	#define GLAD_GLAPI_EXPORT_BUILD
+	// GLAD_GL_IMPLEMENTATION ensures that the glLoader function implementations are also generated
+	#define GLAD_GL_IMPLEMENTATION
+#endif
 #include <glad/glad.h>
 
 #include <string>

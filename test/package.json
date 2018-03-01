@@ -12,7 +12,10 @@
     "cmake-js": "^3.6.2",
     "express": "^4.16.2",
     "fastcall": "^0.2.4",
-    "mmap-io": "^1.0.0",
     "ws": "^4.1.0"
+  },
+  "optionalDependencies": {
+    "mmap-io": "^1.0.0",
+    "node-filemap": "^1.0.2"
   }
 }

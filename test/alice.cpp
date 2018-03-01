@@ -1,5 +1,8 @@
 // define this in the "main" file only, to ensure only one implementation
-#define GLAD_GL_IMPLEMENTATION
+#define AL_IMPLEMENTATION
+
+
+
 #include "al/al_glfw.h"
 #include "al/al_console.h"
 #include "al/al_math.h"
@@ -33,7 +36,7 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 }
 
 
-extern "C" AL_EXPORT int frame() {
+extern "C" AL_ALICE_EXPORT int frame() {
     glfwPollEvents();
     glfwMakeContextCurrent(window.pointer);
     
@@ -61,7 +64,7 @@ extern "C" AL_EXPORT int frame() {
 }
 
 
-extern "C" AL_EXPORT int setup() {
+extern "C" AL_ALICE_EXPORT int setup() {
 	console.log("setup");
 	console.log("alice alice %p", &alice);
 

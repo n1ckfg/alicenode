@@ -1,7 +1,45 @@
 const fastcall = require("fastcall")
 const express = require('express');
 const WebSocket = require('ws');
-const mmap = require("mmap-io");
+
+// mmap-io currently broken on Windows
+let mmap_open;
+if (process.platform == "win32") {
+	let mmap = require("node-filemap");
+	
+	mmap_open = function(path) {
+		const stats = fs.statSync(path);
+		const fd = fs.openSync(path, 'r+');
+		let map = mmap.FileMapping();
+		map.createMapping(path, path, stats.size);
+
+		let buf = Buffer.alloc(stats.size)
+		map.readInto(
+		  0,         // What byte offset to start reading from
+		  20,        // How many bytes to read
+		  buf);   // A buffer object to read into
+		
+		
+		mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
+		fs.closeSync(fd);
+		console.log(statebuf.byteLength, stats.size);
+		mmap.advise(statebuf, mmap.MADV_RANDOM);
+		return buf;
+	}
+
+} else {
+	let mmap = require("mmap-io");
+
+	mmap_open = function(path) {
+		const stats = fs.statSync(path);
+		const fd = fs.openSync(path, 'r+');
+		let buf = mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
+		fs.closeSync(fd);
+		console.log(statebuf.byteLength, stats.size);
+		mmap.advise(statebuf, mmap.MADV_RANDOM);
+		return buf;
+	}
+}
 
 const http = require('http');
 const url = require('url');
@@ -17,7 +55,7 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
-const libext = process.platform == "win" ? "dll" : "dylib";
+const libext = process.platform == "win32" ? "dll" : "dylib";
 
 const client_path = path.join(__dirname, "client");
 
@@ -142,18 +180,13 @@ function loadsim() {
 }
 loadsim();
 
+function bufchange() {}
+
+/*
 {
-	const stats = fs.statSync("state.bin");
-	const fd = fs.openSync("state.bin", 'r+');
-	console.log(fd);
-	statebuf = mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
-	fs.closeSync(fd);
-	console.log(statebuf.byteLength, stats.size);
-	mmap.advise(statebuf, mmap.MADV_RANDOM);
-	
-	
-	//
+	statebuf = mmap_open("state.bin");
 }
+
 function bufchange() {
 	let idx = randomInt(0, 100) * 8;
 	let v = statebuf.readFloatLE(idx);
@@ -162,7 +195,8 @@ function bufchange() {
 	statebuf.writeFloatLE(v, idx);
 }
 
-/*
+*/
+
 setInterval(function() {
 	if (sim) {
 		console.log("reloading");
@@ -172,7 +206,6 @@ setInterval(function() {
 	}	
 	loadsim();
 }, 3000)
-*/
 
 
 console.log("ok");

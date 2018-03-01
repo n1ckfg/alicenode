@@ -39,6 +39,44 @@ struct Mmap {
 		this->readWrite = readWrite;
 		console.log("mmap %s of size %d", path.c_str(), sizeof(T));
 		
+		#ifdef AL_WIN
+			HANDLE file = CreateFileA(path.c_str(), 
+				readWrite ? GENERIC_READ | GENERIC_WRITE : GENERIC_READ, // what I want to do with it
+				FILE_SHARE_READ | FILE_SHARE_WRITE, // what I want to allow others to do with it
+				NULL, // change this to allow child processes to inherit the handle
+				OPEN_ALWAYS, // how to proceed if file exists or does not exist: open if exists, create if it doesn't
+				FILE_ATTRIBUTE_NORMAL, // any special attributes
+				NULL
+			);
+			if (file == INVALID_HANDLE_VALUE) {
+				console.error("Error opening/creating file %s: %s", path.c_str(), GetLastErrorAsString()); 
+				return 0;
+			}
+
+			
+			mmap_handle = CreateFileMappingA(file, 
+				NULL, // change this to allow child processes to inherit the handle
+				readWrite ? PAGE_READWRITE : PAGE_READONLY, // what I want to do with it
+				0, sizeof(T), // size to map
+				NULL // name
+			); 
+			//mmap_handle = OpenFileMappingA(FILE_MAP_READ, FALSE, path);
+			if (!mmap_handle) {
+				console.error("Error mapping file %s: %s", path.c_str(), GetLastErrorAsString()); 
+				CloseHandle(file);
+				return 0;
+			}
+			
+			shared = (T *)MapViewOfFile(mmap_handle, readWrite ? FILE_MAP_WRITE : FILE_MAP_READ, 0, 0, sizeof(T));
+			if (!shared) {
+				CloseHandle(file);
+				CloseHandle(mmap_handle);
+				mmap_handle = NULL;
+				console.error("Error mapping view of file %s: %s", path.c_str(), GetLastErrorAsString()); 
+				return 0;
+			}	
+		#endif
+
 		#ifdef AL_OSX
 			// create:
 			fd = open(path.c_str(), readWrite ? O_CREAT | O_RDWR : O_RDONLY, 0666); // 0666 or 0644 or 0600?
@@ -88,23 +126,6 @@ struct Mmap {
 			}	
 			
 		#endif
-				
-		#ifdef AL_WIN
-			mmap_handle = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(T), name);
-			if (mmap_handle) {
-				shared = (T *)MapViewOfFile(mmap_handle, FILE_MAP_WRITE, 0, 0, sizeof(T));
-			}
-		#endif
-	
-	
-		// reader:
-		#ifdef AL_WIN
-			mmap_handle = OpenFileMappingA(FILE_MAP_READ, FALSE, "Inhabitat");
-			if (mmap_handle) {
-				shared = (T *)MapViewOfFile(mmap_handle, FILE_MAP_READ, 0, 0, sizeof(T));
-			}
-		#endif
-		
 		return shared;
 	}
 	
@@ -114,10 +135,20 @@ struct Mmap {
 	
 	// sync writes changes to disk
 	bool sync() {
-		if (readWrite && msync(shared, sizeof(T), MS_SYNC) == -1) {
-			console.error("Could not sync the file to disk");
-			return false;
-		}
+		if (!shared) return true;
+
+		#ifdef AL_WIN 
+			if (readWrite && !FlushViewOfFile(shared, 0)) {
+				console.error("Could not sync the file to disk: %s", GetLastErrorAsString()); 
+				return false;
+			}
+		#endif
+		#ifdef AL_OSX
+			if (readWrite && msync(shared, sizeof(T), MS_SYNC) == -1) {
+				console.error("Could not sync the file to disk");
+				return false;
+			}
+		#endif 
 		return true;
 	}
 	
@@ -125,14 +156,27 @@ struct Mmap {
 		if (!shared) return;
 		
 		if (doSync) sync();
+
+		#ifdef AL_WIN
+			if (mmap_handle) {
+				UnmapViewOfFile(shared);
+				shared = 0;
+			}
+			if (mmap_handle) {
+				CloseHandle(mmap_handle);
+				mmap_handle = 0;
+			}
+		#endif
 		
 		#ifdef AL_OSX
-		// Don't forget to free the mmapped memory
-		if (munmap(shared, sizeof(T)) == -1) {
-			console.error("Error un-mmapping the file");
-		}
-		close(fd);
-		fd = -1;
+			// Don't forget to free the mmapped memory
+			if (munmap(shared, sizeof(T)) == -1) {
+				console.error("Error un-mmapping the file");
+			}
+			if (fd > 0) {
+				close(fd);
+				fd = -1;
+			}
 		#endif
 		
 		shared = 0;

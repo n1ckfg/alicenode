@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "system_error": "cpp",
+        "xlocale": "cpp",
+        "fstream": "cpp",
+        "exception": "cpp",
+        "functional": "cpp",
+        "memory": "cpp",
+        "istream": "cpp",
+        "streambuf": "cpp"
+    }
+}
