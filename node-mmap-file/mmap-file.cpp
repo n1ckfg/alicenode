@@ -15,6 +15,14 @@
 #ifdef  _MSC_VER
 	#define MMAP_FILE_WIN
 	#include <Windows.h>
+	
+	const char * GetLastErrorAsString() {
+        static char buf[256];
+        FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+                buf, sizeof(buf), NULL);
+        return buf;
+    }
 #else
 	#include <unistd.h>
 	#include <sys/mman.h>
@@ -35,7 +43,7 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 		NULL
 	);
 	if (file == INVALID_HANDLE_VALUE) {
-		console.error("Error opening/creating file %s: %s", path, GetLastErrorAsString()); 
+		Nan::ThrowError("Error opening/creating file %s: %s", path, GetLastErrorAsString()); 
 		return 0;
 	}
 
@@ -48,8 +56,8 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 	); 
 	//mmap_handle = OpenFileMappingA(FILE_MAP_READ, FALSE, path);
 	if (!mmap_handle) {
-		console.error("Error mapping file %s: %s", path, GetLastErrorAsString()); 
 		CloseHandle(file);
+		Nan::ThrowError("Error mapping file %s: %s", path, GetLastErrorAsString()); 
 		return 0;
 	}
 	
@@ -57,7 +65,7 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 	if (!shared) {
 		CloseHandle(file);
 		CloseHandle(mmap_handle);
-		console.error("Error mapping view of file %s: %s", path, GetLastErrorAsString()); 
+		Nan::ThrowError("Error mapping view of file %s: %s", path, GetLastErrorAsString()); 
 		return 0;
 	}
 	CloseHandle(file);
