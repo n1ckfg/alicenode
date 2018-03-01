@@ -43,7 +43,7 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 		NULL
 	);
 	if (file == INVALID_HANDLE_VALUE) {
-		Nan::ThrowError("Error opening/creating file %s: %s", path, GetLastErrorAsString()); 
+		Nan::ThrowError(GetLastErrorAsString()); 
 		return 0;
 	}
 
@@ -57,7 +57,7 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 	//mmap_handle = OpenFileMappingA(FILE_MAP_READ, FALSE, path);
 	if (!mmap_handle) {
 		CloseHandle(file);
-		Nan::ThrowError("Error mapping file %s: %s", path, GetLastErrorAsString()); 
+		Nan::ThrowError(GetLastErrorAsString()); 
 		return 0;
 	}
 	
@@ -65,7 +65,7 @@ char * create_map(const char * path, size_t size, bool readWrite) {
 	if (!shared) {
 		CloseHandle(file);
 		CloseHandle(mmap_handle);
-		Nan::ThrowError("Error mapping view of file %s: %s", path, GetLastErrorAsString()); 
+		Nan::ThrowError(GetLastErrorAsString()); 
 		return 0;
 	}
 	CloseHandle(file);
