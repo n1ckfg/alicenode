@@ -78,8 +78,12 @@ let statebuf;
 // using express to serve html files easily
 const app = express();
 //app.use(function (req, res) { res.send({ msg: "hello" }); });
+app.use(express.static(client_path))
 app.get('/', function(req, res) {
     res.sendFile(path.join(client_path, 'index.html'));
+});
+app.get('*', function(req, res) {
+    console.log(req);
 });
 const server = http.createServer(app);
 
@@ -105,8 +109,14 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
-		console.log("message", message, typeof message);
-		
+		let q = message.indexOf("?");
+		if (q > 0) {
+			let cmd = message.substring(0, q);
+			let arg = message.substring(q+1);
+			console.log("cmd", cmd, "arg", arg);
+		} else {
+			console.log("message", message, typeof message);
+		}
 	});
 	
 	ws.on('error', function (e) {
@@ -125,8 +135,9 @@ wss.on('connection', function(ws, req) {
 	});
 	
 	// send a handshake?
-	ws.send("state:"+state_h);
+	ws.send("state?"+state_h);
 	ws.send(statebuf);
+	ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
 	
 });
 
@@ -155,12 +166,12 @@ function onframe() {
     framecount++;
     fpsAvg += 0.1*(1./dt - fpsAvg);
     
-    send_all_clients("fps: " + Math.floor(fpsAvg));
+    send_all_clients("fps?" + Math.floor(fpsAvg));
     send_all_clients(statebuf);
     
-    send_all_clients(res);
+    //send_all_clients(res);
     
-    return res
+    return res;  // 0 means close the window
 }
 
 // fast version:
@@ -210,6 +221,5 @@ setInterval(function() {
 	}	
 	loadsim();
 }, 3000)
-
 
 console.log("ok");

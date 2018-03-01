@@ -3,6 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title></title>
+<link rel="stylesheet" href="cm/codemirror.css">
+<script src="cm/codemirror.js"></script>
+<script src="cm/modes/javascript.js"></script>
+<script src="cm/modes/clike.js"></script>
+<script src="cm/modes/glsl.js"></script>
 </head>
 <body>
     
@@ -20,14 +25,19 @@
     
     <p id="fps"></p>
     <pre id="state"></pre>
-    
     <pre id="data"></pre>
-
+	<textarea id="editor"></textarea>
+	<button onclick="sendCode()">Send Code</button>
     <ul id="messages"></ul>
 
     <script>
 		var ws_url = "ws://" + window.location.host;
 		document.getElementById('server').value = ws_url;
+		
+		var editorCM = CodeMirror.fromTextArea(document.getElementById('editor'), {
+			lineNumbers: true,
+			mode: "clike"
+		});
 		
         var ws;
         function openSocket() {
@@ -51,9 +61,8 @@
                     reader.readAsArrayBuffer(e.data);
                 } else */
                 if (e.data instanceof ArrayBuffer) {
-                    log('received array buffer: ');
                     //log(encodeHexString(new Uint8Array(e.data)));
-                    log("size: " + e.data.byteLength + " bytes");
+                    //log("received arraybuffer size: " + e.data.byteLength + " bytes");
                     
                     let s = "";
                     let fv = new Float32Array(e.data);
@@ -64,10 +73,25 @@
 					document.getElementById('state').innerHTML = s;
                     
                 } else {
-					if (e.data.substring(0,4) == "fps:") {
-						document.getElementById('fps').innerHTML = e.data;
-					} else if (e.data.substring(0,6) == "state:") {
-						document.getElementById('state').innerHTML = e.data;
+                	let message = e.data;
+                	let q = message.indexOf("?");
+					if (q > 0) {
+						let cmd = message.substring(0, q);
+						let arg = message.substring(q+1);
+                		switch(cmd) {
+                		case "fps":
+                			document.getElementById('fps').innerHTML = arg;
+                			break;
+                		case "edit":
+                			editorCM.setValue(arg);
+                			break;
+                		case "state":
+                			document.getElementById('state').innerHTML = arg;
+                			break;
+                		default:
+                			log("cmd: " + cmd + ", " + arg);
+                		}
+                
 					} else {
 					
 						log('received: ' + e.data);
@@ -87,6 +111,12 @@
 		setInterval(function(){
 			 if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 		}, 2000);
+		
+		function sendCode() {
+            var message = "edit?" + editorCM.getValue();
+            //log('sending: ' + message);
+            ws.send(message);
+        }
 		
         function sendText() {
             var message = document.getElementById('message').value;
