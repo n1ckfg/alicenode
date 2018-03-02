@@ -1,45 +1,7 @@
 const fastcall = require("fastcall")
 const express = require('express');
 const WebSocket = require('ws');
-
-// mmap-io currently broken on Windows
-let mmap_open;
-if (process.platform == "win32") {
-	let mmap = require("node-filemap");
-	
-	mmap_open = function(path) {
-		const stats = fs.statSync(path);
-		const fd = fs.openSync(path, 'r+');
-		let map = mmap.FileMapping();
-		map.createMapping(path, path, stats.size);
-
-		let buf = Buffer.alloc(stats.size)
-		map.readInto(
-		  0,         // What byte offset to start reading from
-		  20,        // How many bytes to read
-		  buf);   // A buffer object to read into
-		
-		
-		mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
-		fs.closeSync(fd);
-		console.log(statebuf.byteLength, stats.size);
-		mmap.advise(statebuf, mmap.MADV_RANDOM);
-		return buf;
-	}
-
-} else {
-	let mmap = require("mmap-io");
-
-	mmap_open = function(path) {
-		const stats = fs.statSync(path);
-		const fd = fs.openSync(path, 'r+');
-		let buf = mmap.map(stats.size, mmap.PROT_WRITE, mmap.MAP_SHARED, fd, 0);
-		fs.closeSync(fd);
-		console.log(statebuf.byteLength, stats.size);
-		mmap.advise(statebuf, mmap.MADV_RANDOM);
-		return buf;
-	}
-}
+const mmapfile = require('mmapfile');
 
 const http = require('http');
 const url = require('url');
@@ -195,12 +157,11 @@ function loadsim() {
 }
 loadsim();
 
-function bufchange() {}
 
-/*
-{
-	statebuf = mmap_open("state.bin");
-}
+
+statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
+console.log("mapped state.bin, size "+statebuf.byteLength);
+
 
 function bufchange() {
 	let idx = randomInt(0, 10) * 8;
@@ -209,8 +170,6 @@ function bufchange() {
 	if (v > 1.) v -= 2.;
 	statebuf.writeFloatLE(v, idx);
 }
-
-*/
 
 setInterval(function() {
 	if (sim) {
