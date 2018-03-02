@@ -8,6 +8,7 @@ const url = require('url');
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { exec, spawn } = require('child_process');
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -18,6 +19,7 @@ function randomInt (low, high) {
 }
 
 const libext = process.platform == "win32" ? "dll" : "dylib";
+const batext = process.platform == "win32" ? "bat" : "sh";
 
 const client_path = path.join(__dirname, "client");
 
@@ -97,9 +99,9 @@ wss.on('connection', function(ws, req) {
 	});
 	
 	// send a handshake?
-	ws.send("state?"+state_h);
-	ws.send(statebuf);
-	ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
+	//ws.send("state?"+state_h);
+	//ws.send(statebuf);
+	//ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
 	
 });
 
@@ -147,13 +149,26 @@ function onframeFast() {
 setInterval(onframe, 1000/120);
 
 let sim;
+function unloadsim() {
+	if (sim && sim.interface) {
+		// null the global sim variable to prevent double-unloading
+		const lib = sim;
+		sim = null;
+		console.log("sim unloading");
+		lib.interface.onunload();
+		lib.release();
+		console.log("sim released");
+	}
+}
 function loadsim() {
-	sim = new fastcall.Library("sim."+libext);
-	sim.declare(`
+	let lib = new fastcall.Library("sim."+libext);
+	lib.declare(`
 	int onload();
 	int onunload();
 	`);
-	console.log(sim.interface.onload());
+	console.log(lib.interface.onload());
+	// make it public
+	sim = lib;
 }
 loadsim();
 
@@ -171,14 +186,49 @@ function bufchange() {
 	statebuf.writeFloatLE(v, idx);
 }
 
-setInterval(function() {
-	if (sim) {
-		console.log("reloading");
-		sim.interface.onunload();
-		sim.release();
-		console.log("released");
-	}	
-	loadsim();
-}, 3000)
+// would be better to be able to use a dependency tracer,
+// so that any file that sim.cpp depends on also triggers.
+fs.watch('sim.cpp', (ev, filename) => {
+	if (ev == "change") {
+		console.log(ev, filename);
+		if (sim) {
+			// first have to unload the current sim, to release the lock on the dll:
+			{
+				// null the global sim variable to prevent double-unloading
+				const lib = sim;
+				sim = null;
+				console.log("sim unloading");
+				lib.interface.onunload();
+				lib.release();
+				console.log("sim released");
+			}
 
-console.log("ok");
+			// next call out to a script to rebuild it:
+			let make = spawn("make_sim." + batext, ["sim.cpp"]);
+			//make.stdout.on("data", function(data) { console.log(data.toString());});
+			//make.stderr.on("data", function(data) { console.log(data.toString());});
+			make.stdout.pipe(process.stdout);
+			make.stderr.pipe(process.stderr);
+			// when it's done, load the new dll back in:
+			make.on('exit', function (code) {
+				console.log("built sim exit code", code);
+				loadsim();
+			});
+		}
+	}
+});
+
+/*
+// nodemon is doing this already
+fs.watchFile('index.js', (curr, prev) => {
+	console.log(`the current mtime is: ${curr.mtime}`);
+	console.log(`the previous mtime was: ${prev.mtime}`);
+
+	if (curr.mtime > prev.mtime) {
+		process.exit();
+	}
+});*/
+
+//setInterval(loadsim, 3000)
+
+console.log("okay");

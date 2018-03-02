@@ -2,30 +2,15 @@
 
 REM set up a local environment for this batch file
 @setlocal
-REM with the necessary msbuild/visual studio environment variables
-REM TODO test for VS2017 also?
-@if exist "%VS150COMNTOOLS%vsvars32.bat" (
-    call "%VS150COMNTOOLS%vsvars32.bat"
-) else (
-    echo Can't find the Visual Studio build tools
-)
 
-REM load Visual Studio 2017 developer command prompt if VS150COMNTOOLS is not set
-:: If this is not set, VsDevCmd.bat will change %cd% to [USERPROFILE]\source, causing the build to fail.
+REM load Visual Studio 2017 developer command prompt
+REM If this is not set, VsDevCmd.bat will change %cd% to [USERPROFILE]\source, causing the build to fail.
 SET VSCMD_START_DIR=%cd%
-
-if "%VS150COMNTOOLS%" EQU "" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" (
-    call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-)
-if "%VS150COMNTOOLS%" EQU "" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat" (
-    call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvars64.bat"
-)
-if "%VS150COMNTOOLS%" EQU "" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat" (
-    call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-)
-if "%VS150COMNTOOLS%" EQU "" if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat" (
-    call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-)
+SET VCVARS64=VC\Auxiliary\Build\vcvars64.bat
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\%VCVARS64%"
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\%VCVARS64%"
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\%VCVARS64%"
+if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%"
 
 
 REM switch to 64-bit?
@@ -61,4 +46,4 @@ REM put things back
 @endlocal
 
 REM alice.exe
-node index.js
+node start.js
