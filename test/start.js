@@ -1,7 +1,29 @@
 #!/usr/bin/env node
 
+const { exec, spawn, fork } = require('child_process');
+
 const nodemon = require('nodemon');
 const app = "index.js";
+
+/*
+var fn = process.stdout.write;
+process.stdout.write = function write() {
+  fn.apply(process.stdout, arguments);
+  fn.apply(process.stdout, arguments);
+}
+
+let server = spawn("node", ["index.js"]);
+server.stdout.on('data', (data) => {
+	console.log(`stdout: ${data}`);
+});
+server.stderr.on('data', (data) => {
+	console.log(`stderr: ${data}`);
+});
+server.on('close', (code) => {
+	console.log(`child process exited with code ${code}`);
+});
+*/
+
 
 nodemon({ script: app });
 nodemon.on('start', function () {

@@ -1,3 +1,34 @@
+/*
+
+What this script does:
+
+- loads the alice service (dll or exe?) and obtains an FFI
+	- triggers a setup event (which is what main() would do in alice.exe)
+	- triggers frame events on alice (couldn't this be managed within alice.exe?)
+	- LATER: send more sporadic messages (maybe via stdio, pipe, etc. instead)
+- loads the app as dll 
+	- obtains FFI for onload/onunload
+	- watches for changes to the app source code and unloads/recompiles/loads accordingly
+	- using bat/sh/node scripts? to recompile
+	- triggering onload/onunload within the app dll
+- also obtains an mmap buffer to directly modify the app state struct
+	- proves that it can do so
+- creates an http server that serves content in /client
+	- adds a websocket to it for continuous communication with browser
+	- including sending the app's state struct header, state buffer, source code...
+	- TODO: pipe stdout/err to browser too; launching as alice.exe would make that easier. 
+	
+- TODO: restart alice/this script on errors... e.g. launch via nodemon
+
+In short:
+
+1. load the main services & get them started
+2. load the app dll and hot reload as needed
+3. expose a web interface onto the app state (mmap) & source (recompile)
+
+Node/webclient is thus acting a bit like a debugger. 
+
+*/
 const fastcall = require("fastcall")
 const express = require('express');
 const WebSocket = require('ws');
@@ -8,7 +39,7 @@ const url = require('url');
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
-const { exec, spawn } = require('child_process');
+const { exec, spawn, fork } = require('child_process');
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -19,7 +50,6 @@ function randomInt (low, high) {
 }
 
 const libext = process.platform == "win32" ? "dll" : "dylib";
-const batext = process.platform == "win32" ? "bat" : "sh";
 
 const client_path = path.join(__dirname, "client");
 
@@ -77,7 +107,14 @@ wss.on('connection', function(ws, req) {
 		if (q > 0) {
 			let cmd = message.substring(0, q);
 			let arg = message.substring(q+1);
-			console.log("cmd", cmd, "arg", arg);
+			switch(cmd) {
+			case "edit": 
+				//console.log(arg);
+				fs.writeFileSync("sim.cpp", arg, "utf8");
+				break;
+			default:
+				console.log("unknown cmd", cmd, "arg", arg);
+			}
 		} else {
 			console.log("message", message, typeof message);
 		}
@@ -99,9 +136,9 @@ wss.on('connection', function(ws, req) {
 	});
 	
 	// send a handshake?
-	//ws.send("state?"+state_h);
-	//ws.send(statebuf);
-	//ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
+	ws.send("state?"+state_h);
+	ws.send(statebuf);
+	ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
 	
 });
 
@@ -109,7 +146,9 @@ server.listen(8080, function() {
 	console.log('server listening on %d', server.address().port);
 });
 
-
+process.stdout.on('data', function() {
+	console.log("-");
+});
 
 const renderer = new fastcall.Library("alice."+libext);
 renderer.declare(`
@@ -202,9 +241,13 @@ fs.watch('sim.cpp', (ev, filename) => {
 				lib.release();
 				console.log("sim released");
 			}
+			
+			send_all_clients("edit?"+fs.readFileSync("sim.cpp", "utf8"));
 
 			// next call out to a script to rebuild it:
-			let make = spawn("make_sim." + batext, ["sim.cpp"]);
+			let make = process.platform == "win32"
+				? spawn("make_sim.bat", ["sim.cpp"]) 
+				: spawn("sh", ["make_sim.sh", "sim.cpp"]);
 			//make.stdout.on("data", function(data) { console.log(data.toString());});
 			//make.stderr.on("data", function(data) { console.log(data.toString());});
 			make.stdout.pipe(process.stdout);

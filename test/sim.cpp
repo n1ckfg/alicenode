@@ -1,6 +1,3 @@
-
-//#define GLAD_GL_IMPLEMENTATION
-
 #include "al/al_console.h"
 #include "al/al_math.h"
 #include "al/al_gl.h"
@@ -17,7 +14,7 @@ unsigned int instanceVBO;
 float vertices[] = {
     -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+     0.0f,  0.9f, 0.0f
 };
 
 State * state;
@@ -29,8 +26,9 @@ Mmap<State> statemap1;
 void onFrame() {
 	int i = rnd::integer(NUM_TRIS);
 	float y = state1->translations[i].y;
-	y = y + 0.1f;
+	y = y + 0.2f;
 	if (y > 1.) y -= 2.;
+	if (y < 0.) y += 2.;
 	state1->translations[i].y = y;
 	
 	// update GPU;

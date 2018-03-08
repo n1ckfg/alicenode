@@ -72,6 +72,7 @@ struct Window {
 			glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 			glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
 			glfwWindowHint(GLFW_AUTO_ICONIFY, GL_TRUE);
+			glfwWindowHint(GLFW_FOCUSED, GL_FALSE); // don't grab focus, it's annoying
 		}
 		
 		// try to create it:
