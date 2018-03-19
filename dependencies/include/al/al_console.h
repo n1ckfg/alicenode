@@ -12,7 +12,7 @@ struct Console {
 #endif 
 	
 	Console() {
-		printf("Console()\n");
+		//printf("Console()\n");
 #ifdef AL_WIN
 		console_mutex = CreateMutex(
 			NULL,              // default security attributes
