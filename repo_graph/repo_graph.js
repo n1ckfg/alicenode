@@ -26,7 +26,7 @@ watcher.on('change', function(file, stat) {
 
 
 if( process.argv[2] == null ){
-console.log("no repo specified, using: " + __dirname, "\ntry: node make_git_gv.git <path>")
+console.log("no repo specified, using: " + __dirname, "\ntry: node repo_graph.js <path>")
 
 //get the commit history and parents. check the 'git-big-picture' repo for all settings. later on if we want we can customize the output so it 
 //only shows certain commits. 
