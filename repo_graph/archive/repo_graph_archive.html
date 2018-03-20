@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+   
+   <style>
+
+g.node,
+g.edge {
+    cursor: pointer;
+}
+</style>
+
+
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Repository Vizualization for Vr-in-vr</title>
+    <head>
+    <body>
+
+    	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!--dynamically load an svg file from the folder. BUT having trouble now 
+interacting with it using js and html, with tooltips...-->
+
+    <!--    <object type="image/svg+xml" data="repo_graph.svg" onload="init(evt)"> </object>.  -->
+
+<div class="svgload" style="width: 10px; height: 10px;"></div>
+
+
+<script type="text/javascript" src="../_public/_jquery/jquery-1.7.1.js"></script>       
+<script type="text/javascript" src="jquery.svg.min.js"></script>
+<script type="text/javascript">
+    $("document").ready(function(){
+
+      $('.svgload').on('click', function() {
+          alert('clicked svg new');
+      }).svg({loadURL: '/repo_graph.svg'});
+
+    });
+</script>
+
+
+    </body>
+</html>

@@ -4,14 +4,14 @@ var exec = require('child-process-promise').exec;
 var filewatcher = require('filewatcher');
 
 
-/* next step(s) here is to point this code below to watch the directory specified in the process.argv[2] so that it automates the 
-making of the graphs whenever a commit is made
+// next step(s) here is to point this code below to watch the directory specified in the process.argv[2] so that it automates the 
+//making of the graphs whenever a commit is made
 
 
 var watcher = filewatcher();
 var child;
 
-watcher.add(__dirname + "/.git/objects");
+watcher.add(process.argv[2] + "/.git/objects");
 
 watcher.on('change', function(file, stat) {
 //test commit
@@ -21,8 +21,17 @@ watcher.on('change', function(file, stat) {
 });("node makedag.js")
 
 
-*/
 
+//run the http server for the repo_graph.html to access the .svg file
+exec('http-server --cors=\'repo_graph.html\' -p 8081', (err, stdout, stderr) => {
+
+	console.log(stderr)
+	console.log(err);
+
+
+
+}
+	);
 
 
 if( process.argv[2] == null ){
