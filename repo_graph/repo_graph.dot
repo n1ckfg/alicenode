@@ -3,7 +3,8 @@ bgcolor="transparent";
 rankdir="LR";
 node[width=0.15,height=0.15,shape=point,fontsize=8.0,labelloc="c"];
 edge[weight=2,arrowhead=normal,arrowsize=0.5];
-	"63de24f990b7fff4075c4aa1a4ad69a3b39aca85"[label="master\norigin/HEAD\norigin/master\n63de24f", color="/pastel18/2", style=filled, tooltip="master\norigin/HEAD\norigin/master\n63de24f"];
+	"63de24f990b7fff4075c4aa1a4ad69a3b39aca85"[label="origin/HEAD\norigin/master\n63de24f", color="/pastel18/2", style=filled, tooltip="origin/HEAD\norigin/master\n63de24f"];
+	"5d18ab266e1817cb1fe9fd9b777222770cfb4768"[label="master\n5d18ab2", color="/pastel18/2", style=filled, tooltip="master\n5d18ab2"];
 	"3f3604162d8b68a2a142b7a9408d26c03ec2ad2d"[label="3f36041"];
 	"170851eba936407c28eb27736db4d9782d999871"[label="170851e"];
 	"4c2edcef00d4d9a3857c1230732a0994b03e35bf"[label="4c2edce"];
@@ -77,4 +78,5 @@ edge[weight=2,arrowhead=normal,arrowsize=0.5];
 	"0334f1c216667bae67b41bf22b97caaeff3b2c58" -> "0065dea78c9b22c4781b8a37a26c88098d1887e4";
 	"9568eca5b01e96a0a5986f0d0adb881678e6e0bf" -> "4c2edcef00d4d9a3857c1230732a0994b03e35bf";
 	"b41a366b26d6089a619d1a9ba41e10d840099697" -> "f301de83f192cc7362de98ae466b327cc035b710";
+	"5d18ab266e1817cb1fe9fd9b777222770cfb4768" -> "63de24f990b7fff4075c4aa1a4ad69a3b39aca85";
 }
