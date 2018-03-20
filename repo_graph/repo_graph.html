@@ -72,13 +72,20 @@
                      //           alert("you entered yeah");
                        //         })
 
-                        $(document).on("click",".appDetails", function () {
-                        var clickedBtnID = $(this).attr(gv); // or var clickedBtnID = this.id
-                        alert('you clicked on button #' + clickedBtnID);
-                        });
+                       // $(document).on("click",".appDetails", function () {
+                       // var clickedBtnID = $(this).id; // or var clickedBtnID = this.id
+                       // alert('you clicked on button #' + clickedBtnID);
+                       // });
+
+                       $('svg').click(function(){
+                            alert('element id is: '+this.title);
+
+                               });
 
                         $(document).keydown(function (evt) {
                             if (evt.keyCode == 27) {
+                                                            alert('element id is: '+this.title);
+
                                 gv.highlight()
                             }
                         })

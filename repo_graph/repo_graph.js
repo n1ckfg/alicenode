@@ -3,67 +3,57 @@ var exec = require('child-process-promise').exec;
 
 var filewatcher = require('filewatcher');
 
-
-// next step(s) here is to point this code below to watch the directory specified in the process.argv[2] so that it automates the 
-//making of the graphs whenever a commit is made
-
-
 var watcher = filewatcher();
 var child;
 
-watcher.add(process.argv[2] + "/.git/objects");
-
-watcher.on('change', function(file, stat) {
-//test commit
-	child = exec("node makedag.js")
-  console.log('File modified: %s', file);
-  if (!stat) console.log('deleted');
-});("node makedag.js")
-
-
-
 //run the http server for the repo_graph.html to access the .svg file
 exec('http-server --cors=\'repo_graph.html\' -p 8081', (err, stdout, stderr) => {
+	});
 
-	console.log(stderr)
-	console.log(err);
-
-
-
-}
-	);
-
-
+//make sure a target repo is specified in CLI arg, exit if null. 
 if( process.argv[2] == null ){
-console.log("no repo specified, using: " + __dirname, "\ntry: node repo_graph.js <path>")
-
-//get the commit history and parents. check the 'git-big-picture' repo for all settings. later on if we want we can customize the output so it 
-//only shows certain commits. 
-revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations ' + __dirname + ' > repo_graph.dot', (err, stdout, stderr) => {
-	//console.log(stdout);
-	//find names of branch heads
-
-	exec('dot -Tsvg repo_graph.dot -o repo_graph.svg', (err, stdout, stderr) => {
-
-	//	exec('open -a \"Chrome\" repo_graph.svg');
-
-				})
-		})
+console.log("ERROR: no repo specified\ntry: \'node repo_graph.js <path_of_target_repo>\'")
+process.exit(1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//If target repo provided as CLI arg, then watch the directory specified in the process.argv[2] so that it automates the 
+//making of the graphs whenever a commit is made
 
 else {
+	console.log("watching repo: " + process.argv[2])
 
-console.log("using: " + process.argv[2])
+	watcher.add(process.argv[2] + "/.git/objects");
 
-//get the commit history and parents. using only one branch for now (master)
-revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations ' + process.argv[2] + ' > repo_graph.dot', (err, stdout, stderr) => {
+	watcher.on('change', function(file, stat) {
+	
+	//generate a digraph of the updated git history
+	revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations ' + process.argv[2] + ' > repo_graph.dot', (err, stdout, stderr) => {
 
+		//convert the digraph to svg
+		exec('dot -Tsvg repo_graph.dot -o repo_graph.svg', (err, stdout, stderr) => {
 
-	exec('dot -Tsvg repo_graph.dot -o repo_graph.svg', (err, stdout, stderr) => {
-
-		//exec('open -a \"Chrome\" repo_graph.svg'); doesn't work with exec
 
 	})
+
+		  console.log('File modified: %s', file);
+			  if (!stat) console.log('deleted');
+
+			});//("node makedag.js")
+
+
+//get the commit history and parents. using only one branch for now (master)
+
 })
 
 

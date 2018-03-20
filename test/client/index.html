@@ -189,17 +189,17 @@
                   // highlight: "selected",
                     ready: function() {
                         var gv = this
-                        console.log(gv.nodesByName());
+                        //console.log(gv.nodesByName());
 
-                        gv.tooltip($elements, show);
-                        gv.highlight($nodesEdges, tooltips);
+                        //gv.tooltip($elements, show);
+                        console.log(gv.highlight());
 
                         gv.nodes().click(function () {
                             var $set = $()
                             $set.push(this)
                             $set = $set.add(gv.linkedFrom(this, true))
                             $set = $set.add(gv.linkedTo(this, true))
-                         //   gv.highlight($set, true)
+                            gv.highlight($set, true)
                        //     gv.bringToFront($set)
                          //   console.log(gv);
                         })
@@ -209,8 +209,10 @@
                        //         })
 
                         $(document).on("click",".appDetails", function () {
-                        var clickedBtnID = $(this).attr(gv); // or var clickedBtnID = this.id
+                        //var clickedBtnID = $(this).attr(gv.nodes()); // or var clickedBtnID = this.id
+                        var clickedBtnID = this.gv
                         alert('you clicked on button #' + clickedBtnID);
+                        console.log(clickedBtnID);
                         });
 
                         $(document).keydown(function (evt) {
