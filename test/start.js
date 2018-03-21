@@ -5,6 +5,13 @@ const { exec, spawn, fork } = require('child_process');
 const nodemon = require('nodemon');
 const app = "index.js";
 
+
+var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
+
+exec('node repo_graph.js ' + repo_folder, (err, stdout, stderr) => {
+
+console.log(stdout);
+	})
 /*
 var fn = process.stdout.write;
 process.stdout.write = function write() {

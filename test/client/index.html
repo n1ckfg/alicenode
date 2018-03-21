@@ -201,10 +201,22 @@
                             $set = $set.add(gv.linkedTo(this, true))
                             gv.highlight($set, true)
                        //     gv.bringToFront($set)
-                         //   console.log(gv);
+
+                       // popup the commit hash!
+                       alert('you clicked on button #' + $(this).attr("data-name"));
                         })
 
-                   //     $("#graph").mouseenter(function(){
+                        gv.nodes().mouseenter(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight($set, true)
+                            console.log($(this).attr("data-name"));
+
+
+                        })
+                        //$("#graph").mouseenter(function(){
                      //           alert("you entered yeah");
                        //         })
 
