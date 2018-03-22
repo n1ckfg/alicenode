@@ -1,13 +1,14 @@
 // define this in the "main" file only, to ensure only one implementation
 #define AL_IMPLEMENTATION
+#define BUILDING_UV_SHARED
 
+#include "uv/uv.h"
 #include "al/al_glfw.h"
 #include "al/al_console.h"
 #include "al/al_math.h"
 #include "al/al_gl.h"
 #include "al/al_time.h"
 
-#include "uv/uv.h"
 
 #ifdef AL_WIN
 	// Windows
@@ -120,9 +121,9 @@ extern "C" AL_ALICE_EXPORT int closelib(const char * libpath) {
 		#endif
 		if (quitfun) {
 			res = quitfun();
-			fprintf(stdout, "onunload result %d", res);
+			fprintf(stdout, "onunload result %d\n", res);
 		} else {
-			fprintf(stderr, "onunload function not found");
+			fprintf(stderr, "onunload function not found\n");
 		}
 		
 		#ifdef AL_WIN
@@ -200,11 +201,15 @@ int main() {
 	setbuf(stderr, NULL);
 
 	setup();
+
+	//openlib("../project/project.dll");
 	
     while(frame()) {
     	//printf("%d\n", alice.framecount);
     	uv_run(&uv_main_loop, UV_RUN_NOWAIT);
     }
+
+	//closelib("../project/project.dll");
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
 	uv_close((uv_handle_t *)&stdin_pipe, NULL);
