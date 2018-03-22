@@ -8,6 +8,7 @@
 /test/repo_graph.dot
 repo_graph.dot
 repo_graph.svg
+/test/client/repo_graph.svg
 
 *.bin
 *.dylib
