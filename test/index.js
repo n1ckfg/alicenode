@@ -109,25 +109,25 @@ wss.on('connection', function(ws, req) {
 
 		if (message.includes("Commit_Hash")) {
 
-			var checkout = message.replace("Commit_Hash", "git checkout")
-			var gitCommand = (checkout + " " + __dirname + "/sim.cpp")
-		
-			///////////////////////////////////// <<<needs work. right now the checkout isn't working
-			// the error given is <commit> not a tree. not sure what this means... 
+			var show = message.replace("Commit_Hash", "git show")
+			var gitCommand = (show + ":test/sim.cpp")
 
-			exec(gitCommand, (stdout) => {
-				console.log(stdout);
+				exec(gitCommand, (err, stdout) => {
+				//	console.log(err);
+				//	console.log(stdout);
+					ws.send("edit? " + stdout)
+
 			});
 
 			
-			console.log(gitCommand);
+			//console.log(gitCommand);
 		} 
 
-		if (message.includes("git checkout master")){
+		if (message.includes("git return to master")){
 
-			 exec("git checkout master", (stderr, err, stdout) => {
+			 exec("git show master:test/sim.cpp", (stderr, err, stdout) => {
+			 ws.send("edit? " + err)
 
-             console.log("\n\nreturned to Master\n\n" + err)
             })
 		}
 
@@ -175,7 +175,7 @@ wss.on('connection', function(ws, req) {
 	ws.send("state?"+state_h);
 	ws.send(statebuf);
 	ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
-	
+
 });
 
 server.listen(8080, function() {

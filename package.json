@@ -9,7 +9,8 @@
   "dependencies": {
     "child-process-promise": "^2.2.1",
     "filewatcher": "^3.0.1",
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.1",
+    "nodegit": "^0.21.2"
   },
   "devDependencies": {},
   "scripts": {

@@ -43,8 +43,9 @@
     <pre id="data"></pre>
 	<textarea id="editor"></textarea>
 	<button onclick="sendCode()">Send Code</button>
-
+    <p>
     <button onclick="revertMaster()">Return to Master HEAD</button>
+    <h3 id="commit_detail"></h3>
     <ul id="messages"></ul>
 
     <script>
@@ -187,7 +188,7 @@
             //tell git to revert to master commit HEAD
                 function revertMaster() {
 
-            ws.send("git checkout master");
+            ws.send("git return to master");
 
         }
 
@@ -235,6 +236,8 @@
                         */
                         gv.nodes().mouseenter(function(){
                                console.log($(this).attr("data-name"));
+                               commit_detail.innerText = $(this).attr("data-name");
+
                                 })
 
                         $(document).on("click",".appDetails", function () {
