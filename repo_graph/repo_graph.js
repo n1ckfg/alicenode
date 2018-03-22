@@ -6,8 +6,18 @@ var filewatcher = require('filewatcher');
 var watcher = filewatcher();
 var child;
 
+
+revList = exec('git-big-picture --graphviz --tags ' + process.argv[2] + ' > client/repo_graph.dot', (err, stdout, stderr) => {
+
+		//convert the digraph to svg
+		exec('dot -Tsvg client/repo_graph.dot -o client/repo_graph.svg', (err, stdout, stderr) => {
+
+
+	})
+	})
+
 //run the http server for the repo_graph.html to access the .svg file
-exec('http-server --cors=\'repo_graph.html\' -p 8081', (err, stdout, stderr) => {
+exec('http-server --cors=\'index.html\' -p 8081', (err, stdout, stderr) => {
 	});
 
 //make sure a target repo is specified in CLI arg, exit if null. 
@@ -15,15 +25,6 @@ if( process.argv[2] == null ){
 console.log("ERROR: no repo specified\ntry: \'node repo_graph.js <path_of_target_repo>\'")
 process.exit(1);
 }
-
-
-
-
-
-
-
-
-
 
 
 

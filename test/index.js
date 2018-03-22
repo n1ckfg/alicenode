@@ -53,6 +53,8 @@ const libext = process.platform == "win32" ? "dll" : "dylib";
 
 const client_path = path.join(__dirname, "client");
 
+
+
 let state_h = fs.readFileSync("state.h", "utf8");
 
 // report status:
@@ -103,6 +105,36 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
+		
+
+		if (message.includes("Commit_Hash")) {
+
+			var checkout = message.replace("Commit_Hash", "git checkout")
+			var gitCommand = (checkout + " " + __dirname + "/sim.cpp")
+		
+			///////////////////////////////////// <<<needs work. right now the checkout isn't working
+			// the error given is <commit> not a tree. not sure what this means... 
+
+			exec(gitCommand, (stdout) => {
+				console.log(stdout);
+			});
+
+			
+			console.log(gitCommand);
+		} 
+
+		if (message.includes("git checkout master")){
+
+			 exec("git checkout master", (stderr, err, stdout) => {
+
+             console.log("\n\nreturned to Master\n\n" + err)
+            })
+		}
+
+		else {
+
+
+
 		let q = message.indexOf("?");
 		if (q > 0) {
 			let cmd = message.substring(0, q);
@@ -115,10 +147,14 @@ wss.on('connection', function(ws, req) {
 			default:
 				console.log("unknown cmd", cmd, "arg", arg);
 			}
-		} else {
+		} 
+
+
+		else {
 			console.log("message", message, typeof message);
 		}
-	});
+	} 
+});
 	
 	ws.on('error', function (e) {
 		if (e.message === "read ECONNRESET") {
@@ -149,6 +185,18 @@ server.listen(8080, function() {
 process.stdout.on('data', function() {
 	console.log("-");
 });
+
+//git stuff:
+
+var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
+
+let rf = fork('repo_graph.js', [repo_folder], { stdio:"inherit"});
+//rf.stdout.pipe(process.stdout);
+//rf.stderr.pipe(process.stderr);
+
+
+///
+
 
 const renderer = new fastcall.Library("alice."+libext);
 renderer.declare(`

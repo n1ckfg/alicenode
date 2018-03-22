@@ -2,6 +2,12 @@
 *.DS_Store
 */.DS_Store
 
+*/test/repo_graph.svg
+*/test/repo_graph.dot
+/test/repo_graph.svg
+/test/repo_graph.dot
+repo_graph.dot
+repo_graph.svg
 
 *.bin
 *.dylib

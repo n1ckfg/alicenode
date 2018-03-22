@@ -13,6 +13,16 @@
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/modes/clike.js"></script>
 <script src="cm/modes/glsl.js"></script>
+
+<!--script sources for the repo_graph & jquery -->
+<script type="text/javascript" src="js/jquery.2.1.3.min.js"></script>
+<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="js/jquery.color.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
+
+
+
 </head>
 <body>
     
@@ -33,6 +43,8 @@
     <pre id="data"></pre>
 	<textarea id="editor"></textarea>
 	<button onclick="sendCode()">Send Code</button>
+
+    <button onclick="revertMaster()">Return to Master HEAD</button>
     <ul id="messages"></ul>
 
     <script>
@@ -169,21 +181,19 @@
         }
 		
 		openSocket();
-    </script>
 
-<!-- code for the repository graph -->
-        <div id="graph" style="width: 100%; height: 100pt; overflow: scroll; position: fixed; bottom: 0;"></div>
 
-        <script type="text/javascript" src="js/jquery.2.1.3.min.js"></script>
-        <script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
-        <script type="text/javascript" src="js/jquery.color.js"></script>
-        <script type="text/javascript" src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
-        <script type="text/javascript">
+/// repo_graph code:
+            //tell git to revert to master commit HEAD
+                function revertMaster() {
+
+            ws.send("git checkout master");
+
+        }
 
             $(document).ready(function(){
                 $("#graph").graphviz({
-                    url: "http://127.0.0.1:8081/repo_graph.svg",
+                    url: "repo_graph.svg",
                     shrink: "0.5", 
                   // tooltips: "init, update, show",
                   // highlight: "selected",
@@ -201,12 +211,31 @@
                             $set = $set.add(gv.linkedTo(this, true))
                             gv.highlight($set, true)
                        //     gv.bringToFront($set)
-                         //   console.log(gv);
+
+                       // popup the commit hash!
+                       //alert('you clicked on button #' + $(this).attr("data-name"));
+
+                         ws.send("Commit_Hash " + $(this).attr("data-name"));
+
                         })
 
-                   //     $("#graph").mouseenter(function(){
-                     //           alert("you entered yeah");
-                       //         })
+
+                        /*
+                        gv.nodes().mouseenter(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight(selected, true)
+                            console.log($(this).attr("data-name"));
+
+
+                        })
+
+                        */
+                        gv.nodes().mouseenter(function(){
+                               console.log($(this).attr("data-name"));
+                                })
 
                         $(document).on("click",".appDetails", function () {
                         //var clickedBtnID = $(this).attr(gv.nodes()); // or var clickedBtnID = this.id
@@ -223,6 +252,18 @@
                     }
                 });
             });
+
+
+
+    </script>
+
+<!-- code for the repository graph -->
+        <div id="graph" style="width: 90%; height: 10%; overflow: scroll; position: fixed; bottom: 0;"></div>
+
+
+        <script type="text/javascript">
+
+
         </script>
 
 

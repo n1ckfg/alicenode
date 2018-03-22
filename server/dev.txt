@@ -1,0 +1,40 @@
+
+Server has these roles:
+- start up the alice processes (in part according to a project-level config)
+- open a webserver for remote IDE of project source etc.
+- manage git history etc. of this
+- support hot-reloading sim.dll without interrupting services
+- all run via a nodemon, so even a catastrophic crash can relaunch
+
+Q: how can project-level JS code run in this server?
+- project config can specify a startup script to run in server?
+
+Q: does alice run in same process as node script (as dll), or spawned as separate process (as exe)?
+- dll
+	+ talk via FFI
+	+ user script is also in same proc
+	- harder to divert stdout to browser
+	- render in separate thread (FFI needs to be thread safe though)
+	- crash requires server restart
+- exe
+	- talk via IPC (more complicated)
+	- user script also has to talk via IPC
+	+ easy to divert stdout to browser
+	+ render in main thread of separate process
+	+ crash is just exe restart (better for debugging)
+
+
+
+Browser talks to
+
+	Editor proc (js) spawns
+	--------------------------------
+		+ Alice proc (c++) hot-loads 
+		
+		  Project dll (c++)
+		  
+		+ Project proc (js) 
+			
+			
+
+
