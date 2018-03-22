@@ -25,4 +25,4 @@ rem dumpbin /exports alice.lib
 
 @endlocal
 
-alice.exe
+node server.js

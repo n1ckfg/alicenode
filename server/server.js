@@ -39,7 +39,6 @@ console.log("client_path", client_path);
 
 // LAUNCH ALICE PROCESS
 
-/*
 // start up the alice executable:
 let alice = spawn(path.join(__dirname, "alice"), [], { 
 	cwd: process.cwd()
@@ -56,15 +55,26 @@ alice.stderr.pipe(process.stderr);
 alice.on('exit', function (code) {
 	console.log("alice exit code", code);
 	// let node exit when it can:
-	process.exitCode = 1;
+	//process.exitCode = 1; wasn't working on Windows :-(
+	process.exit();
 });
+
+
 
 // MMAP THE STATE
 
 statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
 console.log("mapped state.bin, size "+statebuf.byteLength);
 
-*/
+// slow version:
+setInterval(function() {
+	let idx = randomInt(0, 10) * 8;
+	let v = statebuf.readFloatLE(idx);
+	v = v + 0.01;
+	if (v > 1.) v -= 2.;
+	if (v < -1.) v += 2.;
+	statebuf.writeFloatLE(v, idx);
+}, 1000/120);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -147,6 +157,46 @@ server.listen(8080, function() {
 
 /////////////////////////////////////////////////////////////////////////////////
 
+// SIM LOADER
+
+function loadsim() {
+	// TODO: find a better way to IPC commands:
+}
+
+function unloadsim() {
+	// TODO: find a better way to IPC commands:
+}
+
+loadsim();
+
+/////////////////////////////////////////////////////////////////////////////////
+
 // EDIT WATCHER
 
-// todo
+// would be better to be able to use a dependency tracer,
+// so that any file that sim.cpp depends on also triggers.
+fs.watch(path.join(project_path,'project.cpp'), (ev, filename) => {
+	if (ev == "change") {
+		console.log(ev, filename);
+		if (sim) {
+			// first have to unload the current sim, to release the lock on the dll:
+			unloadsim();
+			
+			send_all_clients("edit?"+fs.readFileSync("sim.cpp", "utf8"));
+
+			// next call out to a script to rebuild it:
+			let make = process.platform == "win32"
+				? spawn("build.bat", [editor_path]) 
+				: spawn("sh", ["build.sh", editor_path]);
+			//make.stdout.on("data", function(data) { console.log(data.toString());});
+			//make.stderr.on("data", function(data) { console.log(data.toString());});
+			make.stdout.pipe(process.stdout);
+			make.stderr.pipe(process.stderr);
+			// when it's done, load the new dll back in:
+			make.on('exit', function (code) {
+				console.log("built sim exit code", code);
+				loadsim();
+			});
+		}
+	}
+});
