@@ -7,7 +7,7 @@ var watcher = filewatcher();
 var child;
 
 
-revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations ' + process.argv[2] + ' > client/repo_graph.dot', (err, stdout, stderr) => {
+revList = exec('git-big-picture --graphviz --tags ' + process.argv[2] + ' > client/repo_graph.dot', (err, stdout, stderr) => {
 
 		//convert the digraph to svg
 		exec('dot -Tsvg client/repo_graph.dot -o client/repo_graph.svg', (err, stdout, stderr) => {
