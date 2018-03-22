@@ -2,8 +2,8 @@
 *.DS_Store
 */.DS_Store
 
-*/repo_graph.svg
-*/repo_graph.dot
+*/test/repo_graph.svg
+*/test/repo_graph.dot
 
 
 *.bin
