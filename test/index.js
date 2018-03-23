@@ -193,7 +193,7 @@ process.stdout.on('data', function() {
 var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
 console.log("this is it: " + repo_folder)
 
-let rf = fork('repo_graph.js', [repo_folder + "/test"], { stdio:"inherit"});
+let rf = fork('test/repo_graph.js', [repo_folder], { stdio:"inherit"});
 //rf.stdout.pipe(process.stdout);
 //rf.stderr.pipe(process.stderr);
 
