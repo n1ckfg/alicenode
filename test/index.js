@@ -191,18 +191,22 @@ process.stdout.on('data', function() {
 //git stuff:
 
 var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
+console.log("this is it: " + repo_folder)
 
-let rf = fork('repo_graph.js', [repo_folder], { stdio:"inherit"});
+let rf = fork('repo_graph.js', [repo_folder + "/test"], { stdio:"inherit"});
 //rf.stdout.pipe(process.stdout);
 //rf.stderr.pipe(process.stderr);
 
-
+/*
 fs.watch('repo_graph.svg', (ev, filename) => {
 	if (ev == "change") {
 		console.log(ev, filename);
 	}
 })
 
+
+
+*/
 
 ///
 
@@ -314,6 +318,21 @@ fs.watch('sim.cpp', (ev, filename) => {
 				console.log("built sim exit code", code);
 				loadsim();
 			});
+			
+			//add/commit the new sim.cpp
+			gitAdd = exec('git add test/sim.cpp');
+
+			/*
+				.then(spawn('git commit -m \"change to sim.cpp\"'))
+				//update the repo_graph.svg
+					.then(spawn('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=test/sim.cpp' + process.argv[2] + ' > /Users/mp/alicenode/test/repo_graph.dot'))
+						.then(spawn('dot -Tsvg repo_graph.dot -o client/repo_graph.svg'))
+							.then(exec('git status', (err, stdout, stderr) => {
+
+							console.log(stdout)
+
+							//tell all_clients to reload the svg
+							}))   */
 		}
 	}
 });

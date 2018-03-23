@@ -45,6 +45,8 @@
 	<button onclick="sendCode()">Send Code</button>
     <p>
     <button onclick="revertMaster()">Return to Master HEAD</button>
+
+    <button onclick="reloadSVG()">reloadSVG</button>
     <h3 id="commit_detail"></h3>
     <ul id="messages"></ul>
 
@@ -186,12 +188,12 @@
 
 /// repo_graph code:
             //tell git to revert to master commit HEAD
-                function revertMaster() {
+            function revertMaster() {
+                ws.send("git return to master");
+                }
 
-            ws.send("git return to master");
 
-        }
-
+            //load the repo graph svg
             $(document).ready(function(){
                 $("#graph").graphviz({
                     url: "repo_graph.svg",
@@ -255,6 +257,75 @@
                     }
                 });
             });
+
+//reload the repo_graph.svg when it changes
+function reloadSVG(){
+                $("#graph").graphviz({
+                    url: "repo_graph.svg",
+                    shrink: "0.5", 
+                  // tooltips: "init, update, show",
+                  // highlight: "selected",
+                    ready: function() {
+                        var gv = this
+                        //console.log(gv.nodesByName());
+
+                        //gv.tooltip($elements, show);
+                        console.log(gv.highlight());
+
+                        gv.nodes().click(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight($set, true)
+                       //     gv.bringToFront($set)
+
+                       // popup the commit hash!
+                       //alert('you clicked on button #' + $(this).attr("data-name"));
+
+                         ws.send("Commit_Hash " + $(this).attr("data-name"));
+
+                        })
+
+
+                        /*
+                        gv.nodes().mouseenter(function () {
+                            var $set = $()
+                            $set.push(this)
+                            $set = $set.add(gv.linkedFrom(this, true))
+                            $set = $set.add(gv.linkedTo(this, true))
+                            gv.highlight(selected, true)
+                            console.log($(this).attr("data-name"));
+
+
+                        })
+
+                        */
+                        gv.nodes().mouseenter(function(){
+                               console.log($(this).attr("data-name"));
+                               commit_detail.innerText = $(this).attr("data-name");
+                               console.log(this)
+                                })
+
+                        $(document).on("click",".appDetails", function () {
+                        //var clickedBtnID = $(this).attr(gv.nodes()); // or var clickedBtnID = this.id
+                        var clickedBtnID = this.gv
+                        alert('you clicked on button #' + clickedBtnID);
+                        console.log(clickedBtnID);
+                        });
+
+                        $(document).keydown(function (evt) {
+                            if (evt.keyCode == 27) {
+                                gv.highlight()
+                            }
+                        })
+                    }
+                })
+            };
+            
+
+
+
 
 
 
