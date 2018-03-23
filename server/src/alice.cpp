@@ -171,7 +171,7 @@ static void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 }
 
 void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-	printf("read %d bytes\n", (int) nread);
+	
 	
 	if (nread == UV_EOF) {
 		uv_close((uv_handle_t *)&stdin_pipe, NULL);
@@ -181,6 +181,8 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 		// need to parse each one in turn
 	
 		printf("read %d bytes: %s\n", (int) nread, buf->base);
+
+		
 	}
 	if (buf->len && buf->base) {
 		free(buf->base);
