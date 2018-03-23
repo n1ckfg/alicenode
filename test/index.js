@@ -40,6 +40,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { exec, spawn, fork } = require('child_process');
+const nodegit = require("nodegit");
 
 
 
@@ -188,24 +189,6 @@ process.stdout.on('data', function() {
 	console.log("-");
 });
 
-//git stuff:
-
-var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
- 
-//let rf = fork('repo_graph.js', [repo_folder + "/test"], { stdio:"inherit"});
-//rf.stdout.pipe(process.stdout);
-//rf.stderr.pipe(process.stderr);
-
-/*
-fs.watch('repo_graph.svg', (ev, filename) => {
-	if (ev == "change") {
-		console.log(ev, filename);
-	}
-})
-
-
-
-*/
 
 ///
 
@@ -318,8 +301,8 @@ fs.watch('sim.cpp', (ev, filename) => {
 				loadsim();
 			});
 			
-			//add/commit the new sim.cpp
-			gitAdd = exec('git add test/sim.cpp');
+		//	spawn('git add test/sim.cpp')
+					
 
 
 		}

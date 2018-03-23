@@ -1,4 +1,4 @@
-  #include "al/al_console.h"
+ #include "al/al_console.h"
 #include "al/al_math.h"
 #include "al/al_gl.h"
 #include "al/al_mmap.h"
@@ -12,9 +12,9 @@ unsigned int VBO;
 unsigned int instanceVBO;
 
 float vertices[] = {
-    -0.4f, -0.3f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
-     0.0f,  0.7f, 0.0f
+     0.0f,  0.9f, 0.0f
 };
 
 State * state;
@@ -26,8 +26,8 @@ Mmap<State> statemap1;
 void onFrame() {
 	int i = rnd::integer(NUM_TRIS);
 	float y = state1->translations[i].y;
-	y = y - 0.5f;
-	if (y > 1.) y -= 1.;
+	y = y + 0.2f;
+	if (y > 1.) y -= 2.;
 	if (y < 0.) y += 2.;
 	state1->translations[i].y = y;
 	
