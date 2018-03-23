@@ -195,6 +195,10 @@ server.listen(8080, function() {
 	console.log('server listening on %d', server.address().port);
 });
 
+setInterval(function() {
+	if (statebuf) send_all_clients(statebuf);
+}, 100);
+
 /////////////////////////////////////////////////////////////////////////////////
 
 // SIM LOADER
