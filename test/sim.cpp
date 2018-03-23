@@ -26,7 +26,7 @@ Mmap<State> statemap1;
 void onFrame() {
 	int i = rnd::integer(NUM_TRIS);
 	float y = state1->translations[i].y;
-	y = y + 0.2f;
+	y = y - 0.5f;
 	if (y > 1.) y -= 2.;
 	if (y < 0.) y += 2.;
 	state1->translations[i].y = y;
