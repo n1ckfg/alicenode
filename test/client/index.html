@@ -237,7 +237,7 @@
                         gv.nodes().mouseenter(function(){
                                console.log($(this).attr("data-name"));
                                commit_detail.innerText = $(this).attr("data-name");
-
+                               console.log(this)
                                 })
 
                         $(document).on("click",".appDetails", function () {

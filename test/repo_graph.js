@@ -12,6 +12,7 @@ revList = exec('git-big-picture --graphviz --all --tags --branches --roots --mer
 		//convert the digraph to svg
 		exec('dot -Tsvg repo_graph.dot -o client/repo_graph.svg', (err, stdout, stderr) => {
 
+			exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
 
 	})
 	})
