@@ -99,18 +99,24 @@ setInterval(function() {
 
 // MMAP THE STATE
 
-let statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
-console.log("mapped state.bin, size "+statebuf.byteLength);
+let statebuf 
+try {
+	statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
+	console.log("mapped state.bin, size "+statebuf.byteLength);
+		
+	// slow version:
+	setInterval(function() {
+		let idx = randomInt(0, 10) * 8;
+		let v = statebuf.readFloatLE(idx);
+		v = v + 0.01;
+		if (v > 1.) v -= 2.;
+		if (v < -1.) v += 2.;
+		statebuf.writeFloatLE(v, idx);
+	}, 1000/120);
+} catch(e) {
+	console.error(e.message);
+}
 
-// slow version:
-setInterval(function() {
-	let idx = randomInt(0, 10) * 8;
-	let v = statebuf.readFloatLE(idx);
-	v = v + 0.01;
-	if (v > 1.) v -= 2.;
-	if (v < -1.) v += 2.;
-	statebuf.writeFloatLE(v, idx);
-}, 1000/120);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -121,9 +127,7 @@ app.use(express.static(client_path))
 app.get('/', function(req, res) {
     res.sendFile(path.join(client_path, 'index.html'));
 });
-app.get('*', function(req, res) {
-    console.log(req);
-});
+//app.get('*', function(req, res) { console.log(req); });
 const server = http.createServer(app);
 
 // add a websocket service to the http server:
@@ -182,7 +186,7 @@ wss.on('connection', function(ws, req) {
 	
 	// send a handshake?
 	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
-	ws.send(statebuf);
+	if (statebuf) ws.send(statebuf);
 	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
 	
 });
