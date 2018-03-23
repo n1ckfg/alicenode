@@ -41,6 +41,8 @@ const path = require("path");
 const os = require("os");
 const { exec, spawn, fork } = require('child_process');
 
+
+
 function random (low, high) {
     return Math.random() * (high - low) + low;
 }
@@ -193,6 +195,13 @@ var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
 let rf = fork('repo_graph.js', [repo_folder], { stdio:"inherit"});
 //rf.stdout.pipe(process.stdout);
 //rf.stderr.pipe(process.stderr);
+
+
+fs.watch('repo_graph.svg', (ev, filename) => {
+	if (ev == "change") {
+		console.log(ev, filename);
+	}
+})
 
 
 ///
