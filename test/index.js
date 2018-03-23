@@ -321,7 +321,7 @@ fs.watch('sim.cpp', (ev, filename) => {
 			//add/commit the new sim.cpp
 			gitAdd = exec('git add test/sim.cpp');
 
-			/*
+			/* 
 				.then(spawn('git commit -m \"change to sim.cpp\"'))
 				//update the repo_graph.svg
 					.then(spawn('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=test/sim.cpp' + process.argv[2] + ' > /Users/mp/alicenode/test/repo_graph.dot'))
