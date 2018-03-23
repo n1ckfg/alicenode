@@ -17,12 +17,10 @@ revList = exec('git-big-picture --graphviz --all --tags --branches --roots --mer
 	})
 	})
 
-/*
-//perhaps no longer necessary serving the file on 
-//run the http server for the repo_graph.html to access the .svg file
-exec('http-server ' + process.argv[2] + "/test --cors=\'index.html\' -p 8081", (err, stdout, stderr) => {
-	});
-*/
+//
+
+
+
 
 //make sure a target repo is specified in CLI arg, exit if null. 
 if( process.argv[2] == null ){
