@@ -189,8 +189,14 @@ process.stdout.on('data', function() {
 	console.log("-");
 });
 
+//git stuff:
 
-///
+//var repo_folder = __dirname.substring(0, __dirname.lastIndexOf('/'));
+ 
+//let rf = fork('repo_graph.js', [repo_folder + "/test"], { stdio:"inherit"});
+//rf.stdout.pipe(process.stdout);
+//rf.stderr.pipe(process.stderr);
+
 
 
 const renderer = new fastcall.Library("alice."+libext);
@@ -273,6 +279,13 @@ function bufchange() {
 fs.watch('sim.cpp', (ev, filename) => {
 	if (ev == "change") {
 		console.log(ev, filename);
+		exec('git add test/sim.cpp', (stdout) => {
+
+			(exec('git commit -m "client updated sim.cpp"'))	
+
+
+		})
+
 		if (sim) {
 			// first have to unload the current sim, to release the lock on the dll:
 			{
@@ -299,10 +312,10 @@ fs.watch('sim.cpp', (ev, filename) => {
 			make.on('exit', function (code) {
 				console.log("built sim exit code", code);
 				loadsim();
-			});
+			})								
+
 			
-		//	spawn('git add test/sim.cpp')
-					
+			//add/commit the new sim.cpp
 
 
 		}
