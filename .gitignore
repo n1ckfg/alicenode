@@ -1,3 +1,6 @@
+# alice specific
+server/alice
+
 #pesky .DS_Store
 *.DS_Store
 */.DS_Store

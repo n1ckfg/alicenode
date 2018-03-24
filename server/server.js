@@ -10,7 +10,7 @@ const url = require('url');
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
-const { exec, spawn, spawnSync, fork } = require('child_process');
+const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -26,6 +26,8 @@ function randomInt (low, high) {
 
 console.log(process.argv);
 
+const libext = process.platform == "win32" ? "dll" : "dylib";
+
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  "../project/");
 const project_path = process.cwd();
@@ -35,13 +37,36 @@ console.log("project_path", project_path);
 console.log("editor_path", editor_path);
 console.log("client_path", client_path);
 
+const projectlib = "project." + libext;
+
+/////////////////////////////////////////////////////////////////////////////////
+
+// BUILD PROJECT
+
+function project_build() {
+	let out = process.platform == "win32"
+		? execSync('build.bat "'+editor_path+'"') 
+		: execSync('sh build.sh "'+editor_path+'"');
+	console.log("built project", out);
+}
+
+// should we build now?
+if (fs.statSync("project.cpp").mtime > fs.statSync(projectlib).mtime) {
+	console.warn("project lib is out of date, rebuilding");
+	try {
+		project_build();
+	} catch (e) {
+		console.error("ERROR", e.message);
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
 // LAUNCH ALICE PROCESS
 
 // start up the alice executable:
-let alice = spawn(path.join(__dirname, "alice"), [], { 
-	cwd: process.cwd()
+let alice = spawn(path.join(__dirname, "alice"), [projectlib], { 
+	cwd: project_path
 });
 
 //alice.stdout.on("data", function(data) { console.log(data.toString());});
@@ -59,22 +84,39 @@ alice.on('exit', function (code) {
 	process.exit();
 });
 
+function alice_command(command, arg) {
+	let msg = command + "?" + arg + "\0";
+	console.log("sending alice", msg);
+	alice.stdin.write(command + "?" + arg + "\0");
+}
 
+/*
+setInterval(function() {
+	unloadsim();
+	loadsim();
+}, 3000);
+*/
 
 // MMAP THE STATE
 
-statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
-console.log("mapped state.bin, size "+statebuf.byteLength);
+let statebuf 
+try {
+	statebuf = mmapfile.openSync("state.bin", fs.statSync("state.bin").size, "r+");
+	console.log("mapped state.bin, size "+statebuf.byteLength);
+		
+	// slow version:
+	setInterval(function() {
+		let idx = randomInt(0, 10) * 8;
+		let v = statebuf.readFloatLE(idx);
+		v = v + 0.01;
+		if (v > 1.) v -= 2.;
+		if (v < -1.) v += 2.;
+		statebuf.writeFloatLE(v, idx);
+	}, 1000/120);
+} catch(e) {
+	console.error(e.message);
+}
 
-// slow version:
-setInterval(function() {
-	let idx = randomInt(0, 10) * 8;
-	let v = statebuf.readFloatLE(idx);
-	v = v + 0.01;
-	if (v > 1.) v -= 2.;
-	if (v < -1.) v += 2.;
-	statebuf.writeFloatLE(v, idx);
-}, 1000/120);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -85,9 +127,7 @@ app.use(express.static(client_path))
 app.get('/', function(req, res) {
     res.sendFile(path.join(client_path, 'index.html'));
 });
-app.get('*', function(req, res) {
-    console.log(req);
-});
+//app.get('*', function(req, res) { console.log(req); });
 const server = http.createServer(app);
 
 // add a websocket service to the http server:
@@ -118,8 +158,8 @@ wss.on('connection', function(ws, req) {
 			let arg = message.substring(q+1);
 			switch(cmd) {
 			case "edit": 
-				//console.log(arg);
-				//fs.writeFileSync("sim.cpp", arg, "utf8");
+				console.log(arg);
+				fs.writeFileSync("project.cpp", arg, "utf8");
 				break;
 			default:
 				console.log("unknown cmd", cmd, "arg", arg);
@@ -145,9 +185,9 @@ wss.on('connection', function(ws, req) {
 	});
 	
 	// send a handshake?
-	//ws.send("state?"+state_h);
-	//ws.send(statebuf);
-	//ws.send("edit?"+fs.readFileSync("sim.cpp", "utf8"));
+	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
+	if (statebuf) ws.send(statebuf);
+	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
 	
 });
 
@@ -155,19 +195,26 @@ server.listen(8080, function() {
 	console.log('server listening on %d', server.address().port);
 });
 
+setInterval(function() {
+	if (statebuf) send_all_clients(statebuf);
+}, 100);
+
 /////////////////////////////////////////////////////////////////////////////////
 
 // SIM LOADER
 
 function loadsim() {
 	// TODO: find a better way to IPC commands:
+	alice_command("openlib", projectlib);
+	
 }
 
 function unloadsim() {
 	// TODO: find a better way to IPC commands:
+	alice_command("closelib", projectlib);
 }
 
-loadsim();
+//loadsim();
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -178,25 +225,17 @@ loadsim();
 fs.watch(path.join(project_path,'project.cpp'), (ev, filename) => {
 	if (ev == "change") {
 		console.log(ev, filename);
-		if (sim) {
-			// first have to unload the current sim, to release the lock on the dll:
-			unloadsim();
-			
-			send_all_clients("edit?"+fs.readFileSync("sim.cpp", "utf8"));
+		
+		// first have to unload the current sim, to release the lock on the dll:
+		unloadsim();
+		
+		send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
 
-			// next call out to a script to rebuild it:
-			let make = process.platform == "win32"
-				? spawn("build.bat", [editor_path]) 
-				: spawn("sh", ["build.sh", editor_path]);
-			//make.stdout.on("data", function(data) { console.log(data.toString());});
-			//make.stderr.on("data", function(data) { console.log(data.toString());});
-			make.stdout.pipe(process.stdout);
-			make.stderr.pipe(process.stderr);
-			// when it's done, load the new dll back in:
-			make.on('exit', function (code) {
-				console.log("built sim exit code", code);
-				loadsim();
-			});
+		try {
+			project_build();
+			loadsim();
+		} catch (e) {
+			console.error(e.message);
 		}
 	}
 });

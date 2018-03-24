@@ -9,19 +9,11 @@
 #include "al/al_gl.h"
 #include "al/al_time.h"
 
-
-#ifdef AL_WIN
-	// Windows
-	HMODULE lib_handle = 0;
-#else
-	// OSX
-	#include <dlfcn.h> // dlopen
-	//#define USE_UV 1
-	void * lib_handle = 0;
-#endif
-
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
+
+char * runtime_path = 0;
+char * project_lib_path = 0;
 
 #include "alice.h"
 
@@ -34,6 +26,17 @@ Alice& Alice::Instance() {
 Window window;
 bool isFullScreen = 0;
 bool isThreadsDone = 0;
+
+#ifdef AL_WIN
+	// Windows
+	HMODULE lib_handle = 0;
+#else
+	// OSX
+	#include <dlfcn.h> // dlopen
+	//#define USE_UV 1
+	void * lib_handle = 0;
+#endif
+
 
 uv_loop_t uv_main_loop;
 uv_pipe_t stdin_pipe;
@@ -171,17 +174,47 @@ static void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 }
 
 void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
-	
-	
 	if (nread == UV_EOF) {
 		uv_close((uv_handle_t *)&stdin_pipe, NULL);
 	} else if (nread > 0) {
 	
 		// there could be multiple lines of data received
 		// need to parse each one in turn
-	
-		printf("read %d bytes: %s\n", (int) nread, buf->base);
-
+		
+		//printf("read %d bytes\n", (int) nread);
+		
+		ssize_t startidx = 0;
+		ssize_t endidx = 0;
+		while (endidx < nread) {
+			if (buf->base[endidx] == 0) {
+				
+				std::string msg(buf->base + startidx, endidx-startidx);
+				//printf("msg at %d .. %d: %s.\n", (int)startidx, (int)endidx, msg.data());
+				
+				// TODO: assert complete message by checking buf->base[endidx] == 0?
+				
+				if (buf->base[endidx] != 0) {
+					fprintf(stderr, "message is not null-terminated\n");
+				} else {
+				
+					auto iq = msg.find("?");
+					if (iq != std::string::npos) {
+						std::string command = msg.substr(0,iq);
+						std::string arg = msg.substr(iq+1,nread-iq-1);
+						//printf("command: %s arg: %s.\n", command.data(), arg.data());
+			
+						if (command == "closelib") {
+							closelib(arg.data());
+						} else if (command == "openlib") {
+							openlib(arg.data());
+						}
+					}
+				}
+				
+				startidx = endidx+1;
+			}
+			endidx++;
+		}
 		
 	}
 	if (buf->len && buf->base) {
@@ -189,7 +222,19 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 	}
 }
 
-int main() {
+int main(int argc, char ** argv) {
+
+
+	// process the args:
+	// arg[0] is the path of the runtime
+	if (argc > 0) runtime_path = argv[0];
+	// arg[1] is the path to the lib
+	if (argc > 1) project_lib_path = argv[1];
+	
+	for (int i=0; i<argc; i++) {
+		printf("arg %d %s\n", i, argv[i]);
+	}
+	
 
 	int err = uv_loop_init(&uv_main_loop);
 	if (err) fprintf(stderr, "uv error %s\n", uv_strerror(err));
@@ -203,15 +248,19 @@ int main() {
 	setbuf(stderr, NULL);
 
 	setup();
-
-	//openlib("../project/project.dll");
+	
+	if (project_lib_path) {
+		openlib(project_lib_path);
+	}
 	
     while(frame()) {
     	//printf("%d\n", alice.framecount);
     	uv_run(&uv_main_loop, UV_RUN_NOWAIT);
     }
 
-	//closelib("../project/project.dll");
+	if (project_lib_path) {
+		closelib(project_lib_path);
+	}
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
 	uv_close((uv_handle_t *)&stdin_pipe, NULL);
