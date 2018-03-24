@@ -1,51 +1,59 @@
 var nodegit = require('nodegit'),
     path = require('path');
 
+//print the help
 
+if (process.argv[2] == ("-h" || "--help")) {
 
-//help!
-if (process.argv[2] == ("--help" || '-h')) {
+	console.log("clone <github repo url> -- clone a repository \n\n	open <repo name> -- open a local repository \n\n	history <repo name> -- print the commit hash and message per commit")
+	process.exit(1)
 
-	console.log("	clone <github repo url> -- clone a repository \n\n	open <repo name> -- open a local repository \n\n	history <repo name> -- print the commit hash and message per commit")
+	}
+
+//if the repo name nor action on said repo aren't stated, print error, suggest help
+else if (process.argv[2] == null ) {
+
+	console.log("\nERROR: missing arguments -- usage: \'node git.js <option> <name_of_target_repo> \' \n\nsee \'node git.js -h\' or --help for options\'\n\n")
+	
+	process.exit(1);
+
 }
 
-// run 'node git.js clone <repo_url>'
+switch (process.argv[2]) {
 
-if (process.argv[3].includes("clone")) {
+	//clone a repo
 
-var url = process.argv[2],
-    git = (url.lastIndexOf('/'));
-    name = url.substring(git + 1);
-    local = name.substring(0,name.indexOf('.'));
-    console.log(local)
-    cloneOpts = {};
+	case "clone":
 
-	nodegit.Clone(url, local, cloneOpts).then(function (repo) {
-		    console.log("Cloned " + path.basename(url) + " to " + repo.workdir());
+		var url = process.argv[3],
+	    git = (url.lastIndexOf('/'));
+	    name = url.substring(git + 1);
+	    local = name.substring(0,name.indexOf('.'));
+	    console.log(local)
+	    cloneOpts = {};
+
+		nodegit.Clone(url, local, cloneOpts).then(function (repo) {
+			    console.log("Cloned " + path.basename(url) + " to " + repo.workdir());
+				}).catch(function (err) {
+				    console.log(err);
+			});
+	break;	
+	 
+	//open a local repo
+	case "open":
+
+		// open a local repository
+		var name = ('./' + process.argv[3])
+		nodegit.Repository.open(name).then(function(repo) {
+		  console.log("Using " + repo.path());
 			}).catch(function (err) {
-			    console.log(err);
-	});
-}
+			  console.log(err);
+		});
 
+	//retrieve the commit hashes and their messages		
+	case "history": 
 
-// open a local repository
-
-if (process.argv[3].includes("open")) {
-
-var name = ('./' + process.argv[2])
-	nodegit.Repository.open(name).then(function(repo) {
-	  console.log("Using " + repo.path());
-		}).catch(function (err) {
-		  console.log(err);
-	});
-}
-
-
-
-
-// get commit hash and message 
-if (process.argv[3].includes("history")) {
-	var name = ('./' + process.argv[2])
+		var name = ('./' + process.argv[3])
 
 		nodegit.Repository.open(name).then(function(repo) {
 		  // Get the current branch. 
@@ -60,14 +68,15 @@ if (process.argv[3].includes("history")) {
 		        p = new Promise(function(resolve, reject) {
 		            hist.on("end", resolve);
 		            hist.on("error", reject);
-		        });
+		        });		        		  
 		    hist.start();
 		    return p;
 		  }).then(function (commits) {
-		    // Iterate through the last 10 commits of the history. 
-		    for (var i = 0; i < 10; i++) {
+		    // Iterate through commits of the history. 
+		    for (var i = 0; i < commits.length; i++) {
 		      var sha = commits[i].sha().substr(0,7),
 		          msg = commits[i].message().split('\n')[0];
+
 		      console.log(sha + " " + msg);
 		    }
 		  });
@@ -77,6 +86,10 @@ if (process.argv[3].includes("history")) {
 		  console.log('Finished');
 		});
 
-	}
+		break;
+
+}
+
+
 
 	
