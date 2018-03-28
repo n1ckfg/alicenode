@@ -88,6 +88,17 @@ switch (process.argv[2]) {
 
 		break;
 
+	case "status":
+
+		var name = ('./' + process.argv[3])
+		nodegit.Repository.open(name).then(function(repo) {
+
+			return repo.getStatus(opts).then(function(arrayStatusFile) {
+				console.log(arrayStatusFile)
+				
+			})
+		})
+
 }
 
 
