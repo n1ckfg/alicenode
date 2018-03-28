@@ -4,6 +4,7 @@
 const express = require('express');
 const WebSocket = require('ws');
 const mmapfile = require('mmapfile');
+const chokidar = require('chokidar');
 
 const http = require('http');
 const url = require('url');
@@ -222,20 +223,42 @@ function unloadsim() {
 
 // would be better to be able to use a dependency tracer,
 // so that any file that sim.cpp depends on also triggers.
+
+let watcher = chokidar.watch(".", {ignored: ".git" });
+
+watcher
+	//.on('raw', (event, path, details) => { console.log('Raw event info:', event, path, details); });
+	.on('error', error => console.log(`Watcher error: ${error}`))
+	.on('change', (filepath, stats) => {
+		console.log(`File ${filepath} has been changed`, path.extname(filepath));
+		
+		/*
+		switch (path.extname(filepath)) {
+			case ".cpp":
+			case ".h":
+			{
+				// first have to unload the current sim, to release the lock on the dll:
+				unloadsim();
+		
+				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
+
+				try {
+					project_build();
+					loadsim();
+				} catch (e) {
+					console.error(e.message);
+				}
+			} break;
+			case ".glsl" {
+		
+			} break;
+		}
+	});
+
 fs.watch(path.join(project_path,'project.cpp'), (ev, filename) => {
 	if (ev == "change") {
 		console.log(ev, filename);
 		
-		// first have to unload the current sim, to release the lock on the dll:
-		unloadsim();
 		
-		send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
-
-		try {
-			project_build();
-			loadsim();
-		} catch (e) {
-			console.error(e.message);
-		}
 	}
 });

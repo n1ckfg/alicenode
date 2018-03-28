@@ -6,6 +6,7 @@
 struct AL_ALICE_EXPORT Alice {
 	
 	vdk::signal<void()> onFrame;
+	vdk::signal<void()> onReloadGPU;
 		
 	double t = 0.;	
 	double dt = 1/60.;
