@@ -29,7 +29,7 @@ console.log(process.argv);
 const libext = process.platform == "win32" ? "dll" : "dylib";
 
 // derive project to launch from first argument:
-process.chdir(process.argv[2] ||  "../project/");
+process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
 const project_path = process.cwd();
 const editor_path = __dirname;
 const client_path = path.join(editor_path, "client");
@@ -47,11 +47,11 @@ function project_build() {
 	let out = process.platform == "win32"
 		? execSync('build.bat "'+editor_path+'"') 
 		: execSync('sh build.sh "'+editor_path+'"');
-	console.log("built project", out);
+	console.log("built project", out.toString());
 }
 
 // should we build now?
-if (fs.statSync("project.cpp").mtime > fs.statSync(projectlib).mtime) {
+if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync(projectlib).mtime) {
 	console.warn("project lib is out of date, rebuilding");
 	try {
 		project_build();
@@ -114,7 +114,7 @@ try {
 		statebuf.writeFloatLE(v, idx);
 	}, 1000/120);
 } catch(e) {
-	console.error(e.message);
+	console.error("failed to map the state.bin:", e.message);
 }
 
 
