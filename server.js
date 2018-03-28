@@ -258,6 +258,9 @@ watcher
 	.on('error', error => console.log(`Watcher error: ${error}`))
 	.on('change', (filepath, stats) => {
 		console.log(`File ${filepath} has been changed`, path.extname(filepath));
+
+		//commit the changed project.cpp
+		exec('git add -am "client updated project.cpp"', { cwd: path.join("..", "alicenode_inhabitat")});
 		
 		/*
 		switch (path.extname(filepath)) {
