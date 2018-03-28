@@ -11,6 +11,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
+const nodegit = require("nodegit");
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -170,6 +171,32 @@ wss.on('connection', function(ws, req) {
 	});
 	
 	ws.on('error', function (e) {
+
+		//git stuff:
+		if (message.includes("Commit_Hash")) {
+
+			var show = message.replace("Commit_Hash", "git show")
+			var gitCommand = (show + path.join("..", "alicenode_inhabitat/project.cpp"));
+
+				exec(gitCommand, (err, stdout) => {
+				//	console.log(err);
+				//	console.log(stdout);
+					ws.send("edit? " + stdout)
+
+			});
+
+			
+			//console.log(gitCommand);
+		} 
+
+		if (message.includes("git return to master")){
+
+			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
+			 ws.send("edit? " + err)
+
+            })
+		}
+
 		if (e.message === "read ECONNRESET") {
 			// ignore this, client will still emit close event
 		} else {
