@@ -1,7 +1,11 @@
 var nodegit = require('nodegit'),
-    path = require('path');
+ path = require('path');
+const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
+
+
 
 //print the help
+
 
 if (process.argv[2] == ("-h" || "--help")) {
 
@@ -98,6 +102,20 @@ switch (process.argv[2]) {
 				
 			})
 		})
+
+	case "repo_graph":
+		//var name = ('./' + process.argv[3])
+
+revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp ' + path.join("..", "alicenode_inhabitat") + ' > ' + path.join("..", "alicenode/repo_graph.dot"), (err, stdout, stderr) => {
+
+		//convert the digraph to svg
+		exec('dot -Tsvg repo_graph.dot -o ' + path.join("..", "alicenode/client/repo_graph.svg"), (err, stdout, stderr) => {
+
+			//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
+
+	})
+	})
+
 
 }
 
