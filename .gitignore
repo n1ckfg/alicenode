@@ -1,18 +1,13 @@
 # alice specific
-server/alice
+alice
+alice.exe
 
 #pesky .DS_Store
 *.DS_Store
 */.DS_Store
 
-*/test/repo_graph.svg
-*/test/repo_graph.dot
-/test/repo_graph.svg
-/test/repo_graph.dot
 repo_graph.dot
 repo_graph.svg
-/test/client/repo_graph.svg
-
 
 #dummy repo for testing and building ~/server/git.js
 *scriptster/
