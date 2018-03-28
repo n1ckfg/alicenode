@@ -207,6 +207,8 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 							closelib(arg.data());
 						} else if (command == "openlib") {
 							openlib(arg.data());
+						} else if (command == "reloadgpu") {
+							alice.onReloadGPU.emit();
 						}
 					}
 				}
