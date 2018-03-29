@@ -254,39 +254,6 @@ function unloadsim() {
 let watcher = chokidar.watch(".", {ignored: ".git" });
 
 watcher
-/*
-	//.on('raw', (event, path, details) => { console.log('Raw event info:', event, path, details); });
-	.on('error', error => console.log(`Watcher error: ${error}`))
-	.on('change', (filepath, stats) => {
-		console.log(`File ${filepath} has been changed`, path.extname(filepath));
-
-		//commit the changed project.cpp
-		exec('git add -am "client updated project.cpp"', { cwd: path.join("..", "alicenode_inhabitat")});
-		
-		/*
-		switch (path.extname(filepath)) {
-			case ".cpp":
-			case ".h":
-			{
-				// first have to unload the current sim, to release the lock on the dll:
-				unloadsim();
-		
-				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
-
-				try {
-					project_build();
-					loadsim();
-				} catch (e) {
-					console.error(e.message);
-				}
-			} break;
-			case ".glsl" {
-		
-			} break;
-		}
-	});
-*/	
-//.on('raw', (event, path, details) => { console.log('Raw event info:', event, path, details); });
 .on('error', error => console.log(`Watcher error: ${error}`))
 .on('change', (filepath, stats) => {
 	switch (path.extname(filepath)) {
