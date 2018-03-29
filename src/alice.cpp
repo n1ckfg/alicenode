@@ -60,6 +60,8 @@ extern "C" AL_ALICE_EXPORT int frame() {
 
 	static float c = 1;
 
+	double tbegin = glfwGetTime();
+
     glfwPollEvents();
     glfwMakeContextCurrent(window.pointer);
     
@@ -85,8 +87,15 @@ extern "C" AL_ALICE_EXPORT int frame() {
     
     alice.fpsAvg += 1./alice.dt;
     if (alice.framecount % 60 == 0) {
-        //console.log("fps %f", fpsAvg / 60.);
+        //console.log("fps %f", alice.fpsAvg / 60.);
         alice.fpsAvg = 0.;
+    }
+    
+    // do we need to sleep?
+    double tframe = t1-tbegin;
+    double tsleep = 1./alice.desiredFrameRate - tframe;
+    if (tsleep > 0.001) {
+    	al_sleep(tsleep);
     }
     
     return !glfwWindowShouldClose(window.pointer);

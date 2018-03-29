@@ -236,6 +236,7 @@ server.listen(8080, function() {
 
 setInterval(function() {
 	if (statebuf) send_all_clients(statebuf);
+	//send_all_clients("fps?"+);
 }, 100);
 
 /////////////////////////////////////////////////////////////////////////////////

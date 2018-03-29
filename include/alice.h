@@ -8,9 +8,11 @@ struct AL_ALICE_EXPORT Alice {
 	vdk::signal<void()> onFrame;
 	vdk::signal<void()> onReloadGPU;
 		
+	
 	double t = 0.;	
 	double dt = 1/60.;
-	double fpsAvg = 60;	
+	double desiredFrameRate = 30.;
+	double fpsAvg = 30;	
 	int framecount = 0;
 	
 	static Alice& Instance();	
