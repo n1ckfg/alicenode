@@ -312,17 +312,91 @@ struct SimpleMesh {
 	}
 };
 
-struct SimpleFBO {
-	GLuint fbo = 0, rbo = 0, tex = 0;
-	glm::ivec2 dim = glm::ivec2(1024, 1024);
-	
-	Shader * texDrawShader = 0;
+struct QuadMesh {
 	// define the VAO 
 	// (a VAO stores attrib & buffer mappings in a re-usable way)
 	GLuint VAO = 0;
 	GLuint VBO = 0;
 
 	void dest_closing() {
+		if (VAO) {
+			glDeleteVertexArrays(1, &VAO);
+			VAO = 0;
+		}
+		if (VBO) {
+			glDeleteBuffers(1, &VBO);
+			VBO = 0;
+		}
+	}
+
+	bool dest_changed() {
+		dest_closing();
+
+		float l = -1.;
+		float b = -1.;
+		float r = 1.;
+		float t = 1.;
+		GLfloat vertices[] = {
+			// positions, texcoords
+			r, t,		1., 1.,
+			l, t,		0., 1.,
+			l, b,		0., 0.,
+
+			l, b,		0., 0.,
+			r, b,		1., 0.,
+			r, t,		1., 1.
+		};
+
+		// define the VAO 
+		// (a VAO stores attrib & buffer mappings in a re-usable way)
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+		// define the VBO while VAO is bound:
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		// attr location 
+		glEnableVertexAttribArray(0);
+		// set the data layout
+		// attr location, element size & type, normalize?, source stride & offset
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+		glEnableVertexAttribArray(1);
+		// set the data layout
+		// attr location, element size & type, normalize?, source stride & offset
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+		return true;
+	}
+
+	void draw() {
+		glBindVertexArray(VAO);
+		// offset, vertex count
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+	}
+};
+
+struct SimpleFBO {
+	GLuint fbo = 0, rbo = 0, tex = 0;
+	glm::ivec2 dim = glm::ivec2(1024, 1024);
+	
+	Shader * texDrawShader = 0;
+	QuadMesh * quadMesh = 0;
+	
+	void dest_closing() {
+		if (quadMesh) {
+			quadMesh->dest_closing();
+			delete quadMesh;
+			quadMesh = 0;
+		}
+		if (texDrawShader) {
+			delete texDrawShader;
+			texDrawShader = 0;
+		}
 		if (fbo) {
 			glDeleteFramebuffers(1, &fbo);
 			fbo = 0;
@@ -341,70 +415,6 @@ struct SimpleFBO {
 
 	bool dest_changed() {
 		dest_closing();
-
-		if (!texDrawShader) {
-			const char * vp = R"(
-				#version 330 core
-				layout (location = 0) in vec2 aPos;
-				layout (location = 1) in vec2 aTexCoord;
-				
-				out vec2 texCoord;
-				
-				void main() {
-					gl_Position = vec4(aPos, 0., 1.0);
-					texCoord = aTexCoord;
-				}
-			)";
-			const char * fp = R"(
-				#version 330 core
-				out vec4 FragColor;
-				in vec2 texCoord;
-				uniform sampler2D tex;
-
-								void main() {
-					//FragColor = vec4(texCoord, 0.5, 1.);
-					FragColor = texture(tex, texCoord);
-				}
-			)";
-			texDrawShader = new Shader(vp, fp);
-
-			float l = -1.;
-			float b = -1.;
-			float r = 1.;
-			float t = 1.;
-			GLfloat vertices[] = {
-				// positions, texcoords
-				r, t,		1., 1.,
-				l, t,		0., 1.,
-				l, b,		0., 0.,
-
-				l, b,		0., 0.,
-				r, b,		1., 0.,
-				r, t,		1., 1.
-			};
-
-			// define the VAO 
-			// (a VAO stores attrib & buffer mappings in a re-usable way)
-			glGenVertexArrays(1, &VAO);
-			glBindVertexArray(VAO);
-			// define the VBO while VAO is bound:
-			glGenBuffers(1, &VBO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-			// attr location 
-			glEnableVertexAttribArray(0);
-			// set the data layout
-			// attr location, element size & type, normalize?, source stride & offset
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-
-			glEnableVertexAttribArray(1);
-			// set the data layout
-			// attr location, element size & type, normalize?, source stride & offset
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-		}
 
 		// make a framebuffer:
 
@@ -450,21 +460,51 @@ struct SimpleFBO {
 	}
 	
 	void draw() {
+		
+		if (!texDrawShader) {
+			const char * vp = R"(
+				#version 330 core
+				layout (location = 0) in vec2 aPos;
+				layout (location = 1) in vec2 aTexCoord;
+				
+				out vec2 texCoord;
+				
+				void main() {
+					gl_Position = vec4(aPos, 0., 1.0);
+					texCoord = aTexCoord;
+				}
+			)";
+			const char * fp = R"(
+				#version 330 core
+				out vec4 FragColor;
+				in vec2 texCoord;
+				uniform sampler2D tex;
+
+								void main() {
+					//FragColor = vec4(texCoord, 0.5, 1.);
+					FragColor = texture(tex, texCoord);
+				}
+			)";
+			texDrawShader = new Shader(vp, fp);
+		}
+	
 		texDrawShader->use();
 		draw_no_shader();
 		texDrawShader->unuse();
 	}
 
 	void draw_no_shader() {
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glBindVertexArray(VAO);
 		
-		// offset, vertex count
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glBindVertexArray(0);
+		if (!quadMesh) {
+			quadMesh = new QuadMesh;
+			quadMesh->dest_changed();
+		}
+		glBindTexture(GL_TEXTURE_2D, tex);
+		quadMesh->draw();
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 };
+
+
 
 #endif
