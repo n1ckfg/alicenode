@@ -173,10 +173,13 @@ wss.on('connection', function(ws, req) {
 			//console.log(gitCommand);
 		}
 
+		if (message.includes("git return to master")){
 
+			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
+			 ws.send("edit? " + err)
 
-
-
+            })
+		}
 
 		let q = message.indexOf("?");
 		if (q > 0) {
@@ -199,16 +202,6 @@ wss.on('connection', function(ws, req) {
 	ws.on('error', function (e) {
 
 
- 
-
-		if (message.includes("git return to master")){
-
-			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
-			 ws.send("edit? " + err)
-
-            })
-		}
-
 		if (e.message === "read ECONNRESET") {
 			// ignore this, client will still emit close event
 		} else {
@@ -227,7 +220,7 @@ wss.on('connection', function(ws, req) {
 	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
 	if (statebuf) ws.send(statebuf);
 	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
-	
+
 });
 
 server.listen(8080, function() {
@@ -281,9 +274,15 @@ watcher
 	
 			send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
 
+
 			try {
 				project_build();
 				loadsim();
+				exec('node git.js repo_graph', {cwd: __dirname}, () => {
+						ws.send("updateRepo");
+
+				});
+
 			} catch (e) {
 				console.error(e.message);
 			}
@@ -292,6 +291,18 @@ watcher
 			exec(`git commit -m "client updated ${filepath}" ${filepath}`);
 			console.log(`File ${filepath} has been changed and committed`);
 			alice_command("reloadgpu", "");
+
+			try {
+				exec('node git.js repo_graph', {cwd: __dirname}, () => {
+						ws.send("updateRepo");
+
+				});			
+			}
+
+			catch (e) {
+				console.error(e.message);
+			}
+
 		} break;
 		default: {		
 			console.log(`File ${filepath} has been changed`);

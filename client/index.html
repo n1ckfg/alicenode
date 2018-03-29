@@ -66,6 +66,7 @@
             ws = new WebSocket(ws_url);
             ws.binaryType = 'arraybuffer';
             ws.onopen = function() {
+                loadSVG();
                 log('open');
                 sessionStorage.echoServer = url;
             };
@@ -108,6 +109,10 @@
                 		case "state":
                 			document.getElementById('state').innerHTML = arg;
                 			break;
+                        case "updateRepo":
+                            loadSVG();
+                            console.log("got update repo")
+                            break;
                 		default:
                 			log("cmd: " + cmd + ", " + arg);
                 		}
@@ -192,6 +197,7 @@
                 ws.send("git return to master");
                 }
 
+                function loadSVG(){
 
             //load the repo graph svg
             $(document).ready(function(){
@@ -257,6 +263,8 @@
                     }
                 });
             });
+
+        }
 
 //reload the repo_graph.svg when it changes
 function reloadSVG(){
