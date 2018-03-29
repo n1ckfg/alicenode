@@ -154,6 +154,30 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
+
+		//git stuff:
+		if (message.includes("git show")) {
+
+			//var show = message.replace("Commit_Hash", "git show")
+			var gitCommand = (message + ":" + "/Users/mp/alicenode_inhabitat/project.cpp");
+
+			//path.join("..", "alicenode_inhabitat/project.cpp")
+				exec(gitCommand, { cwd: path.join("..", "alicenode_inhabitat" )}, (err, stdout) => {
+					console.log(err);
+					console.log(stdout);
+				//	ws.send("edit? " + stdout)
+
+			});
+
+			
+			//console.log(gitCommand);
+		}
+
+
+
+
+
+
 		let q = message.indexOf("?");
 		if (q > 0) {
 			let cmd = message.substring(0, q);
@@ -163,6 +187,7 @@ wss.on('connection', function(ws, req) {
 				console.log(arg);
 				fs.writeFileSync("project.cpp", arg, "utf8");
 				break;
+
 			default:
 				console.log("unknown cmd", cmd, "arg", arg);
 			}
@@ -173,22 +198,8 @@ wss.on('connection', function(ws, req) {
 	
 	ws.on('error', function (e) {
 
-		//git stuff:
-		if (message.includes("Commit_Hash")) {
 
-			var show = message.replace("Commit_Hash", "git show")
-			var gitCommand = (show + path.join("..", "alicenode_inhabitat/project.cpp"));
-
-				exec(gitCommand, (err, stdout) => {
-				//	console.log(err);
-				//	console.log(stdout);
-					ws.send("edit? " + stdout)
-
-			});
-
-			
-			//console.log(gitCommand);
-		} 
+ 
 
 		if (message.includes("git return to master")){
 
@@ -261,7 +272,8 @@ watcher
 
 		//commit the changed project.cpp
 		exec('git add -am "client updated project.cpp"', { cwd: path.join("..", "alicenode_inhabitat")});
-		
+		})
+
 		/*
 		switch (path.extname(filepath)) {
 			case ".cpp":
@@ -292,3 +304,5 @@ fs.watch(path.join(project_path,'project.cpp'), (ev, filename) => {
 		
 	}
 });
+
+*/

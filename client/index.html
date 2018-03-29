@@ -218,7 +218,7 @@
                        // popup the commit hash!
                        //alert('you clicked on button #' + $(this).attr("data-name"));
 
-                         ws.send("Commit_Hash " + $(this).attr("data-name"));
+                         ws.send("git show " + $(this).attr("data-name"));
 
                         })
 
