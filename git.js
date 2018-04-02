@@ -106,7 +106,7 @@ switch (process.argv[2]) {
 	case "repo_graph":
 		//var name = ('./' + process.argv[3])
 
-revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp ' + path.join("..", "alicenode_inhabitat") + ' > ' + path.join("..", "alicenode/repo_graph.dot"), (err, stdout, stderr) => {
+revList = exec('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp ' + path.join("..", "alicenode_inhabitat") + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: process.argv[3]},(err, stdout, stderr) => {
 
 		//convert the digraph to svg
 		exec('dot -Tsvg repo_graph.dot -o ' + path.join("..", "alicenode/client/repo_graph.svg"), (err, stdout, stderr) => {

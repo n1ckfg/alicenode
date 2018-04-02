@@ -12,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
+const execPromise = require('child-process-promise');
 const nodegit = require("nodegit");
 
 function random (low, high) {
@@ -61,6 +62,18 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 		console.error("ERROR", e.message);
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+// BUILD REPO GRAPH
+
+exec('node git.js repo_graph /Users/mp/alicenode_inhabitat/project.cpp', () => {
+
+	console.log("\n\n\nRebuilt Repo Graph\n\n\n");
+
+})
+
+//
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -256,7 +269,7 @@ function unloadsim() {
 // would be better to be able to use a dependency tracer,
 // so that any file that sim.cpp depends on also triggers.
 
-let watcher = chokidar.watch(".", {ignored: ".git" });
+let watcher = chokidar.watch(project_path, {ignored: project_path+"/.git" } );
 
 watcher
 
@@ -264,36 +277,58 @@ watcher
 .on('change', (filepath, stats) => {
 	switch (path.extname(filepath)) {
 		case ".cpp":
-		case ".h":
 		{
-			exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
-			console.log(`File ${filepath} has been changed and committed`);
+		execSync('git add .', {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("git added")})
+		execSync('git commit -m "client updated project"', {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("git committed")})
+		//create digraph from git history of project.cpp
+		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
+		//convert the digraph to svg
+		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+
+		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
+
+		unloadsim();
+			
+		send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
+}
+		break;
+
+		case "*.h":
+		{	//execPromise('git commit add .', {cwd: project_path})
+			//	.then(function (result){
+			//		exec(`git commit -m "client updated ${filepath}"`, {cwd: project_path})
+			//		console.log(`File ${filepath} has been changed and committed`);
+				
+				
 		
-			// first have to unload the current sim, to release the lock on the dll:
-			unloadsim();
-	
-			send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
+				// first have to unload the current sim, to release the lock on the dll:
+				unloadsim();
+			
+				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
+			}
+			//)
+
 
 
 			try {
 				project_build();
 				loadsim();
-				exec('node git.js repo_graph', {cwd: __dirname}, () => {
-						ws.send("updateRepo");
+			//	exec('node git.js repo_graph ' + path.join("..", "alicenode_inhabitat"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {
+						//ws.send("updateRepo");
 
-				});
+			//	});
 
 			} catch (e) {
 				console.error(e.message);
 			}
-		} break;
+		 break;
 		case ".glsl": {
 			exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
 			console.log(`File ${filepath} has been changed and committed`);
 			alice_command("reloadgpu", "");
 
 			try {
-				exec('node git.js repo_graph', {cwd: __dirname}, () => {
+				exec('node git.js repo_graph ' + project_path, () => {
 						ws.send("updateRepo");
 
 				});			

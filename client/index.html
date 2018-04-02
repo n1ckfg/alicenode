@@ -30,6 +30,7 @@
         <input id="server" type="text" value="ws://localhost:8080" size="40">
         <button onclick="openSocket()">Open</button>
         <button onclick="closeSocket()">Close</button>
+        <button onclick="loadSVG()">ReloadSVG</button>
     </p>
 
     <p>
@@ -66,12 +67,12 @@
             ws = new WebSocket(ws_url);
             ws.binaryType = 'arraybuffer';
             ws.onopen = function() {
-                loadSVG();
-                log('open');
+                //loadSVG();
+               // log('open');
                 sessionStorage.echoServer = url;
             };
             ws.onclose = function() {
-                log('close');
+               // log('close');
             };
             ws.onmessage = function(e) {
                 /*if (e.data instanceof Blob) {
@@ -197,13 +198,12 @@
                 ws.send("git return to master");
                 }
 
-                function loadSVG(){
 
             //load the repo graph svg
             $(document).ready(function(){
                 $("#graph").graphviz({
-                    url: "repo_graph.svg",
-                    shrink: "0.5", 
+                    url: "/repo_graph.svg",
+                    shrink: "-2", 
                   // tooltips: "init, update, show",
                   // highlight: "selected",
                     ready: function() {
@@ -264,75 +264,7 @@
                 });
             });
 
-        }
-
-//reload the repo_graph.svg when it changes
-function reloadSVG(){
-                $("#graph").graphviz({
-                    url: "repo_graph.svg",
-                    shrink: "0.5", 
-                  // tooltips: "init, update, show",
-                  // highlight: "selected",
-                    ready: function() {
-                        var gv = this
-                        //console.log(gv.nodesByName());
-
-                        //gv.tooltip($elements, show);
-                        console.log(gv.highlight());
-
-                        gv.nodes().click(function () {
-                            var $set = $()
-                            $set.push(this)
-                            $set = $set.add(gv.linkedFrom(this, true))
-                            $set = $set.add(gv.linkedTo(this, true))
-                            gv.highlight($set, true)
-                       //     gv.bringToFront($set)
-
-                       // popup the commit hash!
-                       //alert('you clicked on button #' + $(this).attr("data-name"));
-
-                         ws.send("Commit_Hash " + $(this).attr("data-name"));
-
-                        })
-
-
-                        /*
-                        gv.nodes().mouseenter(function () {
-                            var $set = $()
-                            $set.push(this)
-                            $set = $set.add(gv.linkedFrom(this, true))
-                            $set = $set.add(gv.linkedTo(this, true))
-                            gv.highlight(selected, true)
-                            console.log($(this).attr("data-name"));
-
-
-                        })
-
-                        */
-                        gv.nodes().mouseenter(function(){
-                               console.log($(this).attr("data-name"));
-                               commit_detail.innerText = $(this).attr("data-name");
-                               console.log(this)
-                                })
-
-                        $(document).on("click",".appDetails", function () {
-                        //var clickedBtnID = $(this).attr(gv.nodes()); // or var clickedBtnID = this.id
-                        var clickedBtnID = this.gv
-                        alert('you clicked on button #' + clickedBtnID);
-                        console.log(clickedBtnID);
-                        });
-
-                        $(document).keydown(function (evt) {
-                            if (evt.keyCode == 27) {
-                                gv.highlight()
-                            }
-                        })
-                    }
-                })
-            };
-            
-
-
+        
 
 
 
