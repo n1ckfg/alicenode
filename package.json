@@ -16,11 +16,15 @@
   "dependencies": {
     "child-process-promise": "^2.2.1",
     "chokidar": "^2.0.3",
+    "code-forensics": "^0.15.1",
     "express": "^4.16.3",
     "mmapfile": "^0.1.1",
     "nodegit": "^0.21.2",
     "nodemon": "^1.17.2",
     "vis": "^4.21.0",
     "ws": "^5.1.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
   }
 }

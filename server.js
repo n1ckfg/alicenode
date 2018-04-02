@@ -292,16 +292,23 @@ watcher
 			
 		send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
 }
+
+
+try {
+				project_build();
+				loadsim();
+			//	exec('node git.js repo_graph ' + path.join("..", "alicenode_inhabitat"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {
+						//ws.send("updateRepo");
+
+			//	});
+
+			} catch (e) {
+				console.error(e.message);
+			}
 		break;
 
 		case "*.h":
-		{	//execPromise('git commit add .', {cwd: project_path})
-			//	.then(function (result){
-			//		exec(`git commit -m "client updated ${filepath}"`, {cwd: project_path})
-			//		console.log(`File ${filepath} has been changed and committed`);
-				
-				
-		
+		{			
 				// first have to unload the current sim, to release the lock on the dll:
 				unloadsim();
 			
