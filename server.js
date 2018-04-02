@@ -67,11 +67,10 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 // BUILD REPO GRAPH
 
-exec('node git.js repo_graph /Users/mp/alicenode_inhabitat/project.cpp', () => {
-
-	console.log("\n\n\nRebuilt Repo Graph\n\n\n");
-
-})
+execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("made the repo_graph.dot")});
+//convert the digraph to svg
+execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+console.log("\nRebuilt Repo Graph\n");
 
 //
 
@@ -285,6 +284,8 @@ watcher
 		//convert the digraph to svg
 		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
 
+		send_all_clients("updateRepo?");
+
 		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
 
 		unloadsim();
@@ -323,20 +324,19 @@ watcher
 			}
 		 break;
 		case ".glsl": {
-			exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
+			//exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
 			console.log(`File ${filepath} has been changed and committed`);
 			alice_command("reloadgpu", "");
 
-			try {
-				exec('node git.js repo_graph ' + project_path, () => {
-						ws.send("updateRepo");
+			//try {
+				//exec('node git.js repo_graph ' + project_path, () => {
 
-				});			
-			}
+			//	});			
+			//}
 
-			catch (e) {
-				console.error(e.message);
-			}
+			//catch (e) {
+			//	console.error(e.message);
+			//}
 
 		} break;
 		default: {		
