@@ -351,3 +351,9 @@ try {
 		}
 	}
 });
+
+///////////////////////////////////////////////////////////////
+
+// Run the code-forensics webserver: 
+exec('gulp webserver', {cwd: __dirname});
+
