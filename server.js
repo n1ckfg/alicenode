@@ -159,13 +159,13 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("git show")) {
 
 			//var show = message.replace("Commit_Hash", "git show")
-			var gitCommand = (message + ":" + "/Users/mp/alicenode_inhabitat/project.cpp");
+			var gitCommand = (message + ":" + "project.cpp");
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
 				exec(gitCommand, { cwd: path.join("..", "alicenode_inhabitat" )}, (err, stdout) => {
-					console.log(err);
-					console.log(stdout);
-				//	ws.send("edit? " + stdout)
+					//console.log(err);
+					//console.log(stdout);
+					ws.send("edit? " + stdout)
 
 			});
 
@@ -266,7 +266,7 @@ watcher
 		case ".cpp":
 		case ".h":
 		{
-			exec(`git commit -m "client updated ${filepath}" ${filepath}`);
+			exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
 			console.log(`File ${filepath} has been changed and committed`);
 		
 			// first have to unload the current sim, to release the lock on the dll:
@@ -288,7 +288,7 @@ watcher
 			}
 		} break;
 		case ".glsl": {
-			exec(`git commit -m "client updated ${filepath}" ${filepath}`);
+			exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
 			console.log(`File ${filepath} has been changed and committed`);
 			alice_command("reloadgpu", "");
 
