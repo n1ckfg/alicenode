@@ -67,10 +67,14 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 // BUILD REPO GRAPH
 
-execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("made the repo_graph.dot")});
-//convert the digraph to svg
-execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-console.log("\nRebuilt Repo Graph\n");
+try {
+	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("made the repo_graph.dot")});
+	//convert the digraph to svg
+	execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+	console.log("\nRebuilt Repo Graph\n");
+} catch (e) {
+	console.error(e.toString());
+}
 
 //
 
