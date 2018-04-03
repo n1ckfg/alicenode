@@ -68,29 +68,22 @@ float clip(float in, float min, float max) {
 	return AL_MAX(v, min);
 }
 
-/*
 
-// temporary hack because the one in al_Function gave a bad result
-// for e.g. wrap<double>(-64.0, -32.0);
-template<typename T>
-inline T wrap(T v, const T hi=T(1.), const T lo=T(0.)){
-	if(lo == hi) return lo;
-	//if(v >= hi){
-	if(!(v < hi)){
-		T diff = hi - lo;
-		v -= diff;
-		if(!(v < hi)) v -= diff * (T)(uint32_t)((v - lo)/diff);
-	}
-	else if(v < lo){
-		T diff = hi - lo;
-		v += diff;
-		if(v < lo) v += diff * (T)(uint32_t)(((lo - v)/diff) + 1);
-		if(v==diff) return lo;
-	}
-	return v;
+// Note: "a - N*floorf(a / N)" does not work due to occasional floating point error
+// this is far simpler but N must be nonzero:
+template<typename T, typename T1>
+T wrap(T a, T1 N) {
+	return glm::fract(a / N) * N;
 }
 
-*/
+template<typename T, typename T1>
+inline T wrap(T x, T1 lo, T1 hi) {
+	return lo + wrap(x-lo, hi-lo);
+}
+
+/*
+
+// The old way I was using before; the glm::fract method above seems numerically stable though
 
 template<typename T>
 inline T wrap(T x, T mod) {
@@ -130,11 +123,6 @@ inline T wrap(T x, T mod) {
 	}
 }
 
-template<typename T>
-inline T wrap(T x, T lo, T hi) {
-	return lo + wrap(x-lo, hi-lo);
-}
-
 glm::vec2 wrap(glm::vec2 v, float dim=1.f) {
 	return glm::vec2(
 		wrap(v.x, dim), 
@@ -149,6 +137,8 @@ glm::vec3 wrap(glm::vec3 v, float dim=1.f) {
 		wrap(v.z, dim)
 	);
 }
+*/
+
 
 
 class rnd {
