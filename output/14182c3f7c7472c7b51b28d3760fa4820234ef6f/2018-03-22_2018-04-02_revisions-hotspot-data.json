@@ -1,0 +1,20 @@
+{
+  "children": [
+    {
+      "name": "project.cpp",
+      "children": [],
+      "sourceLines": 79,
+      "totalLines": 121,
+      "revisions": 82,
+      "weight": 1
+    },
+    {
+      "name": "state.h",
+      "children": [],
+      "sourceLines": 7,
+      "totalLines": 12,
+      "revisions": 2,
+      "weight": 0.024390243902439025
+    }
+  ]
+}

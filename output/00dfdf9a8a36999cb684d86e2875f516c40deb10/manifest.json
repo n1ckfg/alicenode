@@ -1,0 +1,19 @@
+{
+  "id": "00dfdf9a8a36999cb684d86e2875f516c40deb10",
+  "reportName": "commit-messages",
+  "taskName": "commit-message-analysis",
+  "time": "2018-04-02T23:05:33.537Z",
+  "dateRange": "2018-03-22_2018-04-02",
+  "parameters": {
+    "minWordCount": 5
+  },
+  "enabledDiagrams": [
+    "commit-words"
+  ],
+  "dataFiles": [
+    {
+      "timePeriod": "2018-03-22_2018-04-02",
+      "fileUrl": "00dfdf9a8a36999cb684d86e2875f516c40deb10/2018-03-22_2018-04-02_commit-words-data.json"
+    }
+  ]
+}

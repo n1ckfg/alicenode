@@ -4,6 +4,8 @@
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
   height: 300px;
+  width: 40%;
+  align: left;
   color: black;
   direction: ltr;
 }
@@ -45,11 +47,11 @@
 .CodeMirror-cursor {
   border-left: 1px solid black;
   border-right: none;
-  width: 0;
+  width: 2;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
-  border-left: 1px solid silver;
+  border-left: 3px solid silver;
 }
 .cm-fat-cursor .CodeMirror-cursor {
   width: auto;
@@ -57,7 +59,7 @@
   background: #7e7;
 }
 .cm-fat-cursor div.CodeMirror-cursors {
-  z-index: 1;
+  z-index: 3;
 }
 .cm-fat-cursor-mark {
   background-color: rgba(20, 255, 20, 0.5);

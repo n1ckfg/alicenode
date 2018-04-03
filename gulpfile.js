@@ -1,4 +1,6 @@
+const path = require("path");
 var gulp = require('gulp');
+
 
 gulp.task('default', function() {
   // place code for your default task here
@@ -7,7 +9,7 @@ gulp.task('default', function() {
 require('code-forensics').configure(
   {
     repository: {
-      rootPath: "/Users/mp/dispersion-lab",
+      rootPath: path.join("..", "alicenode_inhabitat"),
     }
   }
 );

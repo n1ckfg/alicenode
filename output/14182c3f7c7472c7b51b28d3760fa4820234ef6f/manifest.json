@@ -1,0 +1,17 @@
+{
+  "id": "14182c3f7c7472c7b51b28d3760fa4820234ef6f",
+  "reportName": "hotspot-analysis",
+  "taskName": "hotspot-analysis",
+  "time": "2018-04-02T23:07:10.942Z",
+  "dateRange": "2018-03-22_2018-04-02",
+  "parameters": {},
+  "enabledDiagrams": [
+    "sloc"
+  ],
+  "dataFiles": [
+    {
+      "timePeriod": "2018-03-22_2018-04-02",
+      "fileUrl": "14182c3f7c7472c7b51b28d3760fa4820234ef6f/2018-03-22_2018-04-02_revisions-hotspot-data.json"
+    }
+  ]
+}

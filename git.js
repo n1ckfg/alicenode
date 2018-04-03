@@ -115,8 +115,18 @@ revList = exec('git-big-picture --graphviz --all --tags --branches --roots --mer
 
 	})
 	})
+	break;
 
+	case "msr_DCA":
 
+		execSync("gulp developer-coupling-analysis --dateFrom=2018-03-22 --dateTo=" + moment().format('YYYY/MM/DD'), {cwd: path.join("..", "alicenode_inhabitat")}, (err, stdout, stderr) => {
+
+				console.log(err);
+				console.log(stdout);
+				console.log(stderr);
+		});
+
+		break;
 }
 
 

@@ -1,0 +1,26 @@
+{
+  "id": "69ab668b9c9ac5ec00cd0e97a23d9eb4fd195af7",
+  "reportName": "developer-coupling",
+  "taskName": "developer-coupling-analysis",
+  "time": "2018-04-02T23:03:37.228Z",
+  "dateRange": "2018-03-22_2018-04-02",
+  "parameters": {
+    "maxCoupledFiles": 5
+  },
+  "enabledDiagrams": [
+    "main-developer-coupling",
+    "communication-network"
+  ],
+  "dataFiles": [
+    {
+      "fileType": "communication-network",
+      "timePeriod": "2018-03-22_2018-04-02",
+      "fileUrl": "69ab668b9c9ac5ec00cd0e97a23d9eb4fd195af7/2018-03-22_2018-04-02_communication-network-data.json"
+    },
+    {
+      "fileType": "code-ownership",
+      "timePeriod": "2018-03-22_2018-04-02",
+      "fileUrl": "69ab668b9c9ac5ec00cd0e97a23d9eb4fd195af7/2018-03-22_2018-04-02_main-dev-coupling-data.json"
+    }
+  ]
+}
