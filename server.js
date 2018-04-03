@@ -94,7 +94,7 @@ alice.stderr.pipe(process.stderr);
 alice.on('exit', function (code) {
 	console.log("alice exit code", code);
 	// let node exit when it can:
-	//process.exitCode = 1; wasn't working on Windows :-(
+	process.exitCode = 1; //wasn't working on Windows :-(
 	process.exit();
 });
 
@@ -120,12 +120,12 @@ try {
 		
 	// slow version:
 	setInterval(function() {
-		let idx = randomInt(0, 10) * 8;
+		let idx = randomInt(0, 10) * (4*3);
 		let v = statebuf.readFloatLE(idx);
 		v = v + 0.01;
 		if (v > 1.) v -= 2.;
 		if (v < -1.) v += 2.;
-		statebuf.writeFloatLE(v, idx);
+		//statebuf.writeFloatLE(v, idx);
 	}, 1000/120);
 } catch(e) {
 	console.error("failed to map the state.bin:", e.message);

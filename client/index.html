@@ -86,8 +86,8 @@
                     
                     let s = "";
                     let fv = new Float32Array(e.data);
-                    for (var i = 0; i < fv.length; i+=2) {
-  						s += "<li>" + (i/2 + ": { " + fv[i] + ", " + fv[i+1] + " }</li>");
+                    for (var i = 0; i < fv.length; i+=3) {
+  						s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
 					}
 					
 					document.getElementById('state').innerHTML = s;
