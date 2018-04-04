@@ -87,7 +87,6 @@ function git_add_and_commit() {
 		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
 		//convert the digraph to svg
 		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-
 		send_all_clients("updateRepo?");
 
 		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
@@ -192,9 +191,27 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 
 		//git stuff:
+		//////////////////////////////////////////////
+		/////////////////////////////////////////TODO: need to retrieve the details for commit hash
+		////////////////////////////////////////////// right now the exec function isn't returning the value, but if you run the command in CLI it works fine, so whats wrong with the exec?
+		
+		//mouseover (bootstrap for now)
+		if (message.includes("hash")) {
+
+			var detail = message.replace("hash", "")
+			exec("git log -1 --pretty=tformat:%h,%aD:%cn " + detail, { cwd: path.join("..", "alicenode_inhabitat" )}, (stdout) => {
+				console.log("stdout: " + stdout)
+				})
+			console.log(message);
+		}
+
+		//////////////////////////////////////////////
+		//////////////////////////////////////////////
+		//////////////////////////////////////////////
+		//execSync('git log --pretty=tformat:%h,%aD:%cn > ' + path.join("..", "alicenode/client/gitlog.csv"))
+
 		if (message.includes("git show")) {
 
-			//var show = message.replace("Commit_Hash", "git show")
 			var gitCommand = (message + ":" + "project.cpp");
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")

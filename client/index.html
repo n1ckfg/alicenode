@@ -203,7 +203,7 @@ function loadSVG(){
             $(document).ready(function(){
                 $("#graph").graphviz({
                     url: "repo_graph.svg",
-                    shrink: "-2", 
+                    shrink: "0", 
                   // tooltips: "init, update, show",
                   // highlight: "selected",
                     ready: function() {
@@ -240,9 +240,12 @@ function loadSVG(){
                         */
                         //mouseover a digraph node: reveal its commit hash
                         gv.nodes().mouseenter(function(){
-                               console.log($(this).attr("data-name"));
-                               commit_detail.innerText = $(this).attr("data-name");
-                               console.log(this)
+                            var hash = ($(this).attr("data-name"));
+
+                               //console.log($(this).attr("data-name"));
+                               commit_detail.innerText = hash;
+                               ws.send("hash" + hash);
+                             //  console.log(this)
                                 })
                     }
                 });
@@ -250,6 +253,12 @@ function loadSVG(){
 
   }      
 
+                  //      gv.nodes().mouseenter(function(){
+                               
+
+                    //           commit_detail.innerText = hash;
+                      //         ws.send("hashDetail + " hash);
+                        //        })
 
 
 
