@@ -190,18 +190,6 @@
 		openSocket();
 
 
-/// repo_graph code:
-
-fetch( '/log.json', {
-                                method: 'get'
-                            }).then( function( response ) {
-
-                                //success
-                                console.log("success " + response)
-                            }).catch( function( err ) {
-                                //error
-                                console.log("error " + err)
-                            })
 
 //tell git to revert to master commit HEAD
 //function revertMaster() {
@@ -212,19 +200,19 @@ fetch( '/log.json', {
 function loadSVG(){
 
 
-    console.log(ws_url);
+  //  console.log(ws_url);
             $(document).ready(function(){
                 $("#graph").graphviz({
                     url: "repo_graph.svg",
                     shrink: "0", 
                   // tooltips: "init, update, show",
-                  // highlight: "selected",
+                   //highlight: "selected",
                     ready: function() {
                         var gv = this
                         //console.log(gv.nodesByName());
 
                         //gv.tooltip($elements, show);
-                        console.log(gv.highlight());
+                        //console.log(gv.highlight());
 
                         gv.nodes().click(function () {
                             var $set = $()
@@ -238,19 +226,19 @@ function loadSVG(){
                         })
 
 
-                        /*
-                        gv.nodes().mouseenter(function () {
-                            var $set = $()
-                            $set.push(this)
-                            $set = $set.add(gv.linkedFrom(this, true))
-                            $set = $set.add(gv.linkedTo(this, true))
-                            gv.highlight(selected, true)
-                            console.log($(this).attr("data-name"));
-
-
-                        })
                         
-                        */
+                      //  gv.nodes().mouseenter(function () {
+                        //    var $set = $()
+                          //  $set.push(this)
+                   //         $set = $set.add(gv.linkedFrom(this, true))
+                     //       $set = $set.add(gv.linkedTo(this, true))
+                       //     gv.highlight(selected, true)
+                         //   console.log($(this).attr("data-name"));
+
+
+                        //})
+                        
+                       
                         //load the gitlog.json
                     //    function() {
 
@@ -265,8 +253,10 @@ function loadSVG(){
 
                         //mouseover a digraph node: reveal its commit hash
                         gv.nodes().mouseenter(function(){
+                            
+                         //   gv.highlight(selected, true)
                             var hash = ($(this).attr("data-name"));
-                            var hashData = ($.getJSON('log.json', function(data) {
+                            //var hashData = ($.getJSON('log.json', function(data) {
                              //   var details = ($(data).attr(this));
 
                              var details = data[hash];
@@ -274,7 +264,7 @@ function loadSVG(){
                                ws.send("hash" + hash);
                                console.log(details);
 
-                            }))
+                           // }))
                                //console.log($(this).attr("data-name"));
                              //  commit_detail.innerText = hash;
                               // ws.send("hash" + hash);
