@@ -87,6 +87,10 @@ function git_add_and_commit() {
 		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
 		//convert the digraph to svg
 		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join("..", "alicenode/client/gitlog.json"), {cwd: "/Users/mp/alicenode"}, () => {
+			console.log("updated ../client/gitlog.json")
+		})
+
 		send_all_clients("updateRepo?");
 
 		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
