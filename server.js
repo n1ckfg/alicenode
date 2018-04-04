@@ -68,12 +68,32 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 // BUILD REPO GRAPH
 
 try {
-	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("made the repo_graph.dot")});
+	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
 	//convert the digraph to svg
 	execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
 	console.log("\nRebuilt Repo Graph\n");
 } catch (e) {
 	console.error(e.toString());
+}
+
+// UPDATE GIT REPO:
+
+function git_add_and_commit() {
+	try {
+				
+		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
+		execSync('git commit -m "client updated project"', {cwd: project_path }, () => {console.log("git committed")});
+		//create digraph from git history of project.cpp
+		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
+		//convert the digraph to svg
+		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+
+		send_all_clients("updateRepo?");
+
+		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
+	} catch (e) {
+		console.error(e.toString());
+	}
 }
 
 //
@@ -275,79 +295,39 @@ function unloadsim() {
 let watcher = chokidar.watch(project_path, {ignored: project_path+"/.git" } );
 
 watcher
-
 .on('error', error => console.log(`Watcher error: ${error}`))
 .on('change', (filepath, stats) => {
+	console.log("changed", filepath);
 	switch (path.extname(filepath)) {
+		case ".h":
 		case ".cpp":
 		{
-		execSync('git add .', {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("git added")})
-		execSync('git commit -m "client updated project"', {cwd: path.join("..", "alicenode_inhabitat")}, () => {console.log("git committed")})
-		//create digraph from git history of project.cpp
-		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
-		//convert the digraph to svg
-		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-
-		send_all_clients("updateRepo?");
-
-		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
-
-		unloadsim();
-			
-		send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
-}
-
-
-try {
-				project_build();
-				loadsim();
-			//	exec('node git.js repo_graph ' + path.join("..", "alicenode_inhabitat"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {
-						//ws.send("updateRepo");
-
-			//	});
-
-			} catch (e) {
-				console.error(e.message);
-			}
-		break;
-
-		case "*.h":
-		{			
-				// first have to unload the current sim, to release the lock on the dll:
+			// first, reload & rebuild sim:
+			try {
+				
 				unloadsim();
 			
+				// let clients know the sources have changed
 				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
-			}
-			//)
-
-
-
-			try {
+			
 				project_build();
 				loadsim();
-			//	exec('node git.js repo_graph ' + path.join("..", "alicenode_inhabitat"), {cwd: path.join("..", "alicenode_inhabitat")}, () => {
-						//ws.send("updateRepo");
-
-			//	});
 
 			} catch (e) {
 				console.error(e.message);
 			}
-		 break;
+			
+			// then, commit to git:
+			git_add_and_commit();
+			
+		} break;
 		case ".glsl": {
-			//exec(`git commit -a -m "client updated ${filepath}" ${filepath}`);
-			console.log(`File ${filepath} has been changed and committed`);
+			
+			// first, reload GPU resources:
 			alice_command("reloadgpu", "");
 
-			//try {
-				//exec('node git.js repo_graph ' + project_path, () => {
-
-			//	});			
-			//}
-
-			//catch (e) {
-			//	console.error(e.message);
-			//}
+			// then, commit to git:
+			git_add_and_commit();
 
 		} break;
 		default: {		
