@@ -74,6 +74,23 @@ glm::tvec3<T, P> quat_rotate(glm::quat const & q, glm::tvec3<T, P> & v) {
 		);
 }
 
+// has a uniform distribution, per http://planning.cs.uiuc.edu/node198.html
+// see also http://pajarito.materials.cmu.edu/rollett/27750/lecture2.pdf
+inline glm::quat quat_random() {
+	float r1 = glm::linearRand(0.f, 1.f);
+	float r2 = glm::linearRand(0.f, 1.f);
+	float r3 = glm::linearRand(0.f, 1.f);
+	float sq1 = sqrtf(r3);
+	float sq2 = sqrtf(1.f-r3);
+	return glm::quat(
+		cosf(float(M_PI * 2.) * r1) * sq1,
+		sinf(float(M_PI * 2.) * r2) * sq2,
+		cosf(float(M_PI * 2.) * r2) * sq1,
+		sinf(float(M_PI * 2.) * r1) * sq2
+	);
+}
+
+
 template<typename T, glm::precision P>
 inline glm::tvec3<T, P> quat_ux(glm::tquat<T, P> const & q) {
 	return glm::tvec3<T, P>(
@@ -106,20 +123,7 @@ inline glm::tvec3<T, P> quat_uf(glm::tquat<T, P> const & q) {
 	return -quat_uz(q);
 }
 
-// see http://pajarito.materials.cmu.edu/rollett/27750/lecture2.pdf
-inline glm::quat quat_random() {
-	float r1 = glm::linearRand(0.f, 1.f);
-	float r2 = glm::linearRand(0.f, 1.f);
-	float r3 = glm::linearRand(0.f, 1.f);
-	float sq1 = sqrtf(r3);
-	float sq2 = sqrtf(1.f-r3);
-	return glm::quat(
-		cosf(float(M_PI * 2.) * r1) * sq1,
-		sinf(float(M_PI * 2.) * r2) * sq2,
-		cosf(float(M_PI * 2.) * r2) * sq1,
-		sinf(float(M_PI * 2.) * r1) * sq2
-	);
-}
+
 
 template<typename T, glm::precision P>
 inline glm::tvec2<T, P> safe_normalize (glm::tvec2<T, P> const &v) {
