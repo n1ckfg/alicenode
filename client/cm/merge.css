@@ -5,7 +5,8 @@
 }
 
 .CodeMirror-merge, .CodeMirror-merge .CodeMirror {
-  height: 350px;
+  height: 500px;
+  width: 100%;
 }
 
 .CodeMirror-merge-2pane .CodeMirror-merge-pane { width: 47%; }

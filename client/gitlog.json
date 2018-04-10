@@ -1,4 +1,10 @@
 [{
+ “a76bb3d090fd082140a646a8ac25ae7dd0b7ecfc”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Tue Apr 10 12:20:29 2018 -0400", "added-a-new-goal-for-the-dev.txt"
+},
+{
+ “ba9197b7f4e0643b8ddae536efa3584b6817ef36”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Tue Apr 10 10:48:17 2018 -0400", "got-mergeview-working-in-codemirror"
+},
+{
  “958cb440114b7a942241cadd7b88903082f3f989”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Sun Apr 8 21:08:55 2018 -0400", "merge.js-is-an-addon-for-codemirror-which-enables-a-diff-tool-for-in-browser"
 },
 {

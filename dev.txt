@@ -45,3 +45,7 @@ how to get the current content of the ‘edit’ div. using this, we could repla
 Clicking on a git commit node should now inject the result of the ‘git show’ into an origRight. 
 
 Need to resize the code mirror panes
+
+Changing the code in the origEditor starts a new branch from that commit. i.e. “git branch -b <newbranchname> <commit hash>” (this also checks out that branch)
+
+is there a better way to zoom in/navigate the git version tree graph in the browser?

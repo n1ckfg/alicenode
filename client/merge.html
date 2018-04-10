@@ -7,6 +7,7 @@
 <link rel=stylesheet href="cm/docs.css">
 <link rel=stylesheet href="cm/codemirror.css">
 <link rel=stylesheet href="cm/merge.css">
+<link rel=stylesheet href="cm/icecoder.css">
 <script src="cm/codemirror.js"></script>
 <!-- <script src="/cm/xml.js"></script> -->
 <script src="cm/css.js"></script>
@@ -26,18 +27,12 @@
 
 
 <style>
-    .CodeMirror { line-height: 1.2; }
+    .CodeMirror { line-height: 1 }
     @media screen and (min-width: 1300px) {
-      article { max-width: 100%; }
+      /* article { max-width: 50%; } */
       #nav { border-right: 499px solid transparent; }
     }
-    span.clicky {
-      cursor: pointer;
-      background: #d70;
-      color: white;
-      padding: 0 3px;
-      border-radius: 3px;
-    }
+
   </style>
 <!-- <div id=nav>
    <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a> 
@@ -58,33 +53,36 @@
     <button onclick="openSocket()">Open</button>
     <button onclick="closeSocket()">Close</button>
 </p>
+<p>
+    Editor Settings
+<br>
+<button id="live_diffing" onclick="toggleDifferences()">Toggle: Live Diffing</button> 
+<button id="collapse" onclick="collapse">Toggle: Collapse Changes</button> 
+<button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
+</p>
+<button onclick="showValue()">Show Value</button>
+<button onclick="sendCode()">Send Original</button>
+
+
 
 <div id=view></div>
 
 
-<p>The merge addon provides an interface for displaying and merging diffs,
-either <span class=clicky onclick="panes = 2; initUI()">two-way</span>
-or <span class=clicky onclick="panes = 3; initUI()">three-way</span>.
-The left (or center) pane is editable, and the differences with the
-other pane(s) are <span class=clicky
-onclick="toggleDifferences()">optionally</span> shown live as you edit
-it. In the two-way configuration, there are also options to pad changed
-sections to <span class=clicky onclick="connect = connect ? null :
-'align'; initUI()">align</span> them, and to <span class=clicky
-onclick="collapse = !collapse; initUI()">collapse</span> unchanged
-stretches of text.</p>
 
 
+
+
+<!--code for the repository graph -->
+
+<div id="graph" style="width: 100%; height: 10%; overflow: scroll; position: fixed;"></div>
+
+<br><br><br>
 <!-- mouseover stuff -->
 
 <h3 id="commit_detail"></h3>
 
 <!-- server messages -->
 <ul id="messages"></ul>
-
-<!--code for the repository graph -->
-
-<div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; bottom: 0;"></div>
 
 
 <script>
@@ -148,7 +146,7 @@ stretches of text.</p>
 
                               // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                               value = arg
-
+                              orig1 = arg
                               initUI();                          
                             break;
                         //
@@ -195,8 +193,8 @@ stretches of text.</p>
 		
 		function sendCode() {
          //   var message = "edit?" + editorCM.getValue();   
-         var message = "edit?" + mergeEditor.getValue(); //HOW DO WE GET THE CURRENT STATE OF THE CODEMIRROR IN MERGEVIEW??
-            console.log(mergeEditor);
+         var message = "edit?" + orig1; //HOW DO WE GET THE CURRENT STATE OF THE CODEMIRROR IN MERGEVIEW??
+            console.log("SENDING TO SERVER: \n\n" + message);
             //log('sending: ' + message);
             ws.send(message);
         }
@@ -286,16 +284,16 @@ function loadSVG(){
 
 
                         
-                      //  gv.nodes().mouseenter(function () {
-                        //    var $set = $()
-                          //  $set.push(this)
-                   //         $set = $set.add(gv.linkedFrom(this, true))
-                     //       $set = $set.add(gv.linkedTo(this, true))
-                       //     gv.highlight(selected, true)
-                         //   console.log($(this).attr("data-name"));
+                        // gv.nodes().mouseenter(function () {
+                        //     var $set = $()
+                        //     $set.push(this)
+                        //     $set = $set.add(gv.linkedFrom(this, true))
+                        //     $set = $set.add(gv.linkedTo(this, true))
+                        //     gv.highlight(selected, true)
+                        //     console.log($(this).attr("data-name"));
 
 
-                        //})
+                        // })
 
 
                         //mouseover a digraph node: reveal its commit hash
@@ -323,20 +321,19 @@ function loadSVG(){
 
   }      
 
-                  //      gv.nodes().mouseenter(function(){
-                               
-
-                    //           commit_detail.innerText = hash;
-                      //         ws.send("hashDetail + " hash);
-                        //        })
 
 
 
+function collapse(){
+    collapse = !collapse
+    initUI()
+}
 
 
 
-var value, orig1, dv, panes = 2, highlight = true, connect = "align", collapse = true;
+var value, orig1, dv, panes = 2, highlight = true, connect = "align", target, collapse//, collapse = true; target
 function initUI() {
+ 
   if (value == null) return;
   var target = document.getElementById("view");
   target.innerHTML = "";
@@ -346,16 +343,67 @@ function initUI() {
     origRight: orig1,
     lineNumbers: true,
     mode: "clike",
-    highlightDifferences: highlight,
-    connect: connect,
-    collapseIdentical: collapse
+    highlightDifferences: "highlight",
+        viewportMargin: Infinity,
+        revertButtons: true,
+        allowEditingOriginals: true,
+        autoRefresh: true,
+
+    linewrapping: true,
+    connect: "align",
+    theme: "icecode",
+    //collapseIdentical: collapse
+    collapse: collapse
   });
  // console.log(origRight)
+
 }
+
+ function showValue(){
+console.log("not ready yet. \n\ncheck here: https://discuss.codemirror.net/t/retrieve-the-content-of-a-mergeview-pane/1687 ")
+ 
+
+
+ }
+
+// var result = document.getElementById("view").innerHTML
+
+
+//    var doc = new DOMParser().parseFromString(result, 'text/html');
+//     var noHTML = (doc.body.textContent || "\n\n")
+ 
+//     var editorMain = noHTML.match(/.*?(?=;1|$)/i)[0]
+//  //  console.log( test.body.textContent || "\n")
+
+// /// var editorMain = editorContent.match(/.*?(?=\n4|$)/i)[0]
+//  console.log(editorMain)
+// //console.log(test)
+//  
+    // console.log(dv.edit.options.origRight)
+    // console.log(dv.edit.options.value)
+    //console.log(document.getElementById("view").innerHTML)
+   // console.log(dv.wrap.textContent)
+
+   //var steve = JSON.parse(dv.right.edit.state.diffViews.DiffView)
+   // console.log("origRight" + dv.options.right.mv.options.origRight)
+  //  console.log("value" + dv.options.right.mv.options.origRight)
+ // console.log(dv.wrap.innerText)
+
+// console.log(dv.wrap.innerText)
+// var editorContent = dv.wrap.innerText
+
+// var editorMain = editorContent.match(/.*?(?=\n4|$)/i)[0]
+// console.log(editorMain)
+
+
+// }
+
+
 
 function toggleDifferences() {
   dv.setShowDifferences(highlight = !highlight);
 }
+
 
 //window.onload = function() {
 
@@ -363,38 +411,6 @@ var requested;
 var current;
 window.onload = function() {
 
-//val = "athis is the current code"
-  
-//   let text = mergeEditor.getValue();
-   //log(text)
-
-  //  var route = val.charAt(0);
-  //             switch(route) {
-  //                  case "a":
-  //                  var current = val.replace("a", "");
-  //                  //console.log("current\n\n\n\n" + current)
-  //                  break;
-
-  //                  case "b":
-  //                  var requested = val.replace("b", "");
-  //                  console.log("earlier version\n\n\n\n\n" + requested)
-  //                  break;
-
-  //             }
-// if (requested == null || undefined){
-//   requested == 
-// }
-//current = "this is the current version of the code"
-//requested = "this is an older version of the codddddddde"
-
-  // value = document.documentElement.innerHTML;
-  //value = "Edit here";
-  orig1 = "expecting version "
-  // orig1 = "expecting versions" + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-  //this one below is cool. you can change just parts of the editor contents
-  // orig2 = value.replace(/\u003cscript/g, "\u003cscript type=text/javascript ")
-  //   .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
-  initUI();
   let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
 };
 
@@ -408,20 +424,20 @@ function mergeViewHeight(mergeView) {
                   editorHeight(mergeView.rightOriginal()));
 }
 
-function resize(mergeView) {
-  var height = mergeViewHeight(mergeView);
-  for(;;) {
-    if (mergeView.leftOriginal())
-      mergeView.leftOriginal().setSize(null, height);
-    mergeView.editor().setSize(null, height);
-    if (mergeView.rightOriginal())
-      mergeView.rightOriginal().setSize(null, height);
+// function resize(mergeView) {
+//   var height = mergeViewHeight(mergeView);
+//   for(;;) {
+//     if (mergeView.leftOriginal())
+//       mergeView.leftOriginal().setSize(null, height);
+//     mergeView.editor().setSize(null, height);
+//     if (mergeView.rightOriginal())
+//       mergeView.rightOriginal().setSize(null, height);
 
-    var newHeight = mergeViewHeight(mergeView);
-    if (newHeight >= height) break;
-    else height = newHeight;
-  }
-  mergeView.wrap.style.height = height + "px";
-}
+//     var newHeight = mergeViewHeight(mergeView);
+//     if (newHeight >= height) break;
+//     else height = newHeight;
+//   }
+//   mergeView.wrap.style.height = height + "px";
+// }
 </script>
 </article>
