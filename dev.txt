@@ -43,3 +43,5 @@ Code mirror + git:
 how to get the current content of the ‘edit’ div. using this, we could replace the current  ‘editorCM’ with ‘mergeEditor’
 
 Clicking on a git commit node should now inject the result of the ‘git show’ into an origRight. 
+
+Need to resize the code mirror panes
