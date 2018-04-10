@@ -127,6 +127,29 @@ revList = exec('git-big-picture --graphviz --all --tags --branches --roots --mer
 		});
 
 		break;
+
+
+		//get number of commits between the chosen commit at the most-recent commit
+	case "distance":
+			console.log("not yet ready to report number of commits between HEAD and provided commit")
+			break;
+	/*
+	//console.log("git rev-list --count --branches --since=\"$(git show -s --format=%ct " + process.argv[3] + "^{})\"")
+		//get hash of most-recent commit
+		//Most-recent commit..Earlier Commit
+		exec("git rev-list --count --branches --since=\"$(git show -s --format=%ct " + process.argv[3] + "^{})\"", {cwd: path.join("..", "alicenode_inhabitat")}, (err, stderr, stdout) => {
+
+		console.log(stderr);
+
+
+			//--since="$(git show -s --format=%ct refs/tags/sometag1^{})"
+
+		});
+*/
+
+
+
+
 }
 
 

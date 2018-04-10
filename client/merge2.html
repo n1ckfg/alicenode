@@ -1,19 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title></title>
+<!doctype html>
 
-        <!-- stylesheet for the repository graph -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/graphviz.svg.css">
+<title>CodeMirror: merge view demo</title>
+<meta charset="utf-8"/>
 
-<link rel="stylesheet" href="cm/codemirror.css">
+<!-- Codemirror -->
+<link rel=stylesheet href="cm/docs.css">
+<link rel=stylesheet href="cm/codemirror.css">
+<link rel=stylesheet href="cm/merge.css">
 <script src="cm/codemirror.js"></script>
+<!-- <script src="/cm/xml.js"></script> -->
+<script src="cm/css.js"></script>
+<script src="js/diff_match_patch.js"></script>
+<script src="cm/merge.js"></script>
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/modes/clike.js"></script>
 <script src="cm/modes/glsl.js"></script>
-<script src="cm/merge.js"></script>
+<script type="text/javascript" src="js/diff_match_patch.js"></script>
 
 <!--script sources for the repo_graph & jquery -->
 <script type="text/javascript" src="js/jquery.2.1.3.min.js"></script>
@@ -21,52 +23,79 @@
 <script type="text/javascript" src="js/jquery.color.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
-<script type="text/javascript" src="js/diff_match_patch.js"></script>
 
 
-</head>
-<body>
-    <button onclick="sendCode()">Send Code</button>
+<style>
+    .CodeMirror { line-height: 1.2; }
+    @media screen and (min-width: 1300px) {
+      article { max-width: 100%; }
+      #nav { border-right: 499px solid transparent; }
+    }
+    span.clicky {
+      cursor: pointer;
+      background: #d70;
+      color: white;
+      padding: 0 3px;
+      border-radius: 3px;
+    }
+  </style>
+<!-- <div id=nav>
+   <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a> 
 
-    <p>
-        <input id="server" type="text" value="ws://localhost:8080" size="40">
-        <button onclick="openSocket()">Open</button>
-        <button onclick="closeSocket()">Close</button>
-    </p>
+   <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul> 
+   <ul>
+    <li><a class=active href="#">merge view</a>
+  </ul> 
+</div> -->
 
-    <p>
-        <input id="message" type="text" size="40">
-        <button onclick="sendText()">Send Text</button>
-        <button onclick="sendBinary()">Send Binary</button>
-    </p>
-    
-    <p id="fps"></p>
-    <pre id="state" style="width: 90%; height: 20pc; overflow-y: scroll"></pre>
-    <pre id="data"></pre>
-    <textarea id="editor"></textarea>
 
-    <div id="diffEditor"></div>
-    <p>
-    <button onclick="revertMaster()">Return to Master HEAD</button>
+<p>
+    <input id="server" type="text" value="ws://localhost:8080" size="40">
+    <button onclick="openSocket()">Open</button>
+    <button onclick="closeSocket()">Close</button>
+</p>
 
-    <h3 id="commit_detail"></h3>
-    <ul id="messages"></ul>
+<div id=view></div>
 
-    <script>
+
+<p>The merge addon provides an interface for displaying and merging diffs,
+either <span class=clicky onclick="panes = 2; initUI()">two-way</span>
+or <span class=clicky onclick="panes = 3; initUI()">three-way</span>.
+The left (or center) pane is editable, and the differences with the
+other pane(s) are <span class=clicky
+onclick="toggleDifferences()">optionally</span> shown live as you edit
+it. In the two-way configuration, there are also options to pad changed
+sections to <span class=clicky onclick="connect = connect ? null :
+'align'; initUI()">align</span> them, and to <span class=clicky
+onclick="collapse = !collapse; initUI()">collapse</span> unchanged
+stretches of text.</p>
+
+
+<!-- mouseover stuff -->
+
+<h3 id="commit_detail"></h3>
+
+<!-- server messages -->
+<ul id="messages"></ul>
+
+<!--code for the repository graph -->
+
+<div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; bottom: 0;"></div>
+
+
+<script>
+//ws
+
         var ws_url = "ws://" + window.location.host;
         
         console.log(ws_url);
+        
 		document.getElementById('server').value = ws_url;
-        
-        var mergeEditor;
-		var editorCM = CodeMirror.fromTextArea(document.getElementById('editor'), {
-			lineNumbers: true,
-			mode: "clike"
-		});
-        
-     
 
-    
         var ws;
         function openSocket() {
             log('opening');
@@ -99,7 +128,7 @@
   						s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
 					}
 					
-                    document.getElementById('state').innerHTML = s;
+                   // document.getElementById('state').innerHTML = s;
                     
                     
                 } else {
@@ -110,27 +139,31 @@
 						let arg = message.substring(q+1);
                 		switch(cmd) {
                 		case "fps":
-                			document.getElementById('fps').innerHTML = arg;
+                		//	document.getElementById('fps').innerHTML = arg;
                 			break;
                 		case "edit":
-                            editorCM.setValue(arg);
-                            
-                           mergeEditor = CodeMirror.MergeView(document.getElementById('diffEditor'), {
-                                lineNumbers: true,
-                                value: arg,
-                                mode: "clike",
-                                // origLeft: "dave",
-                                origRight: "davey   \n\n" + arg ,
-                               // connect: "align".anchor 
-                                lineNumbers: true,
-                                mode: "text/html",
-                                highlightDifferences: "highlight",
-                                connect: "connect",
-                                collapseIdentical: "collapse" 
-		                    });
-                			break;
+                          //  editorCM.setValue(arg);
+                         //fillEditor("a" + arg);
+                        // console.log(arg)
+
+                              // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                              value = arg
+
+                              initUI();                          
+                            break;
+                        //
+                        case "show":
+                           // fillEditor("b" + arg);
+
+
+                              // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                              orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+
+                              initUI();
+                            console.log(arg)
+                            break;    
                 		case "state":
-                			document.getElementById('state').innerHTML = arg;
+                			//document.getElementById('state').innerHTML = arg;
                 			break;
                         case "updateRepo":
                             loadSVG();
@@ -161,7 +194,8 @@
 		}, 2000);
 		
 		function sendCode() {
-            var message = "edit?" + editorCM.getValue();
+         //   var message = "edit?" + editorCM.getValue();   
+         var message = "edit?" + mergeEditor.getValue(); //HOW DO WE GET THE CURRENT STATE OF THE CODEMIRROR IN MERGEVIEW??
             console.log(mergeEditor);
             //log('sending: ' + message);
             ws.send(message);
@@ -189,7 +223,7 @@
                 for (var i = 0, len = text.length; i < len; i += 2) {
                     data.push(parseInt(text.substr(i, 2), 16));
                 }
-                return data;
+              //  return data;
             }
         }
         function encodeHexString(data) {
@@ -262,19 +296,7 @@ function loadSVG(){
 
 
                         //})
-                        
-                       
-                        //load the gitlog.json
-                    //    function() {
 
-//
-
-
-                             
-
-
-                                
-                             //})
 
                         //mouseover a digraph node: reveal its commit hash
                         gv.nodes().mouseenter(function(){
@@ -284,10 +306,10 @@ function loadSVG(){
                             //var hashData = ($.getJSON('log.json', function(data) {
                              //   var details = ($(data).attr(this));
 
-                             var details = data[hash];
+                             //var details = data[hash];
                             commit_detail.innerText = hash;
                                ws.send("hash" + hash);
-                               console.log(details);
+                              // console.log(details);
 
                            // }))
                                //console.log($(this).attr("data-name"));
@@ -295,7 +317,6 @@ function loadSVG(){
                               // ws.send("hash" + hash);
                              //  console.log(this)
                                 })
-                       // }//end of function
                     }
                 });
             });
@@ -311,19 +332,96 @@ function loadSVG(){
 
 
 
-    </script>
-<!-- Access the code-forensics charts 
-<iframe src="http://localhost:3000/index.html" width=50% height=50% align="right" overflow="scroll"></iframe>
 
 
 
- code for the repository graph -->
+var value, orig1, dv, panes = 2, highlight = true, connect = "align", collapse = true;
+function initUI() {
+  if (value == null) return;
+  var target = document.getElementById("view");
+  target.innerHTML = "";
+  dv = CodeMirror.MergeView(target, {
+    value: value,
+    // origLeft: panes == 3 ? orig1 : null,
+    origRight: orig1,
+    lineNumbers: true,
+    mode: "clike",
+    highlightDifferences: highlight,
+    connect: connect,
+    collapseIdentical: collapse
+  });
+ // console.log(origRight)
+}
 
-<div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; bottom: 0;"></div>
+function toggleDifferences() {
+  dv.setShowDifferences(highlight = !highlight);
+}
 
+//window.onload = function() {
 
+var requested;
+var current;
+window.onload = function() {
 
+//val = "athis is the current code"
+  
+//   let text = mergeEditor.getValue();
+   //log(text)
 
+  //  var route = val.charAt(0);
+  //             switch(route) {
+  //                  case "a":
+  //                  var current = val.replace("a", "");
+  //                  //console.log("current\n\n\n\n" + current)
+  //                  break;
 
-</body>
-</html>
+  //                  case "b":
+  //                  var requested = val.replace("b", "");
+  //                  console.log("earlier version\n\n\n\n\n" + requested)
+  //                  break;
+
+  //             }
+// if (requested == null || undefined){
+//   requested == 
+// }
+//current = "this is the current version of the code"
+//requested = "this is an older version of the codddddddde"
+
+  // value = document.documentElement.innerHTML;
+  //value = "Edit here";
+  orig1 = "expecting version "
+  // orig1 = "expecting versions" + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+  //this one below is cool. you can change just parts of the editor contents
+  // orig2 = value.replace(/\u003cscript/g, "\u003cscript type=text/javascript ")
+  //   .replace("white", "purple;\n      font: comic sans;\n      text-decoration: underline;\n      height: 15em");
+  initUI();
+  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
+};
+
+function mergeViewHeight(mergeView) {
+  function editorHeight(editor) {
+    if (!editor) return 0;
+    return editor.getScrollInfo().height;
+  }
+  return Math.max(editorHeight(mergeView.leftOriginal()),
+                  editorHeight(mergeView.editor()),
+                  editorHeight(mergeView.rightOriginal()));
+}
+
+function resize(mergeView) {
+  var height = mergeViewHeight(mergeView);
+  for(;;) {
+    if (mergeView.leftOriginal())
+      mergeView.leftOriginal().setSize(null, height);
+    mergeView.editor().setSize(null, height);
+    if (mergeView.rightOriginal())
+      mergeView.rightOriginal().setSize(null, height);
+
+    var newHeight = mergeViewHeight(mergeView);
+    if (newHeight >= height) break;
+    else height = newHeight;
+  }
+  mergeView.wrap.style.height = height + "px";
+}
+</script>
+</article>

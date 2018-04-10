@@ -166,7 +166,8 @@ try {
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-    res.sendFile(path.join(client_path, 'index.html'));
+  res.sendFile(path.join(client_path, 'index.html'));
+
 });
 //app.get('*', function(req, res) { console.log(req); });
 const server = http.createServer(app);
@@ -199,15 +200,15 @@ wss.on('connection', function(ws, req) {
 		/////////////////////////////////////////TODO: need to retrieve the details for commit hash
 		////////////////////////////////////////////// right now the exec function isn't returning the value, but if you run the command in CLI it works fine, so whats wrong with the exec?
 		
-		//mouseover (bootstrap for now)
-		if (message.includes("hash")) {
+		// //mouseover (bootstrap for now)
+		// if (message.includes("hash")) {
 
-			var detail = message.replace("hash", "")
-			exec("git log -1 --pretty=tformat:%h,%aD:%cn " + detail, { cwd: path.join("..", "alicenode_inhabitat" )}, (stdout) => {
-				console.log("stdout: " + stdout)
-				})
-			console.log(message);
-		}
+		// 	var detail = message.replace("hash", "")
+		// 	exec("git log -1 --pretty=tformat:%h,%aD:%cn " + detail, { cwd: path.join("..", "alicenode_inhabitat" )}, (stdout) => {
+		// 		console.log("stdout: " + stdout)
+		// 		})
+		// 	console.log(message);
+		// }
 
 		//////////////////////////////////////////////
 		//////////////////////////////////////////////
@@ -217,12 +218,17 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");
+			var gitHash = message.replace("git show", "")
+
+			exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
+				console.log(stderr, err, stdout);
+			})
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
 				exec(gitCommand, { cwd: path.join("..", "alicenode_inhabitat" )}, (err, stdout) => {
 					//console.log(err);
 					//console.log(stdout);
-					ws.send("edit? " + stdout)
+					ws.send("show?" + stdout)
 
 			});
 
@@ -233,7 +239,7 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("git return to master")){
 
 			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
-			 ws.send("edit? " + err)
+			 ws.send("edit?" + err)
 
             })
 		}
