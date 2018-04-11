@@ -76,7 +76,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
     }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    Alice::Instance().onFrame.emit();
+    Alice::Instance().onFrame.emit(window.width, window.height);
     
     glfwSwapBuffers(window.pointer);
     
