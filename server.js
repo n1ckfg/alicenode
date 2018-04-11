@@ -23,6 +23,8 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
+var gitHash;
+
 /////////////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
@@ -236,12 +238,19 @@ wss.on('connection', function(ws, req) {
 			//console.log(gitCommand);
 		}
 
+
+
 		if (message.includes("git return to master")){
 
 			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
 			 ws.send("edit?" + err)
 
             })
+		}
+
+		if (message.includes("newbranch?")){
+
+			console.log(gitHash)
 		}
 
 		let q = message.indexOf("?");

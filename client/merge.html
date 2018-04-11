@@ -61,7 +61,7 @@
 <button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
 </p>
 <button onclick="sendLeftCode()">Send Left Code</button>
-<button onclick="sendRightCode()">Send Right Code (not yet working)</button>
+<button onclick="sendRightCode()">Send Right Code</button>
 
 
 
@@ -190,7 +190,9 @@
 		setInterval(function(){
 			 if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 		}, 2000);
-		
+        
+        
+        //Get current content within ComeMirror's Left and Right Mergeview
 		function sendLeftCode() {
          //   var message = "edit?" + editorCM.getValue();   
          var message = "edit?" + dv.editor().getValue()
@@ -198,12 +200,21 @@
             //log('sending: ' + message);
             ws.send(message);
         }
-	
+    
+        function sendRightCode(){
+
+            var message = "newbranch?" + dv.rightOriginal().getValue();
+            console.log("SENDING TO SERVER: \n" + message)
+            ws.send(message);
+            selectedHash("thisHash");
+        }
         function sendText() {
             var message = document.getElementById('message').value;
             log('sending: ' + message);
             ws.send(message);
         }
+
+        
         function sendBinary() {
             var message = decodeHexString(document.getElementById('message').value);
             log('sending binary: ' + encodeHexString(message));
@@ -243,7 +254,8 @@
         if (sessionStorage.echoServer) {
             document.getElementById('server').value = sessionStorage.echoServer;
         }
-		
+        
+        function newBranch(){}
 		openSocket();
 
 
@@ -279,6 +291,8 @@ function loadSVG(){
                             gv.highlight($set, true)
 
                          ws.send("git show " + $(this).attr("data-name"));
+
+                         selectedHash($(this).attr("data-name"));
 
                         })
 
@@ -335,6 +349,14 @@ var collapse;
 var requested;
 var current;
 
+//dv.on( editor, "change", onType) = function() {
+ //   console.log("true")
+//}
+
+//dv.editor().on("change", onType, function(event, changeObj) {
+  //  console.log("True");
+//})
+
 
 function toggleCollapse(){
     collapse = !collapse
@@ -373,8 +395,14 @@ function initUI() {
 
 }
 
+function selectedHash(val){
 
+var thisHash = val
 
+if (val == "show hash"){
+    console.log(thisHash)
+}
+}
 
 
 
