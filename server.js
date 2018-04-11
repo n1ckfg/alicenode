@@ -47,8 +47,8 @@ const projectlib = "project." + libext;
 /////////////////////////////////////////////////////////////////////////////////
 
 // BUILD PROJECT
-
 function project_build() {
+	
 	let out = process.platform == "win32"
 		? execSync('build.bat "'+editor_path+'"') 
 		: execSync('sh build.sh "'+editor_path+'"');
@@ -168,7 +168,7 @@ try {
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-  res.sendFile(path.join(client_path, 'index.html'));
+	res.sendFile(path.join(client_path, 'index.html'));
 
 });
 //app.get('*', function(req, res) { console.log(req); });
