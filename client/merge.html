@@ -93,6 +93,11 @@
 <script>
 //ws
 
+//globals
+var currentBranch;
+
+
+
 function sendCodeRelay(){
 
     sendRightCode("a")
@@ -151,7 +156,8 @@ function sendCodeRelay(){
                             break;
                             
                         case "currentBranch":  
-                            console.log(arg)
+                            console.log(arg);
+                            currentBranch = arg;
                             break;
                             
                 		case "edit":
