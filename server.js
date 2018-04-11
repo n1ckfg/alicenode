@@ -165,6 +165,9 @@ try {
 
 // HTTP SERVER
 
+let sessionId = 0;
+let sessions = [];
+
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
@@ -184,10 +187,18 @@ function send_all_clients(msg) {
     });
 }
 
+
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
 	
-	console.log("server received a connection");
+	let per_session_data = {
+		id: sessionId++,
+		socket: ws,
+	};
+
+	sessions[per_session_data.id] = per_session_data;
+
+	console.log("server received a connection, new session " + per_session_data.id);
 	console.log("server has "+wss.clients.size+" connected clients");
 	
 	const location = url.parse(req.url, true);
@@ -284,6 +295,8 @@ wss.on('connection', function(ws, req) {
 	// what to do if client disconnects?
 	ws.on('close', function(connection) {
 		console.log("client connection closed");
+
+		delete sessions[per_session_data.id];
 
 		// tell git-in-vr to push the atomic commits?
 	});
