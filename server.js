@@ -233,9 +233,12 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
 				console.log(stderr);
-				ws.send("currentBranch " + stderr)
+				ws.send("branchname?" + stderr)
 			})
-			
+		if (message.includes("newBranch")){
+
+			console.log(message);
+		}
 		}
 		if (message.includes("git show")) {
 
@@ -267,10 +270,18 @@ wss.on('connection', function(ws, req) {
 
             })
 		}
-
-		if (message.includes("newbranch?")){
+		//TODO  
+		if (message.includes("newbranch")){
 
 			console.log(gitHash)
+
+			//TODO: 
+			//get number of branches in alicenode_inhabitat
+			//numBranches = git branch | wc -l
+			//branchName = "branch_" + numBranches++
+			//then stupidly create branch name as <branchName>
+			//then do "git checkout -b <branchName> <gitHash>"
+			//then update merge.html session with current branch name & reload the svg file
 		}
 
 		let q = message.indexOf("?");

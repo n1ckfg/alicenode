@@ -95,6 +95,7 @@
 
 //globals
 var currentBranch;
+var thisHash;
 
 
 
@@ -155,8 +156,10 @@ function sendCodeRelay(){
                 		//	document.getElementById('fps').innerHTML = arg;
                             break;
                             
-                        case "currentBranch":  
-                            console.log(arg);
+                        case "branchname":  
+                          // var steve = message.replace("currentBranch?", "")
+                            
+                            log("on branch " + arg);
                             currentBranch = arg;
                             break;
                             
@@ -430,12 +433,23 @@ function initUI() {
         collapse: collapse
     });
     isRightDirty = false;
+
+    //when user changes something in origRight, check if on master, if so, create and checkout a new branch
     dv.rightOriginal().on("changes", function(dv, changeObj){
         console.log(isRightDirty)
        
         if (!isRightDirty){
             console.log(changeObj);
-            console.log(isRightDirty)
+            if (currentBranch == "master")
+            {
+
+                //TODO: then switch to new branch by sending this message to server + the currently selected commit hash
+
+                ws.send("newBranch" + thisHash);
+            }
+                else {
+                    //TODO: alert user already on branch, ask if you want to switch to a new branch
+                }
 
         }
         isRightDirty = true;
