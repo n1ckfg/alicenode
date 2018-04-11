@@ -46,6 +46,13 @@ DONE: Clicking on a git commit node should now inject the result of the ‘git s
 
 DONE: Need to resize the code mirror panes
 
-Changing the code in the origEditor starts a new branch from that commit. i.e. “git branch -b <newbranchname> <commit hash>” (this also checks out that branch)
+Changing the code in the origEditor starts a new branch from that commit. i.e. “git checkout -b <newbranchname> <commit hash>” (this also checks out that branch)
+	— set a dirty flag so that it ignores all new change events 
+	- check to make sure we’re not already on a branch other than master
+		if on master, make a new branch with “git checkout -b <newbranchname> <commit hash>”
 
 is there a better way to zoom in/navigate the git version tree graph in the browser?
+
+
+
+

@@ -19,6 +19,7 @@
     "code-forensics": "^0.15.1",
     "diff2html": "^2.3.3",
     "diff2html-cli": "^2.5.4",
+    "dirty-object": "^1.0.6",
     "express": "^4.16.3",
     "mmapfile": "^0.1.1",
     "node-giff": "0.0.7",

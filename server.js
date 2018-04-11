@@ -216,7 +216,13 @@ wss.on('connection', function(ws, req) {
 		//////////////////////////////////////////////
 		//////////////////////////////////////////////
 		//execSync('git log --pretty=tformat:%h,%aD:%cn > ' + path.join("..", "alicenode/client/gitlog.csv"))
-
+		if (message.includes("getCurrentBranch")){
+			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
+				console.log(stderr);
+				ws.send("currentBranch " + stderr)
+			})
+			
+		}
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");

@@ -26,6 +26,8 @@
 <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
 
 
+
+
 <style>
     .CodeMirror { line-height: 1 }
     @media screen and (min-width: 1300px) {
@@ -109,7 +111,8 @@ function sendCodeRelay(){
             ws.binaryType = 'arraybuffer';
             ws.onopen = function() {
                 loadSVG();
-               // log('open');
+               // log('open');  
+               ws.send("getCurrentBranch")
                 sessionStorage.echoServer = url;
             };
             ws.onclose = function() {
@@ -145,27 +148,35 @@ function sendCodeRelay(){
                 		switch(cmd) {
                 		case "fps":
                 		//	document.getElementById('fps').innerHTML = arg;
-                			break;
+                            break;
+                            
+                        case "currentBranch":  
+                            console.log(arg)
+                            break;
+                            
                 		case "edit":
-                          //  editorCM.setValue(arg);
-                         //fillEditor("a" + arg);
-                        // console.log(arg)
+                            // editorCM.setValue(arg);
+                            // fillEditor("a" + arg);
+                            // console.log(arg)
 
-                              // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                              value = arg
-                              orig1 = arg
-                              initUI();                          
+                            // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                            value = arg
+                            orig1 = arg
+                            initUI();                          
                             break;
                         //
                         case "show":
-                           // fillEditor("b" + arg);
+                            // fillEditor("b" + arg);
 
+                            //TODO: alert ask to continue (will lose work if they continue without committing)
+                            // if (isRightDirty){
+                                //alert(whatever, but essentially an ok and cancel button)
+                            //}
+                            // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                            orig1 = arg;
 
-                              // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                              orig1 = arg;
-
-                              initUI();
-                           // console.log(arg)
+                            initUI();
+                            // console.log(arg)
                             break;    
                 		case "state":
                 			//document.getElementById('state').innerHTML = arg;
@@ -280,6 +291,7 @@ function sendCodeRelay(){
    // }
 $(document).ready(function(){
     loadSVG();
+  
 });
 
 //load the repo graph svg
@@ -365,6 +377,8 @@ var target;
 var collapse;
 var requested;
 var current;
+var isRightDirty = false;
+var currentBranch;
 
 //dv.on( editor, "change", onType) = function() {
  //   console.log("true")
@@ -388,27 +402,40 @@ function toggleDifferences() {
 
 function initUI() {
  
-  if (value == null) return;
-  var target = document.getElementById("view");
-  target.innerHTML = "";
-  dv = CodeMirror.MergeView(target, {
-    value: value,
-    // origLeft: panes == 3 ? orig1 : null,
-    origRight: orig1,
-    lineNumbers: true,
-    mode: "clike",
-    highlightDifferences: "highlight",
+    if (value == null) return;
+    var target = document.getElementById("view");
+    target.innerHTML = "";
+    dv = CodeMirror.MergeView(target, {
+        value: value,
+        // origLeft: panes == 3 ? orig1 : null,
+        origRight: orig1,
+        lineNumbers: true,
+        mode: "clike",
+        highlightDifferences: "highlight",
         viewportMargin: Infinity,
         revertButtons: true,
         allowEditingOriginals: true,
         autoRefresh: true,
 
-    linewrapping: true,
-    connect: "align",
-    theme: "icecode",
-    //collapseIdentical: collapse
-    collapse: collapse
-  });
+        linewrapping: true,
+        connect: "align",
+        theme: "icecode",
+        //collapseIdentical: collapse
+        collapse: collapse
+    });
+    isRightDirty = false;
+    dv.rightOriginal().on("changes", function(dv, changeObj){
+        console.log(isRightDirty)
+       
+        if (!isRightDirty){
+            console.log(changeObj);
+            console.log(isRightDirty)
+
+        }
+        isRightDirty = true;
+
+    });
+
 
 }
 
