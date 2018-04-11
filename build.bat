@@ -24,5 +24,3 @@ opengl32.lib
 rem dumpbin /exports alice.lib
 
 @endlocal
-
-node server.js

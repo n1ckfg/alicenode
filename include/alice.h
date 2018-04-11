@@ -5,7 +5,7 @@
 
 struct AL_ALICE_EXPORT Alice {
 	
-	vdk::signal<void()> onFrame;
+	vdk::signal<void(uint32_t, uint32_t)> onFrame;
 	vdk::signal<void()> onReloadGPU;
 		
 	
