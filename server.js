@@ -55,6 +55,9 @@ function project_build() {
 	console.log("built project", out.toString());
 }
 
+// try to pull, as good practice:
+console.log("git pull:", execSync('git pull').toString());
+
 // should we build now?
 if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync(projectlib).mtime) {
 	console.warn("project lib is out of date, rebuilding");
