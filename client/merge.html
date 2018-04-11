@@ -61,7 +61,10 @@
 <button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
 </p>
 <button onclick="sendLeftCode()">Send Left Code</button>
-<button onclick="sendRightCode()">Send Right Code</button>
+<button onclick="sendCodeRelay()">Send Right Code</button>
+
+
+<button onclick="loadSVG()">Reload SVG</button>
 
 
 
@@ -88,6 +91,10 @@
 <script>
 //ws
 
+function sendCodeRelay(){
+
+    sendRightCode("a")
+}
         var ws_url = "ws://" + window.location.host;
         
         console.log(ws_url);
@@ -201,12 +208,19 @@
             ws.send(message);
         }
     
-        function sendRightCode(){
+        function sendRightCode(val){
+            if (val.includes("hash?")){
 
+                hash = (val.replace("hash?", ""))
+                console.log("here ya go" + hash)
+            } 
+            else {
             var message = "newbranch?" + dv.rightOriginal().getValue();
             console.log("SENDING TO SERVER: \n" + message)
             ws.send(message);
-            selectedHash("thisHash");
+            //selectedHash("this hash");
+            }
+
         }
         function sendText() {
             var message = document.getElementById('message').value;
@@ -264,15 +278,18 @@
 //function revertMaster() {
    // ws.send("git return to master");
    // }
+$(document).ready(function(){
+    loadSVG();
+});
 
 //load the repo graph svg
 function loadSVG(){
 
 
   //  console.log(ws_url);
-            $(document).ready(function(){
+           // $(document).ready(function(){
                 $("#graph").graphviz({
-                    url: "repo_graph.svg",
+                    url: "repo_graph.svg?" + new Date().getTime(),
                     shrink: "0", 
                   // tooltips: "init, update, show",
                    //highlight: "selected",
@@ -292,7 +309,7 @@ function loadSVG(){
 
                          ws.send("git show " + $(this).attr("data-name"));
 
-                         selectedHash($(this).attr("data-name"));
+                         sendRightCode("hash?" + $(this).attr("data-name"));
 
                         })
 
@@ -311,16 +328,16 @@ function loadSVG(){
 
 
                         //mouseover a digraph node: reveal its commit hash
-                        gv.nodes().mouseenter(function(){
+                     //   gv.nodes().mouseenter(function(){
                             
                          //   gv.highlight(selected, true)
-                            var hash = ($(this).attr("data-name"));
+                       //     var hash = ($(this).attr("data-name"));
                             //var hashData = ($.getJSON('log.json', function(data) {
                              //   var details = ($(data).attr(this));
 
                              //var details = data[hash];
-                            commit_detail.innerText = hash;
-                               ws.send("hash" + hash);
+                        //    commit_detail.innerText = hash;
+                       //       ws.send("hash" + hash);
                               // console.log(details);
 
                            // }))
@@ -328,10 +345,10 @@ function loadSVG(){
                              //  commit_detail.innerText = hash;
                               // ws.send("hash" + hash);
                              //  console.log(this)
-                                })
+                                // })
                     }
                 });
-            });
+//});
 
   }      
 
@@ -397,6 +414,7 @@ function initUI() {
 
 function selectedHash(val){
 
+console.log(val);
 var thisHash = val
 
 if (val == "show hash"){

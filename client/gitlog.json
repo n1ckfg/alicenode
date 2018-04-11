@@ -1,4 +1,10 @@
 [{
+ “aee1e36e48e7f90ddeb129262fdbb970bbfc868a”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 12:19:08 2018 -0400", "trying-to-get-the-change-event-to-work-in-the-client.-another-task-is-to-get-the-selected-hash-and-use-it-to-create-a-new-branch"
+},
+{
+ “d4fd28d685ab7f710273c4e0bdac542e842a52f6”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 08:50:33 2018 -0400", "can-now-retrieve-the-content-of-the-left-editor-pane-using-dv.editor-.getValue"
+},
+{
  “dbbb353c6c5bfbc6ffe9d4fdc673646e5d6f756b”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Tue Apr 10 17:36:11 2018 -0400", "the-merge-page-can-now-load-older-commits-into-the-diff-pane.-fixed-the-formatting-so-it-scales-within-the-page-and-tried-in-vain-to-retrieve-the-edited-content-of-either-of-the-editor-windows"
 },
 {
