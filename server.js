@@ -251,16 +251,26 @@ wss.on('connection', function(ws, req) {
 						if (numBranches > 1) {
 							numBranches = (Number(numBranches) + 1)
 							newBranchName = ("playBranch_" + numBranches)
-							console.log(newBranchName, onHash)
-							execSync("git checkout -b " + newBranchName + " " + onHash)
-							console.log("three cheers for playfulness. created and checked out new branch " + newBranchName + " starting from commit " + onHash);
+							
+							execSync("git branch " + newBranchName + onHash)
+							execSync("git worktree add " + path.join("..", "alicenode_inhabitat/worktrees/") + newBranchName, (stdout, stderr, err) => {
+
+								ws.send("git error: \n" + stderr + "\n" + stdout + "\n" + err )
+							})
+							console.log("three cheers for playfulness. OrigRight now working in new worktree starting from commit " + onHash);
 
 						}
 							else {
 							newBranchName = ("playBranch_1 ")
-							console.log(newBranchName, onHash)
-							execSync("git checkout -b " + newBranchName + " " + onHash)
-							console.log("three cheers for playfulness. created and checked out new branch " + newBranchName + " starting from commit " + onHash);
+							
+							execSync("git branch " + newBranchName + onHash)
+
+								execSync("git worktree add " + path.join("..", "alicenode_inhabitat/worktrees/")  + newBranchName, (stdout, stderr, err) => {
+
+								ws.send("git error: \n" + stderr + "\n" + stdout + "\n" + err )
+
+								})
+							console.log("three cheers for playfulness. now working on new worktree starting from commit " + onHash);
 
 							}
 				//		if ()

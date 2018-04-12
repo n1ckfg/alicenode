@@ -53,6 +53,10 @@ Changing the code in the origEditor starts a new branch from that commit. i.e. �
 
 
 GOOD NEWS: to work on multiple branches, we can use ‘git-worktree’
+
+
+using work trees, If someone wants to checkout a branch that someone else has already , could do this ”git co -b TEMP/original-branch-name feature/original-branch-name
+“ See https://spin.atomicobject.com/2016/06/26/parallelize-development-git-worktrees/
 is there a better way to zoom in/navigate the git version tree graph in the browser?
 
 
