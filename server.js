@@ -55,8 +55,9 @@ function project_build() {
 	console.log("built project", out.toString());
 }
 
+//GRAHAM: can we please add a startup flag to npm start to disable this as an option? it should be default, but we can't work if we're working on the subway or somewhere else without wifi
 // try to pull, as good practice:
-console.log("git pull:", execSync('git pull').toString());
+//console.log("git pull:", execSync('git pull').toString());
 
 // should we build now?
 if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync(projectlib).mtime) {
