@@ -131,7 +131,7 @@ revList = exec('git-big-picture --graphviz --all --tags --branches --roots --mer
 
 		//get number of commits between the chosen commit at the most-recent commit
 	case "distance":
-			console.log("not yet ready to report number of commits between HEAD and provided commit")
+			//console.log("not yet ready to report number of commits between HEAD and provided commit")
 			break;
 	/*
 	//console.log("git rev-list --count --branches --since=\"$(git show -s --format=%ct " + process.argv[3] + "^{})\"")

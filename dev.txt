@@ -51,6 +51,8 @@ Changing the code in the origEditor starts a new branch from that commit. i.e. �
 	- check to make sure we’re not already on a branch other than master
 		if on master, make a new branch with “git checkout -b <newbranchname> <commit hash>”
 
+
+GOOD NEWS: to work on multiple branches, we can use ‘git-worktree’
 is there a better way to zoom in/navigate the git version tree graph in the browser?
 
 

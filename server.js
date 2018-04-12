@@ -233,14 +233,55 @@ wss.on('connection', function(ws, req) {
 		//execSync('git log --pretty=tformat:%h,%aD:%cn > ' + path.join("..", "alicenode/client/gitlog.csv"))
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
-				console.log(stderr);
-				ws.send("branchname?" + stderr)
-			})
-		if (message.includes("newBranch")){
+				//console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
+				ws.send("branchname?" + stderr.replace("\n", ""))
+				//console.log("branchname?" + stderr.replace("\n", ""))
+				})
+		}
+		
+		if (message.includes("createNewBranch ")){
 
-			console.log(message);
+					exec("git branch | wc -l", (stdout, stderr, err) => {
+
+						onHash = message.replace("createNewBranch ", "")
+
+						numBranches = Number(stderr.replace(/\s+/g,''));
+
+				//		if newBranchNumber = (Number(numBranches) + 1)
+						if (numBranches > 1) {
+							numBranches = (Number(numBranches) + 1)
+							newBranchName = ("playBranch_" + numBranches)
+							console.log(newBranchName, onHash)
+							execSync("git checkout -b " + newBranchName + " " + onHash)
+							console.log("three cheers for playfulness. created and checked out new branch " + newBranchName + " starting from commit " + onHash);
+
+						}
+							else {
+							newBranchName = ("playBranch_1 ")
+							console.log(newBranchName, onHash)
+							execSync("git checkout -b " + newBranchName + " " + onHash)
+							console.log("three cheers for playfulness. created and checked out new branch " + newBranchName + " starting from commit " + onHash);
+
+							}
+				//		if ()
+					})
 		}
-		}
+
+				// //TODO  
+				// if (message.includes("newbranch")){
+
+				// 	console.log(gitHash)
+		
+
+				// 	//TODO: 
+				// 	//get number of branches in alicenode_inhabitat
+				// 	//numBranches = git branch | wc -l
+				// 	//branchName = "branch_" + numBranches++
+				// 	//then stupidly create branch name as <branchName>
+				// 	//then do "git checkout -b <branchName> <gitHash>"
+				// 	//then update merge.html session with current branch name & reload the svg file
+				// }
+		
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");
@@ -271,19 +312,7 @@ wss.on('connection', function(ws, req) {
 
             })
 		}
-		//TODO  
-		if (message.includes("newbranch")){
 
-			console.log(gitHash)
-
-			//TODO: 
-			//get number of branches in alicenode_inhabitat
-			//numBranches = git branch | wc -l
-			//branchName = "branch_" + numBranches++
-			//then stupidly create branch name as <branchName>
-			//then do "git checkout -b <branchName> <gitHash>"
-			//then update merge.html session with current branch name & reload the svg file
-		}
 
 		let q = message.indexOf("?");
 		if (q > 0) {
@@ -299,7 +328,7 @@ wss.on('connection', function(ws, req) {
 				console.log("unknown cmd", cmd, "arg", arg);
 			}
 		} else {
-			console.log("message", message, typeof message);
+			//console.log("message", message, typeof message);
 		}
 	});
 	

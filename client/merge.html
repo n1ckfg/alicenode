@@ -231,14 +231,14 @@ function sendCodeRelay(){
         function sendRightCode(val){
             if (val.includes("hash?")){
 
-                hash = (val.replace("hash?", ""))
-                console.log("here ya go" + hash)
+                thisHash = (val.replace("hash?", ""))
+                console.log("Hash " + thisHash + " chosen")
             } 
             else {
             var message = "newbranch?" + dv.rightOriginal().getValue();
             console.log("SENDING TO SERVER: \n" + message)
             ws.send(message);
-            //selectedHash("this hash");
+            selectedHash("this hash");
             }
 
         }
@@ -329,6 +329,7 @@ function loadSVG(){
                             gv.highlight($set, true)
 
                          ws.send("git show " + $(this).attr("data-name"));
+                         ws.send("getCurrentBranch");
 
                          sendRightCode("hash?" + $(this).attr("data-name"));
 
@@ -437,21 +438,49 @@ function initUI() {
     //when user changes something in origRight, check if on master, if so, create and checkout a new branch
     dv.rightOriginal().on("changes", function(dv, changeObj){
         console.log(isRightDirty)
-       
-        if (!isRightDirty){
-            console.log(changeObj);
-            if (currentBranch == "master")
-            {
+        //console.log(currentBranch)
+        //ws.send(currentBranch)
 
-                //TODO: then switch to new branch by sending this message to server + the currently selected commit hash
 
-                ws.send("newBranch" + thisHash);
-            }
-                else {
-                    //TODO: alert user already on branch, ask if you want to switch to a new branch
-                }
+       // console.log(currentBranch)
+        if (isRightDirty == false && currentBranch == "master") {
+            ws.send("createNewBranch " + thisHash)
 
-        }
+            console.log("createNewBranch " + thisHash)
+        //    switch (currentBranch) {
+        //         case "master":
+        //         console.log("the current branch is MASTER")
+
+        //         ws.send("newBranch" + thisHash);
+        //         break;
+
+        //         case (currentBranch !== "master"):
+        //         console.log("The current branch is " + currentBranch)
+        //         if (confirm("already on branch " + currentBranch + "This branch began from " + thisHash + "Create new?")) {
+        //             // Save it!
+        //         } 
+        //         //alert("already on branch " + currentBranch + "\nstarted from " + thisHash + "create new?")
+        //         break;
+
+
+           }
+
+            
+        
+        
+            
+          //  if (currentBranch == "master")
+        //     {
+
+        //         //TODO: then switch to new branch by sending this message to server + the currently selected commit hash
+
+        //         // ws.send("newBranch" + thisHash);
+        //     }
+        // else {
+        //             //TODO: alert user already on branch, ask if you want to switch to a new branch
+        //     }
+
+        
         isRightDirty = true;
 
     });
@@ -459,15 +488,15 @@ function initUI() {
 
 }
 
-function selectedHash(val){
+// function selectedHash(val){
 
-console.log(val);
-var thisHash = val
+// console.log(val);
+// var thisHash = val
 
-if (val == "show hash"){
-    console.log(thisHash)
-}
-}
+// if (val == "show hash"){
+//     console.log(thisHash)
+// }
+// }
 
 
 
