@@ -24,6 +24,7 @@ function randomInt (low, high) {
 }
 
 var gitHash;
+var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -213,24 +214,6 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 
 		//git stuff:
-		//////////////////////////////////////////////
-		/////////////////////////////////////////TODO: need to retrieve the details for commit hash
-		////////////////////////////////////////////// right now the exec function isn't returning the value, but if you run the command in CLI it works fine, so whats wrong with the exec?
-		
-		// //mouseover (bootstrap for now)
-		// if (message.includes("hash")) {
-
-		// 	var detail = message.replace("hash", "")
-		// 	exec("git log -1 --pretty=tformat:%h,%aD:%cn " + detail, { cwd: path.join("..", "alicenode_inhabitat" )}, (stdout) => {
-		// 		console.log("stdout: " + stdout)
-		// 		})
-		// 	console.log(message);
-		// }
-
-		//////////////////////////////////////////////
-		//////////////////////////////////////////////
-		//////////////////////////////////////////////
-		//execSync('git log --pretty=tformat:%h,%aD:%cn > ' + path.join("..", "alicenode/client/gitlog.csv"))
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
 				//console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
@@ -240,75 +223,75 @@ wss.on('connection', function(ws, req) {
 		}
 		
 		if (message.includes("createNewBranch ")){
+					
+			//get number of branches in alicenode_inhabitat
 
-					exec("git branch | wc -l", (stdout, stderr, err) => {
+			exec("git branch | wc -l", (stdout, stderr, err) => {
 
-						onHash = message.replace("createNewBranch ", "")
+				onHash = message.replace("createNewBranch ", "")
+				numBranches = Number(stderr.replace(/\s+/g,''));
 
-						numBranches = Number(stderr.replace(/\s+/g,''));
+				// +1 to branch count, name the branch
+				if (numBranches > 0) {
+					numBranches = (Number(numBranches) + 1)
+					newBranchName = ("playBranch_" + numBranches)
+					
+					//create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
+					exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
+						
+						//change to new worktree directory	
+						exec("cd " + (message.replace("createNewBranch ", "")), () => {
 
-				//		if newBranchNumber = (Number(numBranches) + 1)
-						if (numBranches > 1) {
-							numBranches = (Number(numBranches) + 1)
-							newBranchName = ("playBranch_" + numBranches)
-							
-							//execSync("git branch " + newBranchName + " " + onHash)
-							execSync("git worktree add " + path.join("..", "alicenode_inhabitat/worktrees/") + onHash, (stdout, stderr, err) => {
+						//	console.log(projectCPPVersion)
+							fs.writeFileSync(message.replace("createNewBranch ", "") + "/project.cpp", projectCPPVersion, "utf8");
 
-								ws.send("git error: \n" + stderr + "\n" + stdout + "\n" + err )
-								console.log("three cheers for playfulness. OrigRight now working in new worktree starting from commit " + onHash);
-
+							//inform client
+							ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
+		
 							})
-
-						}
-							else {
-							newBranchName = ("playBranch_1 ")
-							
-							//execSync("git branch " + newBranchName + " " + onHash)
-
-								execSync("git worktree add " + path.join("..", "alicenode_inhabitat/worktrees/")  + onHash, (stdout, stderr, err) => {
-
-								ws.send("git error: \n" + stderr + "\n" + stdout + "\n" + err )
-								console.log("three cheers for playfulness. now working on new worktree starting from commit " + onHash);
-
-
-								})
-								
-
-							}
-				//		if ()
 					})
+					
+
+				}
+				else {
+					//if numBranches = 1
+					newBranchName = ("playBranch_1 ")
+					
+					execSync("git worktree add --checkout -b " + newBranchName + " " + onHash, (stdout, stderr, err) => {
+					})
+					//change to new worktree directory	
+					execSync("cd " + onHash, () => {
+
+					//inform client
+					ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
+
+					})
+				}
+			})
 		}
 
-				// //TODO  
-				// if (message.includes("newbranch")){
 
-				// 	console.log(gitHash)
-		
+		// 	//TODO: 
 
-				// 	//TODO: 
-				// 	//get number of branches in alicenode_inhabitat
-				// 	//numBranches = git branch | wc -l
-				// 	//branchName = "branch_" + numBranches++
-				// 	//then stupidly create branch name as <branchName>
-				// 	//then do "git checkout -b <branchName> <gitHash>"
-				// 	//then update merge.html session with current branch name & reload the svg file
-				// }
-		
+		// 	//then update merge.html session with current branch name & reload the svg file
+		// }
+
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");
 			var gitHash = message.replace("git show", "")
 
-			exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
-				console.log(stderr, err, stdout);
-			})
+			// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
+			// 	console.log(stderr, err, stdout);
+			// })
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
 				exec(gitCommand, { cwd: path.join("..", "alicenode_inhabitat" )}, (err, stdout) => {
 					//console.log(err);
 					//console.log(stdout);
 					ws.send("show?" + stdout)
+
+					projectCPPVersion = stdout;
 
 			});
 

@@ -1,4 +1,67 @@
 [{
+ “45a6272d1a6be3ba6898f36672c8c37867808cea”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Thu Apr 12 13:31:18 2018 -0400", "editing-the-text-in-the-right-pane-editor-now-creates-a-new-worktree-from-the-commit-hash"
+},
+{
+ “83028d9168ebb93f240ba7e81585d37526a931ec”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Thu Apr 12 12:20:25 2018 -0400", "editing-in-the-right-pane-now-creates-a-new-branch-in-a-new-working-tree.-fixed-the-issue-of-overwriting-the-project.cpp-that-alice-relies-on.-now-need-to-see-how-to-commit-to-a-specific-branch.-from-the-right-editor"
+},
+{
+ “46cd294d11380ddecf9b6197c9161f1696712917”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Thu Apr 12 11:08:23 2018 -0400", "changing-text-in-the-origRight-codemirror-pane-now-attempts-to-create-a-new-branch.-causing-an-issue-as-checking-out-this-branch-means-that-alice-tries-to-compile-the-project.cpp-version-from-this-commit.-now-learning-about-git-worktree-to-manage-multiple-branches-at-once"
+},
+{
+ “75984dd593358fac70d9dd5816ff3cf09a1eefef”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Thu Apr 12 08:24:32 2018 -0400", "commit-cfbb525eb8df11c76580718a7e5962aa15bdd5b5-added-a-git-pull-execsync-at-the-start-of-server.js.-problem-is-I-couldn-t-work-while-on-part-of-the-subway-because-this-action-requires-internet.-suggest-we-either-add-startup-flag-to-disable-this-function-or-something-that-first-checks-if-there-s-an-internet-connection-and-asks-user-if-they-want-to-continue"
+},
+{
+ “a27eace7ec7102a9ba6886c68c7b32b948abd379”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 16:21:05 2018 -0400", "merge-graham-into-mine"
+},
+{
+ “dc0c7cd8000dc324cef420ce56973656067cc758”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 16:20:42 2018 -0400", "communication-between-server-and-merge.html-about-creating-new-branches"
+},
+{
+ “aabd02f4975b9fc12399cec30f21a25db5947826”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 16:19:34 2018 -0400", "intellisense"
+},
+{
+ “102266e562260bd87ddc247437515810daa8be92”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 16:18:20 2018 -0400", "intellisense"
+},
+{
+ “142da33e8107905dad11bd75a29e92c301bff56e”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 15:58:22 2018 -0400", "intellisense"
+},
+{
+ “7906175d1e3874da4ba4ca0a84efe581c28d65a4”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 15:48:52 2018 -0400", "merge-from-graham"
+},
+{
+ “f6939e084c72163ea392c92adce4dd446e3bfa89”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 15:43:35 2018 -0400", "report-current-branch-almost-ready"
+},
+{
+ “cfbb525eb8df11c76580718a7e5962aa15bdd5b5”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 15:42:47 2018 -0400", "always-try-to-pull-when-launching"
+},
+{
+ “084cc64c9a41aa5efe99e4118630e866dfe32c74”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 15:34:19 2018 -0400", "Merge-branch-master-of-https-github.com-worldmaking-alicenode"
+},
+{
+ “7c643e2ab221fb85b0f618c0fae4672e0439a961”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 15:34:15 2018 -0400", "change-events-and-dirty-flags-for-said-events"
+},
+{
+ “c9f023d7c3b4f61118b9ea796826acb91bdd57dd”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 15:32:27 2018 -0400", "added-session-id-stuff"
+},
+{
+ “92c6f071ce26e71d377e87f041d6b859abc99601”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 15:19:22 2018 -0400", "send-window-properties-with-onFrame"
+},
+{
+ “bf6bf1fb8235465b083464e71e19d2dedea97721”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 15:13:48 2018 -0400", "formatting"
+},
+{
+ “933c47d749cb31df839c1676971747f897c7e32c”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 14:43:33 2018 -0400", "Merge-branch-master-of-https-github.com-worldmaking-alicenode"
+},
+{
+ “a77387c59b20e1a0b5324c3d7f7fea64459c4f72”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 14:43:31 2018 -0400", "don-t-launch-node-from-the-build.bat"
+},
+{
+ “e250588290f96f6ed694e198d64b0c7444a08583”: "Graham Wakefield <grrrwaaa@gmail.com>", "Wed Apr 11 14:28:36 2018 -0400", "only-need-one-al_sleep"
+},
+{
+ “1db96c074914e400826a5bddec89391b7e94bcab”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 13:59:56 2018 -0400", "working-on-the-pesky-websocket-crashing"
+},
+{
  “aee1e36e48e7f90ddeb129262fdbb970bbfc868a”: "michaelpalumbo <emailmichaelpalumbo@gmail.com>", "Wed Apr 11 12:19:08 2018 -0400", "trying-to-get-the-change-event-to-work-in-the-client.-another-task-is-to-get-the-selected-hash-and-use-it-to-create-a-new-branch"
 },
 {

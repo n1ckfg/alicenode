@@ -54,11 +54,28 @@ Changing the code in the origEditor starts a new branch from that commit. i.e. �
 
 GOOD NEWS: to work on multiple branches, we can use ‘git-worktree’
 
+MAJOR ISSUE: can git-bit-picture look into the branches that are in the worktree? (Likely, as its only just looking at branches…)
+
+Maybe useful when just devving: “git branch --list 'playBranch*' | xargs git branch -d” <<<<this will remove all branches created by the server.js (won’t delete master, and won’t delete branches created manually by user”
+
 
 using work trees, If someone wants to checkout a branch that someone else has already , could do this ”git co -b TEMP/original-branch-name feature/original-branch-name
 “ See https://spin.atomicobject.com/2016/06/26/parallelize-development-git-worktrees/
 is there a better way to zoom in/navigate the git version tree graph in the browser?
 
+Change server.js and merge.html, so that instead of:
 
+	clicking on a commit node:
+		-> git show hash:project.cpp
+			-> put this code into origRight
+				Then when user edits code in origRight, create new worktree @ newBranchName + onHash
+					-> ‘cd onHash’
+			****** The problem with this code above is that when a new branch is created, 
+
+	 clicking on a commit:
+		-> create new worktree @ newBranchName + onHash
+			-> ‘cd onHash’
+				-> ‘git show project.cpp’ //send this code to the origRight editor.
+				-> store newBranchName in a table on disk alongside its onHash.
 
 
