@@ -23,9 +23,47 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
+
+	//update worktree list:
+	fs.unlink(path.join("..", "alicenode/client/worktreeList.txt"), (err) => {
+
+		if (err) throw err;
+		//console.log(path.join("..", "alicenode/client/worktreeList.txt") + " was reset")
+
+		exec("git worktree list --porcelain", {cwd: path.join("..", "alicenode_inhabitat")}, (stderr, err) => {
+		//	console.log(err)
+			console.log(err.replace("worktree ", ""))
+///////
+//////
+/////
+////
+///
+//TODO: the output from the git worktree list --porcelain is in an array, so its not retrieving the correct names
+
+			//if (err.includes == "worktree"){
+				var worktreeName = err.substr(err.lastIndexOf('/') + 1);
+				wName = (worktreeName.replace("\n\n", ""))
+				console.log("\n\n\n\n\n" + wName + "\n\n\n")
+				fs.appendFile(path.join("..", 'alicenode/client/worktreeList.txt'), wName + "\n", function (err) {
+					if (err) {
+						console.log(err)
+						
+					} else {
+						//worktreeList.txt updated
+					}
+				})
+
+		// }
+		})
+
+
+	})
+
+
 var gitHash;
 var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-
+var clientRightWorktree; //the worktree used by origRight, and specific to the client
+//var worktreeList; //the current list of worktrees in the alicenode_inhabit repo
 /////////////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
@@ -199,6 +237,8 @@ wss.on('connection', function(ws, req) {
 	let per_session_data = {
 		id: sessionId++,
 		socket: ws,
+
+
 	};
 
 	sessions[per_session_data.id] = per_session_data;
@@ -214,6 +254,23 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 
 		//git stuff:
+		//set worktree
+		if (message.includes("addWorktree")){
+			newWorkTree = message.replace("addWorktree ", "")
+			console.log(newWorkTree)
+			exec("git worktree add --lock --no-checkout " + message.replace("addWorktree ", ""), (stdout, err, stderr) => {
+
+				updateWorktreeList();
+
+			});
+		}
+
+		if (message.includes("switchWorktree")){
+			clientOrigRightWorktree = message.replace("switchWorktree ", "")
+			exec("cd " + clientRightWorktree) 
+			console.log("Right editor working within " + clientRightWorktree)
+		}
+
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
 				//console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
@@ -222,53 +279,65 @@ wss.on('connection', function(ws, req) {
 				})
 		}
 		
+
 		if (message.includes("createNewBranch ")){
 					
 			//get number of branches in alicenode_inhabitat
 
 			exec("git branch | wc -l", (stdout, stderr, err) => {
 
-				onHash = message.replace("createNewBranch ", "")
-				numBranches = Number(stderr.replace(/\s+/g,''));
+		 		onHash = message.replace("createNewBranch ", "")
+		 		numBranches = Number(stderr.replace(/\s+/g,''));
 
-				// +1 to branch count, name the branch
-				if (numBranches > 0) {
-					numBranches = (Number(numBranches) + 1)
-					newBranchName = ("playBranch_" + numBranches)
+		 		// +1 to branch count, name the branch
+		 		//if (numBranches > 0) {
+				//	 numBranches = (Number(numBranches) + 1)
+					 
+					 
+		 		//	newBranchName = (numBranches + "_" + clientRightWorktree)
+				
+				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientRightWorktree) + onHash, {cwd: path.join("..", "alicenode_inhabitat/" + clientRightWorktree)}, (stdout) => {
 					
-					//create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
-					exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
-						
-						//change to new worktree directory	
-						exec("cd " + (message.replace("createNewBranch ", "")), () => {
+					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientRightWorktree) + " starting from commit " + onHash)
 
-						//	console.log(projectCPPVersion)
-							fs.writeFileSync(message.replace("createNewBranch ", "") + "/project.cpp", projectCPPVersion, "utf8");
+				})
 
-							//inform client
-							ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
-		
-							})
-					})
-					
-
-				}
-				else {
-					//if numBranches = 1
-					newBranchName = ("playBranch_1 ")
-					
-					execSync("git worktree add --checkout -b " + newBranchName + " " + onHash, (stdout, stderr, err) => {
-					})
-					//change to new worktree directory	
-					execSync("cd " + onHash, () => {
-
-					//inform client
-					ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
-
-					})
-				}
 			})
 		}
+			
+					//create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
+		// 			exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
+						
+		// 				//change to new worktree directory	
+		// 				exec("cd " + (message.replace("createNewBranch ", "")), () => {
+
+		// 				//	console.log(projectCPPVersion)
+		// 					fs.writeFileSync(message.replace("createNewBranch ", "") + "/project.cpp", projectCPPVersion, "utf8");
+
+		// 					//inform client
+		// 					ws.send("Switched to branch " + newBranchName + " starting from commit " + onHash)
+		
+		// 					})
+		// 			})
+					
+
+		// 		}
+		// 		else {
+		// 			//if numBranches = 1
+		// 			newBranchName = ("playBranch_1 ")
+					
+		// 			execSync("git worktree add --checkout -b " + newBranchName + " " + onHash, (stdout, stderr, err) => {
+		// 			})
+		// 			//change to new worktree directory	
+		// 			execSync("cd " + onHash, () => {
+
+		// 			//inform client
+		// 			ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
+
+		// 			})
+		// 		}
+		// 	})
+	//	}
 
 
 		// 	//TODO: 

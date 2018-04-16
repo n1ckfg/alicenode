@@ -79,3 +79,6 @@ Change server.js and merge.html, so that instead of:
 				-> store newBranchName in a table on disk alongside its onHash.
 
 
+
+TODO: use var worktree for all { cwd: } on child processes that the right-pane editor uses!
+	- how to manage branch creation/deletion?
