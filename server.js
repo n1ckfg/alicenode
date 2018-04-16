@@ -43,33 +43,36 @@ console.log("client_path", client_path);
 const projectlib = "project." + libext;
 
 //update worktree list:
-fs.unlink(path.join(client_path, "worktreeList.txt"), (err) => {
+try {
+	fs.unlink(path.join(client_path, "worktreeList.txt"), (err) => {
 
-	if (err) throw err;
-	//console.log(path.join("..", "alicenode/client/worktreeList.txt") + " was reset")
+		//if (err) throw err;
+		//console.log(path.join("..", "alicenode/client/worktreeList.txt") + " was reset")
 
-	exec("git worktree list --porcelain", {cwd: project_path}, (stderr, err) => {
-	//	console.log(err)
-		console.log(err.replace("worktree ", ""));
-		
-		//TODO: the output from the git worktree list --porcelain is in an array, so its not retrieving the correct names
+		exec("git worktree list --porcelain", {cwd: project_path}, (stderr, err) => {
+		//	console.log(err)
+			console.log(err.replace("worktree ", ""));
+			
+			//TODO: the output from the git worktree list --porcelain is in an array, so its not retrieving the correct names
 
-		//if (err.includes == "worktree"){
-			var worktreeName = err.substr(err.lastIndexOf('/') + 1);
-			wName = (worktreeName.replace("\n\n", ""))
-			console.log("\n\n\n\n\n" + wName + "\n\n\n")
-			fs.appendFile(path.join(client_path, "worktreeList.txt"), wName + "\n", function (err) {
-				if (err) {
-					console.log(err)
-					
-				} else {
-					//worktreeList.txt updated
-				}
-			})
-		// }
-	})
-})
-
+			//if (err.includes == "worktree"){
+				var worktreeName = err.substr(err.lastIndexOf('/') + 1);
+				wName = (worktreeName.replace("\n\n", ""))
+				console.log("\n\n\n\n\n" + wName + "\n\n\n")
+				fs.appendFile(path.join(client_path, "worktreeList.txt"), wName + "\n", function (err) {
+					if (err) {
+						console.log(err)
+						
+					} else {
+						//worktreeList.txt updated
+					}
+				})
+			// }
+		})
+	});
+} catch (e) {
+	console.error(e.toString());
+}
 
 var gitHash;
 var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
