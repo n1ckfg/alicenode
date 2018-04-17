@@ -45,11 +45,6 @@ exec("git worktree prune", () => {
     })
 })
 
-
-var gitHash;
-var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-var clientRightWorktree; //the worktree used by origRight, and specific to the client
-//var worktreeList; //the current list of worktrees in the alicenode_inhabit repo
 /////////////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
@@ -68,6 +63,13 @@ console.log("editor_path", editor_path);
 console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
+
+var gitHash;
+var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
+var clientRightWorktree; //the worktree used by origRight, and specific to the client
+//var worktreeList; //the current list of worktrees in the alicenode_inhabit repo
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 
