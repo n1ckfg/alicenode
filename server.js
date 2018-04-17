@@ -114,7 +114,7 @@ try {
 // I'll need to crawl around and find all the source files referenced in the html,
 //as they are not hosted in some git repo. but yeah, getting this one to work would be pretty sweet
 // http://bit-booster.com/graph.html
-//*NOTE* see if the git log 'pretty' part of the code can include the date, author, and more, so you can then expose more into the svg
+//*NOTE* see if the git log 'pretty' part of the code can include the date, author, [commit message would be GREAT], and more, so you can then expose more into the svg
 
 
 //possible new method 2 (using a different python script that provides author names and evenutally will add dates an other details... its very slow though...)
@@ -129,6 +129,11 @@ try {
 // } catch (e) {
 // 	console.error(e.toString());
 // }
+
+// possible new method 3: https://github.com/tclh123/commits-graph
+//although, this one is maybe not as feature-ready as method 1...
+///// PLO //// Could be useful to see what commands are most used, maybe for 
+// future features https://github.com/jvns/git-workflow
 
 // UPDATE GIT REPO:
 
