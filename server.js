@@ -66,7 +66,7 @@ const projectlib = "project." + libext;
 
 var gitHash;
 var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-var clientRightWorktree; //the worktree used by origRight, and specific to the client
+var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 //var worktreeList; //the current list of worktrees in the alicenode_inhabit repo
 
 
@@ -100,6 +100,7 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 // BUILD REPO GRAPH
 
+//old method (hoping to phase out)
 try {
 	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
 	//convert the digraph to svg
@@ -108,6 +109,26 @@ try {
 } catch (e) {
 	console.error(e.toString());
 }
+
+//possible new method 1: this one is really slick, and it uses git log, so should be faster than the rev-list/parse method above and below. 
+// I'll need to crawl around and find all the source files referenced in the html,
+//as they are not hosted in some git repo. but yeah, getting this one to work would be pretty sweet
+// http://bit-booster.com/graph.html
+//*NOTE* see if the git log 'pretty' part of the code can include the date, author, and more, so you can then expose more into the svg
+
+
+//possible new method 2 (using a different python script that provides author names and evenutally will add dates an other details... its very slow though...)
+//seems to be a bit easier to edit, compared to the git-big-picture. 
+//////////////TODO::: MUST figure out how to restrict the python script to only mapping project.cpp. 
+///////////////////// I did this once, by adding ' -- project.cpp' to line 42 in git-graph.py, but the resulting digraph had many disconnected lines
+// try {
+// 	execSync('python3 git-graph.py > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
+// 	//convert the digraph to svg
+// 	execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+// 	console.log("\nRebuilt Repo Graph\n");
+// } catch (e) {
+// 	console.error(e.toString());
+// }
 
 // UPDATE GIT REPO:
 
@@ -254,9 +275,10 @@ wss.on('connection', function(ws, req) {
 		}
 
 		if (message.includes("switchWorktree")){
+			//console.log("worktree is " + arg)
 			clientOrigRightWorktree = message.replace("switchWorktree ", "")
-			exec("cd " + clientRightWorktree) 
-			console.log("Right editor working within " + clientRightWorktree)
+			exec("cd " + clientOrigRightWorktree) 
+			console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree")
 		}
 
 		if (message.includes("getCurrentBranch")){
@@ -282,11 +304,11 @@ wss.on('connection', function(ws, req) {
 				//	 numBranches = (Number(numBranches) + 1)
 					 
 					 
-		 		//	newBranchName = (numBranches + "_" + clientRightWorktree)
+		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
-				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientRightWorktree) + onHash, {cwd: path.join("..", "alicenode_inhabitat/" + clientRightWorktree)}, (stdout) => {
+				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join("..", "alicenode_inhabitat/" + clientOrigRightWorktree)}, (stdout) => {
 					
-					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientRightWorktree) + " starting from commit " + onHash)
+					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
 
 				})
 
