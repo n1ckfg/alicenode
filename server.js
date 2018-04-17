@@ -270,7 +270,7 @@ wss.on('connection', function(ws, req) {
 		//git stuff:
 		//create and set worktree
 		if (message.includes("addWorktree")){
-			newWorkTree = message.replace("addWorktree ", "")
+			newWorkTree = message.replace("addWorktree ", "?")
 			console.log(newWorkTree)
 			exec("git worktree add --lock --no-checkout " + message.replace("addWorktree ", ""), (stdout, err, stderr) => {
 
