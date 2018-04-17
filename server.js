@@ -23,41 +23,27 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
-
-	//update worktree list:
-	fs.unlink(path.join("..", "alicenode/client/worktreeList.txt"), (err) => {
-
-		if (err) throw err;
-		//console.log(path.join("..", "alicenode/client/worktreeList.txt") + " was reset")
-
-		exec("git worktree list --porcelain", {cwd: path.join("..", "alicenode_inhabitat")}, (stderr, err) => {
-		//	console.log(err)
-			console.log(err.replace("worktree ", ""))
-///////
-//////
-/////
-////
-///
-//TODO: the output from the git worktree list --porcelain is in an array, so its not retrieving the correct names
-
-			//if (err.includes == "worktree"){
-				var worktreeName = err.substr(err.lastIndexOf('/') + 1);
-				wName = (worktreeName.replace("\n\n", ""))
-				console.log("\n\n\n\n\n" + wName + "\n\n\n")
-				fs.appendFile(path.join("..", 'alicenode/client/worktreeList.txt'), wName + "\n", function (err) {
-					if (err) {
-						console.log(err)
-						
-					} else {
-						//worktreeList.txt updated
-					}
-				})
-
-		// }
-		})
-
-
-	})
+//update the worktree list
+exec("git worktree prune", () => {
+    fs.unlink(path.join("..", "alicenode/client/worktreeList.txt"), (err) => {
+        if (err) throw err;
+        //get the names of current worktrees
+        exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", (stderr, err) => {
+            for (var i = 0; i < (err.toString().split('\n')).length; i++) {
+                var worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+                if (worktreeName !== undefined) {
+                    fs.appendFile(path.join("..", 'alicenode/client/worktreeList.txt'), worktreeName + "\n", function (err) {
+                        if (err) {
+                            console.log(err)                            
+                        } else {
+                            console.log("worktreeList.txt updated")
+                        }
+                    }) 
+                }   
+            }
+        })
+    })
+})
 
 
 var gitHash;
@@ -254,7 +240,7 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 
 		//git stuff:
-		//set worktree
+		//create and set worktree
 		if (message.includes("addWorktree")){
 			newWorkTree = message.replace("addWorktree ", "")
 			console.log(newWorkTree)
