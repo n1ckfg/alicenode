@@ -34,10 +34,10 @@ const libext = process.platform == "win32" ? "dll" : "dylib";
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
 const project_path = process.cwd();
-const editor_path = __dirname;
-const client_path = path.join(editor_path, "client");
+const server_path = __dirname;
+const client_path = path.join(server_path, "client");
 console.log("project_path", project_path);
-console.log("editor_path", editor_path);
+console.log("server_path", server_path);
 console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
@@ -47,7 +47,7 @@ let projectCPPVersion; //when a version of the project.cpp is requested by a cli
 let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 let worktreepath = path.join(client_path, "worktreeList.txt");
 	
-//update the worktree list
+// update the worktree list
 exec("git worktree prune", () => {
 	// delete work tree (if it exists):
 	if (fs.existsSync(worktreepath)) {
@@ -77,8 +77,8 @@ exec("git worktree prune", () => {
 function project_build() {
 	
 	let out = process.platform == "win32"
-		? execSync('build.bat "'+editor_path+'"') 
-		: execSync('sh build.sh "'+editor_path+'"');
+		? execSync('build.bat "'+server_path+'"') 
+		: execSync('sh build.sh "'+server_path+'"');
 	console.log("built project", out.toString());
 }
 
@@ -102,9 +102,9 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 //old method (hoping to phase out)
 try {
-	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
+	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
 	//convert the digraph to svg
-	execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+	execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
 	console.log("\nRebuilt Repo Graph\n");
 } catch (e) {
 	console.error(e.toString());
@@ -143,10 +143,10 @@ function git_add_and_commit() {
 		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
 		execSync('git commit -m "client updated project"', {cwd: project_path }, () => {console.log("git committed")});
 		//create digraph from git history of project.cpp
-		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: "/Users/mp/alicenode_inhabitat"}, () => {console.log("made the repo_graph.dot")});
+		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path}, () => {console.log("made the repo_graph.dot")});
 		//convert the digraph to svg
-		execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join("..", "alicenode/client/gitlog.json"), {cwd: "/Users/mp/alicenode"}, () => {
+		execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
 			console.log("updated ../client/gitlog.json")
 		})
 
@@ -287,7 +287,7 @@ wss.on('connection', function(ws, req) {
 		}
 
 		if (message.includes("getCurrentBranch")){
-			exec("git rev-parse --abbrev-ref HEAD", { cwd: path.join("..", "alicenode_inhabitat" ) }, (stdout, stderr, err) => {
+			exec("git rev-parse --abbrev-ref HEAD", { cwd: project_path }, (stdout, stderr, err) => {
 				//console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
 				ws.send("branchname?" + stderr.replace("\n", ""))
 				//console.log("branchname?" + stderr.replace("\n", ""))
@@ -311,7 +311,7 @@ wss.on('connection', function(ws, req) {
 					 
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
-				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join("..", "alicenode_inhabitat/" + clientOrigRightWorktree)}, (stdout) => {
+				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
 					
 					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
 
@@ -370,7 +370,7 @@ wss.on('connection', function(ws, req) {
 			// })
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
-				exec(gitCommand, { cwd: path.join("..", "alicenode_inhabitat" )}, (err, stdout) => {
+				exec(gitCommand, { cwd: project_path }, (err, stdout) => {
 					//console.log(err);
 					//console.log(stdout);
 					ws.send("show?" + stdout)
@@ -387,7 +387,7 @@ wss.on('connection', function(ws, req) {
 
 		if (message.includes("git return to master")){
 
-			 exec("git show master:" + path.join("..", "alicenode_inhabitat/project.cpp"), (stderr, err, stdout) => {
+			 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
 			 ws.send("edit?" + err)
 
             })
