@@ -68,18 +68,52 @@ float clip(float in, float min, float max) {
 	return AL_MAX(v, min);
 }
 
+/// Wrap is Euclidean modulo remainder
+// that is, the output is always zero or positive, and less than the upper bound
+// and rounding is always toward -infinity
 
-// Note: "a - N*floorf(a / N)" does not work due to occasional floating point error
-// this is far simpler but N must be nonzero:
+// For non-integral types:
+// N must be nonzero
 template<typename T, typename T1>
-T wrap(T a, T1 N) {
-	return glm::fract(a / N) * N;
+typename std::enable_if<!std::is_integral<T>::value, T>::type wrap(T a, T1 N) {
+	// Note: "a - N*floor(a / N)" does not work due to occasional floating point error
+	return glm::fract(a / T(N)) * T(N);
 }
 
+// For integral types only:
+// N must be nonzero
+template<typename T, typename T1>
+typename std::enable_if<std::is_integral<T>::value, T>::type wrap(T a, T1 N) {
+    T r = a % T(N);
+    return r < 0 ? r+T(N) : r;
+}
+
+// wrap with a lower bound:
 template<typename T, typename T1>
 inline T wrap(T x, T1 lo, T1 hi) {
 	return lo + wrap(x-lo, hi-lo);
 }
+
+/*
+// temporary hack because the one in al_Function gave a bad result
+// for e.g. wrap<double>(-64.0, -32.0);
+template<typename T>
+inline T wrap(T v, const T hi=T(1.), const T lo=T(0.)){
+	if(lo == hi) return lo;
+	//if(v >= hi){
+	if(!(v < hi)){
+		T diff = hi - lo;
+		v -= diff;
+		if(!(v < hi)) v -= diff * (T)(uint32_t)((v - lo)/diff);
+	}
+	else if(v < lo){
+		T diff = hi - lo;
+		v += diff;
+		if(v < lo) v += diff * (T)(uint32_t)(((lo - v)/diff) + 1);
+		if(v==diff) return lo;
+	}
+	return v;
+}*/
 
 /*
 
