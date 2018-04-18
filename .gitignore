@@ -2,12 +2,16 @@
 alice
 alice.exe
 
+
+
 #pesky .DS_Store
 *.DS_Store
 */.DS_Store
 
 repo_graph.dot
 repo_graph.svg
+
+client/worktreeList.txt
 
 #dummy repo for testing and building ~/server/git.js
 *scriptster/
