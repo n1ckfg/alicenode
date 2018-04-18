@@ -23,28 +23,6 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
-//update the worktree list
-exec("git worktree prune", () => {
-    fs.unlink(path.join("..", "alicenode/client/worktreeList.txt"), (err) => {
-        if (err) throw err;
-        //get the names of current worktrees
-        exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", (stderr, err) => {
-            for (var i = 0; i < (err.toString().split('\n')).length; i++) {
-                var worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
-                if (worktreeName !== undefined) {
-                    fs.appendFile(path.join("..", 'alicenode/client/worktreeList.txt'), worktreeName + "\n", function (err) {
-                        if (err) {
-                            console.log(err)                            
-                        } else {
-                            console.log("worktreeList.txt updated")
-                        }
-                    }) 
-                }   
-            }
-        })
-    })
-})
-
 /////////////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
@@ -64,12 +42,34 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
-var gitHash;
-var projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
-//var worktreeList; //the current list of worktrees in the alicenode_inhabit repo
-
-
+let gitHash;
+let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
+let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
+let worktreepath = path.join(client_path, "worktreeList.txt");
+	
+//update the worktree list
+exec("git worktree prune", () => {
+	// delete work tree (if it exists):
+	if (fs.existsSync(worktreepath)) {
+		fs.unlinkSync(worktreepath);
+	}
+	
+	//get the names of current worktrees
+	exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", (stderr, err) => {
+		for (let i = 0; i < (err.toString().split('\n')).length; i++) {
+			let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+			if (worktreeName !== undefined) {
+				fs.appendFile(worktreepath, worktreeName + "\n", function (err) {
+					if (err) {
+						console.log(err)                            
+					} else {
+						console.log("worktreeList.txt updated")
+					}
+				}) 
+			}   
+		}
+	})
+})
 
 /////////////////////////////////////////////////////////////////////////////////
 
