@@ -317,6 +317,18 @@ struct QuadMesh {
 	// (a VAO stores attrib & buffer mappings in a re-usable way)
 	GLuint VAO = 0;
 	GLuint VBO = 0;
+	glm::vec4 vertices[6];
+
+	QuadMesh() {
+		// positions, texcoords
+		vertices[0] = glm::vec4( 1.,  1., 		1., 1.);
+		vertices[1] = glm::vec4(-1.,  1.,		0., 1.);
+		vertices[2] = glm::vec4(-1., -1.,		0., 0.);
+
+		vertices[3] = glm::vec4(-1., -1.,		0., 0.);
+		vertices[4] = glm::vec4( 1., -1.,		1., 0.);
+		vertices[5] = glm::vec4( 1.,  1.,		1., 1);
+	}
 
 	void dest_closing() {
 		if (VAO) {
@@ -331,21 +343,6 @@ struct QuadMesh {
 
 	bool dest_changed() {
 		dest_closing();
-
-		float l = -1.;
-		float b = -1.;
-		float r = 1.;
-		float t = 1.;
-		GLfloat vertices[] = {
-			// positions, texcoords
-			r, t,		1., 1.,
-			l, t,		0., 1.,
-			l, b,		0., 0.,
-
-			l, b,		0., 0.,
-			r, b,		1., 0.,
-			r, t,		1., 1.
-		};
 
 		// define the VAO 
 		// (a VAO stores attrib & buffer mappings in a re-usable way)
