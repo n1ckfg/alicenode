@@ -9,11 +9,14 @@ struct AL_ALICE_EXPORT Alice {
 	vdk::signal<void()> onReloadGPU;
 		
 	
-	double t = 0.;	
-	double dt = 1/60.;
+	double t = 0.;	  		// clock time
+	double simTime = 0.; 	// simulation time
+	double dt = 1/60.; 		// updated continually while running
 	double desiredFrameRate = 30.;
 	double fpsAvg = 30;	
 	int framecount = 0;
+
+	int isSimulating = true;
 	
 	static Alice& Instance();	
 	

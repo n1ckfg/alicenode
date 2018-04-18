@@ -44,7 +44,9 @@ uv_pipe_t stdin_pipe;
 void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, int downup, int mods) {
 	switch (keycode) { 
 	case GLFW_KEY_SPACE: {
-		//if (downup) shared.updating = !shared.updating;
+		if (downup) {
+			alice.isSimulating = !alice.isSimulating;
+		}
 	} break;
 	case GLFW_KEY_ESCAPE: {
 		isThreadsDone = 1;
@@ -84,6 +86,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
     alice.dt = t1-alice.t;
     alice.t = t1;
     alice.framecount++;
+	if (alice.isSimulating) alice.simTime += alice.dt;
     
     alice.fpsAvg += 1./alice.dt;
     if (alice.framecount % 60 == 0) {
