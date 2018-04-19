@@ -182,7 +182,7 @@ public:
 		srand((unsigned int)time(NULL));
 	}
 
-	static int integer(int lim=2) {
+	static uint64_t integer(uint64_t lim=2) {
 		return (int)floorf(glm::linearRand(0.f, lim-0.0000001f));
 	}
 

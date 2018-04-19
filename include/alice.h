@@ -5,9 +5,9 @@
 
 struct AL_ALICE_EXPORT Alice {
 	
+	vdk::signal<void()> onReset;
 	vdk::signal<void(uint32_t, uint32_t)> onFrame;
 	vdk::signal<void()> onReloadGPU;
-		
 	
 	double t = 0.;	  		// clock time
 	double simTime = 0.; 	// simulation time

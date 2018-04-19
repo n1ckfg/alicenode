@@ -48,6 +48,12 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 			alice.isSimulating = !alice.isSimulating;
 		}
 	} break;
+	case GLFW_KEY_DELETE:
+	case GLFW_KEY_BACKSPACE: {
+		if (downup) {
+			alice.onReset.emit();
+		}
+	} break;
 	case GLFW_KEY_ESCAPE: {
 		isThreadsDone = 1;
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
