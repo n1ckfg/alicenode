@@ -101,22 +101,121 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 // BUILD REPO GRAPH
 
 //old method (hoping to phase out)
-try {
-	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
-	//convert the digraph to svg
-	execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-	console.log("\nRebuilt Repo Graph\n");
-} catch (e) {
-	console.error(e.toString());
-}
+// try {
+// 	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
+// 	//convert the digraph to svg
+// 	execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+// 	console.log("\nRebuilt Repo Graph\n");
+// } catch (e) {
+// 	console.error(e.toString());
+// }
 
 //possible new method 1: this one is really slick, and it uses git log, so should be faster than the rev-list/parse method above and below. 
 // I'll need to crawl around and find all the source files referenced in the html,
 //as they are not hosted in some git repo. but yeah, getting this one to work would be pretty sweet
 // http://bit-booster.com/graph.html
 //*NOTE* see if the git log 'pretty' part of the code can include the date, author, [commit message would be GREAT], and more, so you can then expose more into the svg
+var gitlog;
+
+execSync('git log --all --date-order --pretty="%H|%P|%d|%cN" --follow project.cpp', {cwd: project_path}, (stdout, stderr, err) => {
+gitlog = stderr;
 
 
+function make_svg_from_gitlog(gitlog) {
+    let rowsize = 20;
+    let colsize = 10;
+  
+    function col_hue(col) { return col*30; }
+  
+    let lines = gitlog.split("\n");
+    let commit_list = [];
+    let commit_map = {};
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].split("|");
+      let commit = {
+        hash: line[0],
+        children: line[1] ? line[1].split(" ") : [],
+        ref: line[2] ? line[2].split(", ") : [],
+        row: i+1
+      };
+      commit_list.push(commit);
+      commit_map[commit.hash] = commit;
+    }
+  
+    // depth first traversal
+    // to assign columns to each commit
+    // and also generate the paths as we go
+    let first_commit = commit_list[0];
+    first_commit.col = 1;
+    let stack = [  first_commit ];
+    let visited = {};
+    let paths = [];
+    while (stack.length > 0) {
+      let parent = stack.pop();
+      visited[parent.hash] = true;
+      parent.x = parent.col * colsize;
+      parent.y = parent.row * rowsize;
+  
+      // add children to stack:
+      for (let i=parent.children.length-1; i>=0; i--) {
+        let child_hash = parent.children[i];
+        let child = commit_map[parent.children[i]];
+        if (!visited[child_hash]) {      
+          child.col = (parent.col + i);
+          stack.push(child);
+        }
+        // add a path:
+        paths.push({
+          from: parent,
+          to: child
+        });
+      }
+    }
+  
+    let svg = ['<svg width=100% height=100% version="1.1" xmlns="http://www.w3.org/2000/svg">'];
+  
+    for (let i in commit_list) {
+      let commit = commit_list[i];
+      svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" />`); 
+    }
+  
+    for (let i in paths) {
+      let path = paths[i];
+      let from = path.from;
+      let to = path.to;
+  
+      let d = `M${from.x},${from.y}`;
+      let hue = col_hue(from.col);
+      if (to.col > from.col) {
+        // new branch
+        hue = col_hue(to.col);
+        let branch = {
+          x: to.x,
+          y: from.y + rowsize/2
+        }
+        d += `L${branch.x},${branch.y}`;
+  
+      } else if (to.col < from.col) {
+        // merge branch
+        let branch = {
+          x: from.x,
+          y: to.y - rowsize/2
+        }
+        d += `L${branch.x},${branch.y}`;
+      } 
+      // regular commit
+      d += `L${to.x},${to.y}`;
+  
+      svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`); 
+    }
+    svg.push("</svg>");
+    svg = svg.join("\n");
+    return svg;
+  }
+
+  var svg = make_svg_from_gitlog(gitlog);
+  //ws.send("?update_gitGraph " + svg)
+})
 //possible new method 2 (using a different python script that provides author names and evenutally will add dates an other details... its very slow though...)
 //seems to be a bit easier to edit, compared to the git-big-picture. 
 //////////////TODO::: MUST figure out how to restrict the python script to only mapping project.cpp. 
@@ -134,6 +233,8 @@ try {
 //although, this one is maybe not as feature-ready as method 1...
 ///// PLO //// Could be useful to see what commands are most used, maybe for 
 // future features https://github.com/jvns/git-workflow
+
+
 
 // UPDATE GIT REPO:
 
