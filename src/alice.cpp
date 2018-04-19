@@ -51,6 +51,7 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	case GLFW_KEY_DELETE:
 	case GLFW_KEY_BACKSPACE: {
 		if (downup) {
+			console.log("simulation reset");
 			alice.onReset.emit();
 		}
 	} break;
