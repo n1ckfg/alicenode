@@ -14,7 +14,7 @@ class Array {
 public:
 	
 	// dims should be powers of 2.
-	void initialize(int dimx, int dimy, int dimz, int components = 1) {
+	void initialize(size_t dimx, size_t dimy, size_t dimz, size_t components = 1) {
 		mDimX = dimx;
 		mDimY = dimy;
 		mDimZ = dimz;
@@ -39,13 +39,13 @@ public:
 		initialize(dim.x, dim.y, dim.z, components);
 	}
 	
-	unsigned length() const { return mLength; }
-	unsigned size() const { return mSize; }
-	unsigned components() const { return mComponents; }
-	unsigned dimx() const { return (unsigned)mDimX; }
-	unsigned dimy() const { return (unsigned)mDimY; }
-	unsigned dimz() const { return (unsigned)mDimZ; }
-	unsigned stride(int dim) const { return (unsigned)mStride[dim]; }
+	size_t length() const { return mLength; }
+	size_t size() const { return mSize; }
+	size_t components() const { return mComponents; }
+	size_t dimx() const { return mDimX; }
+	size_t dimy() const { return mDimY; }
+	size_t dimz() const { return mDimZ; }
+	size_t stride(int dim) const { return mStride[dim]; }
 	
 	void print() {
 		printf("Array %dx%dx%d[%d]\n", mDimX, mDimY, mDimZ, mComponents);
@@ -119,7 +119,7 @@ class Field3D {
 public:
 	
 	// dims should be powers of 2.
-	void initialize(int dimx, int dimy, int dimz, int components = 1) {
+	void initialize(size_t dimx, size_t dimy, size_t dimz, size_t components = 1) {
 		mDimX = dimx;
 		mDimY = dimy;
 		mDimZ = dimz;
@@ -136,13 +136,13 @@ public:
 		initialize(dim.x, dim.y, dim.z, components);
 	}
 	
-	unsigned length() const { return mArray0.length(); }
-	unsigned size() const { return mArray0.mSize; }
-	unsigned components() const { return mArray0.mComponents; }
-	unsigned dimx() const { return mArray0.mDimX; }
-	unsigned dimy() const { return mArray0.mDimY; }
-	unsigned dimz() const { return mArray0.mDimZ; }
-	unsigned stride(int dim) const { return (unsigned)mArray0.mStride[dim]; }
+	size_t length() const { return mArray0.length(); }
+	size_t size() const { return mArray0.mSize; }
+	size_t components() const { return mArray0.mComponents; }
+	size_t dimx() const { return mArray0.mDimX; }
+	size_t dimy() const { return mArray0.mDimY; }
+	size_t dimz() const { return mArray0.mDimZ; }
+	size_t stride(int dim) const { return (unsigned)mArray0.mStride[dim]; }
 	
 	// front is what is currently interacted with
 	// back is used for intermediate processing
