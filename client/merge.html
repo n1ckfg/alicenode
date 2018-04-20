@@ -236,10 +236,11 @@ function openSocket() {
                 //svg from server:
                 case "gitLog":
                 let gitlog = arg;
-                console.log(arg)
                 var svg = make_svg_from_gitlog(gitlog);
                 //push the svg content to the gitgraph div
                 $("#gitgraph").html(svg)
+                console.log(svg)
+
 
                 break;
 
@@ -529,7 +530,7 @@ function make_svg_from_gitlog(gitlog) {
                 //if the initial commit runs throught the script as a child, it breaks
                 console.log("initial commit reached")
             } else {
-            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" text=${col_hue(commit.ref)} onmouseover="mouseEnterCommit(evt)"
+            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)"
 onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"/>`); 
             }
     }
