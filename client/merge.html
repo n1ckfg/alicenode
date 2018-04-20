@@ -19,7 +19,12 @@
 <script type="text/javascript" src="js/diff_match_patch.js"></script>
 
 <!--script sources for the repo_graph & jquery -->
-<script type="text/javascript" src="js/jquery.2.1.3.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery.2.1.3.min.js"></script> -->
+<script
+  src="http://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+
 <script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
 <script type="text/javascript" src="js/jquery.color.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -28,7 +33,27 @@
 <!-- temp fix for the 'cannot find 'favicon.ico' error -->
 <link rel="shortcut icon" href="">
 
+<!-- Client interaction with the git commit nodes -->
+<script type="text/ecmascript">
+  
+      function MakeTransparent(evt) {
+        evt.target.setAttributeNS(null,"opacity","0.5");
+      }
+  
+      function MakeOpaque(evt) {
+        evt.target.setAttributeNS(null,"opacity","1");
+      }
+  
+      function getCommitDetail(evt) {
+            let selectedCommit = evt.target.id
+            console.log(evt.target.id)
+            console.log("test")
+            ws.send("git show " + selectedCommit);
+            ws.send("getCurrentBranch");
 
+           // sendRightCode("hash?" + evt.target.id);
+      }
+  </script>
 
 
 <style>
@@ -49,16 +74,16 @@
     </section> */
  #serverMessages {
      position: fixed;
-     bottom: 0;
-     left: 0;
+     top: 0;
+     right: 0;
      width: 50%;
+     height: 10%
      
-
  }
  #container {
      width: 100%; 
      height: 500px;
-     /* margin: 0 auto; */
+     margin: 0 auto;
      /* overflow: scroll; */
  }
  #view, #gitgraph {
@@ -72,10 +97,14 @@
 
 #gitgraph, #svg {
     width: 20%;
-    margin: 0;
-    padding: 0;
+    margin: auto;
+    padding: auto;
+    display: block;
+    /* position: center; */
     overflow: scroll;
-    background-color: lightblue;
+    /* background-color: lightblue; */
+    /* transform: scaleY(-1); */
+
 
 }
 </style>
@@ -205,23 +234,14 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                 
-                
+                ////////////////////////////////////////////////////
                 //svg from server:
                 case "gitLog":
                 let gitlog = arg;
                 var svg = make_svg_from_gitlog(gitlog);
-                $("#gitgraph").html(svg);
-                //console.log(svg)
+                //push the svg content to the gitgraph div
+                $("#gitgraph").html(svg)
 
-
-                    //console.log(history)
-                //function passGitLog(history) {
-                 //let gitlog = "test";
-                // testThis(history);
-                //make_svg_from_gitlog(history);
-                //console.log(history)
-
-                //}
                 break;
 
                // case worktreeList:
@@ -254,7 +274,7 @@ function openSocket() {
                 //
                 case "show":
                     // fillEditor("b" + arg);
-
+                    console.log(arg)
                     //TODO: alert ask to continue (will lose work if they continue without committing)
                     // if (isRightDirty){
                         //alert(whatever, but essentially an ok and cancel button)
@@ -453,7 +473,7 @@ function worktreeSelect()  {
 function make_svg_from_gitlog(gitlog) {
 //let col;    
     let rowsize = 20;
-    let colsize = 10;
+    let colsize = 7;
 
         function col_hue(col) { return col*30; }
 
@@ -510,7 +530,8 @@ function make_svg_from_gitlog(gitlog) {
                 //if the initial commit runs throught the script as a child, it breaks
                 console.log("initial commit reached")
             } else {
-            svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" />`); 
+            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="MakeTransparent(evt)"
+onmouseout="MakeOpaque(evt)" onmousedown="getCommitDetail(evt)"/>`); 
             }
     }
 
@@ -549,7 +570,6 @@ function make_svg_from_gitlog(gitlog) {
     svg.push("</svg>");
     svg = svg.join("\n");
     return svg;
-
 }
 
 //$("#gitgraph").html(svg);

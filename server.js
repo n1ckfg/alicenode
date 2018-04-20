@@ -512,7 +512,8 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");
-			var gitHash = message.replace("git show", "")
+			var gitHash = message.replace("git show ", "")
+			console.log("githash = " + gitHash)
 
 			// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
 			// 	console.log(stderr, err, stdout);
