@@ -143,9 +143,7 @@ function make_svg_from_gitlog(gitlog) {
   0f8187b
   f37def6`;
   
-  
-
- //this  
+ 
   var svg = make_svg_from_gitlog(gitlog);
 ws.send("?update_gitGraph " + svg)
 ///TODO: pass the svg data over ws to merge.html. 

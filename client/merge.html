@@ -37,8 +37,49 @@
       /* article { max-width: 50%; } */
       #nav { border-right: 499px solid transparent; }
     }
+    
+    html { width:100%;height:100%; margin:0;padding: 0 }
+    body { width:100%;height:100%; margin:0;padding: 0 }
+    /* svg, #gitgraph { width:100%;height:100%; margin:0;padding: 0 }  */
+    /* div {  display: inline-block } */
 
-  </style>
+/* <div id="container">
+        <div id="view"></div>
+        <div id="gitgraph"></div>
+    </section> */
+ #serverMessages {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     width: 50%;
+     
+
+ }
+ #container {
+     width: 100%; 
+     height: 500px;
+     /* margin: 0 auto; */
+     /* overflow: scroll; */
+ }
+ #view, #gitgraph {
+     float: left;
+     height: 500px;
+     /* min-height: 100%; */
+ }
+ #view {
+     width: 80%;
+ }
+
+#gitgraph, #svg {
+    width: 20%;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+    background-color: lightblue;
+
+}
+</style>
+
     <input id="server" type="text" value="ws://localhost:8080" size="40">
     <button onclick="openSocket()">Open</button>
     <button onclick="closeSocket()">Close</button>
@@ -72,20 +113,29 @@ Editor Settings
 
 
 <!-- the Codemirror mergeview instance! -->
-<div id=view></div>
 
-<!--the repository graph -->
 
-<div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; zoom: 50%"></div>
 
-<br><br><br>
+<div id="container">
+        <div id="view"></div>
+        <div id="gitgraph"></div>
+
+        
+    </section>
+    </div>
+<p>
+
+
+<!--the older repository graph -->
+<!-- <div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; zoom: 50%"></div> -->
+
 <!-- mouseover stuff -->
-
-<h3 id="commit_detail"></h3>
+<!-- <h3 id="commit_detail"></h3> -->
 
 <!-- server messages -->
+<div id="serverMessages">
 <ul id="messages"></ul>
-
+</div>
 
 <script>
 
@@ -95,6 +145,9 @@ var thisHash;
 var currentWorktree
 var ws_url;
 var worktreeList;
+ var history;
+ //var col;
+
 
 //send the code from right pane
 function sendCodeRelay(){
@@ -115,6 +168,8 @@ function openSocket() {
     ws.onopen = function() {
         loadSVG();
         // log('open');  
+        ws.send("client_SVG?")
+
         ws.send("getCurrentBranch")
         sessionStorage.echoServer = url;
     };
@@ -149,6 +204,25 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+                
+                
+                //svg from server:
+                case "gitLog":
+                let gitlog = arg;
+                var svg = make_svg_from_gitlog(gitlog);
+                $("#gitgraph").html(svg);
+                //console.log(svg)
+
+
+                    //console.log(history)
+                //function passGitLog(history) {
+                 //let gitlog = "test";
+                // testThis(history);
+                //make_svg_from_gitlog(history);
+                //console.log(history)
+
+                //}
+                break;
 
                // case worktreeList:
 
@@ -171,7 +245,6 @@ function openSocket() {
                 case "edit":
                     // editorCM.setValue(arg);
                     // fillEditor("a" + arg);
-                    // console.log(arg)
 
                     // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                     value = arg
@@ -190,7 +263,6 @@ function openSocket() {
                     orig1 = arg;
 
                     initUI();
-                    // console.log(arg)
                     break;    
                 case "state":
                     //document.getElementById('state').innerHTML = arg;
@@ -371,79 +443,194 @@ function worktreeSelect()  {
    // ws.send("git return to master");
    // }
 
-$(document).ready(function(){
-    loadSVG();
-  
-});
+// $(document).ready(function(){
+//     loadSVG();
+
+// });
+
+
+
+function make_svg_from_gitlog(gitlog) {
+//let col;    
+    let rowsize = 20;
+    let colsize = 10;
+
+        function col_hue(col) { return col*30; }
+
+    let lines = gitlog.split("\n");
+    let commit_list = [];
+    let commit_map = {};
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].split("|");
+        let commit = {
+        hash: line[0],
+        children: line[1] ? line[1].split(" ") : [],
+        ref: line[2] ? line[2].split(", ") : [],
+        row: i+1
+        };
+        commit_list.push(commit);
+        commit_map[commit.hash] = commit;
+    }
+    // depth first traversal
+    // to assign columns to each commit
+    // and also generate the paths as we go
+    let first_commit = commit_list[0];
+    first_commit.col = 1;
+    let stack = [  first_commit ];
+    let visited = {};
+    let paths = [];
+    while (stack.length > 0) {
+        let parent = stack.pop();
+        visited[parent.hash] = true;
+        parent.x = parent.col * colsize;
+        parent.y = parent.row * rowsize;
+        
+        // add children to stack:
+        for (let i=parent.children.length-1; i>=0; i--) {
+        let child_hash = parent.children[i];
+        let child = commit_map[parent.children[i]];
+        //console.log(commit_map)
+        if (!visited[child_hash]) {      
+            child.col = (parent.col + i);
+            stack.push(child);
+        }
+        // add a path:
+        paths.push({
+            from: parent,
+            to: child
+        });
+        }
+    }
+
+    let svg = ['<svg width=100% height=100% version="1.1" xmlns="http://www.w3.org/2000/svg">'];
+
+    for (let i in commit_list) {
+        let commit = commit_list[i];
+            if (!commit.x){
+                //if the initial commit runs throught the script as a child, it breaks
+                console.log("initial commit reached")
+            } else {
+            svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" />`); 
+            }
+    }
+
+    for (let i in paths) {
+        let path = paths[i];
+        let from = path.from;
+        let to = path.to;
+
+        let d = `M${from.x},${from.y}`;
+        let hue = col_hue(from.col);
+        if (to.col > from.col) {
+        // new branch
+        hue = col_hue(to.col);
+        let branch = {
+            x: to.x,
+            y: from.y + rowsize/2
+        }
+        d += `L${branch.x},${branch.y}`;
+
+        } else if (to.col < from.col) {
+        // merge branch
+        let branch = {
+            x: from.x,
+            y: to.y - rowsize/2
+        }
+        d += `L${branch.x},${branch.y}`;
+        } 
+        // regular commit
+        d += `L${to.x},${to.y}`;
+
+        svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`); 
+
+    }
+
+
+    svg.push("</svg>");
+    svg = svg.join("\n");
+    return svg;
+
+}
+
+//$("#gitgraph").html(svg);
+
+// testSVG();
+// console.log("ho hum")
+
+//make_svg_from_gitlog(gitlog);
+
+// let gitlog = 
+
 
 //load the repo graph svg
 function loadSVG(){
-
 // $(document).ready(function(){
-$("#graph").graphviz({
-    url: "repo_graph.svg?" + new Date().getTime(),
-    shrink: "0", 
-    // tooltips: "init, update, show",
-    //highlight: "selected",
-    ready: function() {
-        var gv = this
-        //console.log(gv.nodesByName());
+// $("#graph").graphviz({
+//     url: "repo_graph.svg?" + new Date().getTime(),
+//     shrink: "0", 
+//     // tooltips: "init, update, show",
+//     //highlight: "selected",
+//     ready: function() {
+//         var gv = this
+//         //console.log(gv.nodesByName());
 
-        //gv.tooltip($elements, show);
-        //console.log(gv.highlight());
+//         //gv.tooltip($elements, show);
+//         //console.log(gv.highlight());
 
-        gv.nodes().click(function () {
-            var $set = $()
-            $set.push(this)
-            $set = $set.add(gv.linkedFrom(this, true))
-            $set = $set.add(gv.linkedTo(this, true))
-            gv.highlight($set, true)
+//         gv.nodes().click(function () {
+//             var $set = $()
+//             $set.push(this)
+//             $set = $set.add(gv.linkedFrom(this, true))
+//             $set = $set.add(gv.linkedTo(this, true))
+//             gv.highlight($set, true)
 
-            ws.send("git show " + $(this).attr("data-name"));
-            ws.send("getCurrentBranch");
+//             ws.send("git show " + $(this).attr("data-name"));
+//             ws.send("getCurrentBranch");
 
-            sendRightCode("hash?" + $(this).attr("data-name"));
+//             sendRightCode("hash?" + $(this).attr("data-name"));
 
-        })
+//         })
 
 
         
-        // gv.nodes().mouseenter(function () {
-        //     var $set = $()
-        //     $set.push(this)
-        //     $set = $set.add(gv.linkedFrom(this, true))
-        //     $set = $set.add(gv.linkedTo(this, true))
-        //     gv.highlight(selected, true)
-        //     console.log($(this).attr("data-name"));
+//         // gv.nodes().mouseenter(function () {
+//         //     var $set = $()
+//         //     $set.push(this)
+//         //     $set = $set.add(gv.linkedFrom(this, true))
+//         //     $set = $set.add(gv.linkedTo(this, true))
+//         //     gv.highlight(selected, true)
+//         //     console.log($(this).attr("data-name"));
 
 
-        // })
+//         // })
 
 
-        //mouseover a digraph node: reveal its commit hash
-        //   gv.nodes().mouseenter(function(){
+//         //mouseover a digraph node: reveal its commit hash
+//         //   gv.nodes().mouseenter(function(){
             
-            //   gv.highlight(selected, true)
-        //     var hash = ($(this).attr("data-name"));
-            //var hashData = ($.getJSON('log.json', function(data) {
-                //   var details = ($(data).attr(this));
+//             //   gv.highlight(selected, true)
+//         //     var hash = ($(this).attr("data-name"));
+//             //var hashData = ($.getJSON('log.json', function(data) {
+//                 //   var details = ($(data).attr(this));
 
-                //var details = data[hash];
-        //    commit_detail.innerText = hash;
-        //       ws.send("hash" + hash);
-                // console.log(details);
+//                 //var details = data[hash];
+//         //    commit_detail.innerText = hash;
+//         //       ws.send("hash" + hash);
+//                 // console.log(details);
 
-            // }))
-                //console.log($(this).attr("data-name"));
-                //  commit_detail.innerText = hash;
-                // ws.send("hash" + hash);
-                //  console.log(this)
-                // })
-    }
-});
-//});
+//             // }))
+//                 //console.log($(this).attr("data-name"));
+//                 //  commit_detail.innerText = hash;
+//                 // ws.send("hash" + hash);
+//                 //  console.log(this)
+//                 // })
+//     }
+// });
+// //});
 
-}      
+}    
+
+
 
 /////////////////////////////////////
                                     //MERGEVIEW
@@ -543,10 +730,11 @@ function initUI() {
 
 }
 
-// prepare the codemirror instance
-window.onload = function() {
-    let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
-};
+//pretty sure this is deprecated?
+// // prepare the codemirror instance
+// window.onload = function() {
+//     let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
+// };
 
 function mergeViewHeight(mergeView) {
   function editorHeight(editor) {
