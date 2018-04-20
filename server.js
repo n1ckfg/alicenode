@@ -372,51 +372,7 @@ wss.on('connection', function(ws, req) {
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
 
-		//git stuff:
-
-		// if (message.includes("client_SVG?")){
-		// 	exec('git log --all --date-order --pretty="%H|%P|%d|%cN" --follow project.cpp', {cwd: project_path}, (stdout, stderr, err) => {
-
-		// 	  ws.send("gitLog? " + stderr)
-		// 	})
-			// ws.send("gitLog? blah blah blah")
-			// console.log("\n\n\n\n gitlog send\n\n\n\n")
-			// ws.send(`gitLog? 539495f|a9d6243|master
-			// a9d6243|8e17cfd dba91e2 cdadcd7 c954c3e 658b04e 8efa6b6 a2d7854
-			// a2d7854|9d95af8
-			// 8efa6b6|9d95af8|test_branch
-			// 9d95af8
-			// 658b04e|9317a9b
-			// c954c3e|9317a9b|tag: tag1
-			// 9317a9b
-			// cdadcd7|f4046fa
-			// dba91e2|f4046fa|tag: tag5, tag: tag6
-			// f4046fa
-			// 8e17cfd|e34b4d0
-			// e34b4d0|5ff6ce7
-			// 5ff6ce7|d86e7ce|tag: tag2, tag: tag3, another_branch
-			// d86e7ce|44f3ead f537ede 79e536a
-			// f537ede|653a6f6
-			// 79e536a|653a6f6 a1a7ab4
-			// 44f3ead|f2e7f46 653a6f6
-			// 653a6f6|422dd3c d3c5150
-			// a1a7ab4|649a524
-			// d3c5150|649a524
-			// f2e7f46|422dd3c
-			// 422dd3c|649a524
-			// 649a524|90cd17a
-			// 90cd17a|76092f0 f37def6 0f8187b c44a61f 0b6fd60 66537bf f9c5353 17f5428 3c52fb4
-			// 76092f0
-			// 3c52fb4
-			// 17f5428||tag: x, tag: y, tag: z
-			// f9c5353
-			// 66537bf
-			// 0b6fd60
-			// c44a61f
-			// 0f8187b
-			// f37def6`)
-
-		//}
+		
 		//create and set worktree
 		if (message.includes("addWorktree")){
 			newWorkTree = message.replace("addWorktree ", "?")
@@ -457,7 +413,7 @@ wss.on('connection', function(ws, req) {
 		 		//if (numBranches > 0) {
 				//	 numBranches = (Number(numBranches) + 1)
 					 
-					 
+
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
 				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
@@ -554,8 +510,11 @@ wss.on('connection', function(ws, req) {
 					//problem in the client script when using the "--follow project.cpp" flag, so its
 					//been removed for now, but will make using the browser version difficult, unless you can expose the filenames 
 					//into the svg. so mouseover tells you which filenames are affected?
-					exec('git log --all --date-order --pretty="%H|%P|%d"', {cwd: project_path}, (stdout, stderr, err) => {
-						//console.log(stderr)
+					exec('git log --all --date-order --pretty="%H|%P|%d|"', {cwd: project_path}, (stdout, stderr, err) => {
+						//when the client script can handle mor data, use this git log --all --date-order --pretty="%H|%P|%d|%cN|%cI|%B"'
+							//bc for now if you send this data it gives an error :
+							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
+						
 					  ws.send("gitLog?" + stderr)
 					})
 			break;

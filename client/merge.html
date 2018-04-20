@@ -36,11 +36,12 @@
 <!-- Client interaction with the git commit nodes -->
 <script type="text/ecmascript">
   
-      function MakeTransparent(evt) {
+      function mouseEnterCommit(evt) {
         evt.target.setAttributeNS(null,"opacity","0.5");
+        console.log(evt.target.ref)
       }
   
-      function MakeOpaque(evt) {
+      function mouseLeaveCommit(evt) {
         evt.target.setAttributeNS(null,"opacity","1");
       }
   
@@ -68,11 +69,8 @@
     /* svg, #gitgraph { width:100%;height:100%; margin:0;padding: 0 }  */
     /* div {  display: inline-block } */
 
-/* <div id="container">
-        <div id="view"></div>
-        <div id="gitgraph"></div>
-    </section> */
- #serverMessages {
+
+ #serverMessages, #commit_detail {
      position: fixed;
      top: 0;
      right: 0;
@@ -82,13 +80,13 @@
  }
  #container {
      width: 100%; 
-     height: 500px;
+     height: 600px;
      margin: 0 auto;
      /* overflow: scroll; */
  }
  #view, #gitgraph {
      float: left;
-     height: 500px;
+     height: 600px;
      /* min-height: 100%; */
  }
  #view {
@@ -238,6 +236,7 @@ function openSocket() {
                 //svg from server:
                 case "gitLog":
                 let gitlog = arg;
+                console.log(arg)
                 var svg = make_svg_from_gitlog(gitlog);
                 //push the svg content to the gitgraph div
                 $("#gitgraph").html(svg)
@@ -530,8 +529,8 @@ function make_svg_from_gitlog(gitlog) {
                 //if the initial commit runs throught the script as a child, it breaks
                 console.log("initial commit reached")
             } else {
-            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="MakeTransparent(evt)"
-onmouseout="MakeOpaque(evt)" onmousedown="getCommitDetail(evt)"/>`); 
+            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" text=${col_hue(commit.ref)} onmouseover="mouseEnterCommit(evt)"
+onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"/>`); 
             }
     }
 
