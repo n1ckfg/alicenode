@@ -2,6 +2,7 @@
 #define ALICE_H
 
 #include "al/al_signals.h"
+#include "al/al_hmd.h"
 
 struct AL_ALICE_EXPORT Alice {
 	
@@ -17,6 +18,8 @@ struct AL_ALICE_EXPORT Alice {
 	int framecount = 0;
 
 	int isSimulating = true;
+
+	Hmd * hmd;
 	
 	static Alice& Instance();	
 	

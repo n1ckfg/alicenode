@@ -13,7 +13,8 @@ cl /W3 /EHsc /O2 ^
 /I include/uv ^
 src/alice.cpp ^
 /link ^
-/WHOLEARCHIVE:lib/win64/lib-vc2017/libuv.lib ^
+/WHOLEARCHIVE:lib\win64\lib-vc2017\libuv.lib ^
+/WHOLEARCHIVE:lib\win64\openvr_api.lib ^
 lib/win64/lib-vc2017/glfw3.lib ^
 user32.lib kernel32.lib shell32.lib gdi32.lib ^
 advapi32.lib iphlpapi.lib psapi.lib userenv.lib ws2_32.lib ^
@@ -21,6 +22,6 @@ opengl32.lib
 
 @del alice.obj alice.exp
 
-rem dumpbin /exports alice.lib
+::dumpbin /exports alice.lib
 
 @endlocal

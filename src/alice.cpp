@@ -9,19 +9,27 @@
 #include "al/al_gl.h"
 #include "al/al_time.h"
 
+#include <string>
+#include <filesystem>
+namespace fs = std::experimental::filesystem;
+
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
-
-char * runtime_path = 0;
-char * project_lib_path = 0;
 
 #include "alice.h"
 
 static Alice alice;
-    
+
 Alice& Alice::Instance() {
     return alice;
 }
+
+std::string runtime_path;
+std::string runtime_support_path;
+std::string project_lib_path;
+
+uv_loop_t uv_main_loop;
+uv_pipe_t stdin_pipe;
 
 Window window;
 bool isFullScreen = 0;
@@ -38,10 +46,11 @@ bool isThreadsDone = 0;
 #endif
 
 
-uv_loop_t uv_main_loop;
-uv_pipe_t stdin_pipe;
+
+
 
 void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, int downup, int mods) {
+	Alice& alice = Alice::Instance();
 	switch (keycode) { 
 	case GLFW_KEY_SPACE: {
 		if (downup) {
@@ -66,9 +75,9 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 
 
 extern "C" AL_ALICE_EXPORT int frame() {
-
 	static float c = 1;
 
+	Alice& alice = Alice::Instance();
 	double tbegin = glfwGetTime();
 
     glfwPollEvents();
@@ -113,6 +122,9 @@ extern "C" AL_ALICE_EXPORT int frame() {
 
 
 extern "C" AL_ALICE_EXPORT int setup() {
+	
+	Alice& alice = Alice::Instance();
+
 	console.log("setup");
 	console.log("alice alice %p", &alice);
 
@@ -193,6 +205,8 @@ static void alloc_cb(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) 
 }
 
 void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+	
+	Alice& alice = Alice::Instance();
 	if (nread == UV_EOF) {
 		uv_close((uv_handle_t *)&stdin_pipe, NULL);
 	} else if (nread > 0) {
@@ -245,21 +259,54 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 
 int main(int argc, char ** argv) {
 
-
-	// process the args:
-	// arg[0] is the path of the runtime
-	if (argc > 0) runtime_path = argv[0];
-	// arg[1] is the path to the lib
-	if (argc > 1) project_lib_path = argv[1];
-	
 	for (int i=0; i<argc; i++) {
 		printf("arg %d %s\n", i, argv[i]);
 	}
-	
 
 	int err = uv_loop_init(&uv_main_loop);
 	if (err) fprintf(stderr, "uv error %s\n", uv_strerror(err));
-	
+
+	// process the args:
+	// arg[0] is the path of the runtime
+	if (argc > 0) runtime_path = fs::path(argv[0]).parent_path().string();
+#ifdef AL_WIN
+	runtime_support_path = runtime_path + "/support/win64";
+#else
+	runtime_support_path = runtime_path + "/support/osx";
+#endif
+
+	{
+		// try to load any dlls in the /support folder:
+		uv_fs_t scandir_req;
+		if (uv_fs_scandir(&uv_main_loop, &scandir_req, runtime_support_path.c_str(), 0, nullptr) < 0) {
+			//throw UVException(static_cast<uv_errno_t>(scandir_req.result));
+			console.error("error attempting to scan %s", runtime_support_path.c_str());
+		} else {
+			uv_dirent_t entry;
+			while (uv_fs_scandir_next(&scandir_req, &entry) != UV_EOF) {
+				std::string libpath(runtime_support_path + '/' + entry.name);
+				console.log("loading %s", libpath.c_str());
+				#ifdef AL_WIN
+					HMODULE lib = LoadLibraryA(libpath.c_str());
+					if (!lib) {
+						fprintf(stderr, "failed to load: %s\n", GetLastErrorAsString());
+					} 
+				#else
+					void * lib = dlopen(libpath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+					if (!lib) {
+						fprintf(stderr, "failed to load: %s\n", dlerror());
+					}
+				#endif
+			}
+		}
+		uv_fs_req_cleanup(&scandir_req);
+	}
+
+	alice.hmd = new Hmd;
+
+	// arg[1] is the path to the lib
+	if (argc > 1) project_lib_path = argv[1];
+
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
 	uv_read_start((uv_stream_t *)&stdin_pipe, &alloc_cb, &read_stdin);
@@ -270,8 +317,8 @@ int main(int argc, char ** argv) {
 
 	setup();
 	
-	if (project_lib_path) {
-		openlib(project_lib_path);
+	if (!project_lib_path.empty()) {
+		openlib(project_lib_path.c_str());
 	}
 	
     while(frame()) {
@@ -279,8 +326,8 @@ int main(int argc, char ** argv) {
     	uv_run(&uv_main_loop, UV_RUN_NOWAIT);
     }
 
-	if (project_lib_path) {
-		closelib(project_lib_path);
+	if (!project_lib_path.empty()) {
+		closelib(project_lib_path.c_str());
 	}
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
