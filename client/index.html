@@ -58,17 +58,17 @@
 
 
 <style>
+
+    * { margin:0;padding: 0 }
+
     .CodeMirror { line-height: 1 }
     @media screen and (min-width: 1300px) {
       /* article { max-width: 50%; } */
       #nav { border-right: 499px solid transparent; }
     }
     
-    html { width:100%;height:100%; margin:0;padding: 0 }
-    body { width:100%;height:100%; margin:0;padding: 0 }
-    /* svg, #gitgraph { width:100%;height:100%; margin:0;padding: 0 }  */
-    /* div {  display: inline-block } */
-
+    html { width:100%;height:100%;}
+    body { width:100%;height:100%;}
 
  #serverMessages, #commit_detail {
      position: fixed;
@@ -81,25 +81,27 @@
  #container {
      width: 100%; 
      height: 600px;
-     margin: 0 auto;
      /* overflow: scroll; */
  }
- #view, #gitgraph {
+ #view{
      float: left;
-     height: 600px;
+     /* height: 600px; */
      /* min-height: 100%; */
  }
  #view {
      width: 80%;
  }
 
-#gitgraph, #svg {
-    width: 20%;
+#gitgraph{
+
+    height: 100%;
+    overflow: auto;
+    /* width: 20%;
     margin: auto;
     padding: auto;
     display: block;
     /* position: center; */
-    overflow: scroll;
+    /* overflow: scroll; */
     /* background-color: lightblue; */
     /* transform: scaleY(-1); */
 
@@ -521,8 +523,9 @@ function make_svg_from_gitlog(gitlog) {
         });
         }
     }
+    let sizey = (lines.length+2)*rowsize;
 
-    let svg = ['<svg width=100% height=100% version="1.1" xmlns="http://www.w3.org/2000/svg">'];
+    let svg = ['<svg width=100% height=${sizey} version="1.1" xmlns="http://www.w3.org/2000/svg">'];
 
     for (let i in commit_list) {
         let commit = commit_list[i];
@@ -530,7 +533,8 @@ function make_svg_from_gitlog(gitlog) {
                 //if the initial commit runs throught the script as a child, it breaks
                 console.log("initial commit reached")
             } else {
-            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)"
+                console.log(commit)
+            svg.push(`<circle id="${commit.hash}" class="node" cx="${commit.x}" cy="${commit.y}" ref="${commit.ref}" r="4.5" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)"
 onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"/>`); 
             }
     }
