@@ -510,7 +510,7 @@ wss.on('connection', function(ws, req) {
 					//problem in the client script when using the "--follow project.cpp" flag, so its
 					//been removed for now, but will make using the browser version difficult, unless you can expose the filenames 
 					//into the svg. so mouseover tells you which filenames are affected?
-					exec('git log --all --date-order --pretty="%H|%P|%d|"', {cwd: project_path}, (stdout, stderr, err) => {
+					exec('git log --all --date-order --pretty="%H|%P|%d|%cd|%cN|%B"', {cwd: project_path}, (stdout, stderr, err) => {
 						//when the client script can handle mor data, use this git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B"'
 							//bc for now if you send this data it gives an error :
 							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
@@ -554,7 +554,18 @@ wss.on('connection', function(ws, req) {
 								// the row is determined by the line number
 								row: i + 1,
 								// the column is initially undetermined (it will be changed later)
-								col: 0
+								col: 0,
+								
+
+								//TODO: add these in. for now they are causing half the commits in the 
+								//log to be ignored 
+								
+								// the date the commit was made
+								commit_date: line[3] ? line[3].split(", ") : [],
+								//who made the commit?
+								committer_name: line[4] ? line[4].split(", ") : [],
+								//commit's message
+								commit_msg: line[5] ? line[5].split(", ") : []
 								};
 								// if this commit hasn't been encountered as a child yet,
 								// it must have no parent in the graph:

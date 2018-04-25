@@ -4,12 +4,15 @@
 <meta charset="utf-8"/>
 
 <!-- Codemirror -->
+
 <link rel=stylesheet href="cm/docs.css">
 <link rel=stylesheet href="cm/codemirror.css">
 <link rel=stylesheet href="cm/merge.css">
 <link rel=stylesheet href="cm/icecoder.css">
 <script src="cm/codemirror.js"></script>
 <!-- <script src="/cm/xml.js"></script> -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <script src="cm/css.js"></script>
 <script src="js/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
@@ -29,6 +32,7 @@
 <script type="text/javascript" src="js/jquery.color.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <!-- temp fix for the 'cannot find 'favicon.ico' error -->
 <link rel="shortcut icon" href="">
@@ -85,12 +89,13 @@
  }
  #view{
      float: left;
+     width: 80%;
      /* height: 600px; */
      /* min-height: 100%; */
  }
- #view {
-     width: 80%;
- }
+ /* #view {
+ 
+ } */
 
 #gitgraph{
 
@@ -143,12 +148,13 @@ Editor Settings
 
 <div id="container">
         <div id="view"></div>
-        <div id="gitgraph"></div>
+        <div id="gitgraph" style="text-align: center"></div>
 
         
     </section>
     </div>
 <p>
+
 
 
 <!--the older repository graph -->
@@ -163,6 +169,9 @@ Editor Settings
 </div>
 
 <script>
+
+
+
 
 //globals
 var currentBranch;
@@ -234,10 +243,14 @@ function openSocket() {
                 case "gitLog":
                 //let graph = arg;
                 let graph = JSON.parse(arg);
-
+                console.log(graph)
                 let svg = make_svg_from_commits(graph);
                 //push the svg content to the gitgraph div
                 $("#gitgraph").html(svg)
+                //make the gitgraph resizeable
+                $( function() {
+                    $( "#gitgraph" ).resizable();
+                    });
                 break;
 
                // case worktreeList:
@@ -265,7 +278,10 @@ function openSocket() {
                     // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                     value = arg
                     orig1 = arg
-                    initUI();                          
+                    initUI();   
+                    $( function() {
+                    $( "#view" ).resizable();
+                    });                       
                     break;
                 //
                 case "show":
@@ -310,7 +326,7 @@ setInterval(function(){
 }, 2000);
 
 
-//Get current content within ComeMirror's Left and Right Mergeview
+//Get current content within CodeMirror's Left and Right Mergeview
 function sendLeftCode() {
     //   var message = "edit?" + editorCM.getValue();   
     var message = "edit?" + dv.editor().getValue()
@@ -632,12 +648,13 @@ function make_svg_from_commits(graph) {
         svg.push(
         `<circle id="${commit.hash}" cx="${commit.x}" cy="${
             commit.y
-        }" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.hash},${commit.ref.join(", ")}</title></circle>`
+        }" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")},</title></circle>`
         );
     }
 
     // wrap the svg commands in an svg element, and return:
     return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}</svg>`;
+
     }
 
 
