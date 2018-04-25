@@ -38,7 +38,7 @@
   
       function mouseEnterCommit(evt) {
         evt.target.setAttributeNS(null,"opacity","0.5");
-        console.log(evt.target.ref)
+        //console.log(evt.target.ref)
       }
   
       function mouseLeaveCommit(evt) {
@@ -47,8 +47,8 @@
   
       function getCommitDetail(evt) {
             let selectedCommit = evt.target.id
-            console.log(evt.target.id)
-            console.log("test")
+            //console.log(evt.target.id)
+            //console.log("test")
             ws.send("git show " + selectedCommit);
             ws.send("getCurrentBranch");
 
@@ -238,9 +238,6 @@ function openSocket() {
                 let svg = make_svg_from_commits(graph);
                 //push the svg content to the gitgraph div
                 $("#gitgraph").html(svg)
-                console.log(svg)
-
-
                 break;
 
                // case worktreeList:
@@ -273,7 +270,6 @@ function openSocket() {
                 //
                 case "show":
                     // fillEditor("b" + arg);
-                    console.log(arg)
                     //TODO: alert ask to continue (will lose work if they continue without committing)
                     // if (isRightDirty){
                         //alert(whatever, but essentially an ok and cancel button)
