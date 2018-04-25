@@ -115,8 +115,8 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 //as they are not hosted in some git repo. but yeah, getting this one to work would be pretty sweet
 // http://bit-booster.com/graph.html
 //*NOTE* see if the git log 'pretty' part of the code can include the date, author, [commit message would be GREAT], and more, so you can then expose more into the svg
-var gitlog;
-var svg;
+// var gitlog;
+// var svg;
 
 // exec('git log --all --date-order --pretty="%H|%P|%d|%cN" --follow project.cpp', {cwd: project_path}, (stdout, stderr, err) => {
 // gitlog = stderr;
@@ -517,7 +517,7 @@ wss.on('connection', function(ws, req) {
 						
 
 
-
+							let gitlog = stderr;
 
 												// on the server
 						// given the text of a gitlog output, it will produce a JSON-friendly object represntation of it
