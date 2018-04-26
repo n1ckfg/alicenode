@@ -6,7 +6,7 @@
 // GLAD_GLAPI_EXPORT ensures that declspec(dllimport) or declspec(dllexport) is added to the gl functions
 #define GLAD_GLAPI_EXPORT
 #ifdef AL_IMPLEMENTATION
-	// if AL_IMPLEMENTATION is defined we are building the alice.dll
+	// if AL_IMPLEMENTATION is defined we are building the alice.exe / alice.lib
 	// GLAD_GLAPI_EXPORT_BUILD ensures that declspec(dllexport) is added to the gl functions
 	#define GLAD_GLAPI_EXPORT_BUILD
 	// GLAD_GL_IMPLEMENTATION ensures that the glLoader function implementations are also generated

@@ -1,329 +1,751 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title></title>
+<!doctype html>
 
-        <!-- stylesheet for the repository graph -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/graphviz.svg.css">
+<title>Alicenode: Client</title>
+<meta charset="utf-8"/>
 
-<link rel="stylesheet" href="cm/codemirror.css">
+<!-- Codemirror -->
+
+<link rel=stylesheet href="cm/docs.css">
+<link rel=stylesheet href="cm/codemirror.css">
+<link rel=stylesheet href="cm/merge.css">
+<link rel=stylesheet href="cm/icecoder.css">
 <script src="cm/codemirror.js"></script>
+<!-- <script src="/cm/xml.js"></script> -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="cm/css.js"></script>
+<script src="js/diff_match_patch.js"></script>
+<script src="cm/merge.js"></script>
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/modes/clike.js"></script>
 <script src="cm/modes/glsl.js"></script>
-<script src="cm/merge.js"></script>
+<script type="text/javascript" src="js/diff_match_patch.js"></script>
 
 <!--script sources for the repo_graph & jquery -->
-<script type="text/javascript" src="js/jquery.2.1.3.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery.2.1.3.min.js"></script> -->
+<script
+  src="http://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+
 <script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
 <script type="text/javascript" src="js/jquery.color.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
-<script type="text/javascript" src="js/diff_match_patch.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- temp fix for the 'cannot find 'favicon.ico' error -->
+<link rel="shortcut icon" href="">
+
+<!-- Client interaction with the git commit nodes -->
+<script type="text/ecmascript">
+  
+      function mouseEnterCommit(evt) {
+        evt.target.setAttributeNS(null,"opacity","0.5");
+        //console.log(evt.target.ref)
+      }
+  
+      function mouseLeaveCommit(evt) {
+        evt.target.setAttributeNS(null,"opacity","1");
+      }
+  
+      function getCommitDetail(evt) {
+            let selectedCommit = evt.target.id
+            //console.log(evt.target.id)
+            //console.log("test")
+            ws.send("git show " + selectedCommit);
+            ws.send("getCurrentBranch");
+            evt.target.setAttributeNS(null,"opacity","0.5");
 
 
-</head>
-<body>
-    <button onclick="sendCode()">Send Code</button>
+           // sendRightCode("hash?" + evt.target.id);
+      }
+  </script>
 
-    <p>
-        <input id="server" type="text" value="ws://localhost:8080" size="40">
-        <button onclick="openSocket()">Open</button>
-        <button onclick="closeSocket()">Close</button>
-    </p>
 
-    <p>
-        <input id="message" type="text" size="40">
-        <button onclick="sendText()">Send Text</button>
-        <button onclick="sendBinary()">Send Binary</button>
-    </p>
+<style>
+
+    * { margin:0;padding: 0 }
+
+    .CodeMirror { line-height: 1 }
+    @media screen and (min-width: 1300px) {
+      /* article { max-width: 50%; } */
+      #nav { border-right: 499px solid transparent; }
+    }
     
-    <p id="fps"></p>
-    <pre id="state" style="width: 90%; height: 20pc; overflow-y: scroll"></pre>
-    <pre id="data"></pre>
-    <textarea id="editor"></textarea>
+    html { width:100%;height:100%;}
+    body { width:100%;height:100%;}
 
-    <div id="diffEditor"></div>
-    <p>
-    <button onclick="revertMaster()">Return to Master HEAD</button>
-
-    <h3 id="commit_detail"></h3>
-    <ul id="messages"></ul>
-
-    <script>
-        var ws_url = "ws://" + window.location.host;
-        
-        console.log(ws_url);
-		document.getElementById('server').value = ws_url;
-        
-        var mergeEditor;
-		var editorCM = CodeMirror.fromTextArea(document.getElementById('editor'), {
-			lineNumbers: true,
-			mode: "clike"
-		});
-        
+ #serverMessages {
+     position: fixed;
+     top: 0;
+     right: 10%;
+     width: 40%;
+     height: 10%;
+    overflow: auto;
      
+ }
+ #commit_detail {
+     position: fixed;
+     top: 0;
+     right: 0;
+     width: 50%;
+     height: 10%;
+    overflow: auto;
+     
+ }
+ #container {
+     width: 100%; 
+     height: 600px;
+     /* overflow: scroll; */
+ }
+ #view{
+     float: left;
+     width: 80%;
 
-    
-        var ws;
-        function openSocket() {
-            log('opening');
-            var url = document.getElementById('server').value;
-            ws = new WebSocket(ws_url);
-            ws.binaryType = 'arraybuffer';
-            ws.onopen = function() {
-                loadSVG();
-               // log('open');
-                sessionStorage.echoServer = url;
+ }
+
+#gitgraph{
+
+    height: 100%;
+    overflow: auto;
+    /* width: 20%;
+    margin: auto;
+    padding: auto;
+    display: block;
+    /* position: center; */
+    /* overflow: scroll; */
+    /* background-color: lightblue; */
+    /* transform: scaleY(-1); */
+}
+
+
+</style>
+
+    <input id="server" type="text" value="ws://localhost:8080" size="40">
+    <button onclick="openSocket()">Open</button>
+    <button onclick="closeSocket()">Close</button>
+</p>
+
+
+
+<!-- drop down list of available worktrees or make a new worktree -->
+<form name="aform"> Current User Worktree: 
+    <select id="userWorktree" onchange="worktreeSelect();">
+            <option selected disabled>Please Select Worktree</option> 
+            <!-- <option value="?makeNewWorktree">New Worktree... (unready)</option>  -->
+    </select>    
+    </form>
+    <button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
+    <br>
+
+Editor Settings
+<button id="live_diffing" onclick="toggleDifferences()">Toggle: Live Diffing</button> 
+<button id="toggleCollapse" onclick="collapse">Toggle: Collapse Changes</button> 
+<button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
+</p>
+<button onclick="sendLeftCode()">Send Left Code</button>
+<button onclick="sendCodeRelay()">Send Right Code</button>
+
+<!-- the Codemirror mergeview instance! -->
+
+
+
+<div id="container">
+        <div id="view"></div>
+        <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
+
+        
+    </section>
+    </div>
+<p>
+
+<!-- mouseover stuff -->
+<!-- <h3 id="commit_detail"></h3> -->
+
+<!-- server messages -->
+<div id="serverMessages">
+<ul id="messages"></ul>
+</div>
+
+<script>
+
+
+
+
+//globals
+var currentBranch;
+var thisHash;
+var currentWorktree
+var ws_url;
+var worktreeList;
+ var history;
+ //var col;
+
+
+//send the code from right pane
+function sendCodeRelay(){
+
+    sendRightCode("a")
+}
+
+var ws_url = "ws://" + window.location.host;
+
+document.getElementById('server').value = ws_url;
+
+var ws;
+function openSocket() {
+    log('opening');
+    var url = document.getElementById('server').value;
+    ws = new WebSocket(ws_url);
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = function() {
+        // log('open');  
+        ws.send("client_SVG?")
+
+        ws.send("getCurrentBranch")
+        sessionStorage.echoServer = url;
+    };
+    ws.onclose = function() {
+        // log('close');
+    };
+    ws.onmessage = function(e) {
+        /*if (e.data instanceof Blob) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
             };
-            ws.onclose = function() {
-               // log('close');
-            };
-            ws.onmessage = function(e) {
-                /*if (e.data instanceof Blob) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
-                    };
-                    reader.readAsArrayBuffer(e.data);
-                } else */
-                if (e.data instanceof ArrayBuffer) {
-                    //log(encodeHexString(new Uint8Array(e.data)));
-                    //log("received arraybuffer size: " + e.data.byteLength + " bytes");
-                    
-                    let s = "";
-                    let fv = new Float32Array(e.data);
-                    for (var i = 0; i < fv.length; i+=3) {
-  						s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
-					}
-					
-                    document.getElementById('state').innerHTML = s;
-                    
-                    
-                } else {
-                	let message = e.data;
-                	let q = message.indexOf("?");
-					if (q > 0) {
-						let cmd = message.substring(0, q);
-						let arg = message.substring(q+1);
-                		switch(cmd) {
-                		case "fps":
-                			document.getElementById('fps').innerHTML = arg;
-                			break;
-                		case "edit":
-                            editorCM.setValue(arg);
-                            
-                           mergeEditor = CodeMirror.MergeView(document.getElementById('diffEditor'), {
-                                lineNumbers: true,
-                                value: arg,
-                                mode: "clike",
-                                // origLeft: "dave",
-                                origRight: "davey   \n\n" + arg ,
-                               // connect: "align".anchor 
-                                lineNumbers: true,
-                                mode: "text/html",
-                                highlightDifferences: "highlight",
-                                connect: "connect",
-                                collapseIdentical: "collapse" 
-		                    });
-                			break;
-                		case "state":
-                			document.getElementById('state').innerHTML = arg;
-                			break;
-                        case "updateRepo":
-                            loadSVG();
-                            log('Update Repo Graph')
-                            break;
-                		default:
-                			log("cmd: " + cmd + ", " + arg);
-                		}
+            reader.readAsArrayBuffer(e.data);
+        } else */
+        if (e.data instanceof ArrayBuffer) {
+            //log(encodeHexString(new Uint8Array(e.data)));
+            //log("received arraybuffer size: " + e.data.byteLength + " bytes");
+            
+            let s = "";
+            let fv = new Float32Array(e.data);
+            for (var i = 0; i < fv.length; i+=3) {
+                s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
+            }
+            
+            // document.getElementById('state').innerHTML = s;
+            
+            
+        } else {
+            let message = e.data;
+            let q = message.indexOf("?");
+            if (q > 0) {
+                let cmd = message.substring(0, q);
+                let arg = message.substring(q+1);
+                switch(cmd) {
                 
-					} else {
-					
-						log('received: ' + e.data);
-					}
+                ////////////////////////////////////////////////////
+                //svg from server:
+                case "gitLog":
+                //let graph = arg;
+                let graph = JSON.parse(arg);
+                console.log(graph)
+                let svg = make_svg_from_commits(graph);
+                //push the svg content to the gitgraph div
+                $("#gitgraph").html(svg)
+                //make the gitgraph resizeable
+                //see more at https://jqueryui.com/resizable
+                $( function() {
+                    $( "#gitgraph" ).resizable();
+                    });
+                break;
+
+               // case worktreeList:
+
+                    //populate the worktree drop-down with current list of worktrees
+                case "fps":
+                //	document.getElementById('fps').innerHTML = arg;
+                    break;
+                    
+                case "branchname":  
+                    // var steve = message.replace("currentBranch?", "")
+                    
+                    log("on branch " + arg);
+                    currentBranch = arg;
+                    break;
+                
+                case "Switched to Branch":
+                    log(arg)
+                    break;
+
+                case "edit":
+                    // editorCM.setValue(arg);
+                    // fillEditor("a" + arg);
+
+                    // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                    value = arg
+                    orig1 = arg
+                    initUI();   
+                    $( function() {
+                        $( "#view" ).resizable();
+                    });                       
+                    break;
+
+                case "show":
+                    // fillEditor("b" + arg);
+                    //TODO: alert ask to continue (will lose work if they continue without committing)
+                    // if (isRightDirty){
+                        //alert(whatever, but essentially an ok and cancel button)
+                    //}
+                    // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                    orig1 = arg;
+
+                    initUI();
+                    break;    
+                case "state":
+                    //document.getElementById('state').innerHTML = arg;
+                    break;
+                case "updateRepo":
+                    log('Update Repo Graph')
+                    break;
+                default:
+                    log("cmd: " + cmd + ", " + arg);
                 }
-            };
-            ws.onerror = function() {
-                log('error');
-            };
-        }
-        function closeSocket() {
-            log('closing');
-            ws.close();
-        }
-		
-		// keep checking socket status, re-open if closed:
-		setInterval(function(){
-			 if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
-		}, 2000);
-		
-		function sendCode() {
-            var message = "edit?" + editorCM.getValue();
-            console.log(mergeEditor);
-            //log('sending: ' + message);
-            ws.send(message);
-        }
-	
-        function sendText() {
-            var message = document.getElementById('message').value;
-            log('sending: ' + message);
-            ws.send(message);
-        }
-        function sendBinary() {
-            var message = decodeHexString(document.getElementById('message').value);
-            log('sending binary: ' + encodeHexString(message));
-            ws.send(new Uint8Array(message).buffer);
-        }
-        function decodeHexString(text) {
-            if (text.search(/[^0-9a-f\s]/i) !== -1) {
-                alert('Can\'t decode "' + text + '" as hexadecimal...');
+        
             } else {
-                text = text.replace(/\s/g, '');
-                if (text.length % 2 === 1) {
-                    text = '0' + text;
-                }
-                var data = [];
-                for (var i = 0, len = text.length; i < len; i += 2) {
-                    data.push(parseInt(text.substr(i, 2), 16));
-                }
-                return data;
+            
+                log('received: ' + e.data);
             }
         }
-        function encodeHexString(data) {
-            var bytes = [];
-            for (var i = 0, len = data.length; i < len; i++) {
-                var value = data[i];
-                bytes[i] = value.toString(16);
-                if (value < 16) {
-                    bytes[i] = '0' + bytes[i];
+    };
+    ws.onerror = function() {
+        log('error');
+    };
+}
+function closeSocket() {
+    log('closing');
+    ws.close();
+}
+
+// keep checking socket status, re-open if closed:
+setInterval(function(){
+        if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
+}, 2000);
+
+
+//Get current content within CodeMirror's Left and Right Mergeview
+function sendLeftCode() {
+    //   var message = "edit?" + editorCM.getValue();   
+    var message = "edit?" + dv.editor().getValue()
+    console.log("SENDING TO SERVER: \n" + message);
+    //log('sending: ' + message);
+    ws.send(message);
+}
+
+function sendRightCode(val){
+    if (val.includes("hash?")){
+
+        thisHash = (val.replace("hash?", ""))
+        console.log("Hash " + thisHash + " chosen")
+    } 
+    else {
+    var message = "newbranch?" + dv.rightOriginal().getValue();
+    console.log("SENDING TO SERVER: \n" + message)
+    ws.send(message);
+    selectedHash("this hash");
+    }
+
+}
+function sendText() {
+    var message = document.getElementById('message').value;
+    log('sending: ' + message);
+    ws.send(message);
+}
+
+
+function sendBinary() {
+    var message = decodeHexString(document.getElementById('message').value);
+    log('sending binary: ' + encodeHexString(message));
+    ws.send(new Uint8Array(message).buffer);
+}
+function decodeHexString(text) {
+    if (text.search(/[^0-9a-f\s]/i) !== -1) {
+        alert('Can\'t decode "' + text + '" as hexadecimal...');
+    } else {
+        text = text.replace(/\s/g, '');
+        if (text.length % 2 === 1) {
+            text = '0' + text;
+        }
+        var data = [];
+        for (var i = 0, len = text.length; i < len; i += 2) {
+            data.push(parseInt(text.substr(i, 2), 16));
+        }
+        //  return data;
+    }
+}
+function encodeHexString(data) {
+    var bytes = [];
+    for (var i = 0, len = data.length; i < len; i++) {
+        var value = data[i];
+        bytes[i] = value.toString(16);
+        if (value < 16) {
+            bytes[i] = '0' + bytes[i];
+        }
+    }
+    return bytes.join(' ');
+}
+function log(message) {
+    var li = document.createElement('li');
+    li.innerHTML = message;
+     var list = document.getElementById('messages');
+     list.insertBefore(li, list.childNodes[0]);
+     //.appendChild(li)
+}
+if (sessionStorage.echoServer) {
+    document.getElementById('server').value = sessionStorage.echoServer;
+}
+
+function newBranch(){}
+openSocket();
+
+
+//populate the userWorkTree drop-down menu
+var select = document.getElementById('selectElementId')
+// select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+$.get('worktreeList.txt', function(data) {
+    worktreeList = data
+    var lines = data.split('\n');
+    for(var line = 0; line < lines.length; line++){
+        var x = document.getElementById("userWorktree");
+        var option = document.createElement("option")
+        option.text = (lines[line]);
+        option.value = (lines[line]);
+        x.add(option);
+        }
+
+}, 'text');
+
+function addWorktree(){
+
+    //TODO add code for when user ADDS a new worktree
+
+
+
+        var txt;
+        var worktree = prompt("Please entre your worktree name", "(noSpacesPlease)");
+        if (worktreeList.includes(worktree) == true){
+
+        alert("provided worktree name already in use")
+
+        } else {
+        switch (worktree) {
+                case null:
+                case "":
+                break;
+
+                default: 
+        var x = document.getElementById("userWorktree");
+        var option = document.createElement("option")
+        option.text = worktree;
+        option.value = worktree;
+        x.add(option);
+        
+        //set dropdown to new user worktree name
+            var opts = x.options;
+            for (var opt, j = 0; opt = opts[j]; j++) {
+                if (opt.value == worktree) {
+                x.selectedIndex = j;
+                break;
                 }
             }
-            return bytes.join(' ');
-        }
-        function log(message) {
-        	var li = document.createElement('li');
-			li.innerHTML = message;
-			document.getElementById('messages').appendChild(li);
-        }
-        if (sessionStorage.echoServer) {
-            document.getElementById('server').value = sessionStorage.echoServer;
-        }
-		
-		openSocket();
+            
+        //send the new worktree name over to server.js, and create the worktree dir    
+        ws.send("addWorktree " + worktree)
+}
+
+}
+}
+
+// worktree selection 
+function worktreeSelect()  { 
+    
+    selection = document.aform.userWorktree.value;
+
+        //switch to an existing worktree
+        log("Right editor working within " + selection + "'s worktree")
+        ws.send("switchWorktree " + selection)
+    }
 
 
+/////////////////////////////////////
+                                    //MERGEVIEW
+var value;
+var orig1;
+var dv;
+panes = 2;
+highlight = true;
+connect = "align";
+var target;
+var collapse;
+var requested;
+var current;
+var isRightDirty = false;
+var currentBranch;
 
-//tell git to revert to master commit HEAD
-//function revertMaster() {
-   // ws.send("git return to master");
-   // }
+function toggleCollapse(){
+    collapse = !collapse
+    initUI()
+}
+
+function toggleDifferences() {
+  dv.setShowDifferences(highlight = !highlight);
+}
+
+//get and set code in either of the MergeView editor panes
+function initUI() {
+ 
+    if (value == null) return;
+    var target = document.getElementById("view");
+    target.innerHTML = "";
+        dv = CodeMirror.MergeView(target, {
+            value: value,
+            // origLeft: panes == 3 ? orig1 : null,
+            origRight: orig1,
+            lineNumbers: true,
+            mode: "clike",
+            highlightDifferences: "highlight",
+            viewportMargin: Infinity,
+            revertButtons: true,
+            allowEditingOriginals: true,
+            autoRefresh: true,
+
+            linewrapping: true,
+            connect: "align",
+            theme: "icecode",
+            //collapseIdentical: collapse
+            collapse: collapse
+        });
+    //when new code loaded into right pane, reset isRightDirty flag   
+    isRightDirty = false;
+
+    //when user changes something in origRight, check if on master, if so, create and checkout a new branch
+    dv.rightOriginal().on("changes", function(dv, changeObj){
+        
+        if (isRightDirty == false && currentBranch == "master") {
+            ws.send("createNewBranch " + thisHash)
+        //    switch (currentBranch) {
+        //         case "master":
+        //         console.log("the current branch is MASTER")
+
+        //         ws.send("newBranch" + thisHash);
+        //         break;
+
+        //         case (currentBranch !== "master"):
+        //         console.log("The current branch is " + currentBranch)
+        //         if (confirm("already on branch " + currentBranch + "This branch began from " + thisHash + "Create new?")) {
+        //             // Save it!
+        //         } 
+        //         //alert("already on branch " + currentBranch + "\nstarted from " + thisHash + "create new?")
+        //         break;
+
+
+        }
+
+            
+        
+        
+            
+          //  if (currentBranch == "master")
+        //     {
+
+        //         //TODO: then switch to new branch by sending this message to server + the currently selected commit hash
+
+        //         // ws.send("newBranch" + thisHash);
+        //     }
+        // else {
+        //             //TODO: alert user already on branch, ask if you want to switch to a new branch
+        //     }
+
+        
+        isRightDirty = true;
+
+    });
+
+
+}
+
+function mergeViewHeight(mergeView) {
+  function editorHeight(editor) {
+    if (!editor) return 0;
+    return editor.getScrollInfo().height;
+  }
+  return Math.max(editorHeight(mergeView.leftOriginal()),
+                  editorHeight(mergeView.editor()),
+                  editorHeight(mergeView.rightOriginal()));
+}
+
+///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
+
+// spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)
+var rowsize = 20;
+var colsize = 10;
+// a way of mapping column to colour
+function col_hue(col) {
+  return col * 30;
+}
+// the main function, expects to receive a graph, of the form
+// { roots:["hash", "hash", ...], commits:[obj, obj, ...], paths:[obj, obj, ...], maxcolumn: integer }
+// returns the HTML code for an SVG representation of it
+function make_svg_from_commits(graph) {
+    var commits = graph.commits;
+    var paths = graph.paths;
+    var maxcolumn = graph.maxcolumn;
+    
+    // build a lookup-table from hash name to commit object:
+    var commit_map = {};
+    
+    // build an array of svg elements:
+    var svg = [];
+    
+    // compute required size of the svg canvas:
+    var height = (commits.length + 2) * rowsize;
+    var width = (maxcolumn + 1) * colsize;
+    
+    for (var i in commits) {
+        let commit = commits[i];
+        // build a lookup-table from hash name to commit object:
+        commit_map[commit.hash] = commit;
+        // annotate the commits with x, y positions:
+        commit.x = commit.col * colsize;
+        commit.y = commit.row * rowsize;
+    }
+    
+    for (var i in paths) {
+        var path = paths[i];
+        // get the relevant commit objects:
+        var from = commit_map[path.from];
+        var to = commit_map[path.to];
+        
+        // start an SVG line segment
+        var d = `M${from.x},${from.y}`;
+        var hue = col_hue(from.col);
+        // how we render the line depends on the relative columns of the two commits:
+        if (to.col > from.col) {
+        // new branch
+        hue = col_hue(to.col);
+        // append to SVG line segment command
+        d += `L${to.x},${from.y + rowsize / 2}`;
+        } else if (to.col < from.col) {
+        // merge branch
+        // append to SVG line segment command
+        d += `L${from.x},${to.y - rowsize / 2}`;
+        }
+        // regular commit
+        // append to SVG line segment command
+        d += `L${to.x},${to.y}`;
+
+        // store in our list of svg elements:
+        svg.push(
+        `<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`
+        );
+    }
+    
+    for (var i in commits) {
+        let commit = commits[i];
+        // add a svg element for each commit:
+        svg.push(
+                `<circle id="${commit.hash}" cx="${commit.x}" cy="${
+            commit.y
+        }" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`
+        );
+    }
+
+    // wrap the svg commands in an svg element, and return:
+    return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}</svg>`;
+
+    }
+
 
 //load the repo graph svg
-function loadSVG(){
+// function loadSVG(){
+// $(document).ready(function(){
+// $("#graph").graphviz({
+//     url: "repo_graph.svg?" + new Date().getTime(),
+//     shrink: "0", 
+//     // tooltips: "init, update, show",
+//     //highlight: "selected",
+//     ready: function() {
+//         var gv = this
+//         //console.log(gv.nodesByName());
+
+//         //gv.tooltip($elements, show);
+//         //console.log(gv.highlight());
+
+//         gv.nodes().click(function () {
+//             var $set = $()
+//             $set.push(this)
+//             $set = $set.add(gv.linkedFrom(this, true))
+//             $set = $set.add(gv.linkedTo(this, true))
+//             gv.highlight($set, true)
+
+//             ws.send("git show " + $(this).attr("data-name"));
+//             ws.send("getCurrentBranch");
+
+//             sendRightCode("hash?" + $(this).attr("data-name"));
+
+//         })
 
 
-  //  console.log(ws_url);
-            $(document).ready(function(){
-                $("#graph").graphviz({
-                    url: "repo_graph.svg",
-                    shrink: "0", 
-                  // tooltips: "init, update, show",
-                   //highlight: "selected",
-                    ready: function() {
-                        var gv = this
-                        //console.log(gv.nodesByName());
-
-                        //gv.tooltip($elements, show);
-                        //console.log(gv.highlight());
-
-                        gv.nodes().click(function () {
-                            var $set = $()
-                            $set.push(this)
-                            $set = $set.add(gv.linkedFrom(this, true))
-                            $set = $set.add(gv.linkedTo(this, true))
-                            gv.highlight($set, true)
-
-                         ws.send("git show " + $(this).attr("data-name"));
-
-                        })
+        
+//         // gv.nodes().mouseenter(function () {
+//         //     var $set = $()
+//         //     $set.push(this)
+//         //     $set = $set.add(gv.linkedFrom(this, true))
+//         //     $set = $set.add(gv.linkedTo(this, true))
+//         //     gv.highlight(selected, true)
+//         //     console.log($(this).attr("data-name"));
 
 
-                        
-                      //  gv.nodes().mouseenter(function () {
-                        //    var $set = $()
-                          //  $set.push(this)
-                   //         $set = $set.add(gv.linkedFrom(this, true))
-                     //       $set = $set.add(gv.linkedTo(this, true))
-                       //     gv.highlight(selected, true)
-                         //   console.log($(this).attr("data-name"));
+//         // })
 
 
-                        //})
-                        
-                       
-                        //load the gitlog.json
-                    //    function() {
+//         //mouseover a digraph node: reveal its commit hash
+//         //   gv.nodes().mouseenter(function(){
+            
+//             //   gv.highlight(selected, true)
+//         //     var hash = ($(this).attr("data-name"));
+//             //var hashData = ($.getJSON('log.json', function(data) {
+//                 //   var details = ($(data).attr(this));
 
-//
+//                 //var details = data[hash];
+//         //    commit_detail.innerText = hash;
+//         //       ws.send("hash" + hash);
+//                 // console.log(details);
 
+//             // }))
+//                 //console.log($(this).attr("data-name"));
+//                 //  commit_detail.innerText = hash;
+//                 // ws.send("hash" + hash);
+//                 //  console.log(this)
+//                 // })
+//     }
+// });
+// //});
 
-                             
-
-
-                                
-                             //})
-
-                        //mouseover a digraph node: reveal its commit hash
-                        gv.nodes().mouseenter(function(){
-                            
-                         //   gv.highlight(selected, true)
-                            var hash = ($(this).attr("data-name"));
-                            //var hashData = ($.getJSON('log.json', function(data) {
-                             //   var details = ($(data).attr(this));
-
-                             var details = data[hash];
-                            commit_detail.innerText = hash;
-                               ws.send("hash" + hash);
-                               console.log(details);
-
-                           // }))
-                               //console.log($(this).attr("data-name"));
-                             //  commit_detail.innerText = hash;
-                              // ws.send("hash" + hash);
-                             //  console.log(this)
-                                })
-                       // }//end of function
-                    }
-                });
-            });
-
-  }      
-
-                  //      gv.nodes().mouseenter(function(){
-                               
-
-                    //           commit_detail.innerText = hash;
-                      //         ws.send("hashDetail + " hash);
-                        //        })
-
-
-
-    </script>
-<!-- Access the code-forensics charts 
-<iframe src="http://localhost:3000/index.html" width=50% height=50% align="right" overflow="scroll"></iframe>
-
-
-
- code for the repository graph -->
-
-<div id="graph" style="width: 100%; height: 20%; overflow: scroll; position: fixed; bottom: 0;"></div>
+// }    
 
 
 
 
 
-</body>
-</html>
+// function resize(mergeView) {
+//   var height = mergeViewHeight(mergeView);
+//   for(;;) {
+//     if (mergeView.leftOriginal())
+//       mergeView.leftOriginal().setSize(null, height);
+//     mergeView.editor().setSize(null, height);
+//     if (mergeView.rightOriginal())
+//       mergeView.rightOriginal().setSize(null, height);
+
+//     var newHeight = mergeViewHeight(mergeView);
+//     if (newHeight >= height) break;
+//     else height = newHeight;
+//   }
+//   mergeView.wrap.style.height = height + "px";
+// }
+</script>
+</article>

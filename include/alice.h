@@ -2,6 +2,7 @@
 #define ALICE_H
 
 #include "al/al_signals.h"
+#include "al/al_hmd.h"
 
 struct AL_ALICE_EXPORT Alice {
 	
@@ -18,8 +19,9 @@ struct AL_ALICE_EXPORT Alice {
 
 	int isSimulating = true;
 
-	
+	// services:
 	CloudDevice cloudDevice;
+	Hmd * hmd;
 	
 	static Alice& Instance();	
 	

@@ -98,170 +98,36 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 /////////////////////////////////////////////////////////////////////////////////
 
-// BUILD REPO GRAPH
 
-//old method (hoping to phase out)
-// try {
-// 	execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
-// 	//convert the digraph to svg
-// 	execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-// 	console.log("\nRebuilt Repo Graph\n");
-// } catch (e) {
-// 	console.error(e.toString());
-// }
-
-//possible new method 1: this one is really slick, and it uses git log, so should be faster than the rev-list/parse method above and below. 
-// I'll need to crawl around and find all the source files referenced in the html,
-//as they are not hosted in some git repo. but yeah, getting this one to work would be pretty sweet
-// http://bit-booster.com/graph.html
-//*NOTE* see if the git log 'pretty' part of the code can include the date, author, [commit message would be GREAT], and more, so you can then expose more into the svg
-var gitlog;
-var svg;
-
-// exec('git log --all --date-order --pretty="%H|%P|%d|%cN" --follow project.cpp', {cwd: project_path}, (stdout, stderr, err) => {
-// gitlog = stderr;
-
-// console.log(gitlog)
-
-// function make_svg_from_gitlog(gitlog) {
-//     let rowsize = 20;
-//     let colsize = 10;
-  
-//     function col_hue(col) { return col*30; }
-  
-//     let lines = gitlog.split("\n");
-//     let commit_list = [];
-//     let commit_map = {};
-//     for (let i = 0; i < lines.length; i++) {
-//       let line = lines[i].split("|");
-//       let commit = {
-//         hash: line[0],
-//         children: line[1] ? line[1].split(" ") : [],
-//         ref: line[2] ? line[2].split(", ") : [],
-//         row: i+1
-//       };
-//       commit_list.push(commit);
-//       commit_map[commit.hash] = commit;
-//     }
-  
-//     // depth first traversal
-//     // to assign columns to each commit
-//     // and also generate the paths as we go
-//     let first_commit = commit_list[0];
-//     first_commit.col = 1;
-//     let stack = [  first_commit ];
-//     let visited = {};
-//     let paths = [];
-//     while (stack.length > 0) {
-//       let parent = stack.pop();
-//       visited[parent.hash] = true;
-//       parent.x = parent.col * colsize;
-//       parent.y = parent.row * rowsize;
-  
-//       // add children to stack:
-//       for (let i=parent.children.length-1; i>=0; i--) {
-//         let child_hash = parent.children[i];
-//         let child = commit_map[parent.children[i]];
-//         if (!visited[child_hash]) {      
-//           child.col = (parent.col + i);
-//           stack.push(child);
-//         }
-//         // add a path:
-//         paths.push({
-//           from: parent,
-//           to: child
-//         });
-//       }
-//     }
-  
-//     let svg = ['<svg width=100% height=100% version="1.1" xmlns="http://www.w3.org/2000/svg">'];
-  
-//     for (let i in commit_list) {
-//       let commit = commit_list[i];
-//       svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" />`); 
-//     }
-  
-//     for (let i in paths) {
-//       let path = paths[i];
-//       let from = path.from;
-//       let to = path.to;
-  
-//       let d = `M${from.x},${from.y}`;
-//       let hue = col_hue(from.col);
-//       if (to.col > from.col) {
-//         // new branch
-//         hue = col_hue(to.col);
-//         let branch = {
-//           x: to.x,
-//           y: from.y + rowsize/2
-//         }
-//         d += `L${branch.x},${branch.y}`;
-  
-//       } else if (to.col < from.col) {
-//         // merge branch
-//         let branch = {
-//           x: from.x,
-//           y: to.y - rowsize/2
-//         }
-//         d += `L${branch.x},${branch.y}`;
-//       } 
-//       // regular commit
-//       d += `L${to.x},${to.y}`;
-  
-//       svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`); 
-//     }
-//     svg.push("</svg>");
-//     svg = svg.join("\n");
-// 	return svg;
-
-//   }
-//   var svg = make_svg_from_gitlog(gitlog);
-
- // sendSVG(svg);
-  //ws.send("?update_gitGraph " + svg)
-//})
-//possible new method 2 (using a different python script that provides author names and evenutally will add dates an other details... its very slow though...)
-//seems to be a bit easier to edit, compared to the git-big-picture. 
-//////////////TODO::: MUST figure out how to restrict the python script to only mapping project.cpp. 
-///////////////////// I did this once, by adding ' -- project.cpp' to line 42 in git-graph.py, but the resulting digraph had many disconnected lines
-// try {
-// 	execSync('python3 git-graph.py > ' + path.join("..", "alicenode/repo_graph.dot"), {cwd: project_path }, () => {console.log("made the repo_graph.dot")});
-// 	//convert the digraph to svg
-// 	execSync('dot -Tsvg ' + path.join("..", "alicenode/repo_graph.dot") + ' -o ' + path.join("..", "alicenode/client/repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-// 	console.log("\nRebuilt Repo Graph\n");
-// } catch (e) {
-// 	console.error(e.toString());
-// }
 
 // possible new method 3: https://github.com/tclh123/commits-graph
 //although, this one is maybe not as feature-ready as method 1...
-///// PLO //// Could be useful to see what commands are most used, maybe for 
-// future features https://github.com/jvns/git-workflow
 
 
 
-// UPDATE GIT REPO:
 
-function git_add_and_commit() {
-	try {
+// UPDATE GIT REPO: we do we commit the alicenode_inhabitat repo on startup?
+
+// function git_add_and_commit() {
+// 	try {
 				
-		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
-		execSync('git commit -m "client updated project"', {cwd: project_path }, () => {console.log("git committed")});
-		//create digraph from git history of project.cpp
-		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path}, () => {console.log("made the repo_graph.dot")});
-		//convert the digraph to svg
-		execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
-			console.log("updated ../client/gitlog.json")
-		})
+// 		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
+// 		execSync('git commit -m "client updated project"', {cwd: project_path }, () => {console.log("git committed")});
+// 		//create digraph from git history of project.cpp
+// 		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path}, () => {console.log("made the repo_graph.dot")});
+// 		//convert the digraph to svg
+// 		execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
+// 		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
+// 			console.log("updated ../client/gitlog.json")
+// 		})
 
-		send_all_clients("updateRepo?");
+// 		send_all_clients("updateRepo?");
 
-		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
-	} catch (e) {
-		console.error(e.toString());
-	}
-}
+// 		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
+// 	} catch (e) {
+// 		console.error(e.toString());
+// 	}
+// }
 
 //
 
@@ -372,51 +238,7 @@ wss.on('connection', function(ws, req) {
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
 
-		//git stuff:
-
-		// if (message.includes("client_SVG?")){
-		// 	exec('git log --all --date-order --pretty="%H|%P|%d|%cN" --follow project.cpp', {cwd: project_path}, (stdout, stderr, err) => {
-
-		// 	  ws.send("gitLog? " + stderr)
-		// 	})
-			// ws.send("gitLog? blah blah blah")
-			// console.log("\n\n\n\n gitlog send\n\n\n\n")
-			// ws.send(`gitLog? 539495f|a9d6243|master
-			// a9d6243|8e17cfd dba91e2 cdadcd7 c954c3e 658b04e 8efa6b6 a2d7854
-			// a2d7854|9d95af8
-			// 8efa6b6|9d95af8|test_branch
-			// 9d95af8
-			// 658b04e|9317a9b
-			// c954c3e|9317a9b|tag: tag1
-			// 9317a9b
-			// cdadcd7|f4046fa
-			// dba91e2|f4046fa|tag: tag5, tag: tag6
-			// f4046fa
-			// 8e17cfd|e34b4d0
-			// e34b4d0|5ff6ce7
-			// 5ff6ce7|d86e7ce|tag: tag2, tag: tag3, another_branch
-			// d86e7ce|44f3ead f537ede 79e536a
-			// f537ede|653a6f6
-			// 79e536a|653a6f6 a1a7ab4
-			// 44f3ead|f2e7f46 653a6f6
-			// 653a6f6|422dd3c d3c5150
-			// a1a7ab4|649a524
-			// d3c5150|649a524
-			// f2e7f46|422dd3c
-			// 422dd3c|649a524
-			// 649a524|90cd17a
-			// 90cd17a|76092f0 f37def6 0f8187b c44a61f 0b6fd60 66537bf f9c5353 17f5428 3c52fb4
-			// 76092f0
-			// 3c52fb4
-			// 17f5428||tag: x, tag: y, tag: z
-			// f9c5353
-			// 66537bf
-			// 0b6fd60
-			// c44a61f
-			// 0f8187b
-			// f37def6`)
-
-		//}
+		
 		//create and set worktree
 		if (message.includes("addWorktree")){
 			newWorkTree = message.replace("addWorktree ", "?")
@@ -457,7 +279,7 @@ wss.on('connection', function(ws, req) {
 		 		//if (numBranches > 0) {
 				//	 numBranches = (Number(numBranches) + 1)
 					 
-					 
+
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
 				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
@@ -512,7 +334,8 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("git show")) {
 
 			var gitCommand = (message + ":" + "project.cpp");
-			var gitHash = message.replace("git show", "")
+			var gitHash = message.replace("git show ", "")
+			console.log("githash = " + gitHash)
 
 			// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
 			// 	console.log(stderr, err, stdout);
@@ -550,12 +373,157 @@ wss.on('connection', function(ws, req) {
 			switch(cmd) {
 
 			case "client_SVG":
+
+					///// PLO //// Could be useful to see what commands are most used, maybe for 
+					// future features https://github.com/jvns/git-workflow
+
 					//problem in the client script when using the "--follow project.cpp" flag, so its
 					//been removed for now, but will make using the browser version difficult, unless you can expose the filenames 
 					//into the svg. so mouseover tells you which filenames are affected?
-					exec('git log --all --date-order --pretty="%H|%P|%d"', {cwd: project_path}, (stdout, stderr, err) => {
-						//console.log(stderr)
-					  ws.send("gitLog?" + stderr)
+					exec('git log --all --date-order --date=short --pretty="%H|%P|%d|%cd|%cN|%s%b"', {cwd: project_path}, (stdout, stderr, err) => {
+						//when the client script can handle mor data, use this git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B"'
+							//bc for now if you send this data it gives an error :
+							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
+						 
+
+
+							let gitlog = stderr;
+
+												// on the server
+						// given the text of a gitlog output, it will produce a JSON-friendly object represntation of it
+						// which can be used to render on a client
+						function make_graph_from_gitlog(gitlog) {
+							// this will collect an object for each commit:
+							let commits = [];
+							// this will collect the names of commits with no parent:
+							let roots = [];
+							// the biggest column used so far
+							// this is used to compute a commit's column position  
+							let maxcolumn = 1;
+							// build a lookup-table from hash name to commit object:
+							let commit_map = {};
+							// keep a cache of what child names have been mentioned so far
+							// (this will identify any "root" commits)
+							let forward_refs = {};
+							
+							// pull out each line of the source log:
+							let lines = gitlog.split("\n");
+							for (let i = 0; i < lines.length; i++) {
+							// get each bar-separated term of the line in an array
+							let line = lines[i].split("|");
+							// the first item is the hash commit
+							let hash = line[0];
+							if (hash.length) { // skip empty lines
+								// create an object representation of the commit
+								let commit = {
+									hash: hash,
+									// an array of hashes of this commit's children
+									children: line[1] ? line[1].split(" ") : [],
+									// an array of terms of the commit's refs
+									ref: line[2] ? line[2].split(", ") : [],
+									// the row is determined by the line number
+									row: i + 1,
+									// the column is initially undetermined (it will be changed later)
+									col: 0,
+									
+
+									//TODO: add these in. for now they are causing half the commits in the 
+									//log to be ignored 
+									
+									// the date the commit was made
+									commit_date: line[3] ? line[3].split(", ") : [],
+									//who made the commit?
+									committer_name: line[4] ? line[4].split(", ") : [],
+									//commit's message
+									commit_msg: line[5] ? line[5].split(", ") : []
+								};
+								// if this commit hasn't been encountered as a child yet,
+								// it must have no parent in the graph:
+								if (!forward_refs[hash]) {
+									roots.push(hash);
+									// mark this commit as parent-less
+									// not sure if this is really needed
+									commit.root = true; 
+								}
+								
+								// add to the list of commits
+								commits.push(commit);
+								// add to the reverse-lookup by name
+								commit_map[hash] = commit;
+								
+								// also note the forward-referencing of each child
+								// (so we can know if a future commit has a parent or not)
+								for (let c of commit.children) {
+								forward_refs[c] = true;
+								}
+							}
+							}
+						
+							// depth first traversal
+							// to assign columns to each commit
+							// and also generate the paths as we go
+							
+							// we'll start with a list of all the commits without parents:
+							// (using a map() to convert hash names into the full object references)
+							let stack = roots.map(function(hash) { return commit_map[hash]; }).reverse();
+							// we need a cache to remember which items we have visited
+							let visited = {};
+							
+							// the result will populate a list of objects representing the paths between commits:
+							let paths = [];
+						
+							// consume each item on our "todo" stack, until there are none left:
+							while (stack.length > 0) {
+							// remove top item from stack
+							let commit = stack.pop();
+							// note that we have now visited this
+							// (so we don't process a commit twice by mistake)
+							visited[commit.hash] = true;
+						
+							// if the commit doesn't have a column assigned yet, it must be a root
+							if (!commit.col) {
+								// create a new empty column for it:
+								commit.col = maxcolumn++;
+							} else {
+								// make sure we have widened our maxcolumn to accommodate this commit
+								maxcolumn = Math.max(maxcolumn, commit.col);
+							}
+						
+							// for each child:
+							for (let i = commit.children.length - 1; i >= 0; i--) {
+								let child_hash = commit.children[i];
+								// get the actual child object this hash refers to
+								let child = commit_map[commit.children[i]];
+								if (child) { // skip if the child commit is not in our source
+								// if we haven't visited this child yet, 
+								if (!visited[child_hash]) {
+									// assign it a new column, relative to parent
+									child.col = commit.col + i;
+									// and add it to our "todo" stack:
+									stack.push(child);
+								}
+								// add an object representation of this path:
+								paths.push({
+									from: commit.hash,
+									to: child.hash
+								});
+								}
+							}
+							}
+							// return a full representation of the graph:
+							return {
+							maxcolumn: maxcolumn,
+							roots: roots,
+							commits: commits,
+							paths: paths
+							};
+						}
+						
+						let graph = make_graph_from_gitlog(gitlog);
+						let graphjson = JSON.stringify(graph);
+						
+						// send graph as json to client
+						ws.send("gitLog?" + graphjson)
 					})
 			break;
 
