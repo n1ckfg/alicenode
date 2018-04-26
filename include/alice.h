@@ -2,6 +2,7 @@
 #define ALICE_H
 
 #include "al/al_signals.h"
+#include "al/al_hmd.h"
 
 struct AL_ALICE_EXPORT Alice {
 	
@@ -12,11 +13,15 @@ struct AL_ALICE_EXPORT Alice {
 	double t = 0.;	  		// clock time
 	double simTime = 0.; 	// simulation time
 	double dt = 1/60.; 		// updated continually while running
-	double desiredFrameRate = 30.;
+	double desiredFrameRate = 60.;
 	double fpsAvg = 30;	
 	int framecount = 0;
 
 	int isSimulating = true;
+
+	// services:
+	CloudDevice cloudDevice;
+	Hmd * hmd;
 	
 	static Alice& Instance();	
 	
