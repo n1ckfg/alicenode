@@ -625,7 +625,7 @@ watcher
 			}
 			
 			// then, commit to git:
-			git_add_and_commit();
+			//git_add_and_commit();
 			
 		} break;
 		case ".glsl": {
@@ -634,7 +634,7 @@ watcher
 			alice_command("reloadgpu", "");
 
 			// then, commit to git:
-			git_add_and_commit();
+			//git_add_and_commit();
 
 		} break;
 		default: {		
