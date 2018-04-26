@@ -38,6 +38,15 @@ Browser talks to
 			
 
 ///////
+//options in server.js for getting commits within ranges
+//get all commits within a specified range:
+git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B" | egrep "Fri Apr *20|Wed Apr 25"
+
+//get 3 commits since wed April 25:
+git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B" | grep -A 3 "Wed Apr 25"
+
+//committing after build. if it builds successfully, make tag to say built successfully (also need to think on what else we should add). if it fails to build, commit, and add note about it breaking in the tag section, and place build log in comment?. 
+
 Code mirror + git:
 
 DONE: how to get the current content of the ‘edit’ div. using this, we could replace the current  ‘editorCM’ with ‘mergeEditor’

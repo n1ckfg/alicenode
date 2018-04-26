@@ -25,6 +25,33 @@ function randomInt (low, high) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
+//if alice is already running from a previous crash, then terminate it
+var terminate = require('terminate');
+
+const find = require('find-process');
+
+find('name', 'alice')
+  	.then(function (list) {
+
+		let pidList = list.map(a => a.pid)
+
+		pidList.forEach(function(element) {
+
+			terminate(element, function (err) {
+				if (err) { // you will get an error if you did not supply a valid process.pid 
+					console.log("pidTerminate: " + err); // handle errors in your preferred way. 
+				}
+				else {
+					console.log('done'); // terminating the Processes succeeded. 
+				}
+			});
+
+    	})
+
+	});
+
+
+
 // CONFIGURATION
 
 console.log(process.argv);
@@ -622,6 +649,7 @@ watcher
 
 			} catch (e) {
 				console.error(e.message);
+				
 			}
 			
 			// then, commit to git:
