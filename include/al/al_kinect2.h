@@ -3,10 +3,13 @@
 
 #include "al_math.h"
 #include "al_thread.h"
+#include "al_platform.h"
 
-
+#ifdef AL_WIN
 #include <Ole2.h>
 typedef OLECHAR* WinStr;
+
+#define AL_USE_KINECT2_SDK 1
 #include "kinect.h"
 
 // Safe release for interfaces
@@ -19,6 +22,8 @@ inline void SafeRelease(Interface *& pInterfaceToRelease)
 		pInterfaceToRelease = NULL;
 	}
 }
+#endif
+
 /*
     We're going to want a cloud source
     this could be from a device stream, or from a disk stream
@@ -58,8 +63,6 @@ struct CloudFrame {
 
 
 struct CloudDevice {
-
-
     int hasColorMap = 0;
     int use_colour = 1;
     int use_depth = 1;
@@ -68,13 +71,15 @@ struct CloudDevice {
 
 	CloudFrame captureFrame;
 
+#ifdef AL_USE_KINECT2_SDK
     IKinectSensor * device;
 	IMultiSourceFrameReader* m_reader;   // Kinect data source
 	ICoordinateMapper* m_mapper;         // Converts between depth, color, and 3d coordinates
-
 	RGBQUAD m_rgb_buffer[cColorWidth * cColorHeight]; // used for internal processing;
+#endif
 
     void open() {
+#ifdef AL_USE_KINECT2_SDK
         HRESULT result = 0;
 
 		result = GetDefaultKinectSensor(&device);
@@ -91,8 +96,10 @@ struct CloudDevice {
 		long priority = 10; // maybe increase?
         
         capture_thread = std::thread(&CloudDevice::run, this);
+#endif
     }
 
+#ifdef AL_USE_KINECT2_SDK
     void run() {
         if (!device) return;
 
@@ -192,8 +199,10 @@ struct CloudDevice {
 		
 		console.log("ending capture with RGBD device");
     }
+#endif
 
     void close() {
+#ifdef AL_USE_KINECT2_SDK
         if (capturing) {
             capturing = 0;
             capture_thread.join();
@@ -202,14 +211,8 @@ struct CloudDevice {
 			device->Close();
 			SafeRelease(device);
 		}
+#endif
     }
 };
-
-#ifdef AL_IMPLEMENTATION
-#ifdef AL_WIN
-
-
-#endif // AL_WIN
-#endif // AL_IMPLEMENTATION
 
 #endif // al_kinect2_h
