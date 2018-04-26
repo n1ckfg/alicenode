@@ -54,6 +54,7 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
+/*
 switch (os.type) {
 
 	case "Darwin":
@@ -103,6 +104,10 @@ switch (os.type) {
 		break;
 
 }
+
+
+
+*/
 pruneWorktree()
 function pruneWorktree() {
 	// update the worktree list
