@@ -8,10 +8,9 @@
 #include "al/al_math.h"
 #include "al/al_gl.h"
 #include "al/al_time.h"
+#include "al/al_fs.h"
 
 #include <string>
-#include <filesystem>
-namespace fs = std::experimental::filesystem;
 
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
@@ -268,7 +267,7 @@ int main(int argc, char ** argv) {
 
 	// process the args:
 	// arg[0] is the path of the runtime
-	if (argc > 0) runtime_path = fs::path(argv[0]).parent_path().string();
+	if (argc > 0) runtime_path = al_dirname(std::string(argv[0]));
 #ifdef AL_WIN
 	runtime_support_path = runtime_path + "/support/win64";
 #else

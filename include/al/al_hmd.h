@@ -5,8 +5,11 @@
 #include "al_math.h"
 #include "al_gl.h"
 
-//#define USE_OCULUS_DRIVER 1
+
+#ifdef AL_WIN
 #define USE_STEAM_DRIVER 1
+//#define USE_OCULUS_DRIVER 1
+#endif
 
 #define VR_DEBUG_POST(fmt, ...) do { console.log("debug line %d:%s(): " fmt, __LINE__, __func__, __VA_ARGS__); } while (0)
 
@@ -92,8 +95,6 @@ struct Hmd {
     vr::TrackedDevicePose_t pRenderPoseArray[vr::k_unMaxTrackedDeviceCount];
 	glm::mat4 mDevicePose[vr::k_unMaxTrackedDeviceCount];
 #endif
-
-	Hmd() {}
 
     // attempt to connect to the Vive runtime, creating a session:
 	bool connect(bool force_reconnect=false) {
