@@ -51,10 +51,26 @@ bool isThreadsDone = 0;
 
 void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, int downup, int mods) {
 	Alice& alice = Alice::Instance();
+	bool shift = (mods & 1) != 0;
+	bool ctrl = (mods & 2) != 0;
+	bool alt = (mods & 4) != 0;
+	bool cmd = (mods & 8) != 0;
+	console.log("keycode: %d scancode: %d press: %d shift %d ctrl %d alt %d cmd %d", keycode, scancode, downup, shift, ctrl, alt, cmd);
+	
 	switch (keycode) { 
 	case GLFW_KEY_SPACE: {
 		if (downup) {
-			alice.isSimulating = !alice.isSimulating;
+			if (shift) {
+				// shift-space disables rendering & simulating
+				alice.isRendering = alice.isSimulating = false;
+				//if (!alice.isRendering) alice.isSimulating = false; // don't simulate if we don't render
+			} else {
+				// space toggles simulating
+				alice.isSimulating = !alice.isSimulating;
+				if (alice.isSimulating) {
+					isRendering = true; // enabling simulation automatically enables rendering
+				}
+			}
 		}
 	} break;
 	case GLFW_KEY_DELETE:
@@ -68,9 +84,9 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 		isThreadsDone = 1;
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
 	} break;
-	default:
-		console.log("keycode: %d scancode: %d press: %d modifiers: %d", keycode, scancode, downup, mods);
+	//default:
 	}
+	
 }
 
 
@@ -81,20 +97,10 @@ extern "C" AL_ALICE_EXPORT int frame() {
 	double tbegin = glfwGetTime();
 
     glfwPollEvents();
-    glfwMakeContextCurrent(window.pointer);
-    
-    glViewport(0, 0, window.width, window.height);
-    glEnable(GL_DEPTH_TEST);
-    if (0) {
-    	glClearColor(c, c, c, 1.0f);
-    	c -= 0.1f;
-    	if (c <=0.) c = 1.;
-    } else {
-    	glClearColor(0.f, 0.f, 0.f, 1.0f);
-    }
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    Alice::Instance().onFrame.emit(window.width, window.height);
+    glfwMakeContextCurrent(window.pointer); // maybe we want to have a onSim() event before doing this?
+     
+	if (alice.isRendering) 
+    	alice.onFrame.emit(window.width, window.height);
     
     glfwSwapBuffers(window.pointer);
     
@@ -115,7 +121,6 @@ extern "C" AL_ALICE_EXPORT int frame() {
     if (tsleep > 0.001) {
     	al_sleep(tsleep);
     }
-    
     return !glfwWindowShouldClose(window.pointer);
 }
 
@@ -135,11 +140,11 @@ extern "C" AL_ALICE_EXPORT int setup() {
     	console.error("gl error before loading shader");
 	}
 
-	alice.cloudDevice.open();
+	alice.cloudDevice->open();
 	
 	alice.t = glfwGetTime();
 	
-	// run one frame right now
+	// run one frame right now (why?)
 	frame();
 
     return 0;
@@ -304,6 +309,7 @@ int main(int argc, char ** argv) {
 	}
 
 	alice.hmd = new Hmd;
+	alice.cloudDevice = new CloudDevice;
 
 	// arg[1] is the path to the lib
 	if (argc > 1) project_lib_path = argv[1];
@@ -321,6 +327,8 @@ int main(int argc, char ** argv) {
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
 	}
+
+	console.log("begin rendering");
 	
     while(frame()) {
     	//printf("%d\n", alice.framecount);
@@ -331,7 +339,7 @@ int main(int argc, char ** argv) {
 		closelib(project_lib_path.c_str());
 	}
 
-	alice.cloudDevice.close();
+	alice.cloudDevice->close();
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
 	uv_close((uv_handle_t *)&stdin_pipe, NULL);

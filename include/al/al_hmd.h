@@ -85,10 +85,8 @@ struct Hmd {
 	glm::vec3 mHandTrackedPosition[2];
 	glm::quat mHandTrackedQuat[2];
 
-    uint32_t texdim_w = 1024, texdim_h = 1024;
-
 	// the fbo/texture to draw into when submitting frames:
-	SimpleFBO hmdFBO;
+	SimpleFBO fbo;
 
 #ifdef USE_STEAM_DRIVER
     vr::IVRSystem *	mHMD = 0;
@@ -138,10 +136,14 @@ struct Hmd {
 		std::string mDriver = GetTrackedDeviceString(mHMD, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
 		console.log("VR display %s driver %s", mDisplay.c_str(), mDriver.c_str());
 
-		mHMD->GetRecommendedRenderTargetSize(&texdim_w, &texdim_h);
-		console.log("VR texture recommendation %d x %d", texdim_w, texdim_h);
-		// we will send as side-by-side:
-		texdim_w *= 2;
+		uint32_t w, h;
+		mHMD->GetRecommendedRenderTargetSize(&w, &h);
+		w *= 2; // because we are sending side-by-side images in a single texture
+
+		fbo.dim.x = w;
+		fbo.dim.y = h;
+		console.log("VR texture recommendation %d x %d", fbo.dim.x, fbo.dim.y);
+		
 		// trash any existing resources:
 		dest_closing();
 		
@@ -429,25 +431,36 @@ struct Hmd {
 #endif
     }
 
+	// maybe this is redundant. SimpleFBO already has a blit method...
 	void submit(SimpleFBO& srcFBO) {
 #ifdef USE_STEAM_DRIVER
 		if (!mHMD) return;
-		
-		if (!hmdFBO.fbo) {
+		if (!fbo.fbo) {
 			console.log("no HMD FBO/texure yet");
 			return;	// no texture to copy from.
 		}
 
 		// blit it.
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFBO.fbo);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, hmdFBO.fbo);
-		glBlitFramebuffer(0, 0, srcFBO.dim.x, srcFBO.dim.y, 0, 0, hmdFBO.dim.x, hmdFBO.dim.y, GL_COLOR_BUFFER_BIT,GL_LINEAR);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.fbo);
+		glBlitFramebuffer(0, 0, srcFBO.dim.x, srcFBO.dim.y, 0, 0, fbo.dim.x, fbo.dim.y, GL_COLOR_BUFFER_BIT,GL_LINEAR);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		vr::EVRCompositorError err;
-		//GraphicsAPIConvention enum was renamed to TextureType in OpenVR SDK 1.0.5
-		vr::Texture_t vrTexture = { (void*)hmdFBO.tex, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+		submit();
+#endif		
+	}
 
+	
+	void submit() {
+#ifdef USE_STEAM_DRIVER
+		if (!mHMD) return;
+		if (!fbo.tex) {
+			console.log("no HMD FBO/texure yet");
+			return;	// no texture to copy from.
+		}
+
+		vr::EVRCompositorError err;
+		vr::Texture_t vrTexture = { (void*)fbo.tex, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRTextureBounds_t leftBounds = { 0.f, 0.f, 0.5f, 1.f };
 		vr::VRTextureBounds_t rightBounds = { 0.5f, 0.f, 1.f, 1.f };
 
@@ -489,14 +502,6 @@ struct Hmd {
 
 		err = vr::VRCompositor()->Submit(vr::Eye_Right, &vrTexture, &rightBounds);
 
-		//glBindTexture(GL_TEXTURE_2D, 0);
-
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// openvr header recommends this after submit:
-		glFlush();
-		glFinish();
 #endif		
 	}
 
@@ -513,14 +518,12 @@ struct Hmd {
     }
 
 	bool dest_changed() {
-		console.log("HMD dest_changed %d %d", texdim_w, texdim_h);
-		hmdFBO.dim.x = texdim_w;
-		hmdFBO.dim.y = texdim_h;
-		return hmdFBO.dest_changed();
+		console.log("HMD dest_changed %d %d", fbo.dim.x, fbo.dim.y);
+		return fbo.dest_changed();
 	}
 
     void dest_closing() {
-		hmdFBO.dest_closing();
+		fbo.dest_closing();
 	}
 
     ~Hmd() {

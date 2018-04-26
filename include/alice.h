@@ -18,9 +18,10 @@ struct AL_ALICE_EXPORT Alice {
 	int framecount = 0;
 
 	int isSimulating = true;
+	int isRendering = true;
 
 	// services:
-	CloudDevice cloudDevice;
+	CloudDevice * cloudDevice;
 	Hmd * hmd;
 	
 	static Alice& Instance();	
