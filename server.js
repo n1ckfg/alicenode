@@ -24,11 +24,7 @@ function randomInt (low, high) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
+ 
 // CONFIGURATION
 
 console.log(process.argv);
@@ -108,30 +104,37 @@ switch (os.type) {
 
 }
 
-	
-// update the worktree list
-exec("git worktree prune", () => {
-	// delete work tree (if it exists):
-	if (fs.existsSync(worktreepath)) {
-		fs.unlinkSync(worktreepath);
-	}
-	
+function pruneWorktree() {
+	// update the worktree list
+	exec("git worktree prune", {cwd: project_path}, () => {
+		// delete work tree (if it exists):
+		if (fs.existsSync(worktreepath)) {
+			fs.unlinkSync(worktreepath);
+		}
+	})
+}
+
+function getWorktreeList() {
+		
 	//get the names of current worktrees
-	exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", (stderr, err) => {
+	exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", {cwd: project_path}, (stderr, err) => {
 		for (let i = 0; i < (err.toString().split('\n')).length; i++) {
 			let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
 			if (worktreeName !== undefined) {
+				console.log("worktrees: " + worktreeName)
 				fs.appendFile(worktreepath, worktreeName + "\n", function (err) {
 					if (err) {
 						console.log(err)                            
 					} else {
 						console.log("worktreeList.txt updated")
+						let list = err
+						return list;
 					}
 				}) 
 			}   
-		}
-	})
-})
+		} 
+	}) 
+} 
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +143,10 @@ function project_build() {
 	
 	let out = process.platform == "win32"
 		? execSync('build.bat "'+server_path+'"') 
-		: execSync('sh build.sh "'+server_path+'"');
+		: execSync('sh build.sh "'+server_path+'"', (stdout, stderr, err) => {
+			// console.log("\n\n\n\n\n " + stdout + err + stderr)
+
+		});
 	console.log("built project", out.toString());
 }
 
@@ -162,13 +168,7 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 
 
-// possible new method 3: https://github.com/tclh123/commits-graph
-//although, this one is maybe not as feature-ready as method 1...
-
-
-
-
-// UPDATE GIT REPO: we do we commit the alicenode_inhabitat repo on startup?
+// UPDATE GIT REPO: do we commit the alicenode_inhabitat repo on startup?
 
 // function git_add_and_commit() {
 // 	try {
@@ -303,12 +303,13 @@ wss.on('connection', function(ws, req) {
 		
 		//create and set worktree
 		if (message.includes("addWorktree")){
-			newWorkTree = message.replace("addWorktree ", "?")
+			newWorkTree = message.replace("addWorktree ", "+")
 			console.log(newWorkTree)
-			exec("git worktree add --lock --no-checkout " + message.replace("addWorktree ", ""), (stdout, err, stderr) => {
+			exec("git worktree add --no-checkout " + message.replace("addWorktree ", "+"), (stdout, err, stderr) => {
 
-				updateWorktreeList();
+				getWorktreeList();
 
+		
 			});
 		}
 
@@ -442,7 +443,9 @@ wss.on('connection', function(ws, req) {
 					//problem in the client script when using the "--follow project.cpp" flag, so its
 					//been removed for now, but will make using the browser version difficult, unless you can expose the filenames 
 					//into the svg. so mouseover tells you which filenames are affected?
-					exec('git log --all --date-order --date=short --pretty="%H|%P|%d|%cd|%cN|%s%b"', {cwd: project_path}, (stdout, stderr, err) => {
+
+					//TODO eventually add ' --stat' at the end of the command, and figure out a way to add the commit stats to the 
+					exec('git log --all --date-order --date=short --pretty="%H|%P|%d|%cd|%cN|%s%b|" --stat', {cwd: project_path}, (stdout, stderr, err) => {
 						//when the client script can handle mor data, use this git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B"'
 							//bc for now if you send this data it gives an error :
 							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
@@ -466,10 +469,9 @@ wss.on('connection', function(ws, req) {
 							let commit_map = {};
 							// keep a cache of what child names have been mentioned so far
 							// (this will identify any "root" commits)
-							let forward_refs = {};
-							
+							let forward_refs = {};							
 							// pull out each line of the source log:
-							let lines = gitlog.split("\n");
+							let lines = gitlog.split(")\n");
 							for (let i = 0; i < lines.length; i++) {
 							// get each bar-separated term of the line in an array
 							let line = lines[i].split("|");
@@ -497,7 +499,8 @@ wss.on('connection', function(ws, req) {
 									//who made the commit?
 									committer_name: line[4] ? line[4].split(", ") : [],
 									//commit's message
-									commit_msg: line[5] ? line[5].split(", ") : []
+									commit_msg: line[5] ? line[5].split(", ") : [],
+									commit_files: line[6] ? line[6].split(", ") : []
 								};
 								// if this commit hasn't been encountered as a child yet,
 								// it must have no parent in the graph:
@@ -516,9 +519,9 @@ wss.on('connection', function(ws, req) {
 								// also note the forward-referencing of each child
 								// (so we can know if a future commit has a parent or not)
 								for (let c of commit.children) {
-								forward_refs[c] = true;
+									forward_refs[c] = true;
+									}
 								}
-							}
 							}
 						
 							// depth first traversal

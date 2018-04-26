@@ -44,7 +44,11 @@
         evt.target.setAttributeNS(null,"opacity","0.5");
         //console.log(evt.target.ref)
       }
-  
+      
+      //get all commit nodes that contain the filename chosen by client, and highlight them in the svg
+      function highlightFileName(evt){
+
+      }
       function mouseLeaveCommit(evt) {
         evt.target.setAttributeNS(null,"opacity","1");
       }
@@ -646,7 +650,7 @@ function make_svg_from_commits(graph) {
         svg.push(
                 `<circle id="${commit.hash}" cx="${commit.x}" cy="${
             commit.y
-        }" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`
+        }" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_files.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`
         );
     }
 

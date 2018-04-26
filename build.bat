@@ -25,5 +25,14 @@ opengl32.lib ^
 @del alice.obj alice.exp
 
 ::dumpbin /exports alice.lib
+REM if errorlevel 1 (
+REM    echo Failure Reason Given is %errorlevel%
+REM    exit /b %errorlevel%
+REM )
 
+
+REM if errorlevel 0 (
+REM    echo No failure %errorlevel%
+REM    exit /b %errorlevel%
+REM )
 @endlocal
