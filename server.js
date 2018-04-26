@@ -25,30 +25,7 @@ function randomInt (low, high) {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-//if alice is already running from a previous crash, then terminate it
-var terminate = require('terminate');
 
-const find = require('find-process');
-
-find('name', 'alice')
-  	.then(function (list) {
-
-		let pidList = list.map(a => a.pid)
-
-		pidList.forEach(function(element) {
-
-			terminate(element, function (err) {
-				if (err) { // you will get an error if you did not supply a valid process.pid 
-					console.log("pidTerminate: " + err); // handle errors in your preferred way. 
-				}
-				else {
-					console.log('done'); // terminating the Processes succeeded. 
-				}
-			});
-
-    	})
-
-	});
 
 
 
@@ -73,6 +50,64 @@ let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 let worktreepath = path.join(client_path, "worktreeList.txt");
+
+
+
+//if alice is already running from a previous crash, then terminate it
+var terminate = require('terminate');
+
+const find = require('find-process');
+
+switch (os.type) {
+
+	case "Darwin":
+	
+	find('name', 'alice')
+		.then(function (list) {
+
+		let pidList = list.map(a => a.pid)
+
+			pidList.forEach(function(element) {
+
+				terminate(element, function (err) {
+					if (err) { // you will get an error if you did not supply a valid process.pid 
+						console.log("pidTerminate: " + err); // handle errors in your preferred way. 
+					}
+					else {
+						console.log('done'); // terminating the Processes succeeded. 
+					}
+				});
+
+			})
+
+  		});
+  	break;
+	
+	case "Windows_NT":
+
+	find('name', 'alice.exe')
+		.then(function (list) {
+
+	  		let pidList = list.map(a => a.pid)
+
+	  		pidList.forEach(function(element) {
+
+				terminate(element, function (err) {
+					if (err) { // you will get an error if you did not supply a valid process.pid 
+						console.log("pidTerminate: " + err); // handle errors in your preferred way. 
+					}
+					else {
+						console.log('done'); // terminating the Processes succeeded. 
+					}
+				});
+
+	  		})
+
+		});
+		break;
+
+}
+
 	
 // update the worktree list
 exec("git worktree prune", () => {
