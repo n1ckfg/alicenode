@@ -22,15 +22,6 @@
         "condition_variable": "cpp",
         "thread": "cpp",
         "*.ipp": "cpp",
-<<<<<<< HEAD
-        "xlocmes": "cpp",
-        "deque": "cpp",
-        "queue": "cpp",
-        "vector": "cpp",
-        "xstring": "cpp"
-    },
-    "C_Cpp.dimInactiveRegions": false
-=======
         "algorithm": "cpp",
         "atomic": "cpp",
         "chrono": "cpp",
@@ -79,5 +70,4 @@
         "filesystem": "cpp",
         "codecvt": "cpp"
     }
->>>>>>> a27a3d4111112c0782c01be12bfdc225e979c5e5
 }
