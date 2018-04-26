@@ -46,7 +46,7 @@ let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 let worktreepath = path.join(client_path, "worktreeList.txt");
-
+let worktreeJSON = []; //list of worktrees in project_path
 
 
 //if alice is already running from a previous crash, then terminate it
@@ -103,7 +103,7 @@ switch (os.type) {
 		break;
 
 }
-
+pruneWorktree()
 function pruneWorktree() {
 	// update the worktree list
 	exec("git worktree prune", {cwd: project_path}, () => {
@@ -114,27 +114,10 @@ function pruneWorktree() {
 	})
 }
 
-function getWorktreeList() {
-		
-	//get the names of current worktrees
-	exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2", {cwd: project_path}, (stderr, err) => {
-		for (let i = 0; i < (err.toString().split('\n')).length; i++) {
-			let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
-			if (worktreeName !== undefined) {
-				console.log("worktrees: " + worktreeName)
-				fs.appendFile(worktreepath, worktreeName + "\n", function (err) {
-					if (err) {
-						console.log(err)                            
-					} else {
-						console.log("worktreeList.txt updated")
-						let list = err
-						return list;
-					}
-				}) 
-			}   
-		} 
-	}) 
-} 
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -288,6 +271,17 @@ wss.on('connection', function(ws, req) {
 
 	};
 
+		
+		//get the names of current worktrees
+		exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
+		
+			//send updated list to client
+			worktrees = err.replace(/\n/g, " ")
+			ws.send("worktreeList?" + JSON.stringify(worktrees))
+
+		}) 
+
+
 	sessions[per_session_data.id] = per_session_data;
 
 	console.log("server received a connection, new session " + per_session_data.id);
@@ -308,6 +302,7 @@ wss.on('connection', function(ws, req) {
 			exec("git worktree add --no-checkout " + message.replace("addWorktree ", "+"), (stdout, err, stderr) => {
 
 				getWorktreeList();
+				
 
 		
 			});

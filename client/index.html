@@ -254,8 +254,71 @@ function openSocket() {
                     });
                 break;
 
-               // case worktreeList:
+                case "worktreeList":
+                    //console.log(arg)
 
+                    console.log(arg)
+                    var options = arg;
+                    //html select element
+                    var sel = document.getElementById('userWorktree');
+                    //var length = select;
+
+                    //first clear the worktree items from select (so we don't add duplicates)
+                    for (i = 1; i < sel.length; i++) {
+                        sel.options[i] = null;
+                        }
+                    
+                        //TODO: got to figure out how to populate the select menu with the 'options' variable:
+                        
+                    // for (var i = 0; i < sel.options.length; i++) {
+                    //     var opt = document.createElement('option');
+                    //     opt.innerHTML = options[i];
+                    //     opt.value = options[i];
+                    //     sel.appendChild(opt);
+                    // }
+
+
+                    // var err = arg.split("\n");
+                    // //console.log()
+                    // var select = document.getElementById('userWorktree')
+                    // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+                
+
+                    //     err.foreach(function(element) {
+                    //     var x = document.getElementById("userWorktree");
+                    //     var option = document.createElement("option")
+                    //     option.text = (err);
+                    //     option.value = (err);
+                    //     x.add(option);
+                // for (let i = 0; i < err.split("\s").length; i++) {
+				// // let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+				// //if (err !== undefined) {	
+                //     console.log(err)
+                //     // for(var i = 0; i < options.length; i++) {
+                //     // options.foreach(function(element) {
+                //         var x = document.getElementById("userWorktree");
+                //         var option = document.createElement("option")
+                //         option.text = (err);
+                //         option.value = (err);
+                //         x.add(option);
+
+                //     // })
+
+
+                //  //   }  
+                // }
+                    //populate the userWorkTree drop-down menu
+                    // populateWorktreeMenu(arg)   
+                    
+                    
+                    // var options = JSON.parse(arg);
+                    // console.log("got it " + options )
+
+                       
+                    break;
+                 
+                 
+                
                     //populate the worktree drop-down with current list of worktrees
                 case "fps":
                 //	document.getElementById('fps').innerHTML = arg;
@@ -402,22 +465,44 @@ if (sessionStorage.echoServer) {
 function newBranch(){}
 openSocket();
 
+function populateWorktreeMenu(arg){
+    // var select = document.getElementById('userWorktree')
+    // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+    // var options = JSON.parse(arg);
+    // console.log("got it " + options )
+    // for(var i = 0; i < options.length; i++) {
+    // options.foreach(function(element) {
+    //     var x = document.getElementById("userWorktree");
+    //     var option = document.createElement("option")
+    //     option.text = (element);
+    //     option.value = (element);
+    //     x.add(option);
 
-//populate the userWorkTree drop-down menu
-var select = document.getElementById('selectElementId')
-// select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
-$.get('worktreeList.txt', function(data) {
-    worktreeList = data
-    var lines = data.split('\n');
-    for(var line = 0; line < lines.length; line++){
-        var x = document.getElementById("userWorktree");
-        var option = document.createElement("option")
-        option.text = (lines[line]);
-        option.value = (lines[line]);
-        x.add(option);
-        }
+    // })
 
-}, 'text');
+        
+    // var opt = options[i];
+    // var el = document.createElement("option)")
+    // el.textContent = opt;
+    // el.value = opt;
+    // select.appendChild(el);
+// }
+
+
+// $.get(arg, function(data) {
+//     worktreeList = data
+//     var lines = data.split('\n');
+//     for(var line = 0; line < lines.length; line++){
+//         var x = document.getElementById("userWorktree");
+//         var option = document.createElement("option")
+//         option.text = (lines[line]);
+//         option.value = (lines[line]);
+//         x.add(option);
+//         }
+
+// }, 'text');
+}
+
 
 function addWorktree(){
 
@@ -426,7 +511,7 @@ function addWorktree(){
 
 
         var txt;
-        var worktree = prompt("Please entre your worktree name", "(noSpacesPlease)");
+        var worktree = prompt("Please enter your worktree name", "(noSpacesPlease)");
         if (worktreeList.includes(worktree) == true){
 
         alert("provided worktree name already in use")
