@@ -636,7 +636,7 @@ let watcher = chokidar.watch(project_path, {ignored: project_path+"/.git" } );
 watcher
 .on('error', error => console.log(`Watcher error: ${error}`))
 .on('change', (filepath, stats) => {
-	console.log("changed", filepath);
+	//console.log("changed", filepath);
 	switch (path.extname(filepath)) {
 		case ".h":
 		case ".cpp":
@@ -670,7 +670,7 @@ watcher
 
 		} break;
 		default: {		
-			console.log(`File ${filepath} has been changed`);
+			//console.log(`File ${filepath} has been changed`);
 		}
 	}
 });

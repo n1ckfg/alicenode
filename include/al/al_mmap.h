@@ -183,4 +183,4 @@ struct Mmap {
 	}
 };
 
-#endif //AL_THREAD_H
+#endif //AL_MMAP_H

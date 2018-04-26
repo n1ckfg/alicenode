@@ -8,6 +8,7 @@
 #include "al/al_math.h"
 #include "al/al_gl.h"
 #include "al/al_time.h"
+#include "al/al_kinect2.h"
 
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
@@ -95,10 +96,9 @@ extern "C" AL_ALICE_EXPORT int frame() {
     alice.framecount++;
 	if (alice.isSimulating) alice.simTime += alice.dt;
     
-    alice.fpsAvg += 1./alice.dt;
+    alice.fpsAvg += 0.01*(1./alice.dt - alice.fpsAvg);
     if (alice.framecount % 60 == 0) {
-        //console.log("fps %f", alice.fpsAvg / 60.);
-        alice.fpsAvg = 0.;
+        console.log("fps %f", alice.fpsAvg);
     }
     
     // do we need to sleep?
@@ -123,6 +123,8 @@ extern "C" AL_ALICE_EXPORT int setup() {
 	if (glGetError() != GL_NO_ERROR) {
     	console.error("gl error before loading shader");
 	}
+
+	alice.cloudDevice.open();
 	
 	alice.t = glfwGetTime();
 	
@@ -282,6 +284,8 @@ int main(int argc, char ** argv) {
 	if (project_lib_path) {
 		closelib(project_lib_path);
 	}
+
+	alice.cloudDevice.close();
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
 	uv_close((uv_handle_t *)&stdin_pipe, NULL);

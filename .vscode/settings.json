@@ -21,6 +21,12 @@
         "cwctype": "cpp",
         "condition_variable": "cpp",
         "thread": "cpp",
-        "*.ipp": "cpp"
-    }
+        "*.ipp": "cpp",
+        "xlocmes": "cpp",
+        "deque": "cpp",
+        "queue": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp"
+    },
+    "C_Cpp.dimInactiveRegions": false
 }
