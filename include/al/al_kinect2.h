@@ -127,33 +127,34 @@ struct CloudDevice {
 
 #ifdef AL_USE_KINECT2_SDK
 	void run() {
-		console.log("starting capture with RGBD device");
+		console.log("ready to capture with RGBD device");
 		HRESULT hr = S_OK;
 		{
 			IDepthFrameSource* pDepthFrameSource = NULL;
 			IColorFrameSource* pColorFrameSource = NULL;
 			{
 				hr = device->get_DepthFrameSource(&pDepthFrameSource);
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 				hr = pDepthFrameSource->OpenReader(&m_pDepthFrameReader);
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 			
 				hr = device->get_CoordinateMapper(&m_mapper);
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 				hr = m_mapper->SubscribeCoordinateMappingChanged(&m_coordinateMappingChangedEvent); // TODO
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 			}
 			if (use_colour) {
 				hr = device->get_ColorFrameSource(&pColorFrameSource);
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 				hr = pColorFrameSource->OpenReader(&m_pColorFrameReader);
-				if (FAILED(hr)) { console.log("failed"); return; }
+				if (FAILED(hr)) { console.log("KINECT failed"); return; }
 				
 			}
 			SafeRelease(pDepthFrameSource);
 			SafeRelease(pColorFrameSource);
 		}
 
+		console.log("starting capture with RGBD device");
 		capturing = 1;
 		FPS fps;
 		while (capturing) {
