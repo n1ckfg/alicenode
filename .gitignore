@@ -2,7 +2,8 @@
 alice
 alice.exe
 
-
+#IDE_workspace
+alicenode.code-workspace
 
 #pesky .DS_Store
 *.DS_Store
