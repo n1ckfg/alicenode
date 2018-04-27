@@ -68,7 +68,7 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 				// space toggles simulating
 				alice.isSimulating = !alice.isSimulating;
 				if (alice.isSimulating) {
-					isRendering = true; // enabling simulation automatically enables rendering
+					alice.isRendering = true; // enabling simulation automatically enables rendering
 				}
 			}
 		}
