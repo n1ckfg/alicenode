@@ -139,8 +139,6 @@ extern "C" AL_ALICE_EXPORT int setup() {
 	if (glGetError() != GL_NO_ERROR) {
     	console.error("gl error before loading shader");
 	}
-
-	alice.cloudDevice->open();
 	
 	alice.t = glfwGetTime();
 	
@@ -264,6 +262,9 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 }
 
 int main(int argc, char ** argv) {
+
+	// initialize the clock:
+	al_now();
 
 	for (int i=0; i<argc; i++) {
 		printf("arg %d %s\n", i, argv[i]);

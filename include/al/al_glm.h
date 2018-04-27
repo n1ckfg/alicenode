@@ -1,5 +1,5 @@
-#ifndef al_math_h
-#define al_math_h
+#ifndef AL_GLM_H
+#define AL_GLM_H
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -165,7 +165,7 @@ inline glm::tquat<T, P> safe_normalize (glm::tquat<T, P> const &v) {
 	}
 }
 
-#endif
+#endif // AL_GLM_H
 
 
 /*
