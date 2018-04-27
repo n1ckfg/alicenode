@@ -282,8 +282,16 @@ wss.on('connection', function(ws, req) {
 		exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
 		
 			//send updated list to client
-			worktrees = err.replace(/\n/g, " ")
-			ws.send("worktreeList?" + JSON.stringify(worktrees))
+			err = err.split(/\n/g).filter(String)
+			// worktrees = [];
+			        // err.forEach(function(element) {
+					// console.log("test " + element)
+					// worktrees.push(element)
+					// })
+					//console.log(element)
+					// console.log(Array.isArray(err))
+					// console.log(typeof err[1])
+			ws.send("worktreeList?" + JSON.stringify(err))
 
 		}) 
 
@@ -501,7 +509,8 @@ wss.on('connection', function(ws, req) {
 									committer_name: line[4] ? line[4].split(", ") : [],
 									//commit's message
 									commit_msg: line[5] ? line[5].split(", ") : [],
-									commit_files: line[6] ? line[6].split(", ") : []
+									//list the files and change stats associated with each commit
+									commit_files: line[6] ? line.slice(6) : []
 								};
 								// if this commit hasn't been encountered as a child yet,
 								// it must have no parent in the graph:

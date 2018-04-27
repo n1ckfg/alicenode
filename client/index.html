@@ -253,21 +253,39 @@ function openSocket() {
                     $( "#gitgraph" ).resizable();
                     });
                 break;
-
+                    
+                //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
                 case "worktreeList":
-                    //console.log(arg)
-
                     console.log(arg)
-                    var options = arg;
+                    //console.log(arg)
+                    //var names = arg
                     //html select element
                     var sel = document.getElementById('userWorktree');
                     //var length = select;
-
+                    
                     //first clear the worktree items from select (so we don't add duplicates)
                     for (i = 1; i < sel.length; i++) {
                         sel.options[i] = null;
                         }
+                    // console.log(arg.length)
+                    // for (var i = 0, len = arg.length; i < len; i++) {
+                    // console.log(arg.[i])
+                    // }
+                                        //PLO
+                    // arg.forEach(function(element) {
+                    // console.log("test " + element)
+                    // })
+                    // console.log(names)
                     
+                    // var iterator = arg.values();
+                    // for (let letter of iterator) {
+                    //     console.log(letter)
+                    // }
+                    
+
+
+
+
                         //TODO: got to figure out how to populate the select menu with the 'options' variable:
                         
                     // for (var i = 0; i < sel.options.length; i++) {
