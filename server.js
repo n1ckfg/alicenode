@@ -54,7 +54,7 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
-/*
+/* keep this commented out for now: added this to the start.js script in the 'crash' section. make sure that works before removing this here. 
 switch (os.type) {
 
 	case "Darwin":
@@ -149,6 +149,7 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 		project_build();
 	} catch (e) {
 		console.error("ERROR", e.message);
+		//do a git commit with a note about it being a failed build. 
 	}
 }
 
