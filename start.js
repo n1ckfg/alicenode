@@ -5,7 +5,7 @@ const { exec, spawn, fork } = require('child_process');
 const nodemon = require('nodemon');
 const app = "server.js";
 var terminate = require('terminate');
-
+const os = require("os");
 const find = require('find-process');
 
 nodemon({ script: app });
