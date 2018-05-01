@@ -12,6 +12,7 @@
 #include "al/al_kinect2.h"
 
 #include <string>
+#include <map>
 
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
@@ -265,17 +266,50 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 	}
 }
 
-void file_changed_event(uv_fs_event_t *handle, const char *filename, int events, int status) {
-    char path[1024];
-    size_t size = 1023;
-    // Does not handle error if path is longer than 1023.
-    uv_fs_event_getpath(handle, path, &size);
-    path[size] = '\0';
+// a lookup table from file name to last modification date
+// used to filter out double-events in the file watcher
+std::map<std::string, double> modtimes;
 
-    fprintf(stderr, "Change detected in %s: %s\n", path, filename);
-    //if (events & UV_RENAME) fprintf(stderr, "renamed \n");
+void file_changed_event(uv_fs_event_t *handle, const char *filename, int events, int status) {
+    // recover the path we were watching from:
+	//char path[1024];
+    //size_t size = 1023;
+    // Does not handle error if path is longer than 1023.
+    //uv_fs_event_getpath(handle, path, &size); // this tells us what path we were originally registered for interest in
+    //path[size] = '\0';
+
+	//if (events & UV_RENAME) fprintf(stderr, "renamed \n");
     //if (events & UV_CHANGE) fprintf(stderr, "changed \n");
 
+	// for some reason, on Windows at least, the filename comes preceded by a slash
+	std::string name = al_fs_strip_pre_slash(filename);
+
+	double modified = al_fs_modified(name);
+	std::string ext = al_fs_extension(filename);
+
+	// filter out double-notification events:
+	auto search = modtimes.find(name);
+	if (search != modtimes.end() && search->second == modified) {
+		// skip this event, since the same file has already triggered an event with the same timestamp
+		return;
+	}
+	// update our last-modified cache:
+	modtimes[name] = modified;
+
+	fprintf(stderr, "Change detected in %s\n", name.c_str());
+
+	// emit an event?
+
+	if (ext == ".glsl") {
+		// shader mods should always do this:
+		alice.onReloadGPU.emit();
+	} else if (ext == ".cpp" || ext == ".h") {
+		// trigger rebuild...
+	}  else if (ext == ".dll" || ext == ".dylib") {
+		// trigger reload...
+	}
+
+	alice.onFileChange.emit(name);
 }
 
 int main(int argc, char ** argv) {

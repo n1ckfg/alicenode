@@ -15,9 +15,16 @@
 #define AL_FILE_DELIMITER (AL_FILE_DELIMITER_STR[0])
 
 // remove trailing slash from a path string
-std::string al_fs_stripslash(const std::string& path){
+std::string al_fs_strip_post_slash(const std::string& path){
 	if (path.back() == '\\' || path.back() == '/'){
 		return path.substr(0, path.size()-1);
+	}
+	return path;
+}
+
+std::string al_fs_strip_pre_slash(const std::string& path){
+	if (path.front() == '\\' || path.front() == '/'){
+		return path.substr(1, path.size());
 	}
 	return path;
 }
@@ -161,12 +168,12 @@ std::string al_fs_absolute(const std::string& path) {
 
 bool al_fs_exists(const std::string& path){
 	struct stat s;
-	return ::stat(al_fs_stripslash(path).c_str(), &s) == 0;
+	return ::stat(al_fs_strip_post_slash(path).c_str(), &s) == 0;
 }
 
 bool al_fs_isDirectory(const std::string& path){
 	struct stat s;
-	if(0 == ::stat(al_fs_stripslash(path).c_str(), &s)){	// exists?
+	if(0 == ::stat(al_fs_strip_post_slash(path).c_str(), &s)){	// exists?
 		if(s.st_mode & S_IFDIR){		// is dir?
 			return true;
 		}
