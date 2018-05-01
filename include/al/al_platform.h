@@ -30,4 +30,12 @@
     #define AL_ALICE_EXPORT
 #endif
 
+bool isPlatformWindows() {
+    #ifdef AL_WIN
+    return true;
+    #else
+    return false;
+    #endif
+}
+
 #endif // AL_PLATFORM_H

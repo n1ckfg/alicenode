@@ -238,9 +238,10 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 					if (iq != std::string::npos) {
 						std::string command = msg.substr(0,iq);
 						std::string arg = msg.substr(iq+1,nread-iq-1);
-						//printf("command: %s arg: %s.\n", command.data(), arg.data());
+						printf("command: %s arg: %s.\n", command.data(), arg.data());
 			
 						if (command == "closelib") {
+							console.log("closing lib %s", arg.data());
 							closelib(arg.data());
 						} else if (command == "openlib") {
 							openlib(arg.data());
