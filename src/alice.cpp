@@ -153,6 +153,9 @@ extern "C" AL_ALICE_EXPORT int setup() {
 }
 
 extern "C" AL_ALICE_EXPORT int closelib(const char * libpath) {
+
+	console.log("closing lib %s", libpath);
+
 	int res = 0;
 	if (lib_handle) {
 		quitfun_t quitfun = 0;
@@ -171,18 +174,23 @@ extern "C" AL_ALICE_EXPORT int closelib(const char * libpath) {
 		#ifdef AL_WIN
 			if (FreeLibrary(lib_handle) == 0) {
 				fprintf(stderr, "%s\n", GetLastErrorAsString());
+				return res;
 			}
 		#else
 			if (dlclose(lib_handle) != 0) {
 				fprintf(stderr, "%s\n", dlerror());
+				return res;
 			}
 		#endif
 		lib_handle = 0;
+
+		console.log("closed lib %s", libpath);
 	}
 	return res;
 }
 
 extern "C" AL_ALICE_EXPORT int openlib(const char * libpath) {
+	console.log("opening lib %s", libpath);
 	initfun_t initfun = 0;
 	#ifdef AL_WIN
 		lib_handle = LoadLibraryA(libpath);
@@ -245,7 +253,6 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 						printf("command: %s arg: %s.\n", command.data(), arg.data());
 			
 						if (command == "closelib") {
-							console.log("closing lib %s", arg.data());
 							closelib(arg.data());
 						} else if (command == "openlib") {
 							openlib(arg.data());
@@ -305,8 +312,21 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		alice.onReloadGPU.emit();
 	} else if (ext == ".cpp" || ext == ".h") {
 		// trigger rebuild...
+
+		// first unload the lib:
+		if (!project_lib_path.empty()) {
+			closelib(project_lib_path.c_str());
+		}
+
+		// TODO: run build.bat
+
 	}  else if (ext == ".dll" || ext == ".dylib") {
 		// trigger reload...
+		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
+
+		if (name == project_lib_path) {
+			openlib(project_lib_path.c_str());
+		}
 	}
 
 	alice.onFileChange.emit(name);
@@ -381,6 +401,9 @@ int main(int argc, char ** argv) {
 	setbuf(stderr, NULL);
 
 	setup();
+
+	//alice.cloudDevice->record(1);
+	alice.cloudDevice->open();
 	
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
