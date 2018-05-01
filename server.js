@@ -703,15 +703,6 @@ watcher
 			//git_add_and_commit();
 			
 		} break;
-		case ".glsl": {
-			
-			// first, reload GPU resources:
-			alice_command("reloadgpu", "");
-
-			// then, commit to git:
-			//git_add_and_commit();
-
-		} break;
 		default: {		
 			//console.log(`File ${filepath} has been changed`);
 		}
