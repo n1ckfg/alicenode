@@ -3,8 +3,8 @@
 
 #ifdef _MSC_VER
     #define AL_WIN
-    //#define WIN32_LEAN_AND_MEAN
-    //#define VC_EXTRALEAN
+    #define WIN32_LEAN_AND_MEAN
+    #define VC_EXTRALEAN
     #include <Windows.h>
     #define AL_EXPORT __declspec(dllexport)
     

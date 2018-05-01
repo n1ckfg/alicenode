@@ -27,9 +27,12 @@ Alice& Alice::Instance() {
 std::string runtime_path;
 std::string runtime_support_path;
 std::string project_lib_path;
+std::string project_path;
 
 uv_loop_t uv_main_loop;
 uv_pipe_t stdin_pipe;
+
+uv_fs_event_t fs_event_req;
 
 Window window;
 bool isFullScreen = 0;
@@ -262,6 +265,19 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 	}
 }
 
+void file_changed_event(uv_fs_event_t *handle, const char *filename, int events, int status) {
+    char path[1024];
+    size_t size = 1023;
+    // Does not handle error if path is longer than 1023.
+    uv_fs_event_getpath(handle, path, &size);
+    path[size] = '\0';
+
+    fprintf(stderr, "Change detected in %s: %s\n", path, filename);
+    //if (events & UV_RENAME) fprintf(stderr, "renamed \n");
+    //if (events & UV_CHANGE) fprintf(stderr, "changed \n");
+
+}
+
 int main(int argc, char ** argv) {
 
 	// initialize the clock:
@@ -276,7 +292,7 @@ int main(int argc, char ** argv) {
 
 	// process the args:
 	// arg[0] is the path of the runtime
-	if (argc > 0) runtime_path = al_dirname(std::string(argv[0]));
+	if (argc > 0) runtime_path = al_fs_dirname(std::string(argv[0]));
 #ifdef AL_WIN
 	runtime_support_path = runtime_path + "/support/win64";
 #else
@@ -310,11 +326,17 @@ int main(int argc, char ** argv) {
 		uv_fs_req_cleanup(&scandir_req);
 	}
 
-	alice.hmd = new Hmd;
-	alice.cloudDevice = new CloudDevice;
-
 	// arg[1] is the path to the lib
 	if (argc > 1) project_lib_path = argv[1];
+	project_path = al_fs_dirname(project_lib_path);
+
+	// watch for changes on files:
+	uv_fs_event_init(&uv_main_loop, &fs_event_req);
+	// The recursive flag watches subdirectories too.
+    uv_fs_event_start(&fs_event_req, file_changed_event, project_path.c_str(), UV_FS_EVENT_RECURSIVE);
+
+	alice.hmd = new Hmd;
+	alice.cloudDevice = new CloudDevice;
 
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
