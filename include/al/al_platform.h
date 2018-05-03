@@ -38,4 +38,12 @@ bool isPlatformWindows() {
     #endif
 }
 
+template<typename T, typename U> constexpr size_t al_offsetof(U T::*member) {
+    return (char*)&((T*)nullptr->*member) - (char*)nullptr;
+}
+
+template<typename T, typename U> constexpr size_t al_sizeof(U T::*member) {
+    return sizeof((T*)nullptr->*member);
+}
+
 #endif // AL_PLATFORM_H
