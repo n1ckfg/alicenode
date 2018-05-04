@@ -303,6 +303,7 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// update our last-modified cache:
 	modtimes[name] = modified;
 
+	//TODO: how to ignore changes made in .git folder! this seems to be causing alice to exit see code 3221225477
 	fprintf(stderr, "Change detected in %s\n", name.c_str());
 
 	// emit an event?
