@@ -147,11 +147,13 @@ struct CloudDevice {
 			if (filename.empty()) return false;
 
 			recordFD = fopen(filename.c_str(), "wb");
+			return true;
 
 		} else {
 			// I guess this might be bad if currently writing a frame?
 			if (recordFD) fclose(recordFD);
 			recordFD = 0;
+			return true;
 		}
 	}
 

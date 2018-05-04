@@ -87,7 +87,10 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	case GLFW_KEY_ESCAPE: {
 		isThreadsDone = 1;
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
+		if (shift) exit(-1); // Shift-Esc forces a "crash", useful for debugging
 	} break;
+
+
 	//default:
 	}
 	
