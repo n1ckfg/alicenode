@@ -223,49 +223,24 @@ struct VAO {
 };
 
 struct Shader {
-	GLuint program;
-	
-	static Shader * fromFiles(std::string vertPath, std::string fragPath, std::string geomPath="") {
-		console.log("shader loading %s %s", vertPath.c_str(), fragPath.c_str());
-        std::string vCode, fCode, gCode;
-		std::ifstream vFile, fFile, gFile;
-        // ensure ifstream objects can throw exceptions:
-        vFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        fFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        gFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        try {
-            // open files
-            vFile.open(vertPath);
-            fFile.open(fragPath);
-            std::stringstream vStream, fStream;
-            // read file's buffer contents into streams
-            vStream << vFile.rdbuf();
-            fStream << fFile.rdbuf();		
-            // close file handlers
-            vFile.close();
-            fFile.close();
-            // convert stream into string
-            vCode = vStream.str();
-            fCode = fStream.str();			
-            // if geometry shader path is present, also load a geometry shader
-            if(!geomPath.empty())
-            {
-                gFile.open(geomPath);
-                std::stringstream gStream;
-                gStream << gFile.rdbuf();
-                gFile.close();
-                gCode = gStream.str();
-            }
-        } catch (std::ifstream::failure e) {
-            console.error("shader file read failed");
-            return NULL;
-        }
-        return new Shader(vCode, fCode, gCode);
+	GLuint program = 0;
+
+	std::string vertCode = "";
+    std::string fragCode = "";
+    std::string geomCode = "";
+
+	// constructor just applies the code strings
+	Shader(std::string vertCode = "", std::string fragCode = "", std::string geomCode = "") 
+		: vertCode(vertCode), fragCode(fragCode), geomCode(geomCode) 
+		{}
+
+	~Shader() {
+		dest_closing();
 	}
 	
-	Shader(	std::string vertCode,
-        	std::string fragCode,
-       		std::string geomCode = "") {
+	void dest_changed() {
+
+		dest_closing();
        	
        	GLuint vid, fid, gid=0;
        	
@@ -302,9 +277,21 @@ struct Shader {
         glDeleteShader(fid);
         if(gid > 0) glDeleteShader(gid);
     }
+
+	void dest_closing() {
+		if (program) {
+			glDeleteProgram(program);
+			program = 0;
+		}
+	}
     
-    void use() { glUseProgram(program); }
-    static void unuse() { glUseProgram(0); } 
+    void use() { 
+		if (!program) dest_changed();
+		if (program) glUseProgram(program); 
+	}
+    static void unuse() { 
+		glUseProgram(0); 
+	} 
     
     void uniform(const std::string &name, bool value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), (int)value); }
     void uniform(const std::string &name, int value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), value); }
@@ -340,6 +327,44 @@ struct Shader {
             }
         }
     }
+
+	void readFiles(std::string vertPath, std::string fragPath, std::string geomPath="") {
+		console.log("shader loading %s %s", vertPath.c_str(), fragPath.c_str());
+        std::string vCode, fCode, gCode;
+		std::ifstream vFile, fFile, gFile;
+        // ensure ifstream objects can throw exceptions:
+        vFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        fFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        gFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        try {
+            // open files
+            vFile.open(vertPath);
+            fFile.open(fragPath);
+            std::stringstream vStream, fStream;
+            // read file's buffer contents into streams
+            vStream << vFile.rdbuf();
+            fStream << fFile.rdbuf();		
+            // close file handlers
+            vFile.close();
+            fFile.close();
+            // convert stream into string
+            vertCode = vStream.str();
+            fragCode = fStream.str();	
+            // if geometry shader path is present, also load a geometry shader
+            if(!geomPath.empty())
+            {
+                gFile.open(geomPath);
+                std::stringstream gStream;
+                gStream << gFile.rdbuf();
+                gFile.close();
+                geomCode = gStream.str();
+            }
+			// make sure the next use of the shader uses the new code:
+			dest_closing();
+        } catch (std::ifstream::failure e) {
+            console.error("shader file read failed");
+        }
+	}
 };
 
 struct SimpleTexture3D {
