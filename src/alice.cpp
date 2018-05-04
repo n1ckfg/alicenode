@@ -98,7 +98,6 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 
 
 extern "C" AL_ALICE_EXPORT int frame() {
-	static float c = 1;
 
 	Alice& alice = Alice::Instance();
 	double tbegin = glfwGetTime();

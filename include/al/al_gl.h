@@ -230,7 +230,7 @@ struct Shader {
     std::string geomCode = "";
 
 	// constructor just applies the code strings
-	Shader(std::string vertCode = "", std::string fragCode = "", std::string geomCode = "") 
+	Shader(std::string vertCode = defaultVertexCode(), std::string fragCode = defaultFragmentCode(), std::string geomCode = "") 
 		: vertCode(vertCode), fragCode(fragCode), geomCode(geomCode) 
 		{}
 
@@ -364,6 +364,34 @@ struct Shader {
         } catch (std::ifstream::failure e) {
             console.error("shader file read failed");
         }
+	}
+
+	static const char * defaultVertexCode() {
+		return R"(
+			#version 330 core
+			layout (location = 0) in vec2 aPos;
+			layout (location = 1) in vec2 aTexCoord;
+			
+			out vec2 texCoord;
+			
+			void main() {
+				gl_Position = vec4(aPos, 0., 1.0);
+				texCoord = aTexCoord;
+			}
+		)";
+	}
+	static const char * defaultFragmentCode() {
+		return R"(
+			#version 330 core
+			out vec4 FragColor;
+			in vec2 texCoord;
+			uniform sampler2D tex;
+
+							void main() {
+				//FragColor = vec4(texCoord, 0.5, 1.);
+				FragColor = texture(tex, texCoord);
+			}
+		)";
 	}
 };
 
