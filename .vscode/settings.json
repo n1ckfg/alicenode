@@ -69,5 +69,7 @@
         "xtree": "cpp",
         "filesystem": "cpp",
         "codecvt": "cpp"
-    }
+    },
+    "editor.wordWrap": "on",
+    "editor.wrappingIndent": "indent"
 }
