@@ -138,7 +138,7 @@ bool al_fs_isDirectory(const std::string& path){
 // returns file modification date
 double al_fs_modified(const std::string path) {
 	struct stat s;
-	if(::stat(path().c_str(), &s) == 0){
+	if(::stat(path.c_str(), &s) == 0){
 		return s.st_mtime;
 	}
 	return 0.;
@@ -146,7 +146,7 @@ double al_fs_modified(const std::string path) {
 
 double al_fs_accessed(const std::string path) {
 	struct stat s;
-	if(::stat(path().c_str(), &s) == 0){
+	if(::stat(path.c_str(), &s) == 0){
 		return s.st_atime;
 	}
 	return 0.;
@@ -154,7 +154,7 @@ double al_fs_accessed(const std::string path) {
 
 size_t al_fs_size(const std::string path) {
 	struct stat s;
-	if(::stat(path().c_str(), &s) == 0){
+	if(::stat(path.c_str(), &s) == 0){
 		return s.st_size;
 	}
 	return 0;
