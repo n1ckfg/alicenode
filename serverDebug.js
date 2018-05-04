@@ -711,11 +711,12 @@ watcher
 
 ///////////////////////////////////////////////////////////////
 
-
 // Run the code-forensics webserver: 
-//TODO: something that pulls through cli args without needing the specific arg's location
 function codeForensics(){
-    if (process.argv[3] == "--forensics") {
-    exec('gulp webserver', {cwd: __dirname});
-    }
+if (process.argv[3] == "--forensics") {
+exec('gulp webserver', {cwd: __dirname});
+
 }
+
+}
+

@@ -31,14 +31,14 @@
     <!-- scripts -->
     <script src="js/jquery-3.3.1.js"></script>
     <script src="js/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
-    <script type="text/javascript" src="js/jquery.color.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/jquery.graphviz.svg.js"></script>
+    <script src="js/jquery.mousewheel.min.js"></script>
+    <script src="js/jquery.color.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.graphviz.svg.js"></script>
 
 
-<!-- temp fix for the 'cannot find 'favicon.ico' error -->
-    <link rel="shortcut icon" href="">
+<!-- temp fix for the 'cannotç find 'favicon.ico' error -->
+    <link rel="shortcut icon">
 
 
 <!--        HTML UI Elements        -->
@@ -73,24 +73,32 @@ Editor Settings
 <div id="container">
     <div id="view"></div>
     <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
-    </section>
 </div>
 <p>
 
 <!-- TODO: mouseover a node puts the commit detail into this hedaing: -->
-<h3 id="commit_detail"></h3>
 
 <!-- server messages -->
 <div id="serverMessages">
     <ul id="messages"></ul>
+    <ul id="commit_detail">Commit Details</h3>
 </div>
+
 
 
 <!-- Client interaction with the git commit nodes -->
 <script type="text/ecmascript">
   
       function mouseEnterCommit(evt) {
+        var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
+        
+        console.log(details)
         evt.target.setAttributeNS(null,"opacity","0.5");
+        var li = document.createElement('li');
+        li.innerHTML = evt;
+        var list = document.getElementById('commit_detail');
+        list.insertBefore(li, list.childNodes[0]);
+
         //console.log(evt.target.ref)
       }
       
@@ -113,6 +121,8 @@ Editor Settings
 
            // sendRightCode("hash?" + evt.target.id);
       }
+
+
 </script>
 
 <script>
@@ -684,7 +694,7 @@ function make_svg_from_commits(graph) {
     for (var i in commits) {
         let commit = commits[i];
         // add a svg element for each commit:
-        svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_files.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`);
+        svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)" onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_files.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`);
     }
 
     // wrap the svg commands in an svg element, and return:
