@@ -3,8 +3,8 @@
 
 #ifdef _MSC_VER
     #define AL_WIN
-    //#define WIN32_LEAN_AND_MEAN
-    //#define VC_EXTRALEAN
+    #define WIN32_LEAN_AND_MEAN
+    #define VC_EXTRALEAN
     #include <Windows.h>
     #define AL_EXPORT __declspec(dllexport)
     
@@ -29,5 +29,21 @@
     #define AL_EXPORT
     #define AL_ALICE_EXPORT
 #endif
+
+bool isPlatformWindows() {
+    #ifdef AL_WIN
+    return true;
+    #else
+    return false;
+    #endif
+}
+
+template<typename T, typename U> constexpr size_t al_offsetof(U T::*member) {
+    return (char*)&((T*)nullptr->*member) - (char*)nullptr;
+}
+
+template<typename T, typename U> constexpr size_t al_sizeof(U T::*member) {
+    return sizeof((T*)nullptr->*member);
+}
 
 #endif // AL_PLATFORM_H

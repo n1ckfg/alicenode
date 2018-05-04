@@ -63,6 +63,165 @@ bool fbo_check() {
 	return true;
 }
 
+template<typename T>   // primary template
+GLenum gl_type();
+
+template<> GLenum gl_type<double>() { return GL_DOUBLE; }
+template<> GLenum gl_type<float>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::vec2>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::vec3>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::vec4>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::quat>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::mat2>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::mat3>() { return GL_FLOAT; }
+template<> GLenum gl_type<glm::mat4>() { return GL_FLOAT; }
+
+size_t gl_type_size(GLenum t) {
+	switch(t) {
+		case GL_FLOAT:
+		case GL_INT:
+		case GL_UNSIGNED_INT: return sizeof(int32_t);
+
+		case GL_DOUBLE: return sizeof(double);
+
+		case GL_SHORT:
+		case GL_UNSIGNED_SHORT: return sizeof(int16_t);
+
+		case GL_BYTE:
+		case GL_UNSIGNED_BYTE: 
+		default: return sizeof(int8_t);
+	}
+}
+
+
+/*
+	Typical usage:
+
+	// size in bytes of the underlying data
+	VBO vbo(size);
+	VBO vbo(size, ptr); // alloc with data too
+	// or:
+	VBO vbo;
+	vbo.resize(size);
+	vbo.submit(ptr);
+	// or 
+	vbo.submit(ptr, size);
+*/
+struct VBO {
+	unsigned int id = 0;
+	size_t size = 0;
+	void * src = 0;
+
+	VBO() {}
+	VBO(size_t size, void * src=NULL) : size(size), src(src) {}
+
+	void dest_changed() {
+		if (size <= 0) {
+			console.error("VBO size not yet declared, cannot allocate");
+			return;
+		}
+		dest_closing();
+		glGenBuffers(1, &id);
+		submit();
+		unbind();
+	}
+
+	void dest_closing() {
+		if (id) {
+			glDeleteBuffers(1, &id);
+			id = 0;
+		}
+	}
+
+	void bind() { 
+		if (!id) dest_changed();
+		glBindBuffer(GL_ARRAY_BUFFER, id); 
+	}
+	void unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+
+	void resize(size_t s) {
+		if (s > size) dest_closing();
+		size = s;
+	}
+
+	// submit() will re-use any existing data
+	// submit(ptr) will update the cached data
+	void submit(void * data = NULL, size_t s=0) {
+		if (data) src=data;
+		if (s) resize(s);
+		bind();
+		glBufferData(GL_ARRAY_BUFFER, size, src, GL_STATIC_DRAW);
+	}
+};
+
+/*
+	A Vertex Array Object (VAO) helps match the components of VBOs to the attributes of Shaders
+
+	Usage:
+
+	VAO vao;
+
+	vao.bind();
+	vbo.bind();
+	// set up attrs
+	vao.attr(...);
+	vao.unbind();
+
+	vao.draw(n);
+	or
+	vao.drawInstanced(n, m);
+*/	
+struct VAO {
+	unsigned int id = 0;
+
+	void bind() { 
+		if (!id) dest_changed();
+		glBindVertexArray(id); 
+	}
+	void unbind() { glBindVertexArray(0); }
+
+	void dest_closing() {
+		if (id) {
+			glDeleteVertexArrays(1, &id);
+			id = 0;
+		}
+	}
+
+	void dest_changed() {
+		dest_closing();
+		glGenVertexArrays(1, &id);
+	}
+
+	// assumes vao and vbo are already bound
+	void attr(GLuint location=0, GLint size=3, GLenum type=GL_FLOAT, size_t stride=3*sizeof(float), size_t offset=0, bool instanced=false) {
+		// assumes vao and vbo are already bound
+		glEnableVertexAttribArray(location);
+		// set the data layout
+		glVertexAttribPointer(location, size, type, GL_FALSE, stride, (void*)offset); 
+		// mark this attrib as being per-instance	
+		if (instanced) glVertexAttribDivisor(location, 1);  
+	}
+
+	// assumes vao and vbo are already bound
+	template<typename T, typename U> 
+	void attr(GLuint location, U T::*member, bool instanced=false) {
+		GLenum type = gl_type<U>();
+		attr(location, al_sizeof(member) / gl_type_size(type), type, sizeof(T), al_offsetof(member), instanced);
+	}
+
+	void draw(size_t numvertices, GLenum primitive=GL_TRIANGLES) {
+		bind();
+		// draw instances:
+		glDrawArrays(primitive, 0, numvertices); 
+	}
+	
+	void drawInstanced(size_t numvertices, size_t numinstances, GLenum primitive=GL_TRIANGLES) {
+		bind();
+		// draw instances:
+		glDrawArraysInstanced(primitive, 0, numvertices, numinstances); 
+	}
+};
+
 struct Shader {
 	GLuint program;
 	
@@ -255,6 +414,56 @@ struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 texcoord;
+};
+
+float positions_cube[] = {
+    -1.0f,-1.0f,-1.0f, 
+    -1.0f,-1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f, 
+    
+    1.0f, 1.0f,-1.0f, 
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f, 
+    
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    
+    1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    
+    -1.0f, 1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f,-1.0f,
+    
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f,
+    
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f
 };
 
 struct SimpleMesh {

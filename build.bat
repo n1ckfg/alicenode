@@ -16,7 +16,8 @@ src/alice.cpp ^
 /link /LTCG ^
 /WHOLEARCHIVE:lib\win64\lib-vc2017\libuv.lib ^
 /WHOLEARCHIVE:lib/win64/lib-vc2017/glfw3.lib ^
-"%KINECTSDK20_DIR%\lib\x64\kinect20.lib" lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib gdi32.lib advapi32.lib iphlpapi.lib psapi.lib userenv.lib ws2_32.lib opengl32.lib
+lib/win64/SpoutLibrary.lib ^
+"%KINECTSDK20_DIR%\lib\x64\kinect20.lib" lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib shlwapi.lib gdi32.lib advapi32.lib iphlpapi.lib psapi.lib userenv.lib ws2_32.lib opengl32.lib
 
 
 @del alice.obj alice.exp

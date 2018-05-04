@@ -128,13 +128,12 @@ function pruneWorktree() {
 
 // BUILD PROJECT
 function project_build() {
-	
-	let out = process.platform == "win32"
-		? execSync('build.bat "'+server_path+'"') 
-		: execSync('sh build.sh "'+server_path+'"', (stdout, stderr, err) => {
-			// console.log("\n\n\n\n\n " + stdout + err + stderr)
-
-		});
+	let out = "";
+	if (process.platform == "win32") {
+		out = execSync('build.bat "'+server_path+'"', { stdio:'inherit'});
+	} else {
+		out = execSync('sh build.sh "'+server_path+'"', { stdio:'inherit'});
+	}
 	console.log("built project", out.toString());
 }
 
@@ -703,15 +702,6 @@ watcher
 			// then, commit to git:
 			//git_add_and_commit();
 			
-		} break;
-		case ".glsl": {
-			
-			// first, reload GPU resources:
-			alice_command("reloadgpu", "");
-
-			// then, commit to git:
-			//git_add_and_commit();
-
 		} break;
 		default: {		
 			//console.log(`File ${filepath} has been changed`);

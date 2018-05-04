@@ -12,6 +12,7 @@
 #include "al/al_kinect2.h"
 
 #include <string>
+#include <map>
 
 typedef int (*initfun_t)(void);
 typedef int (*quitfun_t)(void);
@@ -27,9 +28,12 @@ Alice& Alice::Instance() {
 std::string runtime_path;
 std::string runtime_support_path;
 std::string project_lib_path;
+std::string project_path;
 
 uv_loop_t uv_main_loop;
 uv_pipe_t stdin_pipe;
+
+uv_fs_event_t fs_event_req;
 
 Window window;
 bool isFullScreen = 0;
@@ -149,6 +153,9 @@ extern "C" AL_ALICE_EXPORT int setup() {
 }
 
 extern "C" AL_ALICE_EXPORT int closelib(const char * libpath) {
+
+	console.log("closing lib %s", libpath);
+
 	int res = 0;
 	if (lib_handle) {
 		quitfun_t quitfun = 0;
@@ -167,18 +174,23 @@ extern "C" AL_ALICE_EXPORT int closelib(const char * libpath) {
 		#ifdef AL_WIN
 			if (FreeLibrary(lib_handle) == 0) {
 				fprintf(stderr, "%s\n", GetLastErrorAsString());
+				return res;
 			}
 		#else
 			if (dlclose(lib_handle) != 0) {
 				fprintf(stderr, "%s\n", dlerror());
+				return res;
 			}
 		#endif
 		lib_handle = 0;
+
+		console.log("closed lib %s", libpath);
 	}
 	return res;
 }
 
 extern "C" AL_ALICE_EXPORT int openlib(const char * libpath) {
+	console.log("opening lib %s", libpath);
 	initfun_t initfun = 0;
 	#ifdef AL_WIN
 		lib_handle = LoadLibraryA(libpath);
@@ -238,7 +250,7 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 					if (iq != std::string::npos) {
 						std::string command = msg.substr(0,iq);
 						std::string arg = msg.substr(iq+1,nread-iq-1);
-						//printf("command: %s arg: %s.\n", command.data(), arg.data());
+						printf("command: %s arg: %s.\n", command.data(), arg.data());
 			
 						if (command == "closelib") {
 							closelib(arg.data());
@@ -261,6 +273,65 @@ void read_stdin(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
 	}
 }
 
+// a lookup table from file name to last modification date
+// used to filter out double-events in the file watcher
+std::map<std::string, double> modtimes;
+
+void file_changed_event(uv_fs_event_t *handle, const char *filename, int events, int status) {
+    // recover the path we were watching from:
+	//char path[1024];
+    //size_t size = 1023;
+    // Does not handle error if path is longer than 1023.
+    //uv_fs_event_getpath(handle, path, &size); // this tells us what path we were originally registered for interest in
+    //path[size] = '\0';
+
+	//if (events & UV_RENAME) fprintf(stderr, "renamed \n");
+    //if (events & UV_CHANGE) fprintf(stderr, "changed \n");
+
+	// for some reason, on Windows at least, the filename comes preceded by a slash
+	std::string name = al_fs_strip_pre_slash(filename);
+
+	double modified = al_fs_modified(name);
+	std::string ext = al_fs_extension(filename);
+
+	// filter out double-notification events:
+	auto search = modtimes.find(name);
+	if (search != modtimes.end() && search->second == modified) {
+		// skip this event, since the same file has already triggered an event with the same timestamp
+		return;
+	}
+	// update our last-modified cache:
+	modtimes[name] = modified;
+
+	fprintf(stderr, "Change detected in %s\n", name.c_str());
+
+	// emit an event?
+
+	if (ext == ".glsl") {
+		// shader mods should always do this:
+		alice.onReloadGPU.emit();
+	} else if (ext == ".cpp" || ext == ".h") {
+		// trigger rebuild...
+
+		// first unload the lib:
+		if (!project_lib_path.empty()) {
+			closelib(project_lib_path.c_str());
+		}
+
+		// TODO: run build.bat
+
+	}  else if (ext == ".dll" || ext == ".dylib") {
+		// trigger reload...
+		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
+
+		if (name == project_lib_path) {
+			openlib(project_lib_path.c_str());
+		}
+	}
+
+	alice.onFileChange.emit(name);
+}
+
 int main(int argc, char ** argv) {
 
 	// initialize the clock:
@@ -275,7 +346,7 @@ int main(int argc, char ** argv) {
 
 	// process the args:
 	// arg[0] is the path of the runtime
-	if (argc > 0) runtime_path = al_dirname(std::string(argv[0]));
+	if (argc > 0) runtime_path = al_fs_dirname(std::string(argv[0]));
 #ifdef AL_WIN
 	runtime_support_path = runtime_path + "/support/win64";
 #else
@@ -309,11 +380,17 @@ int main(int argc, char ** argv) {
 		uv_fs_req_cleanup(&scandir_req);
 	}
 
-	alice.hmd = new Hmd;
-	alice.cloudDevice = new CloudDevice;
-
 	// arg[1] is the path to the lib
 	if (argc > 1) project_lib_path = argv[1];
+	project_path = al_fs_dirname(project_lib_path);
+
+	// watch for changes on files:
+	uv_fs_event_init(&uv_main_loop, &fs_event_req);
+	// The recursive flag watches subdirectories too.
+    uv_fs_event_start(&fs_event_req, file_changed_event, project_path.c_str(), UV_FS_EVENT_RECURSIVE);
+
+	alice.hmd = new Hmd;
+	alice.cloudDevice = new CloudDevice;
 
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
@@ -324,6 +401,9 @@ int main(int argc, char ** argv) {
 	setbuf(stderr, NULL);
 
 	setup();
+
+	//alice.cloudDevice->record(1);
+	alice.cloudDevice->open();
 	
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
