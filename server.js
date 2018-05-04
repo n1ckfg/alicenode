@@ -202,7 +202,7 @@ alice.on('exit', function (code) {
 	console.log("alice exit code", code);
 	// let node exit when it can:
 	process.exitCode = 1; //wasn't working on Windows :-(
-	process.exit();
+	process.exit(code);
 });
 
 function alice_command(command, arg) {

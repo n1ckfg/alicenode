@@ -13,6 +13,8 @@ Implication: things like opening Kinect or other thread-based services need to h
 
 
 
+
+
 Server has these roles:
 - start up the alice processes (in part according to a project-level config)
 - open a webserver for remote IDE of project source etc.
