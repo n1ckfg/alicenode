@@ -62,7 +62,7 @@ struct FPS {
 	// closer to 1, the more actual the fps will be
 	double fpsAccuracy = 0.1;
 	// the number of measurements taken since reset()
-	uint64_t count = 0; 
+	int64_t count = 0; 
 	
 	FPS(double fpsIdeal=30.) : fpsIdeal(fpsIdeal), fpsActual(fpsIdeal), fps(fpsIdeal) {
 		dtIdeal = 1./fpsIdeal;
@@ -106,11 +106,12 @@ struct FPS {
 		fps += fpsAccuracy * (fpsActual - fps);
 		dt = 1./fps;
 		last = t1;
-		if (count == 0) {
+		if (count <= 0) {
 			count = int(fps);
 			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 };
 
