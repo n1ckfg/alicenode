@@ -202,7 +202,7 @@ alice.on('exit', function (code) {
 	console.log("alice exit code", code);
 	// let node exit when it can:
 	process.exitCode = 1; //wasn't working on Windows :-(
-	process.exit(code);
+	process.exit();
 });
 
 function alice_command(command, arg) {
@@ -711,11 +711,12 @@ watcher
 
 ///////////////////////////////////////////////////////////////
 
-
 // Run the code-forensics webserver: 
-//TODO: something that pulls through cli args without needing the specific arg's location
 function codeForensics(){
-    if (process.argv[3] == "--forensics") {
-    exec('gulp webserver', {cwd: __dirname});
-    }
+if (process.argv[3] == "--forensics") {
+exec('gulp webserver', {cwd: __dirname});
+
 }
+
+}
+

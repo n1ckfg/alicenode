@@ -125,6 +125,10 @@ struct Window {
 		// TODO: clean up user-level GL resources
 		pointer = NULL;
 	}
+
+	void position(int x, int y) {
+		glfwSetWindowPos(pointer, x, y);
+	}
 	
 	static void glfw_framebuffer_size_callback(GLFWwindow * pointer, int w, int h) {
 		console.log("New framebuffer resolution %dx%d", w, h); 

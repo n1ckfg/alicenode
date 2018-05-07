@@ -154,6 +154,51 @@ struct VBO {
 	}
 };
 
+struct EBO {
+	unsigned int id = 0;
+	size_t count = 0;
+	unsigned int * src = 0;
+
+	EBO() {}
+	EBO(size_t count, unsigned int * src=NULL) : count(count), src(src) {}
+
+	void dest_changed() {
+		if (count <= 0) {
+			console.error("VBO size not yet declared, cannot allocate");
+			return;
+		}
+		dest_closing();
+		glGenBuffers(1, &id);
+		submit();
+		unbind();
+	}
+
+	void dest_closing() {
+		if (id) {
+			glDeleteBuffers(1, &id);
+			id = 0;
+		}
+	}
+
+	void bind() { 
+		if (!id) dest_changed();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id); 
+	}
+	void unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+
+	void resize(size_t c) {
+		if (c > count) dest_closing();
+		count = c;
+	}
+
+	void submit(unsigned int * data=NULL, size_t c=0) {
+		if (data) src=data;
+		if (c) resize(c);
+		bind();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, c * sizeof(unsigned int), src, GL_STATIC_DRAW);
+	}
+};
+
 /*
 	A Vertex Array Object (VAO) helps match the components of VBOs to the attributes of Shaders
 
@@ -223,49 +268,24 @@ struct VAO {
 };
 
 struct Shader {
-	GLuint program;
-	
-	static Shader * fromFiles(std::string vertPath, std::string fragPath, std::string geomPath="") {
-		console.log("shader loading %s %s", vertPath.c_str(), fragPath.c_str());
-        std::string vCode, fCode, gCode;
-		std::ifstream vFile, fFile, gFile;
-        // ensure ifstream objects can throw exceptions:
-        vFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        fFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        gFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        try {
-            // open files
-            vFile.open(vertPath);
-            fFile.open(fragPath);
-            std::stringstream vStream, fStream;
-            // read file's buffer contents into streams
-            vStream << vFile.rdbuf();
-            fStream << fFile.rdbuf();		
-            // close file handlers
-            vFile.close();
-            fFile.close();
-            // convert stream into string
-            vCode = vStream.str();
-            fCode = fStream.str();			
-            // if geometry shader path is present, also load a geometry shader
-            if(!geomPath.empty())
-            {
-                gFile.open(geomPath);
-                std::stringstream gStream;
-                gStream << gFile.rdbuf();
-                gFile.close();
-                gCode = gStream.str();
-            }
-        } catch (std::ifstream::failure e) {
-            console.error("shader file read failed");
-            return NULL;
-        }
-        return new Shader(vCode, fCode, gCode);
+	GLuint program = 0;
+
+	std::string vertCode = "";
+    std::string fragCode = "";
+    std::string geomCode = "";
+
+	// constructor just applies the code strings
+	Shader(std::string vertCode = defaultVertexCode(), std::string fragCode = defaultFragmentCode(), std::string geomCode = "") 
+		: vertCode(vertCode), fragCode(fragCode), geomCode(geomCode) 
+		{}
+
+	~Shader() {
+		dest_closing();
 	}
 	
-	Shader(	std::string vertCode,
-        	std::string fragCode,
-       		std::string geomCode = "") {
+	void dest_changed() {
+
+		dest_closing();
        	
        	GLuint vid, fid, gid=0;
        	
@@ -302,9 +322,21 @@ struct Shader {
         glDeleteShader(fid);
         if(gid > 0) glDeleteShader(gid);
     }
+
+	void dest_closing() {
+		if (program) {
+			glDeleteProgram(program);
+			program = 0;
+		}
+	}
     
-    void use() { glUseProgram(program); }
-    static void unuse() { glUseProgram(0); } 
+    void use() { 
+		if (!program) dest_changed();
+		if (program) glUseProgram(program); 
+	}
+    static void unuse() { 
+		glUseProgram(0); 
+	} 
     
     void uniform(const std::string &name, bool value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), (int)value); }
     void uniform(const std::string &name, int value) const { glUniform1i(glGetUniformLocation(program, name.c_str()), value); }
@@ -340,73 +372,132 @@ struct Shader {
             }
         }
     }
+
+	void readFiles(std::string vertPath, std::string fragPath, std::string geomPath="") {
+		console.log("shader loading %s %s", vertPath.c_str(), fragPath.c_str());
+        std::string vCode, fCode, gCode;
+		std::ifstream vFile, fFile, gFile;
+        // ensure ifstream objects can throw exceptions:
+        vFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        fFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        gFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        try {
+            // open files
+            vFile.open(vertPath);
+            fFile.open(fragPath);
+            std::stringstream vStream, fStream;
+            // read file's buffer contents into streams
+            vStream << vFile.rdbuf();
+            fStream << fFile.rdbuf();		
+            // close file handlers
+            vFile.close();
+            fFile.close();
+            // convert stream into string
+            vertCode = vStream.str();
+            fragCode = fStream.str();	
+            // if geometry shader path is present, also load a geometry shader
+            if(!geomPath.empty())
+            {
+                gFile.open(geomPath);
+                std::stringstream gStream;
+                gStream << gFile.rdbuf();
+                gFile.close();
+                geomCode = gStream.str();
+            }
+			// make sure the next use of the shader uses the new code:
+			dest_closing();
+        } catch (std::ifstream::failure e) {
+            console.error("shader file read failed");
+        }
+	}
+
+	static const char * defaultVertexCode() {
+		return R"(
+			#version 330 core
+			layout (location = 0) in vec2 aPos;
+			layout (location = 1) in vec2 aTexCoord;
+			
+			out vec2 texCoord;
+			
+			void main() {
+				gl_Position = vec4(aPos, 0., 1.0);
+				texCoord = aTexCoord;
+			}
+		)";
+	}
+	static const char * defaultFragmentCode() {
+		return R"(
+			#version 330 core
+			out vec4 FragColor;
+			in vec2 texCoord;
+			uniform sampler2D tex;
+
+							void main() {
+				//FragColor = vec4(texCoord, 0.5, 1.);
+				FragColor = texture(tex, texCoord);
+			}
+		)";
+	}
 };
 
-struct SimpleTexture3D {
+struct FloatTexture3D {
 
-	GLuint tex;
-	glm::ivec3 dim;
+	GLuint id;
 
-	// single-plane:
-	SimpleTexture3D(glm::ivec3 dim, float * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
+	void dest_closing() {
+		if (id) {
+			glDeleteTextures(1, &id);
+			id = 0;
+		}
 	}
-	
-	// 3-plane:
-	SimpleTexture3D(glm::ivec3 dim, glm::vec3 * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
-	}
-	
-	// 4-plane:
-	SimpleTexture3D(glm::ivec3 dim, glm::vec4 * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
-	}
-	
-	void initialize_texture() {
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_3D, tex);
+
+	void dest_changed() {
+		dest_closing();
+		
+		glGenTextures(1, &id);
+
+		glBindTexture(GL_TEXTURE_3D, id);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);		
-		
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);  
 		//glTexParameteri( GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+		glBindTexture(GL_TEXTURE_3D, 0);
+	}
+
+	void bind(GLenum texture_unit = 0) {
+		if (!id) dest_changed();
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_3D, id);
+	}
+	static void unbind(GLenum texture_unit = 0) {
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_3D, 0);
 	}
 	
 	// single-plane:
 	void submit(glm::ivec3 dim, float * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, dim.x, dim.y, dim.z, 0, GL_RED, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 	
 	// 3-plane:
 	void submit(glm::ivec3 dim, glm::vec3 * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, dim.x, dim.y, dim.z, 0, GL_RGB, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 	
 	// 4-plane:
 	void submit(glm::ivec3 dim, glm::vec4 * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, dim.x, dim.y, dim.z, 0, GL_RGBA, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
-	}
-	
-	void bind() {
-		glBindTexture(GL_TEXTURE_3D, tex);
-	}
-	
-	void unbind() {
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 };
 

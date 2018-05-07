@@ -123,8 +123,6 @@ inline glm::tvec3<T, P> quat_uf(glm::tquat<T, P> const & q) {
 	return -quat_uz(q);
 }
 
-
-
 template<typename T, glm::precision P>
 inline glm::tvec2<T, P> safe_normalize (glm::tvec2<T, P> const &v) {
 	T l = glm::length(v);
@@ -163,6 +161,10 @@ inline glm::tquat<T, P> safe_normalize (glm::tquat<T, P> const &v) {
 	} else {
 		return quat_random();
 	}
+}
+
+inline glm::vec3 transform (glm::mat4 const & mat, glm::vec3 const & vec) {
+	return glm::vec3(mat * glm::vec4(vec, 1.f));
 }
 
 #endif // AL_GLM_H

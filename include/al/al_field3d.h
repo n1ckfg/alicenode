@@ -50,6 +50,17 @@ public:
 	void print() {
 		printf("Array %dx%dx%d[%d]\n", mDimX, mDimY, mDimZ, mComponents);
 	}
+
+	// interpolated read, with normalized position
+	// i.e. positions 0..1 are mapped to 0..dim
+	template<typename T1>
+	void readnorm(const glm::vec3 pos, T1 * elems) {
+		read_interp(pos.x * mDimX, pos.y * mDimY, pos.z * mDimZ, elems);
+	}
+	template<typename T1>
+	void readnorm(const glm::vec4 pos, T1 * elems) {
+		read_interp(pos.x * mDimX, pos.y * mDimY, pos.z * mDimZ, elems);
+	}
 	
 	template<typename T1>
 	void read_interp(const glm::dvec3 pos, T1 * data) const;
@@ -59,6 +70,7 @@ public:
 	
 	template<typename T1>
 	void read_interp(double x, double y, double z, T1 * val) const;
+
 	
 	template<typename T1>
 	inline void read(int x, int y, int z, T1 * val) const;
@@ -70,14 +82,23 @@ public:
 			data[i] += src.data[i];
 		}
 	}
+
+	// interpolated add, with normalized position
+	// i.e. positions 0..1 are mapped to 0..dim
+	inline void addnorm(const glm::vec3 pos, const T * elems) {
+		add(pos.x * mDimX, pos.y * mDimY, pos.z * mDimZ, elems);
+	}
+	// interpolated add, with normalized position
+	// i.e. positions 0..1 are mapped to 0..dim
+	inline void addnorm(const glm::vec4 pos, const T * elems) {
+		add(pos.x * mDimX, pos.y * mDimY, pos.z * mDimZ, elems);
+	}
+
 	// interpolated add:
 	inline void add(const glm::dvec3 pos, const T * elems) {
 		add(pos.x, pos.y, pos.z, elems);
 	}
-	
-	
-	
-	
+
 	// interpolated add:
 	inline void add(const glm::vec3 pos, const T * elems) {
 		add(pos.x, pos.y, pos.z, elems);
@@ -139,6 +160,7 @@ public:
 	size_t length() const { return mArray0.length(); }
 	size_t size() const { return mArray0.mSize; }
 	size_t components() const { return mArray0.mComponents; }
+	glm::ivec3 dim() const { return glm::ivec3(mArray0.mDimX, mArray0.mDimY, mArray0.mDimZ); }
 	size_t dimx() const { return mArray0.mDimX; }
 	size_t dimy() const { return mArray0.mDimY; }
 	size_t dimz() const { return mArray0.mDimZ; }
