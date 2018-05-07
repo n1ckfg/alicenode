@@ -4,6 +4,7 @@
 #include "al_platform.h"
 #include "al_gl.h"
 
+
 #define _GLFW_USE_DWM_SWAP_INTERVAL 1
 #include <GLFW/glfw3.h>
 

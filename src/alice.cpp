@@ -1,5 +1,5 @@
 // define this in the "main" file only, to ensure only one implementation
-#define AL_IMPLEMENTATION
+#define AL_IMPLEMENTATION 1
 #define BUILDING_UV_SHARED
 
 #include "uv/uv.h"
@@ -339,6 +339,8 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 }
 
 int main(int argc, char ** argv) {
+
+	fprintf(stderr, "ERRORS LOOK LIKE THIS\n");
 
 	// initialize the clock:
 	al_now();

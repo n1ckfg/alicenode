@@ -9,6 +9,7 @@ struct Console {
 
 #ifdef AL_WIN
 	HANDLE console_mutex;
+	//HANDLE  hConsole;
 #endif 
 	
 	Console() {
@@ -18,6 +19,8 @@ struct Console {
 			NULL,              // default security attributes
 			FALSE,             // initially not owned
 			NULL);             // unnamed mutex
+		
+		//hConsole = GetStdHandle(STD_ERROR_HANDLE);
 #endif
 	}
 	
@@ -42,6 +45,9 @@ struct Console {
 		int ret;
 #ifdef AL_WIN
 		if (WAIT_OBJECT_0 == WaitForSingleObject(console_mutex, 10)) {  // 10ms timeout
+			//fprintf(stderr, "\033[31m");
+			//SetConsoleTextAttribute(hConsole, 7);
+			
 #endif
 			va_list myargs;
 			va_start(myargs, fmt);
@@ -49,6 +55,8 @@ struct Console {
 			va_end(myargs);
 			fputc('\n', stderr);
 #ifdef AL_WIN
+			//fprintf(stderr, "\033[0m");
+			//SetConsoleTextAttribute(hConsole, 15);
 			ReleaseMutex(console_mutex);
 		}
 #endif
