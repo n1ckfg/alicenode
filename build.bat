@@ -13,7 +13,7 @@ cl /W3 /EHsc /O2 ^
 /I include/uv ^
 /I "%KINECTSDK20_DIR%\inc" ^
 src/alice.cpp ^
-/link /LTCG ^
+/link ^
 /WHOLEARCHIVE:lib/win64/lib-vc2017/glfw3.lib ^
 /WHOLEARCHIVE:lib\win64\lib-vc2017\libuv.lib ^
 lib/win64/SpoutLibrary.lib ^
