@@ -197,7 +197,7 @@ struct VAO {
 		// assumes vao and vbo are already bound
 		glEnableVertexAttribArray(location);
 		// set the data layout
-		glVertexAttribPointer(location, size, type, GL_FALSE, stride, (void*)offset); 
+		glVertexAttribPointer(location, (GLsizei)size, type, GL_FALSE, (GLsizei)stride, (void*)offset); 
 		// mark this attrib as being per-instance	
 		if (instanced) glVertexAttribDivisor(location, 1);  
 	}
@@ -209,13 +209,13 @@ struct VAO {
 		attr(location, al_sizeof(member) / gl_type_size(type), type, sizeof(T), al_offsetof(member), instanced);
 	}
 
-	void draw(size_t numvertices, GLenum primitive=GL_TRIANGLES) {
+	void draw(GLsizei numvertices, GLenum primitive=GL_TRIANGLES) {
 		bind();
 		// draw instances:
 		glDrawArrays(primitive, 0, numvertices); 
 	}
 	
-	void drawInstanced(size_t numvertices, size_t numinstances, GLenum primitive=GL_TRIANGLES) {
+	void drawInstanced(GLsizei numvertices, GLsizei numinstances, GLenum primitive=GL_TRIANGLES) {
 		bind();
 		// draw instances:
 		glDrawArraysInstanced(primitive, 0, numvertices, numinstances); 
