@@ -3,11 +3,52 @@
 
 #include <thread>
 
+#include "al_time.h"
+
 /*
     void call_from_thread();
     
     std::thread t1(call_from_thread);
     t1.join();
 */
+
+/*
+    Simplify the process of running a function in a separate thread at a limited rate
+*/
+struct MetroThread {
+    FPS fps;
+    std::thread thread;
+    std::function<void(double dt)> function;
+    bool isRunning = 0;
+
+    MetroThread(double ticks_per_second) : fps(ticks_per_second) {}
+
+    void begin(std::function<void(double dt)> thread_function) {
+        if (isRunning) {
+            console.error("already running");
+            return;
+        }
+        isRunning = 1;
+        function = thread_function;
+        thread = std::thread([this](){
+            while(isRunning) {
+                function(fps.dt);
+                fps.sleep();
+                fps.measure();
+            }
+        });
+    }
+
+    void end() {
+        isRunning = 0;
+        if (thread.joinable()) thread.join();
+    }
+
+    // returns the FPS that would be possible if the thread didn't sleep at all
+    double potentialFPS() {
+        return fps.fps / fps.performance;
+    }
+
+};
 
 #endif //AL_THREAD_H

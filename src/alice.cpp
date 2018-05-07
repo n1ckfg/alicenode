@@ -3,7 +3,6 @@
 #define BUILDING_UV_SHARED
 
 #include "uv/uv.h"
-#include "al/al_glfw.h"
 #include "al/al_console.h"
 #include "al/al_math.h"
 #include "al/al_gl.h"
@@ -35,7 +34,6 @@ uv_pipe_t stdin_pipe;
 
 uv_fs_event_t fs_event_req;
 
-Window window;
 bool isFullScreen = 0;
 bool isThreadsDone = 0;
 
@@ -103,12 +101,12 @@ extern "C" AL_ALICE_EXPORT int frame() {
 	double tbegin = glfwGetTime();
 
     glfwPollEvents();
-    glfwMakeContextCurrent(window.pointer); // maybe we want to have a onSim() event before doing this?
+    glfwMakeContextCurrent(alice.window.pointer); // maybe we want to have a onSim() event before doing this?
      
 	if (alice.isRendering) 
-    	alice.onFrame.emit(window.width, window.height);
+    	alice.onFrame.emit(alice.window.width, alice.window.height);
     
-    glfwSwapBuffers(window.pointer);
+    glfwSwapBuffers(alice.window.pointer);
     
     double t1 = glfwGetTime();
     alice.dt = t1-alice.t;
@@ -127,7 +125,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
     if (tsleep > 0.001) {
     	al_sleep(tsleep);
     }
-    return !glfwWindowShouldClose(window.pointer);
+    return !glfwWindowShouldClose(alice.window.pointer);
 }
 
 
@@ -138,9 +136,9 @@ extern "C" AL_ALICE_EXPORT int setup() {
 	console.log("setup");
 	console.log("alice alice %p", &alice);
 
-	if (!window.open(isFullScreen)) return -1;
+	if (!alice.window.open(isFullScreen)) return -1;
 	
-	glfwSetKeyCallback(window.pointer, glfw_key_callback);
+	glfwSetKeyCallback(alice.window.pointer, glfw_key_callback);
 	
 	if (glGetError() != GL_NO_ERROR) {
     	console.error("gl error before loading shader");
@@ -322,6 +320,11 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		}
 
 		// TODO: run build.bat
+		#ifdef AL_WIN
+
+		#else
+			system("./build.sh");
+		#endif
 
 	}  else if (ext == ".dll" || ext == ".dylib") {
 		// trigger reload...

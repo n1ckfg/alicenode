@@ -154,6 +154,51 @@ struct VBO {
 	}
 };
 
+struct EBO {
+	unsigned int id = 0;
+	size_t count = 0;
+	unsigned int * src = 0;
+
+	EBO() {}
+	EBO(size_t count, unsigned int * src=NULL) : count(count), src(src) {}
+
+	void dest_changed() {
+		if (count <= 0) {
+			console.error("VBO size not yet declared, cannot allocate");
+			return;
+		}
+		dest_closing();
+		glGenBuffers(1, &id);
+		submit();
+		unbind();
+	}
+
+	void dest_closing() {
+		if (id) {
+			glDeleteBuffers(1, &id);
+			id = 0;
+		}
+	}
+
+	void bind() { 
+		if (!id) dest_changed();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id); 
+	}
+	void unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+
+	void resize(size_t c) {
+		if (c > count) dest_closing();
+		count = c;
+	}
+
+	void submit(unsigned int * data=NULL, size_t c=0) {
+		if (data) src=data;
+		if (c) resize(c);
+		bind();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, c * sizeof(unsigned int), src, GL_STATIC_DRAW);
+	}
+};
+
 /*
 	A Vertex Array Object (VAO) helps match the components of VBOs to the attributes of Shaders
 
@@ -395,71 +440,64 @@ struct Shader {
 	}
 };
 
-struct SimpleTexture3D {
+struct FloatTexture3D {
 
-	GLuint tex;
-	glm::ivec3 dim;
+	GLuint id;
 
-	// single-plane:
-	SimpleTexture3D(glm::ivec3 dim, float * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
+	void dest_closing() {
+		if (id) {
+			glDeleteTextures(1, &id);
+			id = 0;
+		}
 	}
-	
-	// 3-plane:
-	SimpleTexture3D(glm::ivec3 dim, glm::vec3 * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
-	}
-	
-	// 4-plane:
-	SimpleTexture3D(glm::ivec3 dim, glm::vec4 * data) : dim(dim) {
-		initialize_texture();
-		submit(dim, data);
-	}
-	
-	void initialize_texture() {
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_3D, tex);
+
+	void dest_changed() {
+		dest_closing();
+		
+		glGenTextures(1, &id);
+
+		glBindTexture(GL_TEXTURE_3D, id);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);		
-		
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);  
 		//glTexParameteri( GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+		glBindTexture(GL_TEXTURE_3D, 0);
+	}
+
+	void bind(GLenum texture_unit = 0) {
+		if (!id) dest_changed();
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_3D, id);
+	}
+	static void unbind(GLenum texture_unit = 0) {
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_3D, 0);
 	}
 	
 	// single-plane:
 	void submit(glm::ivec3 dim, float * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, dim.x, dim.y, dim.z, 0, GL_RED, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 	
 	// 3-plane:
 	void submit(glm::ivec3 dim, glm::vec3 * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, dim.x, dim.y, dim.z, 0, GL_RGB, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 	
 	// 4-plane:
 	void submit(glm::ivec3 dim, glm::vec4 * data) {
-		glBindTexture(GL_TEXTURE_3D, tex);
+		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, dim.x, dim.y, dim.z, 0, GL_RGBA, GL_FLOAT, data);
 		//glGenerateMipmap(GL_TEXTURE_3D);  
-		glBindTexture(GL_TEXTURE_3D, 0);
-	}
-	
-	void bind() {
-		glBindTexture(GL_TEXTURE_3D, tex);
-	}
-	
-	void unbind() {
-		glBindTexture(GL_TEXTURE_3D, 0);
+		unbind();
 	}
 };
 

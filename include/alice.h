@@ -1,6 +1,7 @@
 #ifndef ALICE_H
 #define ALICE_H
 
+#include "al/al_glfw.h"
 #include "al/al_signals.h"
 #include "al/al_hmd.h"
 
@@ -22,6 +23,7 @@ struct AL_ALICE_EXPORT Alice {
 	int isRendering = true;
 
 	// services:
+	Window window;
 	CloudDevice * cloudDevice;
 	Hmd * hmd;
 	

@@ -63,6 +63,8 @@ struct FPS {
 	double fpsAccuracy = 0.1;
 	// the number of measurements taken since reset()
 	int64_t count = 0; 
+	// fraction of available time that was actually used
+	double performance = 1.;
 	
 	FPS(double fpsIdeal=30.) : fpsIdeal(fpsIdeal), fpsActual(fpsIdeal), fps(fpsIdeal) {
 		dtIdeal = 1./fpsIdeal;
@@ -74,13 +76,6 @@ struct FPS {
 		count = 0;
 	}
 
-	// returns the duration (in seconds) remaining between dtActual and dtIdeal
-	// i.e. how much we could realistically sleep() for to approximate the ideal FPS
-	// if all the duration was used up, returns zero
-	double spareTime() {
-		return dt < dtIdeal ? dtIdeal - dt : 0.;
-	}
-
 	// call this between two measure() calls
 	// it will add a sleep() in an attempt to make up the original desired frame rate
 	// returns the % of the available frame time that is used
@@ -88,7 +83,7 @@ struct FPS {
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 		std::chrono::steady_clock::duration dur = t1-last;
 		double elapsed = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count());
-		double performance = elapsed / dtIdeal;
+		performance = elapsed / dtIdeal;
 		if (performance < 1.00) {
 			al_sleep(dtIdeal - elapsed);
 		}
@@ -97,8 +92,8 @@ struct FPS {
 
 	// mark a frame boundary, and update the count and fps estimates accordingly
 	// returns true approximately once per second, useful for debug posting
-	bool measure() {
-		count--;
+	bool measure(double interval = 1.) {
+		count++;
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 		std::chrono::steady_clock::duration dur = t1-last;
 		dtActual = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count());
@@ -106,12 +101,7 @@ struct FPS {
 		fps += fpsAccuracy * (fpsActual - fps);
 		dt = 1./fps;
 		last = t1;
-		if (count <= 0) {
-			count = int(fps);
-			return true;
-		} else {
-			return false;
-		}
+		return (count % int64_t(fpsIdeal)) == 0;
 	}
 };
 
