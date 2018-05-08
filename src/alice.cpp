@@ -91,6 +91,9 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 
 	//default:
 	}
+
+	alice.onKeyEvent.emit(keycode, scancode, downup, shift, ctrl, alt, cmd);
+	
 	
 }
 
