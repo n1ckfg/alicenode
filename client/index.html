@@ -37,7 +37,7 @@
     <script src="js/jquery.graphviz.svg.js"></script>
 
 
-<!-- temp fix for the 'cannotç find 'favicon.ico' error -->
+<!-- temp fix for the 'cannot find 'favicon.ico' error -->
     <link rel="shortcut icon">
 
 
@@ -208,6 +208,8 @@ function openSocket() {
                     let graph = JSON.parse(arg);
                     console.log(graph)
                     let svg = make_svg_from_commits(graph);
+                    console.log(svg)
+
                     //push the svg content to the gitgraph div
                     $("#gitgraph").html(svg)
                     //make the gitgraph resizeable
@@ -698,7 +700,7 @@ function make_svg_from_commits(graph) {
     }
 
     // wrap the svg commands in an svg element, and return:
-    return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}</svg>`;
+    return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}<g id="nodes"></svg>`;
 
 }
 
