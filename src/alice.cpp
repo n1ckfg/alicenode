@@ -428,6 +428,8 @@ int main(int argc, char ** argv) {
 		openlib(project_lib_path.c_str());
 	}
 
+	alice.onReset.emit();
+
 	console.log("begin rendering");
 	
     while(frame()) {
