@@ -47,10 +47,6 @@ bool isThreadsDone = 0;
 	void * lib_handle = 0;
 #endif
 
-
-
-
-
 void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, int downup, int mods) {
 	Alice& alice = Alice::Instance();
 	bool shift = (mods & 1) != 0;
@@ -87,15 +83,6 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 		isThreadsDone = 1;
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
 		if (shift) exit(-1); // Shift-Esc forces a "crash", useful for debugging
-	} break;
-	case GLFW_KEY_ENTER: {
-		if (downup && alt) {
-			if (alice.hmd->connected) {
-				alice.hmd->disconnect();
-			} else if (alice.hmd->connect()) {
-				alice.desiredFrameRate = 90;
-			}
-		}
 	} break;
 	//default:
 	}
@@ -350,8 +337,6 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 }
 
 int main(int argc, char ** argv) {
-
-	fprintf(stderr, "ERRORS LOOK LIKE THIS\n");
 
 	// initialize the clock:
 	al_now();
