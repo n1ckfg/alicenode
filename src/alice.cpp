@@ -90,7 +90,11 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	} break;
 	case GLFW_KEY_ENTER: {
 		if (downup && alt) {
-			alice.hmd->connect();
+			if (alice.hmd->connected) {
+				alice.hmd->disconnect();
+			} else if (alice.hmd->connect()) {
+				alice.desiredFrameRate = 90;
+			}
 		}
 	} break;
 	//default:
