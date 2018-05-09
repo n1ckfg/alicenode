@@ -88,6 +88,11 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
 		if (shift) exit(-1); // Shift-Esc forces a "crash", useful for debugging
 	} break;
+	case GLFW_KEY_ENTER: {
+		if (downup && alt) {
+			alice.hmd->connect();
+		}
+	} break;
 	//default:
 	}
 
