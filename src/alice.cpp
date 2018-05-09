@@ -80,6 +80,7 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 		if (downup) {
 			console.log("simulation reset");
 			alice.onReset.emit();
+			alice.onReloadGPU.emit();
 		}
 	} break;
 	case GLFW_KEY_ESCAPE: {
@@ -87,8 +88,6 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
 		if (shift) exit(-1); // Shift-Esc forces a "crash", useful for debugging
 	} break;
-
-
 	//default:
 	}
 
