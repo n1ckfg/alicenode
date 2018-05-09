@@ -404,7 +404,7 @@ int main(int argc, char ** argv) {
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 
-	setup();
+	setup();./
 
 	//alice.cloudDevice->record(1);
 	alice.cloudDevice->open();
