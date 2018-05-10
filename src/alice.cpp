@@ -288,11 +288,16 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 
 	// for some reason, on Windows at least, the filename comes preceded by a slash
 	std::string name = al_fs_strip_pre_slash(filename);
-
-	double modified = al_fs_modified(name);
 	std::string ext = al_fs_extension(filename);
 
+	// emit an event?
+	if (ext == ".git") {
+		// ignore changes to such files
+		return;
+	} 
+
 	// filter out double-notification events:
+	double modified = al_fs_modified(name);
 	auto search = modtimes.find(name);
 	if (search != modtimes.end() && search->second == modified) {
 		// skip this event, since the same file has already triggered an event with the same timestamp
@@ -301,39 +306,31 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// update our last-modified cache:
 	modtimes[name] = modified;
 	
+	fprintf(stderr, "Change detected in %s\n", name.c_str());
+	if (ext == ".glsl") {
+		// shader mods should always do this:
+		alice.onReloadGPU.emit();
+	} else if (ext == ".cpp" || ext == ".h") {
+		// trigger rebuild...
 
-	// emit an event?
-	if (ext == ".git") {
-		// ignore changes to such files
+		// first unload the lib:
+		if (!project_lib_path.empty()) {
+			closelib(project_lib_path.c_str());
+		}
 
-	} else {
-		
-		fprintf(stderr, "Change detected in %s\n", name.c_str());
-		if (ext == ".glsl") {
-			// shader mods should always do this:
-			alice.onReloadGPU.emit();
-		} else if (ext == ".cpp" || ext == ".h") {
-			// trigger rebuild...
+		// TODO: run build.bat
+		#ifdef AL_WIN
 
-			// first unload the lib:
-			if (!project_lib_path.empty()) {
-				closelib(project_lib_path.c_str());
-			}
+		#else
+			system("./build.sh");
+		#endif
 
-			// TODO: run build.bat
-			#ifdef AL_WIN
+	}  else if (ext == ".dll" || ext == ".dylib") {
+		// trigger reload...
+		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
 
-			#else
-				system("./build.sh");
-			#endif
-
-		}  else if (ext == ".dll" || ext == ".dylib") {
-			// trigger reload...
-			fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
-
-			if (name == project_lib_path) {
-				openlib(project_lib_path.c_str());
-			}
+		if (name == project_lib_path) {
+			openlib(project_lib_path.c_str());
 		}
 	}
 	alice.onFileChange.emit(name);
