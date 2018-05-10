@@ -300,39 +300,42 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	}
 	// update our last-modified cache:
 	modtimes[name] = modified;
-
-	//TODO: how to ignore changes made in .git folder! this seems to be causing alice to exit see code 3221225477
-	fprintf(stderr, "Change detected in %s\n", name.c_str());
+	
 
 	// emit an event?
+	if (ext == ".git") {
+		// ignore changes to such files
 
-	if (ext == ".glsl") {
-		// shader mods should always do this:
-		alice.onReloadGPU.emit();
-	} else if (ext == ".cpp" || ext == ".h") {
-		// trigger rebuild...
+	} else {
+		
+		fprintf(stderr, "Change detected in %s\n", name.c_str());
+		if (ext == ".glsl") {
+			// shader mods should always do this:
+			alice.onReloadGPU.emit();
+		} else if (ext == ".cpp" || ext == ".h") {
+			// trigger rebuild...
 
-		// first unload the lib:
-		if (!project_lib_path.empty()) {
-			closelib(project_lib_path.c_str());
-		}
+			// first unload the lib:
+			if (!project_lib_path.empty()) {
+				closelib(project_lib_path.c_str());
+			}
 
-		// TODO: run build.bat
-		#ifdef AL_WIN
+			// TODO: run build.bat
+			#ifdef AL_WIN
 
-		#else
-			system("./build.sh");
-		#endif
+			#else
+				system("./build.sh");
+			#endif
 
-	}  else if (ext == ".dll" || ext == ".dylib") {
-		// trigger reload...
-		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
+		}  else if (ext == ".dll" || ext == ".dylib") {
+			// trigger reload...
+			fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
 
-		if (name == project_lib_path) {
-			openlib(project_lib_path.c_str());
+			if (name == project_lib_path) {
+				openlib(project_lib_path.c_str());
+			}
 		}
 	}
-
 	alice.onFileChange.emit(name);
 }
 
@@ -404,16 +407,15 @@ int main(int argc, char ** argv) {
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 
-	setup();./
+	setup();
 
 	//alice.cloudDevice->record(1);
 	alice.cloudDevice->open();
-	
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
 	}
 
-	alice.onReset.emit();
+	//alice.onReset.emit();
 
 	console.log("begin rendering");
 	
