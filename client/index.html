@@ -76,18 +76,20 @@ Editor Settings
 </div>
 <p>
 
-<!-- TODO: mouseover a node puts the commit detail into this hedaing: -->
 
+<!-- ** -->
 <!-- server messages -->
 <div id="serverMessages">
-    <ul id="messages"></ul>
+    <ul id="messages"></ul> -->
+<!-- mouseover a node puts the commit detail into this hedaing: -->
+
     <ul id="commit_detail">Commit Details</h3>
 </div>
 
 
-
+<!-- ** -->
 <!-- Client interaction with the git commit nodes -->
-<script type="text/ecmascript">
+<!-- <script type="text/ecmascript">
   
       function mouseEnterCommit(evt) {
         var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
@@ -123,7 +125,7 @@ Editor Settings
       }
 
 
-</script>
+</script> -->
 
 <script>
 
@@ -202,7 +204,10 @@ function openSocket() {
                 switch(cmd) {
                 
                     ////////////////////////////////////////////////////
-                    //svg from server:
+                    
+                    //**
+                    /*
+                    svg from server:
                     case "gitLog":
                     //let graph = arg;
                     let graph = JSON.parse(arg);
@@ -215,9 +220,11 @@ function openSocket() {
                     $( function() {
                         $( "#gitgraph" ).resizable();
                     });
-                    break;
+                    break; */
                         
+                    // **
                     //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
+                    /*
                     case "worktreeList":
                         console.log(arg)
                         //console.log(arg)
@@ -295,7 +302,7 @@ function openSocket() {
                         // var options = JSON.parse(arg);
                         // console.log("got it " + options )
 
-                        break;
+                        break; */
 
                     //populate the worktree drop-down with current list of worktrees
                     case "fps":
@@ -304,13 +311,13 @@ function openSocket() {
                         
                     case "branchname":  
                         // var steve = message.replace("currentBranch?", "")
-                        
-                        log("on branch " + arg);
-                        currentBranch = arg;
+                        //**
+                        // log("on branch " + arg);
+                        // currentBranch = arg;
                         break;
                     
                     case "Switched to Branch":
-                        log(arg)
+                        //**  log(arg)
                         break;
 
                     case "edit":
@@ -344,7 +351,7 @@ function openSocket() {
                         log('Update Repo Graph')
                         break;
                     default:
-                        log("cmd: " + cmd + ", " + arg);
+                        // log("cmd: " + cmd + ", " + arg);
                     }
         
                 } else {
@@ -373,7 +380,7 @@ setInterval(function(){
 function sendLeftCode() {
     //   var message = "edit?" + editorCM.getValue();   
     var message = "edit?" + dv.editor().getValue()
-    console.log("SENDING TO SERVER: \n" + message);
+    // console.log("SENDING TO SERVER: \n" + message);
     //log('sending: ' + message);
     ws.send(message);
 }
@@ -446,8 +453,8 @@ if (sessionStorage.echoServer) {
 // function newBranch(){}
     
 openSocket();
-
-
+//**
+/*
 //having trouble with this, but also see the switch case about worktreeList
 function populateWorktreeMenu(arg){
     // var select = document.getElementById('userWorktree')
@@ -536,6 +543,7 @@ function worktreeSelect()  {
     ws.send("switchWorktree " + selection)
 }
 
+*/
 /////////////////////////////////////
                                     //MERGEVIEW
 function toggleCollapse(){
@@ -626,8 +634,9 @@ function mergeViewHeight(mergeView) {
     editorHeight(mergeView.rightOriginal()));
 }
 
+//**
 ///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
-
+/*
 // spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)
 var rowsize = 20;
 var colsize = 10;
@@ -701,5 +710,5 @@ function make_svg_from_commits(graph) {
     return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}</svg>`;
 
 }
-
+*/
 </script>

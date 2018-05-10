@@ -108,6 +108,10 @@ switch (os.type) {
 
 
 */
+
+
+//** 
+/*
 pruneWorktree()
 function pruneWorktree() {
 	// update the worktree list
@@ -118,7 +122,7 @@ function pruneWorktree() {
 		}
 	})
 }
-
+*/
 
 
 
