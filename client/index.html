@@ -61,9 +61,9 @@
 
 <!-- Customize the Codemirror Instance -->
 Editor Settings
-<button id="live_diffing" onclick="toggleDifferences()">Toggle: Live Diffing</button> 
+<!-- <button id="live_diffing" onclick="toggleDifferences()">Toggle: Live Diffing</button> 
 <button id="toggleCollapse" onclick="collapse = !collapse; initUI()">Toggle: Collapse Changes</button> 
-<button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
+<button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button>  -->
 <p>
 
 <!-- Send code to server -->
@@ -71,7 +71,7 @@ Editor Settings
 
 <!-- the Codemirror mergeview instance! -->
 <!-- <div id="container"> -->
-    <div id="view"></div>
+    <!-- ** <div id="view"></div> -->
     <div id="gitgraph" style="text-align: left; padding-left: 10px">GitGraph</div>
 <!-- </div> -->
 <p>
@@ -89,7 +89,7 @@ Editor Settings
 
 <!-- ** -->
 <!-- Client interaction with the git commit nodes -->
-<!-- <script type="text/ecmascript">
+<script type="text/ecmascript">
   
       function mouseEnterCommit(evt) {
         var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
@@ -125,7 +125,7 @@ Editor Settings
       }
 
 
-</script> -->
+</script>
 
 <script>
 
@@ -168,12 +168,12 @@ function openSocket() {
     ws.onopen = function() {
         // log('open');  
         
-        //**
-        /*ws.send("client_SVG?")
-
+        
+        ws.send("client_SVG?")
+        
         ws.send("getCurrentBranch")
-        sessionStorage.echoServer = url;
-        */
+        // sessionStorage.echoServer = url;
+        
     };
     ws.onclose = function() {
         // log('close');
@@ -208,9 +208,8 @@ function openSocket() {
                 
                     ////////////////////////////////////////////////////
                     
-                    //**
-                    /*
-                    svg from server:
+                    
+                    // svg from server:
                     case "gitLog":
                     //let graph = arg;
                     let graph = JSON.parse(arg);
@@ -223,7 +222,7 @@ function openSocket() {
                     $( function() {
                         $( "#gitgraph" ).resizable();
                     });
-                    break; */
+                    break; 
                         
                     // **
                     //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
@@ -314,13 +313,13 @@ function openSocket() {
                         
                     case "branchname":  
                         // var steve = message.replace("currentBranch?", "")
-                        //**
-                        // log("on branch " + arg);
-                        // currentBranch = arg;
+                        
+                         log("on branch " + arg);
+                         currentBranch = arg;
                         break;
                     
                     case "Switched to Branch":
-                        //**  log(arg)
+                          log(arg)
                         break;
 
                     case "edit":
@@ -328,10 +327,11 @@ function openSocket() {
                         // fillEditor("a" + arg);
 
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                        value = arg
-                        orig1 = arg
                         //**
-                        initUI();   
+                        //value = arg
+                        //orig1 = arg
+                        
+                        // initUI();   
 
                         //** but (likely) keep this commented out
                         // $( function() {
@@ -357,12 +357,12 @@ function openSocket() {
                         log('Update Repo Graph')
                         break;
                     default:
-                        // log("cmd: " + cmd + ", " + arg);
+                        console.log("cmd: " + cmd + ", " + arg);
                     }
         
                 } else {
             
-                log('received: ' + e.data);
+                console.log('received: ' + e.data);
                 }
             }
         };
@@ -561,8 +561,9 @@ function worktreeSelect()  {
 //     dv.setShowDifferences(highlight = !highlight);
 // }
 
+//**
 //get and set code in either of the MergeView editor panes
-function initUI() {
+/* function initUI() {
  
     if (value == null) return;
     var target = document.getElementById("view");
@@ -628,7 +629,7 @@ function initUI() {
     });
 
 
-}
+} */
 
 // function mergeViewHeight(mergeView) {
 //     function editorHeight(editor) {
@@ -640,9 +641,9 @@ function initUI() {
 //     editorHeight(mergeView.rightOriginal()));
 // }
 
-//**
+
 ///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
-/*
+
 // spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)
 var rowsize = 20;
 var colsize = 10;
@@ -716,5 +717,5 @@ function make_svg_from_commits(graph) {
     return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}</svg>`;
 
 }
-*/
+
 </script>
