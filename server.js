@@ -416,6 +416,7 @@ wss.on('connection', function(ws, req) {
 				exec(gitCommand, { cwd: project_path }, (err, stdout) => {
 					//console.log(err);
 					//console.log(stdout);
+					console.log(stdout);
 					ws.send("show?" + stdout)
 
 					projectCPPVersion = stdout;
