@@ -279,8 +279,8 @@ wss.on('connection', function(ws, req) {
 
 
 	};
-
-		
+		//**
+		/*
 		//get the names of current worktrees
 		exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
 		
@@ -297,7 +297,7 @@ wss.on('connection', function(ws, req) {
 			ws.send("worktreeList?" + JSON.stringify(err))
 
 		}) 
-
+		*/
 
 	sessions[per_session_data.id] = per_session_data;
 
@@ -311,7 +311,8 @@ wss.on('connection', function(ws, req) {
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
 
-		
+		//** 
+		/*
 		//create and set worktree
 		if (message.includes("addWorktree")){
 			newWorkTree = message.replace("addWorktree ", "+")
@@ -430,7 +431,7 @@ wss.on('connection', function(ws, req) {
 			
 			//console.log(gitCommand);
 		}
-
+		*/
 
 
 		if (message.includes("git return to master")){
@@ -447,7 +448,9 @@ wss.on('connection', function(ws, req) {
 			let cmd = message.substring(0, q);
 			let arg = message.substring(q+1);
 			switch(cmd) {
+			//**
 
+			/*
 			case "client_SVG":
 
 					///// PLO //// Could be useful to see what commands are most used, maybe for 
@@ -606,6 +609,8 @@ wss.on('connection', function(ws, req) {
 					})
 			break;
 
+			*/
+
 			case "edit": 
 				console.log(arg);
 				fs.writeFileSync("project.cpp", arg, "utf8");
@@ -641,6 +646,7 @@ wss.on('connection', function(ws, req) {
 	// send a handshake?
 	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
 	if (statebuf) ws.send(statebuf);
+
 	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
 
 });
@@ -716,11 +722,11 @@ watcher
 
 ///////////////////////////////////////////////////////////////
 
-
+//**
 // Run the code-forensics webserver: 
 //TODO: something that pulls through cli args without needing the specific arg's location
-function codeForensics(){
-    if (process.argv[3] == "--forensics") {
-    exec('gulp webserver', {cwd: __dirname});
-    }
-}
+// function codeForensics(){
+//     if (process.argv[3] == "--forensics") {
+//     exec('gulp webserver', {cwd: __dirname});
+//     }
+// }
