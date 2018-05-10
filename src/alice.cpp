@@ -47,10 +47,6 @@ bool isThreadsDone = 0;
 	void * lib_handle = 0;
 #endif
 
-
-
-
-
 void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, int downup, int mods) {
 	Alice& alice = Alice::Instance();
 	bool shift = (mods & 1) != 0;
@@ -80,6 +76,7 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 		if (downup) {
 			console.log("simulation reset");
 			alice.onReset.emit();
+			//alice.onReloadGPU.emit();
 		}
 	} break;
 	case GLFW_KEY_ESCAPE: {
@@ -87,10 +84,11 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
 		if (shift) exit(-1); // Shift-Esc forces a "crash", useful for debugging
 	} break;
-
-
 	//default:
 	}
+
+	alice.onKeyEvent.emit(keycode, scancode, downup, shift, ctrl, alt, cmd);
+	
 	
 }
 
@@ -340,8 +338,6 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 
 int main(int argc, char ** argv) {
 
-	fprintf(stderr, "ERRORS LOOK LIKE THIS\n");
-
 	// initialize the clock:
 	al_now();
 
@@ -416,6 +412,8 @@ int main(int argc, char ** argv) {
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
 	}
+
+	alice.onReset.emit();
 
 	console.log("begin rendering");
 	

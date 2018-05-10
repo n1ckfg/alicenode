@@ -7,7 +7,178 @@
 
 #include "al_math.h"
 
+template<typename T>
+void al_field3d_zero(const glm::ivec3 dim, T * data) {
+	// memset where possible?
+	for (unsigned int i=0; i<dim.x*dim.y*dim.z; i++) { data[i] = T(0); }
+}
 
+template<typename T>
+void al_field3d_scale(const glm::ivec3 dim, T * data, const T v) {
+	for (unsigned int i=0; i<dim.x*dim.y*dim.z; i++) { data[i] *= v; }
+}
+
+// returns true if the vector v is outside of the field boundaries
+inline bool al_field3d_oob(const glm::ivec3 dim, glm::vec3 v) {
+	return v.x < 0 || v.x >= dim.x
+		|| v.y < 0 || v.y >= dim.y
+		|| v.z < 0 || v.z >= dim.z;
+}
+
+inline size_t al_field3d_index(const glm::ivec3 dim, int x, int y, int z) {
+	return  wrap(x, dim.x) +
+			wrap(y, dim.y) * dim.x +
+			wrap(z, dim.z) * dim.x*dim.y;
+}
+
+inline size_t al_field3d_index(const glm::ivec3 dim, glm::ivec3 p) { return al_field3d_index(dim, p.x, p.y, p.z); }
+
+inline size_t al_field3d_index_nowrap(const glm::ivec3 dim, int x, int y, int z) {
+	return  x + y*dim.x + z*dim.x*dim.y;
+}
+
+//template<typename T> T * cell(const T * data, int x, int y, int z) { return data + index(x, y, z); }
+
+template<typename T>
+inline void al_field3d_read(const glm::ivec3 dim, const T * data, int x, int y, int z, T * val) {
+	val = data + al_field3d_index(dim, x, y, z);
+}
+
+template<typename T>
+inline void al_field3d_read(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
+	al_field3d_read<T>(dim, data, pos.x, pos.y, pos.z, val); 
+}
+
+template<typename T>
+inline void al_field3d_read_interp(const glm::ivec3 dim, const T * data, double x, double y, double z, T * val) {
+	x = wrap(x, (double)dim.x);
+	y = wrap(y, (double)dim.y);
+	z = wrap(z, (double)dim.z);
+	// convert 0..1 field indices to 0..(d-1) cell indices
+	const unsigned xa = (const unsigned)al_floor(x);
+	const unsigned ya = (const unsigned)al_floor(y);
+	const unsigned za = (const unsigned)al_floor(z);
+	unsigned xb = xa+1;	if (xb == dim.x) xb = 0;
+	unsigned yb = ya+1;	if (yb == dim.y) yb = 0;
+	unsigned zb = za+1;	if (zb == dim.z) zb = 0;
+	// get the normalized 0..1 interp factors, of x,y,z:
+	const double xbf = al_fract(x);
+	const double xaf = 1. - xbf;
+	const double ybf = al_fract(y);
+	const double yaf = 1. - ybf;
+	const double zbf = al_fract(z);
+	const double zaf = 1. - zbf;
+	// get the interpolation corner weights:
+	const double faaa = xaf * yaf * zaf;
+	const double faab = xaf * yaf * zbf;
+	const double faba = xaf * ybf * zaf;
+	const double fabb = xaf * ybf * zbf;
+	const double fbaa = xbf * yaf * zaf;
+	const double fbab = xbf * yaf * zbf;
+	const double fbba = xbf * ybf * zaf;
+	const double fbbb = xbf * ybf * zbf;
+	// get the cell addresses for each neighbor:
+	const T& vaaa = data[al_field3d_index(dim, xa, ya, za)];
+	const T& vaab = data[al_field3d_index(dim, xa, ya, zb)];
+	const T& vaba = data[al_field3d_index(dim, xa, yb, za)];
+	const T& vabb = data[al_field3d_index(dim, xa, yb, zb)];
+	const T& vbaa = data[al_field3d_index(dim, xb, ya, za)];
+	const T& vbab = data[al_field3d_index(dim, xb, ya, zb)];
+	const T& vbba = data[al_field3d_index(dim, xb, yb, za)];
+	const T& vbbb = data[al_field3d_index(dim, xb, yb, zb)];
+	// do the 3D interp:
+	val =  ((vaaa * faaa) +
+			(vbaa * fbaa) +
+			(vaba * faba) +
+			(vaab * faab) +
+			(vbab * fbab) +
+			(vabb * fabb) +
+			(vbba * fbba) +
+			(vbbb * fbbb) );
+
+}
+
+template<typename T>
+inline void al_field3d_read_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
+	al_field3d_read_interp<T>(dim, data, pos.x, pos.y, pos.z, val); 
+}
+
+template<typename T>
+inline void al_field3d_add_interp(const glm::ivec3 dim, T * data, double x, double y, double z, const T val) {
+	x = wrap(x, (double)dim.x);
+	y = wrap(y, (double)dim.y);
+	z = wrap(z, (double)dim.z);
+	// convert 0..1 field indices to 0..(d-1) cell indices
+	const unsigned xa = (const unsigned)al_floor(x);
+	const unsigned ya = (const unsigned)al_floor(y);
+	const unsigned za = (const unsigned)al_floor(z);
+	unsigned xb = xa+1;	if (xb == dim.x) xb = 0;
+	unsigned yb = ya+1;	if (yb == dim.y) yb = 0;
+	unsigned zb = za+1;	if (zb == dim.z) zb = 0;
+	// get the normalized 0..1 interp factors, of x,y,z:
+	const double xbf = al_fract(x);
+	const double xaf = 1. - xbf;
+	const double ybf = al_fract(y);
+	const double yaf = 1. - ybf;
+	const double zbf = al_fract(z);
+	const double zaf = 1. - zbf;
+	// get the interpolation corner weights:
+	const double faaa = xaf * yaf * zaf;
+	const double faab = xaf * yaf * zbf;
+	const double faba = xaf * ybf * zaf;
+	const double fabb = xaf * ybf * zbf;
+	const double fbaa = xbf * yaf * zaf;
+	const double fbab = xbf * yaf * zbf;
+	const double fbba = xbf * ybf * zaf;
+	const double fbbb = xbf * ybf * zbf;
+	// for each plane of the field, do the 3D interp:
+	data[al_field3d_index(dim, xa, ya, za)] += val * T(faaa);
+	data[al_field3d_index(dim, xa, ya, zb)] += val * T(faab);
+	data[al_field3d_index(dim, xa, yb, za)] += val * T(faba);
+	data[al_field3d_index(dim, xa, yb, zb)] += val * T(fabb);
+	data[al_field3d_index(dim, xb, ya, za)] += val * T(fbaa);
+	data[al_field3d_index(dim, xb, ya, zb)] += val * T(fbab);
+	data[al_field3d_index(dim, xb, yb, za)] += val * T(fbba);
+	data[al_field3d_index(dim, xb, yb, zb)] += val * T(fbbb);
+}
+
+template<typename T>
+inline void al_field3d_addnorm_interp(const glm::ivec3 dim, T * data, double x, double y, double z, const T val) {
+	al_field3d_add_interp<T>(dim, data, x*dim.x, y*dim.y, z*dim.z, val); 
+}
+
+template<typename T>
+inline void al_field3d_add_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, const T val) {
+	al_field3d_add_interp<T>(dim, data, pos.x, pos.y, pos.z, val); 
+}
+
+template<typename T>
+inline void al_field3d_addnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, const T val) {
+	al_field3d_addnorm_interp<T>(dim, data, pos.x, pos.y, pos.z, val); 
+}
+
+// Gauss-Seidel relaxation scheme:
+template<typename T>
+inline void al_field3d_diffuse(const glm::ivec3 dim, const T * iptr, T * optr, double diffusion=0.5, unsigned passes=10) {
+	double div = 1.0/((1.+6.*diffusion));
+	for (unsigned n=0 ; n<passes ; n++) {
+		for (size_t z=0;z<dim.z;z++) {
+			for (size_t y=0;y<dim.y;y++) {
+				for (size_t x=0;x<dim.x;x++) {
+					const T& prev = iptr[al_field3d_index(dim, x,  y,  z  )];
+					T&		next = optr[al_field3d_index(dim, x,  y,  z  )];
+					const T& va00 = optr[al_field3d_index(dim, x-1,y,  z  )];
+					const T& vb00 = optr[al_field3d_index(dim, x+1,y,  z  )];
+					const T& v0a0 = optr[al_field3d_index(dim, x,  y-1,z  )];
+					const T& v0b0 = optr[al_field3d_index(dim, x,  y+1,z  )];
+					const T& v00a = optr[al_field3d_index(dim, x,  y,  z-1)];
+					const T& v00b = optr[al_field3d_index(dim, x,  y,  z+1)];			
+					next = T(div)*(prev + T(diffusion)*(va00 + vb00 + v0a0 + v0b0 + v00a + v00b));
+				}
+			}
+		}
+	}
+}
 
 template<typename T=float>
 class Array {
@@ -421,18 +592,18 @@ inline void Array<T>::read_interp(double x, double y, double z, T1 * val) const 
 	y = wrap(y, (double)mDimY);
 	z = wrap(z, (double)mDimZ);
 	// convert 0..1 field indices to 0..(d-1) cell indices
-	const unsigned xa = (const unsigned)AL_DOUBLE_FLOOR(x);
-	const unsigned ya = (const unsigned)AL_DOUBLE_FLOOR(y);
-	const unsigned za = (const unsigned)AL_DOUBLE_FLOOR(z);
+	const unsigned xa = (const unsigned)al_floor(x);
+	const unsigned ya = (const unsigned)al_floor(y);
+	const unsigned za = (const unsigned)al_floor(z);
 	unsigned xb = xa+1;	if (xb == mDimX) xb = 0;
 	unsigned yb = ya+1;	if (yb == mDimY) yb = 0;
 	unsigned zb = za+1;	if (zb == mDimZ) zb = 0;
 	// get the normalized 0..1 interp factors, of x,y,z:
-	double xbf = AL_DOUBLE_FRAC(x);
+	double xbf = al_fract(x);
 	double xaf = 1.f - xbf;
-	double ybf = AL_DOUBLE_FRAC(y);
+	double ybf = al_fract(y);
 	double yaf = 1.f - ybf;
-	double zbf = AL_DOUBLE_FRAC(z);
+	double zbf = al_fract(z);
 	double zaf = 1.f - zbf;
 	// get the interpolation corner weights:
 	double faaa = xaf * yaf * zaf;
@@ -470,18 +641,18 @@ inline void Array<T>::add(double x, double y, double z, const T * val) {
 	x = wrap<double>(x, (double)mDimX, 0.);
 	y = wrap<double>(y, (double)mDimY, 0.);
 	z = wrap<double>(z, (double)mDimZ, 0.);
-	const unsigned xa = (const unsigned)AL_DOUBLE_FLOOR(x);
-	const unsigned ya = (const unsigned)AL_DOUBLE_FLOOR(y);
-	const unsigned za = (const unsigned)AL_DOUBLE_FLOOR(z);
+	const unsigned xa = (const unsigned)al_floor(x);
+	const unsigned ya = (const unsigned)al_floor(y);
+	const unsigned za = (const unsigned)al_floor(z);
 	unsigned xb = xa+1;	if (xb == mDimX) xb = 0;
 	unsigned yb = ya+1;	if (yb == mDimY) yb = 0;
 	unsigned zb = za+1;	if (zb == mDimZ) zb = 0;
 	// get the normalized 0..1 interp factors, of x,y,z:
-	double xbf = AL_DOUBLE_FRAC(x);
+	double xbf = al_fract(x);
 	double xaf = 1.f - xbf;
-	double ybf = AL_DOUBLE_FRAC(y);
+	double ybf = al_fract(y);
 	double yaf = 1.f - ybf;
-	double zbf = AL_DOUBLE_FRAC(z);
+	double zbf = al_fract(z);
 	double zaf = 1.f - zbf;
 	// get the interpolation corner weights:
 	double faaa = xaf * yaf * zaf;

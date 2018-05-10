@@ -462,7 +462,7 @@ struct FloatTexture3D {
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);  
-		//glTexParameteri( GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+		glTexParameteri( GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE ); 
 		glBindTexture(GL_TEXTURE_3D, 0);
 	}
 
@@ -477,26 +477,26 @@ struct FloatTexture3D {
 	}
 	
 	// single-plane:
-	void submit(glm::ivec3 dim, float * data) {
+	void submit(glm::ivec3 dim, float * data, bool generateMipMap=false) {
 		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, dim.x, dim.y, dim.z, 0, GL_RED, GL_FLOAT, data);
-		//glGenerateMipmap(GL_TEXTURE_3D);  
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_3D);  
 		unbind();
 	}
 	
 	// 3-plane:
-	void submit(glm::ivec3 dim, glm::vec3 * data) {
+	void submit(glm::ivec3 dim, glm::vec3 * data, bool generateMipMap=false) {
 		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, dim.x, dim.y, dim.z, 0, GL_RGB, GL_FLOAT, data);
-		//glGenerateMipmap(GL_TEXTURE_3D);  
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_3D);  
 		unbind();
 	}
 	
 	// 4-plane:
-	void submit(glm::ivec3 dim, glm::vec4 * data) {
+	void submit(glm::ivec3 dim, glm::vec4 * data, bool generateMipMap=false) {
 		bind();
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, dim.x, dim.y, dim.z, 0, GL_RGBA, GL_FLOAT, data);
-		//glGenerateMipmap(GL_TEXTURE_3D);  
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_3D);  
 		unbind();
 	}
 };

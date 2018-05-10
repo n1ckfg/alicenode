@@ -11,22 +11,17 @@
 #define AL_MAX(x,y) (x>y?x:y)
 #endif
 
-#define AL_IS_NAN_FLOAT(v)		((v)!=(v))
-#define AL_FIX_NAN_FLOAT(v)		((v)=AL_IS_NAN_FLOAT(v)?0.f:(v))
+inline double al_floor(double v) { return (int64_t)(v) - ((v)<0.0 && (v)!=(int64_t)(v)); } 
+inline float al_floor(float v) { return (int64_t)(v) - ((v)<0.f && (v)!=(int64_t)(v)); }
 
-#define AL_DOUBLE_FLOOR(v) ( (long)(v) - ((v)<0.0 && (v)!=(long)(v)) )
-#define AL_DOUBLE_CEIL(v) ( (((v)>0.0)&&((v)!=(long)(v))) ? 1+(v) : (v) )
+inline double al_ceil(double v) { return (((v)>0.0)&&((v)!=(int64_t)(v))) ? 1.0+(v) : (v); }
+inline float al_ceil(float v) { return (((v)>0.f)&&((v)!=(int32_t)(v))) ? 1.f+(v) : (v); }
 
-#define AL_FLOAT_FLOOR(v) ( (int)(v) - ((v)<0.f && (v)!=(int)(v)) )
-#define AL_FLOAT_CEIL(v) ( (((v)>0.f)&&((v)!=(int)(v))) ? 1+(v) : (v) )
-
-// this won't work for negative numbers:
-#define AL_DOUBLE_FRAC(v) ( ((v)>=0.0) ? (v)-(long)(v) : (-v)-(long)(v) )
-
+inline double al_fract(double v) { return ((v)>=0.0) ? (v)-(int64_t)(v) : (-v)-(int64_t)(v); }
+inline float al_fract(float v) { return ((v)>=0.f) ? (v)-(int32_t)(v) : (-v)-(int32_t)(v); }
 
 inline bool al_isnan(float v) { return v!=v; }
 inline float al_fixnan(float v) { return al_isnan(v)?0.f:v; }
-
 
 inline bool al_isnan(glm::vec2 v) { 
 	return al_isnan(v.x) || al_isnan(v.y); 
@@ -93,86 +88,6 @@ template<typename T, typename T1>
 inline T wrap(T x, T1 lo, T1 hi) {
 	return lo + wrap(x-lo, hi-lo);
 }
-
-/*
-// temporary hack because the one in al_Function gave a bad result
-// for e.g. wrap<double>(-64.0, -32.0);
-template<typename T>
-inline T wrap(T v, const T hi=T(1.), const T lo=T(0.)){
-	if(lo == hi) return lo;
-	//if(v >= hi){
-	if(!(v < hi)){
-		T diff = hi - lo;
-		v -= diff;
-		if(!(v < hi)) v -= diff * (T)(uint32_t)((v - lo)/diff);
-	}
-	else if(v < lo){
-		T diff = hi - lo;
-		v += diff;
-		if(v < lo) v += diff * (T)(uint32_t)(((lo - v)/diff) + 1);
-		if(v==diff) return lo;
-	}
-	return v;
-}*/
-
-/*
-
-// The old way I was using before; the glm::fract method above seems numerically stable though
-
-template<typename T>
-inline T wrap(T x, T mod) {
-	if (mod) {
-		if (x > mod) {
-			// shift down
-			if (x > (mod*T(2))) {
-				// multiple wraps:
-				T div = x / mod;
-				// get fract:
-				T divl = (T)(long)div;
-				T fract = div - (T)divl;
-				return fract * mod;
-			} else {
-				// single wrap:
-				return x - mod;
-			}
-		} else if (x < T(0)) {
-			// negative x, shift up
-			if (x < -mod) {
-				// multiple wraps:
-				T div = x / mod;
-				// get fract:
-				T divl = (T)(long)div;
-				T fract = div - (T)divl;
-				T x1 = fract * mod;
-				return (x1 < T(0)) ? x1 + mod : x1;	
-			} else {
-				// single wrap:
-				return x + mod;
-			}
-		} else {
-			return x;
-		}
-	} else {
-		return T(0);	// avoid divide by zero
-	}
-}
-
-glm::vec2 wrap(glm::vec2 v, float dim=1.f) {
-	return glm::vec2(
-		wrap(v.x, dim), 
-		wrap(v.y, dim)
-	);
-}
-
-glm::vec3 wrap(glm::vec3 v, float dim=1.f) {
-	return glm::vec3(
-		wrap(v.x, dim), 
-		wrap(v.y, dim), 
-		wrap(v.z, dim)
-	);
-}
-*/
-
 
 
 class rnd {
