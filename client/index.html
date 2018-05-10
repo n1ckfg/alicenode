@@ -72,7 +72,7 @@ Editor Settings
 <!-- the Codemirror mergeview instance! -->
 <!-- <div id="container"> -->
     <div id="view"></div>
-    <!-- <div id="gitgraph" style="text-align: left; padding-left: 10px">GitGraph</div> -->
+    <div id="gitgraph" style="text-align: left; padding-left: 10px">GitGraph</div>
 <!-- </div> -->
 <p>
 
@@ -144,7 +144,7 @@ var value;
 var orig1;
 var dv;
 panes = 2;
-highlight = true;
+// highlight = true;
 connect = "align";
 var target;
 var collapse;
@@ -552,14 +552,14 @@ function worktreeSelect()  {
 */
 /////////////////////////////////////
                                     //MERGEVIEW
-function toggleCollapse(){
-    collapse = !collapse
-    initUI()
-}
+// function toggleCollapse(){
+//     collapse = !collapse
+//     initUI()
+// }
 
-function toggleDifferences() {
-    dv.setShowDifferences(highlight = !highlight);
-}
+// function toggleDifferences() {
+//     dv.setShowDifferences(highlight = !highlight);
+// }
 
 //get and set code in either of the MergeView editor panes
 function initUI() {
@@ -630,15 +630,15 @@ function initUI() {
 
 }
 
-function mergeViewHeight(mergeView) {
-    function editorHeight(editor) {
-        if (!editor) return 0;
-        return editor.getScrollInfo().height;
-    }
-    return Math.max(editorHeight(mergeView.leftOriginal()),
-    editorHeight(mergeView.editor()),
-    editorHeight(mergeView.rightOriginal()));
-}
+// function mergeViewHeight(mergeView) {
+//     function editorHeight(editor) {
+//         if (!editor) return 0;
+//         return editor.getScrollInfo().height;
+//     }
+//     return Math.max(editorHeight(mergeView.leftOriginal()),
+//     editorHeight(mergeView.editor()),
+//     editorHeight(mergeView.rightOriginal()));
+// }
 
 //**
 ///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
