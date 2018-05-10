@@ -70,21 +70,21 @@ Editor Settings
 <button onclick="sendLeftCode()">Send Left Code</button><button onclick="sendCodeRelay()">Send Right Code</button>
 
 <!-- the Codemirror mergeview instance! -->
-<div id="container">
+<!-- <div id="container"> -->
     <div id="view"></div>
-    <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
-</div>
+    <!-- <div id="gitgraph" style="text-align: left; padding-left: 10px">GitGraph</div> -->
+<!-- </div> -->
 <p>
 
 
 <!-- ** -->
 <!-- server messages -->
-<div id="serverMessages">
-    <ul id="messages"></ul> -->
+<!-- <div id="serverMessages">
+    <ul id="messages"></ul> --> -->
 <!-- mouseover a node puts the commit detail into this hedaing: -->
 
-    <ul id="commit_detail">Commit Details</h3>
-</div>
+    <!-- <ul id="commit_detail">Commit Details</h3>
+</div> -->
 
 
 <!-- ** -->
@@ -167,7 +167,7 @@ function openSocket() {
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
         // log('open');  
-
+        
         //**
         /*ws.send("client_SVG?")
 
@@ -330,10 +330,13 @@ function openSocket() {
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                         value = arg
                         orig1 = arg
+                        //**
                         initUI();   
-                        $( function() {
-                            $( "#view" ).resizable();
-                        });                       
+
+                        //** but (likely) keep this commented out
+                        // $( function() {
+                        //     $( "#view" ).resizable();
+                        // });                       
                         break;
 
                     case "show":
@@ -443,10 +446,10 @@ function encodeHexString(data) {
 
 //Client log
 function log(message) {
-    var li = document.createElement('li');
-    li.innerHTML = message;
-     var list = document.getElementById('messages');
-     list.insertBefore(li, list.childNodes[0]);
+    // var li = document.createElement('li');
+    // li.innerHTML = message;
+    //  var list = document.getElementById('messages');
+    //  list.insertBefore(li, list.childNodes[0]);
 }
 
 if (sessionStorage.echoServer) {
@@ -577,8 +580,8 @@ function initUI() {
         autoRefresh: true,
 
         linewrapping: true,
-        connect: "align",
-        theme: "icecode",
+        connect: connect,
+        // theme: "icecode",
         collapseIdentical: collapse
         // collapse: collapse
     });

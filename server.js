@@ -273,6 +273,8 @@ function send_all_clients(msg) {
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
 	
+	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
+
 	let per_session_data = {
 		id: sessionId++,
 		socket: ws,
@@ -647,7 +649,7 @@ wss.on('connection', function(ws, req) {
 	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
 	if (statebuf) ws.send(statebuf);
 
-	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
+//	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
 
 });
 
