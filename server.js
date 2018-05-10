@@ -110,7 +110,8 @@ switch (os.type) {
 */
 pruneWorktree()
 function pruneWorktree() {
-	// update the worktree list
+	// update the worktree list, if any worktrees had been removed by user, make sure they aren't
+	// still tracked by git
 	exec("git worktree prune", {cwd: project_path}, () => {
 		// delete work tree (if it exists):
 		if (fs.existsSync(worktreepath)) {
@@ -416,7 +417,7 @@ wss.on('connection', function(ws, req) {
 				exec(gitCommand, { cwd: project_path }, (err, stdout) => {
 					//console.log(err);
 					//console.log(stdout);
-					console.log(stdout);
+					console.log(stdout); 
 					ws.send("show?" + stdout)
 
 					projectCPPVersion = stdout;

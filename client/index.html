@@ -14,7 +14,9 @@
     <!-- scripts -->
     <script src="cm/codemirror.js"></script>
     <script src="cm/css.js"></script>
-    <script src="cm/diff_match_patch.js"></script>
+    <!-- load local server version if cdn unavailable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
+
     <script src="cm/htmlmixed.js"></script>
     <script src="cm/xml.js"></script>
     <script src="cm/merge.js"></script>
