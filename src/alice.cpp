@@ -288,11 +288,16 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 
 	// for some reason, on Windows at least, the filename comes preceded by a slash
 	std::string name = al_fs_strip_pre_slash(filename);
-
-	double modified = al_fs_modified(name);
 	std::string ext = al_fs_extension(filename);
 
+	// emit an event?
+	if (ext == ".git") {
+		// ignore changes to such files
+		return;
+	} 
+
 	// filter out double-notification events:
+	double modified = al_fs_modified(name);
 	auto search = modtimes.find(name);
 	if (search != modtimes.end() && search->second == modified) {
 		// skip this event, since the same file has already triggered an event with the same timestamp
@@ -300,12 +305,8 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	}
 	// update our last-modified cache:
 	modtimes[name] = modified;
-
-	//TODO: how to ignore changes made in .git folder! this seems to be causing alice to exit see code 3221225477
+	
 	fprintf(stderr, "Change detected in %s\n", name.c_str());
-
-	// emit an event?
-
 	if (ext == ".glsl") {
 		// shader mods should always do this:
 		alice.onReloadGPU.emit();
@@ -332,7 +333,6 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 			openlib(project_lib_path.c_str());
 		}
 	}
-
 	alice.onFileChange.emit(name);
 }
 
@@ -408,12 +408,11 @@ int main(int argc, char ** argv) {
 
 	//alice.cloudDevice->record(1);
 	alice.cloudDevice->open();
-	
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
 	}
 
-	alice.onReset.emit();
+	//alice.onReset.emit();
 
 	console.log("begin rendering");
 	

@@ -427,7 +427,7 @@ public:
 	void initialize(int dimx, int dimy, int dimz) {
 		velocities.initialize(dimx, dimy, dimz, 3);
 		gradient.initialize(dimx, dimy, dimz, 1);
-		printf("initialized\n");
+		//printf("initialized\n");
 		//boundaries.initialize(dimx, dimy, dimz, 1);
 	}
 	void initialize(glm::dvec3 dim) {
