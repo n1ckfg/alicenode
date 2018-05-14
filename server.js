@@ -466,21 +466,21 @@ wss.on('connection', function(ws, req) {
 					//problem in the client script when using the "--follow project.cpp" flag, so its
 					//been removed for now, but will make using the browser version difficult, unless you can expose the filenames 
 					//into the svg. so mouseover tells you which filenames are affected?
+					// let alice = spawn('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat'), { cwd: project_path }, (stderr) => {
 
-					//TODO eventually add ' --stat' at the end of the command, and figure out a way to add the commit stats to the 
-					exec('git log --all --date-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat', {cwd: project_path}, (stdout, stderr, err) => {
-						//when the client script can handle mor data, use this git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B"'
-							//bc for now if you send this data it gives an error :
-							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
-						 
-							//console.log("\n\n\n\n stderr");
 
-							let gitlog = stderr;
+					// });
+ 
+					exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
+							//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
+						fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function(err, data) {
+							if (err) throw err;
+							let gitlog = data;
 
-												// on the server
-						// given the text of a gitlog output, it will produce a JSON-friendly object represntation of it
-						// which can be used to render on a client
-						function make_graph_from_gitlog(gitlog) {
+							// on the server
+							// given the text of a gitlog output, it will produce a JSON-friendly object representation of it
+							// which can be used to render on a client
+							function make_graph_from_gitlog(gitlog) {
 							// this will collect an object for each commit:
 							let commits = [];
 							// this will collect the names of commits with no parent:
@@ -609,12 +609,13 @@ wss.on('connection', function(ws, req) {
 						}
 						
 						let graph = make_graph_from_gitlog(gitlog);
-						 let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-						 console.log("\n\n\n\n\n gitlog svg sent")
+						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
+						console.log("\n\n\n\n\n gitlog svg sent")
 
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
 					})
+				})
 			break;
 
 			case "edit": 
