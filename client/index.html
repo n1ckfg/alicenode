@@ -60,6 +60,13 @@
     </select> 
        
 </form>
+<form name="usernames"> Current User: 
+    <select id="userName" onchange="userSelect();">
+            <option selected disabled>Please Select User</option> 
+            <option >Michael Palumbo emailmichaelpalumbo@gmail.com</option>
+    </select> 
+       
+</form>
 
 <!-- TODO: allow client user to sign in using their name and email address (then pass this along in the sendLeftCode function so that git logs this detail as the authorname) -->
 
@@ -174,6 +181,7 @@ var requested;
 var current;
 var isRightDirty = false;
 var currentBranch;
+var authorName = "Michael Palumbo emailmichaelpalumbo@gmail.com"; //git will make commits under this provided name, will change if client user selects different name
 
 //send the code from right pane
 function sendCodeRelay(){
@@ -398,7 +406,11 @@ setInterval(function(){
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
-
+    //TODO: figure out how to include the var 'authorName' in this
+    //message, so that git will commit under this client's git username
+    //i.e.  git commit --author="John Doe john@doe.org" -m "message"
+    //also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
+    //and email
     var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
     //   var message = "edit?" + editorCM.getValue();   
     var changes = "edit?" + commitMsg + "$?$" + dv.editor().getValue()
@@ -554,15 +566,19 @@ function addWorktree(){
         }
     }
 }
-
-// worktree selection 
-function worktreeSelect()  { 
+//username selection (for git commits)
+function userSelect()  { 
     
-    selection = document.aform.userWorktree.value;
+    selection = document.usernames.username.value;
 
     //switch to an existing worktree
     log("Right editor working within " + selection + "'s worktree")
-    ws.send("switchWorktree " + selection)
+    ws.send("gitAuthorName " + selection)
+}
+// worktree selection 
+function worktreeSelect()  { 
+    
+    authorName = document.aform.userWorktree.value;
 }
 
 /////////////////////////////////////
