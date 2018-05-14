@@ -277,23 +277,29 @@ wss.on('connection', function(ws, req) {
 
 	};
 
-		
-		//get the names of current worktrees
-		exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
-		
-			//send updated list to client
-			err = err.split(/\n/g).filter(String)
-			// worktrees = [];
-			        // err.forEach(function(element) {
-					// console.log("test " + element)
-					// worktrees.push(element)
-					// })
-					//console.log(element)
-					// console.log(Array.isArray(err))
-					// console.log(typeof err[1])
-			ws.send("worktreeList?" + JSON.stringify(err))
 
-		}) 
+		// send a handshake?
+		ws.send("state?"+fs.readFileSync("state.h", "utf8"));
+		if (statebuf) ws.send(statebuf);
+		ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
+
+		
+		// //get the names of current worktrees
+		// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
+		
+		// 	//send updated list to client
+		// 	err = err.split(/\n/g).filter(String)
+		// 	// worktrees = [];
+		// 	        // err.forEach(function(element) {
+		// 			// console.log("test " + element)
+		// 			// worktrees.push(element)
+		// 			// })
+		// 			//console.log(element)
+		// 			// console.log(Array.isArray(err))
+		// 			// console.log(typeof err[1])
+		// 	ws.send("worktreeList?" + JSON.stringify(err))
+
+		// }) 
 
 
 	sessions[per_session_data.id] = per_session_data;
@@ -447,6 +453,8 @@ wss.on('connection', function(ws, req) {
 
 			case "client_SVG":
 
+			console.log("\n\n\n\n SVG REQUESTED")
+
 					///// PLO //// Could be useful to see what commands are most used, maybe for 
 					// future features https://github.com/jvns/git-workflow
 
@@ -460,7 +468,7 @@ wss.on('connection', function(ws, req) {
 							//bc for now if you send this data it gives an error :
 							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
 						 
-
+							console.log("\n\n\n\n gitlog complete");
 
 							let gitlog = stderr;
 
@@ -600,6 +608,7 @@ wss.on('connection', function(ws, req) {
 						
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
+						console.log("\n\n\n\n\n gitlog svg sent")
 					})
 			break;
 
@@ -635,10 +644,7 @@ wss.on('connection', function(ws, req) {
 		// tell git-in-vr to push the atomic commits?
 	});
 	
-	// send a handshake?
-	ws.send("state?"+fs.readFileSync("state.h", "utf8"));
-	if (statebuf) ws.send(statebuf);
-	ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
+
 
 });
 
