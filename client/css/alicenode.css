@@ -45,7 +45,7 @@
     /* height: 10%; */
     overflow: auto;
     font-size: 8pt; 
-    height: 17%;    
+    height: 10%;    
 }
 
 #messages {
@@ -58,7 +58,7 @@
     left: 0;
     width: 50%;
     overflow: scroll;
-    height: 17%;
+    height: 10%;
 }
     
 #commit_detail {
@@ -77,3 +77,41 @@
 #nodes circle:hover {
     fill: blue;
 }   */
+
+
+.onoffswitch {
+    position: relative; width: 40px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none; float: left;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    height: 21px; padding: 0; line-height: 21px;
+    border: 0px solid #E3E3E3; border-radius: 14px;
+    background-color: #C2C2C2;
+}
+.onoffswitch-label:before {
+    content: "";
+    display: block; width: 14px; margin: 3.5px;
+    background: #27A1CA;
+    position: absolute; top: 0; bottom: 0;
+    right: 15px;
+    border-radius: 14px;
+    box-shadow: 0 6px 12px 0px #757575;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label {
+    background-color: #49E845;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label, .onoffswitch-checkbox:checked + .onoffswitch-label:before {
+   border-color: #49E845;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label:before {
+    right: 0px; 
+    background-color: #27A1CA; 
+    box-shadow: 3px 6px 18px 0px rgba(0, 0, 0, 0.2);
+}

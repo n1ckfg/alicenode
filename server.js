@@ -6,6 +6,9 @@ const WebSocket = require('ws');
 const mmapfile = require('mmapfile');
 const chokidar = require('chokidar');
 
+//zlib compression:
+const pako = require('pako');
+
 const http = require('http');
 const url = require('url');
 const fs = require("fs");
@@ -279,9 +282,10 @@ wss.on('connection', function(ws, req) {
 
 
 		// send a handshake?
-		ws.send("state?"+fs.readFileSync("state.h", "utf8"));
-		if (statebuf) ws.send(statebuf);
-		ws.send("edit?"+fs.readFileSync("project.cpp", "utf8"));
+		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
+		// if (statebuf) ws.send(statebuf);
+		
+		ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
 
 		
 		// //get the names of current worktrees
@@ -421,12 +425,13 @@ wss.on('connection', function(ws, req) {
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
 				exec(gitCommand, { cwd: project_path }, (err, stdout) => {
-					//console.log(err);
-					//console.log(stdout);
-					console.log(stdout); 
+					
 					ws.send("show?" + stdout)
 
-					projectCPPVersion = stdout;
+					console.log("sending show");
+					//console.log(stdout);
+					//console.log(projectCPPVersion); 
+
 
 			});
 
@@ -463,12 +468,12 @@ wss.on('connection', function(ws, req) {
 					//into the svg. so mouseover tells you which filenames are affected?
 
 					//TODO eventually add ' --stat' at the end of the command, and figure out a way to add the commit stats to the 
-					exec('git log --all --date-order --date=short --pretty="%H|%P|%d|%cd|%cN|%s%b|" --stat', {cwd: project_path}, (stdout, stderr, err) => {
+					exec('git log --all --date-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat', {cwd: project_path}, (stdout, stderr, err) => {
 						//when the client script can handle mor data, use this git log --all --date-order --pretty="%ad|%aN|%H|%P|%d|%cN|%cI|%B"'
 							//bc for now if you send this data it gives an error :
 							 	//"merge.html:516 Uncaught TypeError: Cannot set property 'col' of undefined"
 						 
-							console.log("\n\n\n\n gitlog complete");
+							//console.log("\n\n\n\n stderr");
 
 							let gitlog = stderr;
 
@@ -604,11 +609,11 @@ wss.on('connection', function(ws, req) {
 						}
 						
 						let graph = make_graph_from_gitlog(gitlog);
-						let graphjson = JSON.stringify(graph);
-						
+						 let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
+						 console.log("\n\n\n\n\n gitlog svg sent")
+
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
-						console.log("\n\n\n\n\n gitlog svg sent")
 					})
 			break;
 
@@ -653,7 +658,7 @@ server.listen(8080, function() {
 });
 
 setInterval(function() {
-	if (statebuf) send_all_clients(statebuf);
+	//if (statebuf) send_all_clients(statebuf);
 	//send_all_clients("fps?"+);
 }, 100);
 
