@@ -61,6 +61,8 @@
        
 </form>
 
+<!-- TODO: allow client user to sign in using their name and email address (then pass this along in the sendLeftCode function so that git logs this detail as the authorname) -->
+
 <!-- add a new worktree -->
 <button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
 <br>
@@ -136,7 +138,6 @@ Editor Settings
       function getCommitDetail(evt) {
             let selectedCommit = evt.target.id
             //console.log(evt.target.id)
-            //console.log("test")
             ws.send("git show " + selectedCommit);
             ws.send("getCurrentBranch");
             evt.target.setAttributeNS(null,"opacity","0.5");
@@ -234,7 +235,6 @@ function openSocket() {
                     let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
                     
                     let svg = make_svg_from_commits(graph);
-                    //console.log(svg)
 
                     //push the svg content to the gitgraph div
                     $("#gitgraph").html(svg)
@@ -248,7 +248,6 @@ function openSocket() {
                     //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
                     case "worktreeList":
                         console.log(arg)
-                        //console.log(arg)
                         //var names = arg
                         //html select element
                         var sel = document.getElementById('userWorktree');
@@ -288,7 +287,6 @@ function openSocket() {
 
 
                         // var err = arg.split("\n");
-                        // //console.log()
                         // var select = document.getElementById('userWorktree')
                         // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
                     
@@ -321,7 +319,6 @@ function openSocket() {
                         
                         
                         // var options = JSON.parse(arg);
-                        // console.log("got it " + options )
 
                         break;
 
@@ -364,7 +361,7 @@ function openSocket() {
                         //}
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                         orig1 = arg;
-                        console.log("received previous version from server: \n\n\n\n" + orig1)
+
                         initUI();
                         break;    
                     case "state":
