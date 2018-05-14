@@ -1,3 +1,15 @@
+f99eb23|a16938b| (HEAD -> master)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+a16938b|93d1c44||2018-05-14|Graham Wakefield|reticulating splines|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+93d1c44|62569f0||2018-05-14|Graham Wakefield|client updated project|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 fcbf8a7|b4c7b4e| (origin/texture_coordinates)|2018-05-14|Nicholas|Attempted to fix issue with smax_tex, came to the conclusion that values are too large to use smax until further optimization has been done. Until then avoid smax and ssub and use only un smoothed max and sub (now added)|
 
  object.frag.glsl | 84 +++++++++++++++++++++++++++++++++++++++++++++++++-------
@@ -8,7 +20,7 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
  object.frag.glsl | 14 +++++++++++---
  1 file changed, 11 insertions(+), 3 deletions(-)
 903eb68|32bd09c 62569f0||2018-05-10|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
-62569f0|c50a2f0| (HEAD -> master, origin/master, origin/HEAD)|2018-05-09|Graham Wakefield|interesting emissive effect|
+62569f0|c50a2f0| (origin/master, origin/HEAD)|2018-05-09|Graham Wakefield|interesting emissive effect|
 
  defer.frag.glsl | 19 ++++++++++++++++---
  devrun.bat      |  2 +-
