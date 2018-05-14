@@ -48,7 +48,7 @@
 
 <!--        HTML UI Elements        -->
 
-    server address & open/close
+    <!-- server address & open/close -->
     <input id="server" type="text" value="ws://localhost:8080" size="40">
     <button onclick="openSocket()">Open</button>
     <button onclick="closeSocket()">Close</button>
@@ -88,7 +88,8 @@ Editor Settings
 <br>
 
 <!-- Send code to server -->
-<button onclick="sendLeftCode()">Send Left Code</button><button onclick="sendCodeRelay()">Send Right Code</button>
+<button onclick="sendLeftCode()">Send Left Code</button>
+<button onclick="sendCodeRelay()">Send Right Code</button>
 
 <!-- the Codemirror mergeview instance! -->
 <div id="container">
@@ -197,7 +198,6 @@ function openSocket() {
     };
     ws.onmessage = function(e) {
 
-        console.log(e)
         /*if (e.data instanceof Blob) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -232,7 +232,7 @@ function openSocket() {
 
                   
                     let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
-                    console.log(graph)
+                    
                     let svg = make_svg_from_commits(graph);
                     //console.log(svg)
 
@@ -401,11 +401,13 @@ setInterval(function(){
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
+
+    var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
     //   var message = "edit?" + editorCM.getValue();   
-    var message = "edit?" + dv.editor().getValue()
-    console.log("SENDING TO SERVER: \n" + message);
+    var changes = "edit?" + commitMsg + "$?$" + dv.editor().getValue()
+    log("Sent LeftEditor Contents to server: " + commitMsg);
     //log('sending: ' + message);
-    ws.send(message);
+    ws.send(changes);
 }
 //Get current content within CodeMirror's Right Mergeview
 function sendRightCode(val){

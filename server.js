@@ -51,66 +51,13 @@ let clientOrigRightWorktree; //the worktree used by origRight, and specific to t
 let worktreepath = path.join(client_path, "worktreeList.txt");
 let worktreeJSON = []; //list of worktrees in project_path
 
+let commitMsg = "client updated project"; //default commit message if nothing given? 
 
 //if alice is already running from a previous crash, then terminate it
 var terminate = require('terminate');
 
 const find = require('find-process');
 
-/* keep this commented out for now: added this to the start.js script in the 'crash' section. make sure that works before removing this here. 
-switch (os.type) {
-
-	case "Darwin":
-	
-	find('name', 'alice')
-		.then(function (list) {
-
-		let pidList = list.map(a => a.pid)
-
-			pidList.forEach(function(element) {
-
-				terminate(element, function (err) {
-					if (err) { // you will get an error if you did not supply a valid process.pid 
-						console.log("pidTerminate: " + err); // handle errors in your preferred way. 
-					}
-					else {
-						console.log('done'); // terminating the Processes succeeded. 
-					}
-				});
-
-			})
-
-  		});
-  	break;
-	
-	case "Windows_NT":
-
-	find('name', 'alice.exe')
-		.then(function (list) {
-
-	  		let pidList = list.map(a => a.pid)
-
-	  		pidList.forEach(function(element) {
-
-				terminate(element, function (err) {
-					if (err) { // you will get an error if you did not supply a valid process.pid 
-						console.log("pidTerminate: " + err); // handle errors in your preferred way. 
-					}
-					else {
-						console.log('done'); // terminating the Processes succeeded. 
-					}
-				});
-
-	  		})
-
-		});
-		break;
-
-}
-
-
-
-*/
 pruneWorktree()
 function pruneWorktree() {
 	// update the worktree list, if any worktrees had been removed by user, make sure they aren't
@@ -162,26 +109,24 @@ if (!fs.existsSync(projectlib) || fs.statSync("project.cpp").mtime > fs.statSync
 
 // UPDATE GIT REPO: do we commit the alicenode_inhabitat repo on startup?
 
-// function git_add_and_commit() {
-// 	try {
+function git_add_and_commit() {
+	try {
 				
-// 		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
-// 		execSync('git commit -m "client updated project"', {cwd: project_path }, () => {console.log("git committed")});
-// 		//create digraph from git history of project.cpp
-// 		execSync('git-big-picture --graphviz --all --tags --branches --roots --merges --bifurcations --file=project.cpp' + ' > ' + path.join(server_path, "repo_graph.dot"), {cwd: project_path}, () => {console.log("made the repo_graph.dot")});
-// 		//convert the digraph to svg
-// 		execSync('dot -Tsvg ' + path.join(server_path, "repo_graph.dot") + ' -o ' + path.join(client_path, "repo_graph.svg"), () => {console.log("made repo_graph.svg")});
-// 		execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
-// 			console.log("updated ../client/gitlog.json")
-// 		})
+		execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
+		execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
+		execSync('git status', {cwd: project_path }, (stdout) => {console.log("\n\n\n\n\n\n\n" + stdout)});
 
-// 		send_all_clients("updateRepo?");
+		// execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
+		// 	console.log("updated ../client/gitlog.json")
+		// })
 
-// 		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
-// 	} catch (e) {
-// 		console.error(e.toString());
-// 	}
-// }
+		//send_all_clients("updateRepo?");
+
+		//exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
+	} catch (e) {
+		console.error(e.toString());
+	}
+}
 
 //
 
@@ -471,7 +416,7 @@ wss.on('connection', function(ws, req) {
 
 					// });
  
-					exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
+					exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
 							//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
 						fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function(err, data) {
 							if (err) throw err;
@@ -619,8 +564,10 @@ wss.on('connection', function(ws, req) {
 			break;
 
 			case "edit": 
-				console.log(arg);
-				fs.writeFileSync("project.cpp", arg, "utf8");
+				let commitMsg = arg.substr(0, arg.indexOf("$?$"));
+				let newCode = arg.split('$?$')[1];
+				console.log("\n\n\n\n\n\n" + newCode);
+				fs.writeFileSync("project.cpp", newCode, "utf8");
 				break;
 
 			default:
@@ -707,6 +654,10 @@ watcher
 			
 				project_build();
 				loadsim();
+
+				git_add_and_commit();
+
+				
 
 			} catch (e) {
 				console.error(e.message);
