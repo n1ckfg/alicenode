@@ -31,6 +31,9 @@
 
 
     <!-- scripts -->
+    <script type="text/javascript" src="js/pako.js"></script>
+    <!-- <script type="text/javascript" src="js/pako_inflate.js"></script> -->
+    <!-- <script type="text/javascript" src="js/pako_deflate.js"></script> -->
     <script src="js/jquery-3.3.1.js"></script>
     <script src="js/jquery-ui.js"></script>
     <script src="js/jquery.mousewheel.min.js"></script>
@@ -54,8 +57,19 @@
 <form name="aform"> Current User Worktree: 
     <select id="userWorktree" onchange="worktreeSelect();">
             <option selected disabled>Please Select Worktree</option> 
-    </select>    
+    </select> 
+       
 </form>
+<form name="usernames"> Current User: 
+    <select id="userName" onchange="userSelect();">
+            <option selected disabled>Please Select User</option> 
+            <option >Michael Palumbo emailmichaelpalumbo@gmail.com</option>
+            <option >Guest</option>
+    </select> 
+       
+</form>
+
+<!-- TODO: allow client user to sign in using their name and email address (then pass this along in the sendLeftCode function so that git logs this detail as the authorname) -->
 
 <!-- add a new worktree -->
 <button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
@@ -63,13 +77,29 @@
 
 <!-- Customize the Codemirror Instance -->
 Editor Settings
-<button id="live_diffing" onclick="toggleDifferences()">Toggle: Live Diffing</button> 
-<button id="toggleCollapse" onclick="collapse = !collapse; initUI()">Toggle: Collapse Changes</button> 
-<button id="align" onclick="connect = connect ? null : 'align'; initUI()">Toggle: Align Changes</button> 
-<p>
+<p></p>
+
+<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
+    <label class="onoffswitch-label" for="myonoffswitch"></label>
+</div>Live Diffing
+
+<br>
+<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
+    <label class="onoffswitch-label" for="myonoffswitch"></label>
+</div>Collapse Changes
+
+<br>
+<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
+    <label class="onoffswitch-label" for="myonoffswitch"></label>
+</div>Align Changes
+<br>
 
 <!-- Send code to server -->
-<button onclick="sendLeftCode()">Send Left Code</button><button onclick="sendCodeRelay()">Send Right Code</button>
+<button onclick="sendLeftCode()">Send Left Code</button>
+<button onclick="sendCodeRelay()">Send Right Code</button>
 
 <!-- the Codemirror mergeview instance! -->
 <div id="container">
@@ -83,7 +113,7 @@ Editor Settings
 <!-- server messages -->
 <div id="serverMessages">
     <ul id="messages"></ul>
-    <ul id="commit_detail">Commit Details</h3>
+    <!-- <ul id="commit_detail">Commit Details</h3> -->
 </div>
 
 
@@ -94,12 +124,13 @@ Editor Settings
       function mouseEnterCommit(evt) {
         var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
         
-        console.log(details)
-        evt.target.setAttributeNS(null,"opacity","0.5");
-        var li = document.createElement('li');
-        li.innerHTML = evt;
-        var list = document.getElementById('commit_detail');
-        list.insertBefore(li, list.childNodes[0]);
+        //place hovered commit details in a list onscreen
+        //console.log(details)
+        // evt.target.setAttributeNS(null,"opacity","0.5");
+        // var li = document.createElement('li');
+        // li.innerHTML = evt;
+        // var list = document.getElementById('commit_detail');
+        // list.insertBefore(li, list.childNodes[0]);
 
         //console.log(evt.target.ref)
       }
@@ -115,7 +146,6 @@ Editor Settings
       function getCommitDetail(evt) {
             let selectedCommit = evt.target.id
             //console.log(evt.target.id)
-            //console.log("test")
             ws.send("git show " + selectedCommit);
             ws.send("getCurrentBranch");
             evt.target.setAttributeNS(null,"opacity","0.5");
@@ -152,6 +182,7 @@ var requested;
 var current;
 var isRightDirty = false;
 var currentBranch;
+var authorName = "Michael Palumbo emailmichaelpalumbo@gmail.com"; //git will make commits under this provided name, will change if client user selects different name
 
 //send the code from right pane
 function sendCodeRelay(){
@@ -176,6 +207,7 @@ function openSocket() {
         // log('close');
     };
     ws.onmessage = function(e) {
+
         /*if (e.data instanceof Blob) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -207,10 +239,11 @@ function openSocket() {
                     //svg from server:
                     case "gitLog":
                     //let graph = arg;
-                    let graph = JSON.parse(arg);
-                    console.log(graph)
+
+                  
+                    let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
+                    
                     let svg = make_svg_from_commits(graph);
-                    console.log(svg)
 
                     //push the svg content to the gitgraph div
                     $("#gitgraph").html(svg)
@@ -224,7 +257,6 @@ function openSocket() {
                     //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
                     case "worktreeList":
                         console.log(arg)
-                        //console.log(arg)
                         //var names = arg
                         //html select element
                         var sel = document.getElementById('userWorktree');
@@ -264,7 +296,6 @@ function openSocket() {
 
 
                         // var err = arg.split("\n");
-                        // //console.log()
                         // var select = document.getElementById('userWorktree')
                         // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
                     
@@ -297,7 +328,6 @@ function openSocket() {
                         
                         
                         // var options = JSON.parse(arg);
-                        // console.log("got it " + options )
 
                         break;
 
@@ -317,16 +347,18 @@ function openSocket() {
                         log(arg)
                         break;
 
-                    case "edit":
+                    case "currentVersion":
                         // editorCM.setValue(arg);
                         // fillEditor("a" + arg);
 
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                        
+                        //load current state into leftMergeview
                         value = arg
                         orig1 = arg
                         initUI();   
                         $( function() {
-                            $( "#view" ).resizable();
+                            $( "#view" )
                         });                       
                         break;
 
@@ -338,7 +370,7 @@ function openSocket() {
                         //}
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                         orig1 = arg;
-                        console.log(arg)
+
                         initUI();
                         break;    
                     case "state":
@@ -375,11 +407,17 @@ setInterval(function(){
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
+    //TODO: figure out how to include the var 'authorName' in this
+    //message, so that git will commit under this client's git username
+    //i.e.  git commit --author="John Doe john@doe.org" -m "message"
+    //also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
+    //and email
+    var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
     //   var message = "edit?" + editorCM.getValue();   
-    var message = "edit?" + dv.editor().getValue()
-    console.log("SENDING TO SERVER: \n" + message);
+    var changes = "edit?" + commitMsg + "$?$" + dv.editor().getValue()
+    log("Sent LeftEditor Contents to server: " + commitMsg);
     //log('sending: ' + message);
-    ws.send(message);
+    ws.send(changes);
 }
 //Get current content within CodeMirror's Right Mergeview
 function sendRightCode(val){
@@ -529,22 +567,26 @@ function addWorktree(){
         }
     }
 }
-
-// worktree selection 
-function worktreeSelect()  { 
+//username selection (for git commits)
+function userSelect()  { 
     
-    selection = document.aform.userWorktree.value;
+    selection = document.usernames.username.value;
 
     //switch to an existing worktree
     log("Right editor working within " + selection + "'s worktree")
-    ws.send("switchWorktree " + selection)
+    ws.send("gitAuthorName " + selection)
+}
+// worktree selection 
+function worktreeSelect()  { 
+    
+    authorName = document.aform.userWorktree.value;
 }
 
 /////////////////////////////////////
                                     //MERGEVIEW
 function toggleCollapse(){
     collapse = !collapse
-    initUI()
+    initUI(collapse)
 }
 
 function toggleDifferences() {
@@ -563,17 +605,39 @@ function initUI() {
         origRight: orig1,
         lineNumbers: true,
         mode: "clike",
-        highlightDifferences: "highlight",
-        viewportMargin: Infinity,
+        //highlightDifferences: "highlight",
+        
+        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT seems to have been the source of the sluggishness in the client app!!
+        viewportMargin: 10,
         revertButtons: true,
         allowEditingOriginals: true,
         autoRefresh: true,
 
         linewrapping: true,
-        connect: "align",
+        connect: "connect",
         theme: "icecode",
-        collapseIdentical: collapse
+        collapseIdentical: true,
         // collapse: collapse
+        
+
+        
+        /* init: */
+        //place cursor in left editor at client init
+        //autofocus: 1,
+
+            //TODO: disable/enable editing in the codemirror instance. will use this once user worktrees are set up so that editing can only be enabled once a user worktree is chosen (or created). Once a worktree is chosen, change the readOnly value to false.
+            //readOnly: "nocursor"
+        //set tab index for editor
+        // tabindex: 2,
+        
+
+        //editing
+        undoDepth: 200,
+
+
+        //cursor settings:
+        cursorBlinkRate: 300,
+        cursorScrollMargin: 0
     });
 
     //when new code loaded into right pane, reset isRightDirty flag   
@@ -644,6 +708,7 @@ function col_hue(col) {
 // { roots:["hash", "hash", ...], commits:[obj, obj, ...], paths:[obj, obj, ...], maxcolumn: integer }
 // returns the HTML code for an SVG representation of it
 function make_svg_from_commits(graph) {
+
     var commits = graph.commits;
     var paths = graph.paths;
     var maxcolumn = graph.maxcolumn;

@@ -2,6 +2,9 @@
 alice
 alice.exe
 
+_tests
+tmp/gitlog.txt
+
 #IDE_workspace
 alicenode.code-workspace
 
