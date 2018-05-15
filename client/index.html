@@ -54,26 +54,27 @@
     <button onclick="closeSocket()">Close</button>
 
 <!-- drop down list of available worktrees or make a new worktree -->
-<form name="aform"> Current User Worktree: 
+<!-- <form name="aform"> Current User Worktree: 
     <select id="userWorktree" onchange="worktreeSelect();">
             <option selected disabled>Please Select Worktree</option> 
-    </select> 
+    </select>  -->
        
 </form>
 <form name="usernames"> Current User: 
-    <select id="userName" onchange="userSelect();">
+    <select id="chooseUser" onchange="userSelect();">
             <option selected disabled>Please Select User</option> 
-            <option >Michael Palumbo emailmichaelpalumbo@gmail.com</option>
-            <option >Guest</option>
+            <option value="Michael Palumbo">Michael Palumbo </option>
+            <option value="Guest">Guest</option>
+            <option value="Add User...">Add User...</option>
     </select> 
-       
+       <!-- emailmichaelpalumbo@gmail.com -->
 </form>
 
 <!-- TODO: allow client user to sign in using their name and email address (then pass this along in the sendLeftCode function so that git logs this detail as the authorname) -->
 
 <!-- add a new worktree -->
-<button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
-<br>
+<!-- <button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
+<br> -->
 
 <!-- Customize the Codemirror Instance -->
 Editor Settings
@@ -570,11 +571,39 @@ function addWorktree(){
 //username selection (for git commits)
 function userSelect()  { 
     
-    selection = document.usernames.username.value;
+    selection = document.usernames.chooseUser.value;
+    switch (selection) {
 
+        case "Add User...":
+        
+        var userName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+
+        
+        var userEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+           
+            //TODO: create a worktree for user with their username. replace all spaces with underscores. 
+            ws.send("newUser?" + userName + "$?$" + userEmail)
+            //console.log(userName, userEmail)
+
+        //add new user to select in HTML, make sure its checked. 
+        var select = document.getElementById('chooseUser');
+        var length = select.length;
+        var opt = document.createElement('option');
+        opt.value = userName;
+        opt.innerHTML = userName;
+        select.appendChild(opt);
+        document.getElementById('chooseUser').selectedIndex = (length);
+
+            
+        break;
+
+        default: console.log("test" + selection);
+        ws.send("selectUser?" + selection);
+        break;
+    }
     //switch to an existing worktree
-    log("Right editor working within " + selection + "'s worktree")
-    ws.send("gitAuthorName " + selection)
+    // log("Right editor working within " + selection + "'s worktree")
+    // ws.send("gitAuthorName " + selection)
 }
 // worktree selection 
 function worktreeSelect()  { 

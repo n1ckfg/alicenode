@@ -24,6 +24,7 @@
     "express": "^4.16.3",
     "find-process": "^1.1.1",
     "git-log-to-json": "^1.1.1",
+    "json5": "^1.0.1",
     "mmapfile": "^0.1.1",
     "node-giff": "0.0.7",
     "nodegit": "^0.21.2",

@@ -9,6 +9,7 @@ const chokidar = require('chokidar');
 //zlib compression:
 const pako = require('pako');
 
+const JSON5 = require('json5');
 const http = require('http');
 const url = require('url');
 const fs = require("fs");
@@ -262,8 +263,10 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
-
+		//console.log(message)
 		
+
+
 		//create and set worktree
 		if (message.includes("addWorktree")){
 			newWorkTree = message.replace("addWorktree ", "+")
@@ -400,10 +403,58 @@ wss.on('connection', function(ws, req) {
 			let cmd = message.substring(0, q);
 			let arg = message.substring(q+1);
 			switch(cmd) {
+			
+				// case "newUser":
+				// 	console.log(arg)
+				// break;
+
+			case "newUser":
+
+			let fullname = arg.substr(0, arg.indexOf("$?$"));
+				let useremail = arg.split('$?$')[1];
+				myarray = [];
+
+				var obj = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
+				//console.log(arg)
+
+				//console.log(userName)
+				//console.log(userEmail)
+				
+				
+				obj[fullname] = useremail;
+
+				myarray.push(obj);
+
+				console.log("json" + myarray)
+/*
+				console.log(JSON.stringify(entry));
+				//add userName: userEmail to a JSON stored locally in the alicenode_inhabitat repo
+				//console.log(entry)
+				fs.appendFile(path.join(project_path, "userlist.json"), JSON.stringify(entry));
+
+				//create a worktree under this user?
+				//first replace all spaces with underscores:
+				var newWorkTree = fullname.split(' ').join('_');
+				exec("git worktree add --no-checkout " + newWorkTree, (stdout, err, stderr) => {
+					});
+				// 	getWorktreeList();
+					
+				//TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
+				*/
+				break;
+
+			case "selectUser":
+					console.log(arg)
+
+				var obj = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
+						console.log(obj.arg)
+				
+	
+			
+				break;
 
 			case "client_SVG":
 
-			console.log("\n\n\n\n SVG REQUESTED")
 
 					///// PLO //// Could be useful to see what commands are most used, maybe for 
 					// future features https://github.com/jvns/git-workflow
@@ -555,7 +606,6 @@ wss.on('connection', function(ws, req) {
 						
 						let graph = make_graph_from_gitlog(gitlog);
 						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-						console.log("\n\n\n\n\n gitlog svg sent")
 
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)

@@ -1,4 +1,32 @@
-f99eb23|a16938b| (HEAD -> master)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+ffa701a|1ce57a5| (origin/texture_coordinates)|2018-05-15|Nicholas|Made a 'pseudo-texture' with small ripples that look like folds of skin/wrinkles in the object.frag creature. Capsule c is responsible for this behaviour|
+
+ defer.frag.glsl  | 2 +-
+ object.frag.glsl | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+1ce57a5|abefc7d| (tag: Experimental.1)|2018-05-15|Nicholas|Experimental commit. Applied a large value to the occilation in capsule e of object.frag, tagged this as 'Experimental'.|
+
+ defer.frag.glsl  |  2 +-
+ object.frag.glsl | 23 ++++++++++++-----------
+ 2 files changed, 13 insertions(+), 12 deletions(-)
+abefc7d|fcbf8a7||2018-05-15|Nicholas|Fixed an error with sub_tex. Accidentally left an unused parameter.|
+
+ object.frag.glsl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+fcbf8a7|b4c7b4e||2018-05-14|Nicholas|Attempted to fix issue with smax_tex, came to the conclusion that values are too large to use smax until further optimization has been done. Until then avoid smax and ssub and use only un smoothed max and sub (now added)|
+
+ object.frag.glsl | 84 +++++++++++++++++++++++++++++++++++++++++++++++++-------
+ project.cpp      |  4 +++
+ 2 files changed, 78 insertions(+), 10 deletions(-)
+b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex and ssub_tex, as well as an engrave function. wip|
+
+ object.frag.glsl | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+903eb68|32bd09c 62569f0||2018-05-10|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+32bd09c|daa60af||2018-05-10|Nicholas|sdCapsule2 texture coordinates|
+
+ object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
+f99eb23|a16938b| (HEAD -> master, origin/master, origin/HEAD, Full_Name)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -10,17 +38,7 @@ a16938b|93d1c44||2018-05-14|Graham Wakefield|reticulating splines|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-fcbf8a7|b4c7b4e| (origin/texture_coordinates)|2018-05-14|Nicholas|Attempted to fix issue with smax_tex, came to the conclusion that values are too large to use smax until further optimization has been done. Until then avoid smax and ssub and use only un smoothed max and sub (now added)|
-
- object.frag.glsl | 84 +++++++++++++++++++++++++++++++++++++++++++++++++-------
- project.cpp      |  4 +++
- 2 files changed, 78 insertions(+), 10 deletions(-)
-b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex and ssub_tex, as well as an engrave function. wip|
-
- object.frag.glsl | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
-903eb68|32bd09c 62569f0||2018-05-10|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
-62569f0|c50a2f0| (origin/master, origin/HEAD)|2018-05-09|Graham Wakefield|interesting emissive effect|
+62569f0|c50a2f0||2018-05-09|Graham Wakefield|interesting emissive effect|
 
  defer.frag.glsl | 19 ++++++++++++++++---
  devrun.bat      |  2 +-
@@ -79,35 +97,31 @@ a7ead61|eadab18||2018-05-09|Graham Wakefield|backspace also relaods gpu|
  project.cpp | 2 ++
  1 file changed, 2 insertions(+)
 eadab18|515d45d daa60af||2018-05-09|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
-515d45d|2256242||2018-05-09|Graham Wakefield|local|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-32bd09c|daa60af||2018-05-10|Nicholas|sdCapsule2 texture coordinates|
-
- object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
 daa60af|ec372df||2018-05-09|Nicholas|Added texture coordinates to sdCapsule1 of object.frag|
 
  object.frag.glsl | 101 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
  1 file changed, 100 insertions(+), 1 deletion(-)
 ec372df|89d77cf 2256242||2018-05-09|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat|
+89d77cf|ff20f85||2018-05-09|Nicholas|Code version update|
+
+ .vscode/c_cpp_properties.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+515d45d|2256242||2018-05-09|Graham Wakefield|local|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 2256242|cdac578 ff20f85||2018-05-09|Graham Wakefield|final|
+ff20f85|bb32610||2018-05-08|Nicholas|Changed object to have rotations and cubes, added debugMode case (press d to change which creature is in focus)!?|
+
+ object.frag.glsl | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++--
+ project.cpp      | 29 +++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+), 2 deletions(-)
 cdac578|bb32610||2018-05-09|Graham Wakefield|shader work|
 
  .vscode/c_cpp_properties.json |  6 ++-
  defer.frag.glsl               |  4 +-
  object.frag.glsl              | 92 ++++++++++++++++++++++++++++++++++++++++++-
  3 files changed, 96 insertions(+), 6 deletions(-)
-89d77cf|ff20f85||2018-05-09|Nicholas|Code version update|
-
- .vscode/c_cpp_properties.json | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-ff20f85|bb32610||2018-05-08|Nicholas|Changed object to have rotations and cubes, added debugMode case (press d to change which creature is in focus)!?|
-
- object.frag.glsl | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++--
- project.cpp      | 29 +++++++++++++++++++++++++++++
- 2 files changed, 80 insertions(+), 2 deletions(-)
 bb32610|a4f637f||2018-05-07|Graham Wakefield|latest|
 
  build.bat         |    2 +-
