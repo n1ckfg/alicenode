@@ -409,28 +409,40 @@ wss.on('connection', function(ws, req) {
 				// break;
 
 			case "newUser":
-
-			let fullname = arg.substr(0, arg.indexOf("$?$"));
+				//var userlist = [];
+				let fullname = arg.substr(0, arg.indexOf("$?$"));
 				let useremail = arg.split('$?$')[1];
-				myarray = [];
+				var obj = new Object();
+				let userlist = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
 
-				var obj = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-				//console.log(arg)
-
-				//console.log(userName)
-				//console.log(userEmail)
-				
 				
 				obj[fullname] = useremail;
+				//obj.email = useremail;
+				var jsonstring = (JSON.stringify(obj))
+				console.log(jsonstring)
 
-				myarray.push(obj);
+				console.log(userlist.push(obj))
+				// fs.appendFile(path.join(project_path, "userlist.json"), jsonstring);
 
-				console.log("json" + myarray)
+
+				// var a = obj.push(fullname, useremail)
+				// console.log(a)
+				
+				// myarray["fullname"] = "useremail";
+				// console.log(myarray)
+
+				// //console.log(arg)
+
+				// console.log(fullname)
+				// console.log(useremail)
+				
+				
+			 
 /*
 				console.log(JSON.stringify(entry));
 				//add userName: userEmail to a JSON stored locally in the alicenode_inhabitat repo
 				//console.log(entry)
-				fs.appendFile(path.join(project_path, "userlist.json"), JSON.stringify(entry));
+
 
 				//create a worktree under this user?
 				//first replace all spaces with underscores:
