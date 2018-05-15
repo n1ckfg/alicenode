@@ -225,7 +225,9 @@ wss.on('connection', function(ws, req) {
 
 
 	};
-
+		//get the current list of authors involved in the alicenode_inhabitat project
+		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
+		ws.send("setUserList?" + JSON.stringify(userlist));
 
 		// send a handshake?
 		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
@@ -412,55 +414,36 @@ wss.on('connection', function(ws, req) {
 				//var userlist = [];
 				let fullname = arg.substr(0, arg.indexOf("$?$"));
 				let useremail = arg.split('$?$')[1];
-				var obj = new Object();
-				let userlist = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-
 				
-				obj[fullname] = useremail;
-				//obj.email = useremail;
-				var jsonstring = (JSON.stringify(obj))
+				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
+				userlist[fullname] = useremail;
+				
+				var jsonstring = (JSON.stringify(userlist))
 				console.log(jsonstring)
-
-				console.log(userlist.push(obj))
-				// fs.appendFile(path.join(project_path, "userlist.json"), jsonstring);
-
-
-				// var a = obj.push(fullname, useremail)
-				// console.log(a)
 				
-				// myarray["fullname"] = "useremail";
-				// console.log(myarray)
-
-				// //console.log(arg)
-
-				// console.log(fullname)
-				// console.log(useremail)
-				
-				
-			 
-/*
-				console.log(JSON.stringify(entry));
-				//add userName: userEmail to a JSON stored locally in the alicenode_inhabitat repo
-				//console.log(entry)
+				fs.writeFileSync(path.join(project_path, "userlist.json"), jsonstring, 'utf8');
 
 
 				//create a worktree under this user?
 				//first replace all spaces with underscores:
-				var newWorkTree = fullname.split(' ').join('_');
-				exec("git worktree add --no-checkout " + newWorkTree, (stdout, err, stderr) => {
+
+				//add a new worktree to alicenode_inhabitat
+				//the '+' symbol at the beginning will help us remember
+				//that dir is a worktree, and gitignore will catch it
+				exec("git worktree add --checkout +" + fullname.split(' ').join('_'), (stdout, err, stderr) => {
 					});
 				// 	getWorktreeList();
-					
+
 				//TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
-				*/
+				
 				break;
 
 			case "selectUser":
 					console.log(arg)
 
-				var obj = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-						console.log(obj.arg)
-				
+				var username = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
+				console.log(username.arg)
+			
 	
 			
 				break;

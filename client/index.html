@@ -63,9 +63,9 @@
 <form name="usernames"> Current User: 
     <select id="chooseUser" onchange="userSelect();">
             <option selected disabled>Please Select User</option> 
-            <option value="Michael Palumbo">Michael Palumbo </option>
-            <option value="Guest">Guest</option>
             <option value="Add User...">Add User...</option>
+            <option value="Guest">Guest</option>
+
     </select> 
        <!-- emailmichaelpalumbo@gmail.com -->
 </form>
@@ -235,7 +235,44 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
-                
+                    
+                    case "setUserList":
+                        
+                        var userlist = JSON.parse(arg);
+                        var sel = document.getElementById('chooseUser');
+                        //var length = select;
+                            
+                        
+                        Object.keys(userlist).forEach(function (key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(key) );
+                            opt.value = key;
+                            sel.appendChild(opt);
+                        })
+
+
+
+
+
+                            // $("chooseUser").append(
+                            // $.map(userlist, function(v,k){
+
+                            //     return $("<option>").val(k).text(v);
+                            // })
+                            // );
+
+                            // var list = document.getElementById("chooseUser");
+                            // for(var i in userlist) {
+                            //     console.log(userlist[i])
+                            // list.add(new Option(userlist[i].text, userlist[i].value));
+                            // }
+                        // $.each(arg, function(key, value) {
+                        //     $('chooseUser')
+                        //         .append($('<option>', { value : key })
+                        //             //.attr("value", key)
+                        //             .text(value));
+                        //})
+                    break;
                     ////////////////////////////////////////////////////
                     //svg from server:
                     case "gitLog":

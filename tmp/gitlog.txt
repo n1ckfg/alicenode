@@ -1,4 +1,9 @@
-ffa701a|1ce57a5| (origin/texture_coordinates)|2018-05-15|Nicholas|Made a 'pseudo-texture' with small ripples that look like folds of skin/wrinkles in the object.frag creature. Capsule c is responsible for this behaviour|
+0889d2d|ffa701a| (HEAD -> texture_coordinates, origin/texture_coordinates)|2018-05-15|Nicholas|Started adding texture coordinates to sgement object|
+
+ object.frag.glsl  |   9 ++--
+ segment.frag.glsl | 134 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 137 insertions(+), 6 deletions(-)
+ffa701a|1ce57a5||2018-05-15|Nicholas|Made a 'pseudo-texture' with small ripples that look like folds of skin/wrinkles in the object.frag creature. Capsule c is responsible for this behaviour|
 
  defer.frag.glsl  | 2 +-
  object.frag.glsl | 4 ++--
@@ -26,7 +31,7 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
 
  object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
  1 file changed, 39 insertions(+), 2 deletions(-)
-f99eb23|a16938b| (HEAD -> master, origin/master, origin/HEAD, Full_Name)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+f99eb23|a16938b| (origin/master, origin/HEAD, master, Full_Name)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
