@@ -1,4 +1,8 @@
-0889d2d|ffa701a| (HEAD -> texture_coordinates, origin/texture_coordinates)|2018-05-15|Nicholas|Started adding texture coordinates to sgement object|
+0d18b2b|0889d2d| (origin/texture_coordinates, texture_coordinates)|2018-05-15|Graham Wakefield|graham's change to uncomment the vr render|
+
+ project.cpp | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+0889d2d|ffa701a| (+george_costanza)|2018-05-15|Nicholas|Started adding texture coordinates to sgement object|
 
  object.frag.glsl  |   9 ++--
  segment.frag.glsl | 134 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -31,7 +35,7 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
 
  object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
  1 file changed, 39 insertions(+), 2 deletions(-)
-f99eb23|a16938b| (origin/master, origin/HEAD, master, Full_Name)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+f99eb23|a16938b| (HEAD -> master, origin/master, origin/HEAD, Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

@@ -440,9 +440,20 @@ wss.on('connection', function(ws, req) {
 
 			case "selectUser":
 					console.log(arg)
+					switch (arg) {
 
-				var username = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-				console.log(username.arg)
+						case "Guest":
+
+
+						break;
+
+						default: 
+						let userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+						let userEmail = userName[arg];
+
+					}
+
+
 			
 	
 			
@@ -609,15 +620,23 @@ wss.on('connection', function(ws, req) {
 			break;
 
 			case "edit": 
+			//console.log(arg)
 				//get the commit message provided by the client
 				let commitMsg = arg.substr(0, arg.indexOf("$?$"));
 				//get the code 
 				let newCode = arg.split('$?$')[1];
+
+				let thisAuthor = (arg.substring(arg.lastIndexOf("?author")+1,arg.lastIndexOf("?commit")).replace("author", ""))
+
+				// let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
+				//console.log(thisAuthor)
+
+				
 				fs.writeFileSync("project.cpp", newCode, "utf8");
 				//git add and commit the new changes, including commitMsg
 				execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
-				execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
-				execSync('git status', {cwd: project_path }, (stdout) => {console.log("\n\n\n\n\n\n\n" + stdout)});
+				execSync('git commit --author=\"' + thisAuthor + ' -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
+				execSync('git status', {cwd: project_path }, (stdout) => {console.log("\ngit status: \n" + stdout)});
 
 				exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
 					//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
@@ -763,7 +782,7 @@ wss.on('connection', function(ws, req) {
 				// send graph as json to client
 				ws.send("gitLog?" + graphjson)
 			})
-		})
+		}) 
 				break;
 
 			default:

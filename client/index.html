@@ -183,7 +183,9 @@ var requested;
 var current;
 var isRightDirty = false;
 var currentBranch;
-var authorName = "Michael Palumbo emailmichaelpalumbo@gmail.com"; //git will make commits under this provided name, will change if client user selects different name
+var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
+var authorName; //git will make commits under this provided name, will change if client user selects different name
+var authorEmail;
 
 //send the code from right pane
 function sendCodeRelay(){
@@ -238,11 +240,13 @@ function openSocket() {
                     
                     case "setUserList":
                         
-                        var userlist = JSON.parse(arg);
+                        userlist = JSON.parse(arg);
                         var sel = document.getElementById('chooseUser');
                         //var length = select;
                             
-                        
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
                         Object.keys(userlist).forEach(function (key) {
                             var opt = document.createElement('option');
                             opt.appendChild( document.createTextNode(key) );
@@ -452,7 +456,7 @@ function sendLeftCode() {
     //and email
     var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
     //   var message = "edit?" + editorCM.getValue();   
-    var changes = "edit?" + commitMsg + "$?$" + dv.editor().getValue()
+    var changes = "edit?" + '?author' + authorName + " " + authorEmail + "?commit" + commitMsg + "$?$" + dv.editor().getValue()
     log("Sent LeftEditor Contents to server: " + commitMsg);
     //log('sending: ' + message);
     ws.send(changes);
@@ -613,40 +617,38 @@ function userSelect()  {
 
         case "Add User...":
         
-        var userName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+        authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
 
         
-        var userEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+        authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+
+        
            
             //TODO: create a worktree for user with their username. replace all spaces with underscores. 
-            ws.send("newUser?" + userName + "$?$" + userEmail)
+            ws.send("newUser?" + authorName + "$?$" + authorEmail)
             //console.log(userName, userEmail)
 
         //add new user to select in HTML, make sure its checked. 
         var select = document.getElementById('chooseUser');
         var length = select.length;
         var opt = document.createElement('option');
-        opt.value = userName;
-        opt.innerHTML = userName;
+        opt.value = authorName;
+        opt.innerHTML = authorName;
         select.appendChild(opt);
         document.getElementById('chooseUser').selectedIndex = (length);
-
+        log("Working as git author " + authorName + " via " + authorEmail);
             
         break;
 
-        default: console.log("test" + selection);
+        default: log("Working as git author " + selection + " via " + userlist[selection]);
+        authorName = selection;
+        authorEmail = userlist[selection];
         ws.send("selectUser?" + selection);
         break;
     }
-    //switch to an existing worktree
-    // log("Right editor working within " + selection + "'s worktree")
-    // ws.send("gitAuthorName " + selection)
+
 }
-// worktree selection 
-function worktreeSelect()  { 
-    
-    authorName = document.aform.userWorktree.value;
-}
+
 
 /////////////////////////////////////
                                     //MERGEVIEW
