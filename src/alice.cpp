@@ -321,6 +321,7 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		// TODO: run build.bat
 		#ifdef AL_WIN
 			
+			
 		#else
 			system("./build.sh");
 		#endif
