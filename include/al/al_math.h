@@ -36,7 +36,6 @@ inline bool al_isnan(glm::quat v) {
 	return al_isnan(v.x) || al_isnan(v.y) || al_isnan(v.z) || al_isnan(v.w); 
 }
 
-
 inline glm::vec2 al_fixnan(glm::vec2 v) { 
 	return glm::vec2( al_fixnan(v.x), al_fixnan(v.y));
 }
@@ -49,6 +48,14 @@ inline glm::vec4 al_fixnan(glm::vec4 v) {
 inline glm::quat al_fixnan(glm::quat v) { 
 	return glm::quat( al_fixnan(v.x), al_fixnan(v.y), al_fixnan(v.z), al_fixnan(v.w) );
 }
+
+// element-wise min & max
+inline float al_min(glm::vec2 v) { return glm::min(v.x, v.y); }
+inline float al_min(glm::vec3 v) { return glm::min(glm::min(v.x, v.y), v.z); }
+inline float al_min(glm::vec4 v) { return glm::min(glm::min(v.x, v.y), glm::min(v.z, v.w)); }
+inline float al_max(glm::vec2 v) { return glm::max(v.x, v.y); }
+inline float al_max(glm::vec3 v) { return glm::max(glm::max(v.x, v.y), v.z); }
+inline float al_max(glm::vec4 v) { return glm::max(glm::max(v.x, v.y), glm::max(v.z, v.w)); }
 
 float radians(float degrees) {
 	return degrees*0.01745329251994f;
@@ -88,6 +95,10 @@ template<typename T, typename T1>
 inline T wrap(T x, T1 lo, T1 hi) {
 	return lo + wrap(x-lo, hi-lo);
 }
+
+// Sign function that doesn't ever return 0
+inline float al_sign_nonzero(float x) { return (x < 0.f) ? -1.f : 1.f; }
+inline double al_sign_nonzero(double x) { return (x < 0.) ? -1. : 1.; }\
 
 
 class rnd {
