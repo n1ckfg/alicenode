@@ -1,4 +1,18 @@
-b49dbef|b952d54| (origin/texture_coordinates, texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+851283d|292bf9e| (origin/texture_coordinates)|2018-05-16|Nicholas|Applied visuals to see the segment's individual uv grids in action.|
+
+ defer.frag.glsl   | 2 +-
+ segment.frag.glsl | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+292bf9e|b49dbef 6e7fcb5||2018-05-16|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+6e7fcb5|ac107e5| (HEAD -> master, origin/master, origin/HEAD)|2018-05-16|Michael Palumbo|reticulating splines|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+b49dbef|b952d54| (texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 
  segment.frag.glsl | 129 ++++++++++++++++++++++++++++--------------------------
  1 file changed, 66 insertions(+), 63 deletions(-)
@@ -14,6 +28,18 @@ b952d54|488312d 0d18b2b||2018-05-15|Nicholas|Merge branch 'texture_coordinates' 
  segment.frag.glsl |   3 ++
  3 files changed, 114 insertions(+), 18 deletions(-)
 49384bc|0889d2d f99eb23||2018-05-15|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+f99eb23|a16938b| (Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+a16938b|93d1c44||2018-05-14|Graham Wakefield|reticulating splines|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+93d1c44|62569f0||2018-05-14|Graham Wakefield|client updated project|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 0889d2d|ffa701a| (+george_costanza)|2018-05-15|Nicholas|Started adding texture coordinates to sgement object|
 
  object.frag.glsl  |   9 ++--
@@ -43,30 +69,6 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
  object.frag.glsl | 14 +++++++++++---
  1 file changed, 11 insertions(+), 3 deletions(-)
 903eb68|32bd09c 62569f0||2018-05-10|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
-32bd09c|daa60af||2018-05-10|Nicholas|sdCapsule2 texture coordinates|
-
- object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
-6e7fcb5|ac107e5| (HEAD -> master, origin/master, origin/HEAD)|2018-05-16|Michael Palumbo|reticulating splines|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-f99eb23|a16938b| (Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-a16938b|93d1c44||2018-05-14|Graham Wakefield|reticulating splines|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-93d1c44|62569f0||2018-05-14|Graham Wakefield|client updated project|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 62569f0|c50a2f0||2018-05-09|Graham Wakefield|interesting emissive effect|
 
  defer.frag.glsl | 19 ++++++++++++++++---
@@ -126,31 +128,35 @@ a7ead61|eadab18||2018-05-09|Graham Wakefield|backspace also relaods gpu|
  project.cpp | 2 ++
  1 file changed, 2 insertions(+)
 eadab18|515d45d daa60af||2018-05-09|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
+515d45d|2256242||2018-05-09|Graham Wakefield|local|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+32bd09c|daa60af||2018-05-10|Nicholas|sdCapsule2 texture coordinates|
+
+ object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 daa60af|ec372df||2018-05-09|Nicholas|Added texture coordinates to sdCapsule1 of object.frag|
 
  object.frag.glsl | 101 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
  1 file changed, 100 insertions(+), 1 deletion(-)
 ec372df|89d77cf 2256242||2018-05-09|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat|
-89d77cf|ff20f85||2018-05-09|Nicholas|Code version update|
-
- .vscode/c_cpp_properties.json | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-515d45d|2256242||2018-05-09|Graham Wakefield|local|
-
- project.cpp | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 2256242|cdac578 ff20f85||2018-05-09|Graham Wakefield|final|
-ff20f85|bb32610||2018-05-08|Nicholas|Changed object to have rotations and cubes, added debugMode case (press d to change which creature is in focus)!?|
-
- object.frag.glsl | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++--
- project.cpp      | 29 +++++++++++++++++++++++++++++
- 2 files changed, 80 insertions(+), 2 deletions(-)
 cdac578|bb32610||2018-05-09|Graham Wakefield|shader work|
 
  .vscode/c_cpp_properties.json |  6 ++-
  defer.frag.glsl               |  4 +-
  object.frag.glsl              | 92 ++++++++++++++++++++++++++++++++++++++++++-
  3 files changed, 96 insertions(+), 6 deletions(-)
+89d77cf|ff20f85||2018-05-09|Nicholas|Code version update|
+
+ .vscode/c_cpp_properties.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ff20f85|bb32610||2018-05-08|Nicholas|Changed object to have rotations and cubes, added debugMode case (press d to change which creature is in focus)!?|
+
+ object.frag.glsl | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++--
+ project.cpp      | 29 +++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+), 2 deletions(-)
 bb32610|a4f637f||2018-05-07|Graham Wakefield|latest|
 
  build.bat         |    2 +-

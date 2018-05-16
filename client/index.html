@@ -704,7 +704,7 @@ function initUI() {
     dv.rightOriginal().on("changes", function(dv, changeObj){
         
         if (isRightDirty == false && currentBranch == "master") {
-            ws.send("createNewBranch " + thisHash)
+            ws.send("editedRightCode " + thisHash)
         //    switch (currentBranch) {
         //         case "master":
         //         console.log("the current branch is MASTER")

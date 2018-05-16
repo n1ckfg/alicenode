@@ -298,14 +298,37 @@ wss.on('connection', function(ws, req) {
 		}
 		
 
-		if (message.includes("createNewBranch ")){
-					
+		if (message.includes("editedRightCode ")){
+			console.log(message)
+		
+			let onHash;
+				let numBranches;	
 			//get number of branches in alicenode_inhabitat
 
-			exec("git branch | wc -l", (stdout, stderr, err) => {
+			if (libext == "dylib") {
+				//if on unix, do this:
+				exec("git branch | wc -l", (stdout, stderr, err) => {
 
-		 		onHash = message.replace("createNewBranch ", "")
-		 		numBranches = Number(stderr.replace(/\s+/g,''));
+					onHash = message.replace("createNewBranch ", "")
+					numBranches = Number(stderr.replace(/\s+/g,''));
+				});
+			}
+
+			else {
+				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
+
+				console.log("working on windows machine")
+			//TODO: need to figure this out next. 
+			/*
+							//console.log("worktree is " + arg)
+			//clientOrigRightWorktree = message.replace("switchWorktree ", "")
+			exec("cd " + clientOrigRightWorktree) 
+			console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree")
+			*/
+			}
+		
+
+			
 
 		 		// +1 to branch count, name the branch
 		 		//if (numBranches > 0) {
@@ -314,14 +337,14 @@ wss.on('connection', function(ws, req) {
 
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
-				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
+				// exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
 					
-					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
+				// 	ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
 
-				})
+				// })
 
-			})
-		}
+			}
+		
 			
 					//create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
 		// 			exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
@@ -410,6 +433,9 @@ wss.on('connection', function(ws, req) {
 				// 	console.log(arg)
 				// break;
 
+//CLIENT: ///////////////////////////////////////////////////////
+	//Add user
+
 			case "newUser":
 				//var userlist = [];
 				let fullname = arg.substr(0, arg.indexOf("$?$"));
@@ -424,7 +450,9 @@ wss.on('connection', function(ws, req) {
 				
 				fs.writeFileSync(path.join(project_path, "userlist.json"), jsonstring, 'utf8');
 
-
+				
+				//get current branch:
+				exec("git rev-parse ")
 				//create a worktree under this user?
 				//first replace all spaces with underscores:
 
@@ -439,11 +467,14 @@ wss.on('connection', function(ws, req) {
 				
 				break;
 
+	//Select user
 			case "selectUser":
 					console.log(arg)
 					switch (arg) {
 
 						case "Guest":
+						userName = "guest";
+						userEmail = "grrrwaaa@gmail.com";
 
 
 						break;
@@ -453,6 +484,7 @@ wss.on('connection', function(ws, req) {
 						let userEmail = userName[arg];
 
 						clientOrigRightWorktree = userName;
+						break;
 
 					}
 
@@ -461,7 +493,7 @@ wss.on('connection', function(ws, req) {
 	
 			
 				break;
-
+	//Build gitgraph and send to client
 			case "client_SVG":
 
 
@@ -622,6 +654,7 @@ wss.on('connection', function(ws, req) {
 				})
 			break;
 
+	//Client sent code from the left editor. write changes and commit using the name and email provided by the client. 
 			case "edit": 
 			//console.log(arg)
 				//get the commit message provided by the client
@@ -783,8 +816,7 @@ wss.on('connection', function(ws, req) {
 				
 				let graph = make_graph_from_gitlog(gitlog);
 				let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-				console.log("\n\n\n\n\n gitlog svg sent")
-
+				
 				// send graph as json to client
 				ws.send("gitLog?" + graphjson)
 			})
