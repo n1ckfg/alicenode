@@ -1,7 +1,19 @@
-0d18b2b|0889d2d| (origin/texture_coordinates, texture_coordinates)|2018-05-15|Graham Wakefield|graham's change to uncomment the vr render|
+b49dbef|b952d54| (HEAD -> texture_coordinates, origin/texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+
+ segment.frag.glsl | 129 ++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 66 insertions(+), 63 deletions(-)
+b952d54|488312d 0d18b2b||2018-05-15|Nicholas|Merge branch 'texture_coordinates' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+0d18b2b|0889d2d||2018-05-15|Graham Wakefield|graham's change to uncomment the vr render|
 
  project.cpp | 9 ++++-----
  1 file changed, 4 insertions(+), 5 deletions(-)
+488312d|49384bc||2018-05-15|Nicholas|Preparing to add texture coordinates to segmented obj. Using a normalized texture grid for the object.frag creature instead of individual texture coordinates on each object within the creature.|
+
+ defer.frag.glsl   |  12 +++++-
+ object.frag.glsl  | 117 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ segment.frag.glsl |   3 ++
+ 3 files changed, 114 insertions(+), 18 deletions(-)
+49384bc|0889d2d f99eb23||2018-05-15|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
 0889d2d|ffa701a| (+george_costanza)|2018-05-15|Nicholas|Started adding texture coordinates to sgement object|
 
  object.frag.glsl  |   9 ++--
@@ -35,7 +47,15 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
 
  object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
  1 file changed, 39 insertions(+), 2 deletions(-)
-f99eb23|a16938b| (HEAD -> master, origin/master, origin/HEAD, Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+6e7fcb5|ac107e5| (master)|2018-05-16|Michael Palumbo|reticulating splines|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+f99eb23|a16938b| (origin/master, origin/HEAD, Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -7716,7 +7736,7 @@ eb7ff09|270e73c||2018-03-28|Graham Wakefield|'building'|
  test.frag.glsl |  9 +++++++++
  test.vert.glsl | 24 ++++++++++++++++++++++++
  6 files changed, 41 insertions(+)
-ed3bbfb|||2018-03-28|GitHub|Initial commit|
+ed3bbfb|||2018-03-28|Graham Wakefield|Initial commit|
 
  .gitignore |  32 ++++++++++
  LICENSE    | 201 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

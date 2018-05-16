@@ -473,7 +473,7 @@ wss.on('connection', function(ws, req) {
 
 					// });
  
-					exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
+					exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%aN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
 							//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
 						fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function(err, data) {
 							if (err) throw err;
@@ -622,11 +622,14 @@ wss.on('connection', function(ws, req) {
 			case "edit": 
 			//console.log(arg)
 				//get the commit message provided by the client
-				let commitMsg = arg.substr(0, arg.indexOf("$?$"));
+				let commitMsg = arg.substring(arg.lastIndexOf("?commit")+1,arg.lastIndexOf("?code")).replace("commit", "");
 				//get the code 
-				let newCode = arg.split('$?$')[1];
+				let newCode = arg.split('?code')[1];
 
 				let thisAuthor = (arg.substring(arg.lastIndexOf("?author")+1,arg.lastIndexOf("?commit")).replace("author", ""))
+
+				// console.log(thisAuthor)
+				// console.log(arg)
 
 				// let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
 				//console.log(thisAuthor)
@@ -635,7 +638,7 @@ wss.on('connection', function(ws, req) {
 				fs.writeFileSync("project.cpp", newCode, "utf8");
 				//git add and commit the new changes, including commitMsg
 				execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
-				execSync('git commit --author=\"' + thisAuthor + ' -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
+				execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
 				execSync('git status', {cwd: project_path }, (stdout) => {console.log("\ngit status: \n" + stdout)});
 
 				exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
@@ -783,6 +786,7 @@ wss.on('connection', function(ws, req) {
 				ws.send("gitLog?" + graphjson)
 			})
 		}) 
+		
 				break;
 
 			default:
@@ -791,7 +795,7 @@ wss.on('connection', function(ws, req) {
 		} else {
 			//console.log("message", message, typeof message);
 		}
-	});
+	}); 
 	
 	ws.on('error', function (e) {
 

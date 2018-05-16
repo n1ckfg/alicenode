@@ -456,7 +456,7 @@ function sendLeftCode() {
     //and email
     var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
     //   var message = "edit?" + editorCM.getValue();   
-    var changes = "edit?" + '?author' + authorName + " " + authorEmail + "?commit" + commitMsg + "$?$" + dv.editor().getValue()
+    var changes = "edit?" + '?author' + authorName + " <" + authorEmail + ">?commit" + commitMsg + "?code" + dv.editor().getValue()
     log("Sent LeftEditor Contents to server: " + commitMsg);
     //log('sending: ' + message);
     ws.send(changes);
