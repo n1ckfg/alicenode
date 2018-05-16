@@ -52,13 +52,8 @@
     <input id="server" type="text" value="ws://localhost:8080" size="40">
     <button onclick="openSocket()">Open</button>
     <button onclick="closeSocket()">Close</button>
-
-<!-- drop down list of available worktrees or make a new worktree -->
-<!-- <form name="aform"> Current User Worktree: 
-    <select id="userWorktree" onchange="worktreeSelect();">
-            <option selected disabled>Please Select Worktree</option> 
-    </select>  -->
-       
+      
+<!-- Client 'logs in' to server using the full name and email associated with their github account -->
 </form>
 <form name="usernames"> Current User: 
     <select id="chooseUser" onchange="userSelect();">
@@ -69,12 +64,6 @@
     </select> 
        <!-- emailmichaelpalumbo@gmail.com -->
 </form>
-
-<!-- TODO: allow client user to sign in using their name and email address (then pass this along in the sendLeftCode function so that git logs this detail as the authorname) -->
-
-<!-- add a new worktree -->
-<!-- <button id="addWorktree" onclick="addWorktree()">Create New Worktree</button> 
-<br> -->
 
 <!-- Customize the Codemirror Instance -->
 Editor Settings
@@ -109,7 +98,7 @@ Editor Settings
 </div>
 <p>
 
-<!-- TODO: mouseover a node puts the commit detail into this hedaing: -->
+<!-- TODO: mouseover a node puts the commit detail into this heading: -->
 
 <!-- server messages -->
 <div id="serverMessages">

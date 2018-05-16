@@ -1,4 +1,4 @@
-b49dbef|b952d54| (HEAD -> texture_coordinates, origin/texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+b49dbef|b952d54| (origin/texture_coordinates, texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 
  segment.frag.glsl | 129 ++++++++++++++++++++++++++++--------------------------
  1 file changed, 66 insertions(+), 63 deletions(-)
@@ -47,7 +47,7 @@ b4c7b4e|903eb68||2018-05-10|Nicholas|Updating object.frag to allow for smax_tex 
 
  object.frag.glsl | 41 +++++++++++++++++++++++++++++++++++++++--
  1 file changed, 39 insertions(+), 2 deletions(-)
-6e7fcb5|ac107e5| (master)|2018-05-16|Michael Palumbo|reticulating splines|
+6e7fcb5|ac107e5| (HEAD -> master, origin/master, origin/HEAD)|2018-05-16|Michael Palumbo|reticulating splines|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -55,7 +55,7 @@ ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-f99eb23|a16938b| (origin/master, origin/HEAD, Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
+f99eb23|a16938b| (Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing to see if the girgraph can be updated in the client whenever client sends a change|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

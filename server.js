@@ -17,7 +17,7 @@ const path = require("path");
 const os = require("os");
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 const execPromise = require('child-process-promise');
-const nodegit = require("nodegit");
+//const nodegit = require("nodegit");
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -48,7 +48,6 @@ const projectlib = "project." + libext;
 
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 let worktreepath = path.join(client_path, "worktreeList.txt");
 let worktreeJSON = []; //list of worktrees in project_path
 
@@ -267,6 +266,7 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 		//console.log(message)
 		
+		let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
 
 
 		//create and set worktree
@@ -414,6 +414,7 @@ wss.on('connection', function(ws, req) {
 				//var userlist = [];
 				let fullname = arg.substr(0, arg.indexOf("$?$"));
 				let useremail = arg.split('$?$')[1];
+				clientOrigRightWorktree = fullname;
 				
 				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 				userlist[fullname] = useremail;
@@ -450,6 +451,8 @@ wss.on('connection', function(ws, req) {
 						default: 
 						let userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
 						let userEmail = userName[arg];
+
+						clientOrigRightWorktree = userName;
 
 					}
 
