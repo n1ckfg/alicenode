@@ -266,8 +266,8 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 		//console.log(message)
 		
-		let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
-
+		var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
+		var fullName;
 
 		//create and set worktree
 		if (message.includes("addWorktree")){
@@ -316,7 +316,11 @@ wss.on('connection', function(ws, req) {
 
 			else {
 				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
+				//console.log(fullName);
 
+				console.log(message.substr(message.lastIndexOf('_')+1));
+
+				exec('git checkout -b ' + message + message.substr(message.lastIndexOf('_')+1))
 				console.log("working on windows machine")
 			//TODO: need to figure this out next. 
 			/*
