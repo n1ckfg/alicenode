@@ -1,6 +1,6 @@
-32cb0ce|b49dbef cf14ac6| (HEAD -> Guest_32cb0ce_1526596433491, refs/stash, Guest_32cb0ce_1526595924132)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+32cb0ce|b49dbef cf14ac6| (refs/stash, Guest_32cb0ce_1526596433491, Guest_32cb0ce_1526595924132)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 cf14ac6|b49dbef||2018-05-17|Graham Wakefield|index on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
-c48c2d1|f1fed15 8dbe1e9| (origin/master, origin/HEAD, master, Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
+c48c2d1|f1fed15 8dbe1e9| (HEAD -> master, origin/master, origin/HEAD, Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
 8dbe1e9|fea84c9||2018-05-16|Nicole Skrypuch|Remove mapping|
 
  project.cpp | 6 +++---

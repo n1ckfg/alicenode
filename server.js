@@ -59,6 +59,13 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
+exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+	console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+});
+
+
+
 pruneWorktree()
 function pruneWorktree() {
 	// update the worktree list, if any worktrees had been removed by user, make sure they aren't
