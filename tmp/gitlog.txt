@@ -1,4 +1,4 @@
-32cb0ce|b49dbef cf14ac6| (refs/stash)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+32cb0ce|b49dbef cf14ac6| (HEAD -> Guest_32cb0ce_1526596433491, refs/stash, Guest_32cb0ce_1526595924132)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 cf14ac6|b49dbef||2018-05-17|Graham Wakefield|index on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 c48c2d1|f1fed15 8dbe1e9| (origin/master, origin/HEAD, master, Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
 8dbe1e9|fea84c9||2018-05-16|Nicole Skrypuch|Remove mapping|
@@ -27,7 +27,7 @@ fea84c9|6e7fcb5||2018-05-16|Graham Wakefield|missing devrun|
  defer.frag.glsl   | 2 +-
  segment.frag.glsl | 4 ++--
  2 files changed, 3 insertions(+), 3 deletions(-)
-292bf9e|b49dbef 6e7fcb5| (HEAD -> Michael_Palumbo_292bf9e)|2018-05-16|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+292bf9e|b49dbef 6e7fcb5| (Michael_Palumbo_292bf9e, Guest_292bf9e_1526595775884, Guest_292bf9e)|2018-05-16|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
 6e7fcb5|ac107e5||2018-05-16|Michael Palumbo|reticulating splines|
 
  project.cpp | 2 +-
@@ -36,7 +36,7 @@ ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-b49dbef|b952d54| (texture_coordinates)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+b49dbef|b952d54| (texture_coordinates, test_branch_name, Guest_b49dbef)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 
  segment.frag.glsl | 129 ++++++++++++++++++++++++++++--------------------------
  1 file changed, 66 insertions(+), 63 deletions(-)
@@ -311,7 +311,7 @@ bec7d70|24dd701||2018-04-25|Graham Wakefield|client updated project|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-6220bbd|e69b066||2018-04-25|Graham Wakefield|client updated project|
+6220bbd|e69b066| (Guest_6220bbd_1526596424890)|2018-04-25|Graham Wakefield|client updated project|
 
  project.cpp | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
@@ -3564,7 +3564,7 @@ c2362bb|27dabc0||2018-04-18|Graham Wakefield|client updated project|
 
  particle.frag.glsl | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
-902f3f3|6ea55c6||2018-04-18|Graham Wakefield|client updated project|
+902f3f3|6ea55c6| (Guest_902f3f3_1526596407665)|2018-04-18|Graham Wakefield|client updated project|
 
  particle.frag.glsl | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -7716,7 +7716,7 @@ c8bc878|907106b||2018-03-29|Graham Wakefield|client updated test.frag.glsl|
 
  test.frag.glsl | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
-56d96e6|907106b||2018-03-29|michaelpalumbo|added .DS_Store to gitignore|
+56d96e6|907106b| (Guest_56d96e6_1526596387114)|2018-03-29|michaelpalumbo|added .DS_Store to gitignore|
 
  .gitignore | 2 ++
  1 file changed, 2 insertions(+)

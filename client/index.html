@@ -148,7 +148,7 @@ var current;
 var isRightDirty = false;
 var currentBranch;
 var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
-var authorName; //git will make commits under this provided name, will change if client user selects different name
+var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
 
@@ -170,6 +170,10 @@ function openSocket() {
         ws.send("client_SVG?")
 
         ws.send("getCurrentBranch")
+        
+        //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
+        ws.send("selectUser?" + "Guest");
+
         sessionStorage.echoServer = url;
     };
     ws.onclose = function() {
@@ -219,6 +223,7 @@ function openSocket() {
                             opt.value = key;
                             sel.appendChild(opt);
                         })
+                        sel.selectedIndex = 2; 
 
 
 
@@ -636,6 +641,8 @@ function userSelect()  {
         opt.innerHTML = authorName;
         select.appendChild(opt);
         document.getElementById('chooseUser').selectedIndex = (length);
+
+        
         log("Working as git author " + authorName + " via " + authorEmail);
             
         break;
@@ -715,8 +722,9 @@ function initUI() {
     //when user changes something in origRight, always create a new branch from this point in the history (new branch starting from previously chosen commit)
     dv.rightOriginal().on("changes", function(dv, changeObj){
         // && currentBranch == "master"
+        console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
         if (isRightDirty == false) {
-            console.log(authorName.split(' ').join('_') + '_' + selectedCommit + " " + selectedCommit)
+             ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
  
         //    switch (currentBranch) {
         //         case "master":

@@ -46,6 +46,7 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
+let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 let worktreepath = path.join(client_path, "worktreeList.txt");
@@ -298,7 +299,7 @@ wss.on('connection', function(ws, req) {
 		}
 		
 
-		if (message.includes("editedRightCode ")){
+		if (message.includes("editedRightCode")){
 			console.log(message)
 			let gitCommand = message.replace("editedRightCode", "");
 			let onHash;
@@ -319,14 +320,12 @@ wss.on('connection', function(ws, req) {
 				//console.log(fullName);
 
 				//console.log(gitCommand.substr(gitCommand.lastIndexOf('_')+1));
+				console.log("working on windows machine\nchecked out new branch: " + gitCommand.substr(0, gitCommand.indexOf('_')))
+				exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
+					console.log("---\ngit: " + stderr + "\n---")
 
-				 exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
-
-					console.log("err " + err)
-					console.log("stderr " + stderr)
-					console.log("stdout " + stdout)
 				})
-				console.log("working on windows machine")
+				
 			//TODO: need to figure this out next. 
 			/*
 							//console.log("worktree is " + arg)
@@ -482,15 +481,16 @@ wss.on('connection', function(ws, req) {
 					switch (arg) {
 
 						case "Guest":
-						userName = "guest";
+						userName = "Guest";
 						userEmail = "grrrwaaa@gmail.com";
+						console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
 
 
 						break;
 
 						default: 
-						let userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
-						let userEmail = userName[arg];
+						userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+						userEmail = userName[arg];
 
 						clientOrigRightWorktree = userName;
 						break;
