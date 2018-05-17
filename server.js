@@ -300,7 +300,7 @@ wss.on('connection', function(ws, req) {
 
 		if (message.includes("editedRightCode ")){
 			console.log(message)
-		
+			let gitCommand = message.replace("editedRightCode", "");
 			let onHash;
 				let numBranches;	
 			//get number of branches in alicenode_inhabitat
@@ -318,9 +318,14 @@ wss.on('connection', function(ws, req) {
 				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
 				//console.log(fullName);
 
-				console.log(message.substr(message.lastIndexOf('_')+1));
+				//console.log(gitCommand.substr(gitCommand.lastIndexOf('_')+1));
 
-				exec('git checkout -b ' + message + message.substr(message.lastIndexOf('_')+1))
+				 exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
+
+					console.log("err " + err)
+					console.log("stderr " + stderr)
+					console.log("stdout " + stdout)
+				})
 				console.log("working on windows machine")
 			//TODO: need to figure this out next. 
 			/*

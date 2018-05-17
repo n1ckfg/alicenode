@@ -663,7 +663,8 @@ function toggleDifferences() {
 
 //get and set code in either of the MergeView editor panes
 function initUI() {
- 
+    isRightDirty = false;
+
     if (value == null) return;
     var target = document.getElementById("view");
     target.innerHTML = "";
@@ -713,10 +714,10 @@ function initUI() {
 
     //when user changes something in origRight, always create a new branch from this point in the history (new branch starting from previously chosen commit)
     dv.rightOriginal().on("changes", function(dv, changeObj){
-        
-        if (isRightDirty == false && currentBranch == "master") {
-            console.log(selectedCommit)
-            ws.send("editedRightCode " + selectedCommit)
+        // && currentBranch == "master"
+        if (isRightDirty == false) {
+            console.log(authorName.split(' ').join('_') + '_' + selectedCommit + " " + selectedCommit)
+ 
         //    switch (currentBranch) {
         //         case "master":
         //         console.log("the current branch is MASTER")

@@ -1,6 +1,6 @@
 32cb0ce|b49dbef cf14ac6| (refs/stash)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 cf14ac6|b49dbef||2018-05-17|Graham Wakefield|index on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
-c48c2d1|f1fed15 8dbe1e9| (HEAD -> master, origin/master, origin/HEAD)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
+c48c2d1|f1fed15 8dbe1e9| (origin/master, origin/HEAD, master, Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
 8dbe1e9|fea84c9||2018-05-16|Nicole Skrypuch|Remove mapping|
 
  project.cpp | 6 +++---
@@ -27,7 +27,7 @@ fea84c9|6e7fcb5||2018-05-16|Graham Wakefield|missing devrun|
  defer.frag.glsl   | 2 +-
  segment.frag.glsl | 4 ++--
  2 files changed, 3 insertions(+), 3 deletions(-)
-292bf9e|b49dbef 6e7fcb5||2018-05-16|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+292bf9e|b49dbef 6e7fcb5| (HEAD -> Michael_Palumbo_292bf9e)|2018-05-16|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
 6e7fcb5|ac107e5||2018-05-16|Michael Palumbo|reticulating splines|
 
  project.cpp | 2 +-
