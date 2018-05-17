@@ -68,7 +68,8 @@
         "xloctime": "cpp",
         "xtree": "cpp",
         "filesystem": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "__locale": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"
