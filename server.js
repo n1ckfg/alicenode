@@ -60,11 +60,19 @@ var terminate = require('terminate');
 const find = require('find-process');
 
 //maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
-exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
-	console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
-});
+exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
+		
+	if (err.replace("\n", "") !== "master") {
+		exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+			console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+		});
+	}
+	console.log("\n\n\n\n" + err.replace("\n", ""))
+	})
 
 
+
+ 
 
 pruneWorktree()
 function pruneWorktree() {
@@ -235,6 +243,10 @@ wss.on('connection', function(ws, req) {
 		//get the current list of authors involved in the alicenode_inhabitat project
 		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 		ws.send("setUserList?" + JSON.stringify(userlist));
+
+		exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
+			console.log(err)
+		})
 
 		// send a handshake?
 		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));

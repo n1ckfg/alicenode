@@ -115,3 +115,11 @@
     background-color: #27A1CA; 
     box-shadow: 3px 6px 18px 0px rgba(0, 0, 0, 0.2);
 }
+
+#chooseBranch {
+    position: sticky;
+    left: 46%;
+    top: 0%;
+    width: 100px
+
+}
