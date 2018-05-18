@@ -10,7 +10,6 @@ const chokidar = require('chokidar');
 const pako = require('pako');
 
 const JSON5 = require('json5');
-const http = require('http');
 const url = require('url');
 const fs = require("fs");
 const path = require("path");

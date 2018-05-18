@@ -3,7 +3,8 @@
 <title>Alicenode: Client</title>
 <meta charset="utf-8"/>
 
-<meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080">
+<!-- //TEMPORARY: just to aid in development workflow -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -66,6 +67,14 @@
        <!-- emailmichaelpalumbo@gmail.com -->
 </form>
 
+<div id="Branch">Branch HEADs: Current Branch is Highlighted!
+ 
+    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
+
+    </select> 
+
+</div>
+
 
 <!-- Customize the Codemirror Instance -->
 Editor Settings
@@ -94,15 +103,7 @@ Editor Settings
 <button onclick="sendCodeRelay()">Send Right Code</button>
 <br>
 
-<div id="chooseBranch">
- 
-    <form name="branches"> 
-        <select id="chooseBranch" onchange="chooseBranch();"> 
-                <option value="master">master</option>
-        </select> 
-        <!-- emailmichaelpalumbo@gmail.com -->
-    </form>
-</div>
+
 
 <!-- the Codemirror mergeview instance! -->
 <div id="container">
@@ -115,7 +116,9 @@ Editor Settings
 
 <!-- server messages -->
 <div id="serverMessages">
+    <!-- <ul id="messages"></ul> -->
     <ul id="messages"></ul>
+
     <!-- <ul id="commit_detail">Commit Details</h3> -->
 </div>
 
@@ -193,7 +196,6 @@ function openSocket() {
         // log('close');
     };
     ws.onmessage = function(e) {
-
         /*if (e.data instanceof Blob) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -241,24 +243,31 @@ function openSocket() {
                     break;
 
                     case "setBranchList":
-                        
+                    //  console.log(arg)
                     // <form name="branches"> 
                     //  <select id="chooseBranch" onchange="chooseBranch();"> 
 
-                        usebranchList = JSON.parse(arg);
+
+                        var branchesList = arg.split("\n")
+                        
+                        // usebranchList = JSON.parse(arg);
                         var sel = document.getElementById('chooseBranch');
                         //var length = select;
                             
                         // for (i = 3; i < sel.length; i++) {
                         //     sel.options[i] = null;
                         //     }
-                        Object.keys(userlist).forEach(function (key) {
+                        Object.values(branchesList).forEach(function (value, key) {
                             var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(key) );
-                            opt.value = key;
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
                             sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+                            if (value.includes("*")) {
+                                sel.selectedIndex = key
+                            }
                         })
-                        sel.selectedIndex = 0;
+                        //sel.selectedIndex = 0;
 
 
                     break;
@@ -670,6 +679,13 @@ function userSelect()  {
 
 }
 
+
+//choose branch
+
+function chooseBranch() {
+    selection = document.Branch.chooseBranch.value;
+    console.log(selection)
+}
 
 /////////////////////////////////////
                                     //MERGEVIEW

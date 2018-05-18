@@ -59,6 +59,7 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
+
 //maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
 exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
 		
@@ -244,9 +245,9 @@ wss.on('connection', function(ws, req) {
 		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 		ws.send("setUserList?" + JSON.stringify(userlist));
 
-		exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
-			console.log(err)
-		})
+		// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
+		// 	console.log(err)
+		// })
 
 		// send a handshake?
 		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
@@ -254,7 +255,11 @@ wss.on('connection', function(ws, req) {
 		
 		ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
 
+		exec('git branch -v', {cwd: project_path}, (stdout,err,stderr) => {
+			//console.log(err.split("\n"))
+			ws.send("setBranchList?" + err)
 		
+		})
 		// //get the names of current worktrees
 		// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
 		
