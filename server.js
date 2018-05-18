@@ -46,6 +46,7 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
+let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 let worktreepath = path.join(client_path, "worktreeList.txt");
@@ -57,6 +58,13 @@ let commitMsg = "client updated project"; //default commit message if nothing gi
 var terminate = require('terminate');
 
 const find = require('find-process');
+
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
+exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+	console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+});
+
+
 
 pruneWorktree()
 function pruneWorktree() {
@@ -266,8 +274,8 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 		//console.log(message)
 		
-		let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
-
+		var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
+		var fullName;
 
 		//create and set worktree
 		if (message.includes("addWorktree")){
@@ -298,9 +306,9 @@ wss.on('connection', function(ws, req) {
 		}
 		
 
-		if (message.includes("editedRightCode ")){
+		if (message.includes("editedRightCode")){
 			console.log(message)
-		
+			let gitCommand = message.replace("editedRightCode", "");
 			let onHash;
 				let numBranches;	
 			//get number of branches in alicenode_inhabitat
@@ -316,8 +324,15 @@ wss.on('connection', function(ws, req) {
 
 			else {
 				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
+				//console.log(fullName);
 
-				console.log("working on windows machine")
+				//console.log(gitCommand.substr(gitCommand.lastIndexOf('_')+1));
+				console.log("working on windows machine\nchecked out new branch: " + gitCommand.substr(0, gitCommand.indexOf('_')))
+				exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
+					console.log("---\ngit: " + stderr + "\n---")
+
+				})
+				
 			//TODO: need to figure this out next. 
 			/*
 							//console.log("worktree is " + arg)
@@ -473,15 +488,16 @@ wss.on('connection', function(ws, req) {
 					switch (arg) {
 
 						case "Guest":
-						userName = "guest";
+						userName = "Guest";
 						userEmail = "grrrwaaa@gmail.com";
+						console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
 
 
 						break;
 
 						default: 
-						let userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
-						let userEmail = userName[arg];
+						userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+						userEmail = userName[arg];
 
 						clientOrigRightWorktree = userName;
 						break;

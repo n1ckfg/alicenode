@@ -110,39 +110,13 @@ Editor Settings
 
 <!-- Client interaction with the git commit nodes -->
 <script type="text/ecmascript">
-  
-      function mouseEnterCommit(evt) {
-        var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
-        
-        //place hovered commit details in a list onscreen
-        //console.log(details)
-        // evt.target.setAttributeNS(null,"opacity","0.5");
-        // var li = document.createElement('li');
-        // li.innerHTML = evt;
-        // var list = document.getElementById('commit_detail');
-        // list.insertBefore(li, list.childNodes[0]);
 
-        //console.log(evt.target.ref)
-      }
-      
-      //get all commit nodes that contain the filename chosen by client, and highlight them in the svg
-      function highlightFileName(evt){
-
-      }
-      function mouseLeaveCommit(evt) {
-        evt.target.setAttributeNS(null,"opacity","1");
-      }
   
-      function getCommitDetail(evt) {
-            let selectedCommit = evt.target.id
-            //console.log(evt.target.id)
-            ws.send("git show " + selectedCommit);
-            ws.send("getCurrentBranch");
-            evt.target.setAttributeNS(null,"opacity","0.5");
+
 
 
            // sendRightCode("hash?" + evt.target.id);
-      }
+     // }
 
 
 </script>
@@ -152,6 +126,7 @@ Editor Settings
 //globals
 var currentBranch;
 var thisHash;
+var selectedCommit;
 var currentWorktree
 var ws_url;
 var worktreeList;
@@ -173,9 +148,11 @@ var current;
 var isRightDirty = false;
 var currentBranch;
 var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
-var authorName; //git will make commits under this provided name, will change if client user selects different name
+var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
+
+     
 //send the code from right pane
 function sendCodeRelay(){
     sendRightCode("a")
@@ -193,6 +170,10 @@ function openSocket() {
         ws.send("client_SVG?")
 
         ws.send("getCurrentBranch")
+        
+        //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
+        ws.send("selectUser?" + "Guest");
+
         sessionStorage.echoServer = url;
     };
     ws.onclose = function() {
@@ -242,6 +223,7 @@ function openSocket() {
                             opt.value = key;
                             sel.appendChild(opt);
                         })
+                        sel.selectedIndex = 2; 
 
 
 
@@ -435,6 +417,40 @@ setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
 
+//Git Graph
+//clicking on a commit node sends the commit's hash to server
+function getCommitDetail(evt) {
+    selectedCommit = evt.target.id
+    //console.log(evt.target.id)
+    
+    ws.send("git show " + selectedCommit);
+    ws.send("getCurrentBranch");
+    evt.target.setAttributeNS(null,"opacity","0.5");
+}
+//mouseover a commit node: change node's opacity
+function mouseEnterCommit(evt) {
+var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
+
+//place hovered commit details in a list onscreen
+//console.log(details)
+// evt.target.setAttributeNS(null,"opacity","0.5");
+// var li = document.createElement('li');
+// li.innerHTML = evt;
+// var list = document.getElementById('commit_detail');
+// list.insertBefore(li, list.childNodes[0]);
+
+//console.log(evt.target.ref)
+}
+
+//get all commit nodes that contain the filename chosen by client, and highlight them in the svg
+function highlightFileName(evt){
+//TODO
+}
+//change commit node's colour opacity back to normal after mouseLeave
+function mouseLeaveCommit(evt) {
+    evt.target.setAttributeNS(null,"opacity","1");
+}
+
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
@@ -625,6 +641,8 @@ function userSelect()  {
         opt.innerHTML = authorName;
         select.appendChild(opt);
         document.getElementById('chooseUser').selectedIndex = (length);
+
+        
         log("Working as git author " + authorName + " via " + authorEmail);
             
         break;
@@ -652,7 +670,8 @@ function toggleDifferences() {
 
 //get and set code in either of the MergeView editor panes
 function initUI() {
- 
+    isRightDirty = false;
+
     if (value == null) return;
     var target = document.getElementById("view");
     target.innerHTML = "";
@@ -700,11 +719,13 @@ function initUI() {
     //when new code loaded into right pane, reset isRightDirty flag   
     isRightDirty = false;
 
-    //when user changes something in origRight, check if on master, if so, create and checkout a new branch
+    //when user changes something in origRight, always create a new branch from this point in the history (new branch starting from previously chosen commit)
     dv.rightOriginal().on("changes", function(dv, changeObj){
-        
-        if (isRightDirty == false && currentBranch == "master") {
-            ws.send("editedRightCode " + thisHash)
+        // && currentBranch == "master"
+        console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
+        if (isRightDirty == false) {
+             ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
+ 
         //    switch (currentBranch) {
         //         case "master":
         //         console.log("the current branch is MASTER")
