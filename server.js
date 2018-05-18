@@ -17,7 +17,7 @@ const path = require("path");
 const os = require("os");
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 const execPromise = require('child-process-promise');
-const nodegit = require("nodegit");
+//const nodegit = require("nodegit");
 
 function random (low, high) {
     return Math.random() * (high - low) + low;
@@ -46,9 +46,9 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
+let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
-let clientOrigRightWorktree; //the worktree used by origRight, and specific to the client
 let worktreepath = path.join(client_path, "worktreeList.txt");
 let worktreeJSON = []; //list of worktrees in project_path
 
@@ -58,6 +58,13 @@ let commitMsg = "client updated project"; //default commit message if nothing gi
 var terminate = require('terminate');
 
 const find = require('find-process');
+
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
+exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+	console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+});
+
+
 
 pruneWorktree()
 function pruneWorktree() {
@@ -225,7 +232,9 @@ wss.on('connection', function(ws, req) {
 
 
 	};
-
+		//get the current list of authors involved in the alicenode_inhabitat project
+		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
+		ws.send("setUserList?" + JSON.stringify(userlist));
 
 		// send a handshake?
 		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
@@ -265,7 +274,8 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 		//console.log(message)
 		
-
+		var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
+		var fullName;
 
 		//create and set worktree
 		if (message.includes("addWorktree")){
@@ -296,14 +306,44 @@ wss.on('connection', function(ws, req) {
 		}
 		
 
-		if (message.includes("createNewBranch ")){
-					
+		if (message.includes("editedRightCode")){
+			console.log(message)
+			let gitCommand = message.replace("editedRightCode", "");
+			let onHash;
+				let numBranches;	
 			//get number of branches in alicenode_inhabitat
 
-			exec("git branch | wc -l", (stdout, stderr, err) => {
+			if (libext == "dylib") {
+				//if on unix, do this:
+				exec("git branch | wc -l", (stdout, stderr, err) => {
 
-		 		onHash = message.replace("createNewBranch ", "")
-		 		numBranches = Number(stderr.replace(/\s+/g,''));
+					onHash = message.replace("createNewBranch ", "")
+					numBranches = Number(stderr.replace(/\s+/g,''));
+				});
+			}
+
+			else {
+				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
+				//console.log(fullName);
+
+				//console.log(gitCommand.substr(gitCommand.lastIndexOf('_')+1));
+				console.log("working on windows machine\nchecked out new branch: " + gitCommand.substr(0, gitCommand.indexOf('_')))
+				exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
+					console.log("---\ngit: " + stderr + "\n---")
+
+				})
+				
+			//TODO: need to figure this out next. 
+			/*
+							//console.log("worktree is " + arg)
+			//clientOrigRightWorktree = message.replace("switchWorktree ", "")
+			exec("cd " + clientOrigRightWorktree) 
+			console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree")
+			*/
+			}
+		
+
+			
 
 		 		// +1 to branch count, name the branch
 		 		//if (numBranches > 0) {
@@ -312,14 +352,14 @@ wss.on('connection', function(ws, req) {
 
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 				
-				exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
+				// exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
 					
-					ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
+				// 	ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
 
-				})
+				// })
 
-			})
-		}
+			}
+		
 			
 					//create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
 		// 			exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
@@ -408,63 +448,68 @@ wss.on('connection', function(ws, req) {
 				// 	console.log(arg)
 				// break;
 
+//CLIENT: ///////////////////////////////////////////////////////
+	//Add user
+
 			case "newUser":
 				//var userlist = [];
 				let fullname = arg.substr(0, arg.indexOf("$?$"));
 				let useremail = arg.split('$?$')[1];
-				var obj = new Object();
-				let userlist = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-
+				clientOrigRightWorktree = fullname;
 				
-				obj[fullname] = useremail;
-				//obj.email = useremail;
-				var jsonstring = (JSON.stringify(obj))
+				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
+				userlist[fullname] = useremail;
+				
+				var jsonstring = (JSON.stringify(userlist))
 				console.log(jsonstring)
-
-				console.log(userlist.push(obj))
-				// fs.appendFile(path.join(project_path, "userlist.json"), jsonstring);
-
-
-				// var a = obj.push(fullname, useremail)
-				// console.log(a)
 				
-				// myarray["fullname"] = "useremail";
-				// console.log(myarray)
+				fs.writeFileSync(path.join(project_path, "userlist.json"), jsonstring, 'utf8');
 
-				// //console.log(arg)
-
-				// console.log(fullname)
-				// console.log(useremail)
 				
-				
-			 
-/*
-				console.log(JSON.stringify(entry));
-				//add userName: userEmail to a JSON stored locally in the alicenode_inhabitat repo
-				//console.log(entry)
-
-
+				//get current branch:
+				exec("git rev-parse ")
 				//create a worktree under this user?
 				//first replace all spaces with underscores:
-				var newWorkTree = fullname.split(' ').join('_');
-				exec("git worktree add --no-checkout " + newWorkTree, (stdout, err, stderr) => {
+
+				//add a new worktree to alicenode_inhabitat
+				//the '+' symbol at the beginning will help us remember
+				//that dir is a worktree, and gitignore will catch it
+				exec("git worktree add --checkout +" + fullname.split(' ').join('_'), (stdout, err, stderr) => {
 					});
 				// 	getWorktreeList();
-					
+
 				//TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
-				*/
+				
 				break;
 
+	//Select user
 			case "selectUser":
 					console.log(arg)
+					switch (arg) {
 
-				var obj = fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8')
-						console.log(obj.arg)
-				
+						case "Guest":
+						userName = "Guest";
+						userEmail = "grrrwaaa@gmail.com";
+						console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
+
+
+						break;
+
+						default: 
+						userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+						userEmail = userName[arg];
+
+						clientOrigRightWorktree = userName;
+						break;
+
+					}
+
+
+			
 	
 			
 				break;
-
+	//Build gitgraph and send to client
 			case "client_SVG":
 
 
@@ -479,7 +524,7 @@ wss.on('connection', function(ws, req) {
 
 					// });
  
-					exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
+					exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%aN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
 							//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
 						fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function(err, data) {
 							if (err) throw err;
@@ -625,16 +670,28 @@ wss.on('connection', function(ws, req) {
 				})
 			break;
 
+	//Client sent code from the left editor. write changes and commit using the name and email provided by the client. 
 			case "edit": 
+			//console.log(arg)
 				//get the commit message provided by the client
-				let commitMsg = arg.substr(0, arg.indexOf("$?$"));
+				let commitMsg = arg.substring(arg.lastIndexOf("?commit")+1,arg.lastIndexOf("?code")).replace("commit", "");
 				//get the code 
-				let newCode = arg.split('$?$')[1];
+				let newCode = arg.split('?code')[1];
+
+				let thisAuthor = (arg.substring(arg.lastIndexOf("?author")+1,arg.lastIndexOf("?commit")).replace("author", ""))
+
+				// console.log(thisAuthor)
+				// console.log(arg)
+
+				// let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
+				//console.log(thisAuthor)
+
+				
 				fs.writeFileSync("project.cpp", newCode, "utf8");
 				//git add and commit the new changes, including commitMsg
 				execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
-				execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
-				execSync('git status', {cwd: project_path }, (stdout) => {console.log("\n\n\n\n\n\n\n" + stdout)});
+				execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
+				execSync('git status', {cwd: project_path }, (stdout) => {console.log("\ngit status: \n" + stdout)});
 
 				exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + "/tmp/gitlog.txt", {cwd: project_path}, (stdout, stderr, err) => {		 
 					//exec buffer size is smaller than our current worktree output, so save it to text file and re-read it. 
@@ -775,12 +832,12 @@ wss.on('connection', function(ws, req) {
 				
 				let graph = make_graph_from_gitlog(gitlog);
 				let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-				console.log("\n\n\n\n\n gitlog svg sent")
-
+				
 				// send graph as json to client
 				ws.send("gitLog?" + graphjson)
 			})
-		})
+		}) 
+		
 				break;
 
 			default:
@@ -789,7 +846,7 @@ wss.on('connection', function(ws, req) {
 		} else {
 			//console.log("message", message, typeof message);
 		}
-	});
+	}); 
 	
 	ws.on('error', function (e) {
 
