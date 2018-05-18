@@ -60,16 +60,16 @@ var terminate = require('terminate');
 const find = require('find-process');
 
 
-//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
-exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(s) which branch the main code editor is currently pointed to. 
+// exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
 		
-	if (err.replace("\n", "") !== "master") {
-		exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
-			console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
-		});
-	}
-	console.log("\n\n\n\n" + err.replace("\n", ""))
-	})
+// 	if (err.replace("\n", "") !== "master") {
+// 		exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+// 			console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+// 		});
+// 	}
+// 	console.log("\n\n\n\n" + err.replace("\n", ""))
+// 	})
 
 
 
