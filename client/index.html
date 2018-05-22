@@ -3,6 +3,8 @@
 <title>Alicenode: Client</title>
 <meta charset="utf-8"/>
 
+<!-- //TEMPORARY: just to aid in development workflow -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -65,6 +67,15 @@
        <!-- emailmichaelpalumbo@gmail.com -->
 </form>
 
+<div id="Branch">Branch HEADs: Left code editor currently pointed to highlighted branch below!
+ 
+    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
+
+    </select> 
+
+</div>
+
+
 <!-- Customize the Codemirror Instance -->
 Editor Settings
 <p></p>
@@ -90,6 +101,9 @@ Editor Settings
 <!-- Send code to server -->
 <button onclick="sendLeftCode()">Send Left Code</button>
 <button onclick="sendCodeRelay()">Send Right Code</button>
+<br>
+
+
 
 <!-- the Codemirror mergeview instance! -->
 <div id="container">
@@ -102,7 +116,9 @@ Editor Settings
 
 <!-- server messages -->
 <div id="serverMessages">
+    <!-- <ul id="messages"></ul> -->
     <ul id="messages"></ul>
+
     <!-- <ul id="commit_detail">Commit Details</h3> -->
 </div>
 
@@ -180,7 +196,6 @@ function openSocket() {
         // log('close');
     };
     ws.onmessage = function(e) {
-
         /*if (e.data instanceof Blob) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -225,28 +240,36 @@ function openSocket() {
                         })
                         sel.selectedIndex = 2; 
 
+                    break;
+
+                    case "setBranchList":
+                    //  console.log(arg)
+                    // <form name="branches"> 
+                    //  <select id="chooseBranch" onchange="chooseBranch();"> 
 
 
+                        var branchesList = arg.split("\n")
+                        
+                        // usebranchList = JSON.parse(arg);
+                        var sel = document.getElementById('chooseBranch');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(branchesList).forEach(function (value, key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
+                            sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+                            if (value.includes("*")) {
+                                sel.selectedIndex = key
+                            }
+                        })
+                        //sel.selectedIndex = 0;
 
 
-                            // $("chooseUser").append(
-                            // $.map(userlist, function(v,k){
-
-                            //     return $("<option>").val(k).text(v);
-                            // })
-                            // );
-
-                            // var list = document.getElementById("chooseUser");
-                            // for(var i in userlist) {
-                            //     console.log(userlist[i])
-                            // list.add(new Option(userlist[i].text, userlist[i].value));
-                            // }
-                        // $.each(arg, function(key, value) {
-                        //     $('chooseUser')
-                        //         .append($('<option>', { value : key })
-                        //             //.attr("value", key)
-                        //             .text(value));
-                        //})
                     break;
                     ////////////////////////////////////////////////////
                     //svg from server:
@@ -656,6 +679,13 @@ function userSelect()  {
 
 }
 
+
+//choose branch
+
+function chooseBranch() {
+    selection = document.Branch.chooseBranch.value;
+    console.log(selection)
+}
 
 /////////////////////////////////////
                                     //MERGEVIEW

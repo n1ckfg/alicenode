@@ -59,12 +59,21 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
-//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. 
-exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
-	console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
-});
+
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(s) which branch the main code editor is currently pointed to. 
+// exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
+		
+// 	if (err.replace("\n", "") !== "master") {
+// 		exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
+// 			console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
+// 		});
+// 	}
+// 	console.log("\n\n\n\n" + err.replace("\n", ""))
+// 	})
 
 
+
+ 
 
 pruneWorktree()
 function pruneWorktree() {
@@ -236,13 +245,21 @@ wss.on('connection', function(ws, req) {
 		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 		ws.send("setUserList?" + JSON.stringify(userlist));
 
+		// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
+		// 	console.log(err)
+		// })
+
 		// send a handshake?
 		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
 		// if (statebuf) ws.send(statebuf);
 		
 		ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
 
+		exec('git branch -v', {cwd: project_path}, (stdout,err,stderr) => {
+			//console.log(err.split("\n"))
+			ws.send("setBranchList?" + err)
 		
+		})
 		// //get the names of current worktrees
 		// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
 		
