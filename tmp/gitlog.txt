@@ -1,7 +1,25 @@
-32cb0ce|b49dbef cf14ac6| (refs/stash, Guest_32cb0ce_1526596433491, Guest_32cb0ce_1526595924132)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
-cf14ac6|b49dbef||2018-05-17|Graham Wakefield|index on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
-30725fb|66ac412 c48c2d1| (HEAD -> texture_coordinates, origin/texture_coordinates)|2018-05-17|Nicholas|Fixed some merge conflicts from the last pull from master|
-c48c2d1|f1fed15 8dbe1e9| (origin/master, origin/HEAD, master, Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
+93d4bbd|2f430be| (HEAD -> master, origin/texture_coordinates, origin/master, origin/HEAD, userWorktree, +Michael_Palumbo)|2018-05-22|Nicholas|Fixed a small issue with out of scope variables|
+
+ project.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+2f430be|d766366 bd16c0a||2018-05-22|Nicholas|Added camera following functionality from Nicole's code/task and merges with previous pull (Nicole's version of camera change)|
+bd16c0a|a5a73b7 683f63f||2018-05-22|Nicole Skrypuch|merge my version into the master|
+a5a73b7|c48c2d1||2018-05-22|Nicole Skrypuch|attempting to update camera position|
+
+ project.cpp | 42 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 40 insertions(+), 2 deletions(-)
+d766366|3c789ab||2018-05-22|Nicholas|Added camera swapping functionality for blobbies and segments from Nicole's code/task|
+
+ project.cpp       | 43 ++++++++++++++++++++++++++++++++++++-------
+ segment.frag.glsl |  4 ++--
+ 2 files changed, 38 insertions(+), 9 deletions(-)
+3c789ab|30725fb 683f63f||2018-05-22|Nicholas|Merge branch 'master' of https://github.com/worldmaking/alicenode_inhabitat into texture_coordinates|
+683f63f|c48c2d1||2018-05-18|Graham Wakefield|ignore code-workspace files|
+
+ .gitignore | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+30725fb|66ac412 c48c2d1| (texture_coordinates)|2018-05-17|Nicholas|Fixed some merge conflicts from the last pull from master|
+c48c2d1|f1fed15 8dbe1e9| (Michael_Palumbo_851283d851283d)|2018-05-16|Graham Wakefield|Merge branch 'master' of github.com:worldmaking/alicenode_inhabitat|
 8dbe1e9|fea84c9||2018-05-16|Nicole Skrypuch|Remove mapping|
 
  project.cpp | 6 +++---
@@ -37,10 +55,12 @@ fea84c9|6e7fcb5||2018-05-16|Graham Wakefield|missing devrun|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-ac107e5|f99eb23||2018-05-16|Michael Palumbo|testing the git commit author spec|
+ac107e5|f99eb23| (Michael_Palumbo_ac107e5_1527004321858, Michael_Palumbo_ac107e5_1527003819750, Michael_Palumbo_ac107e5_1527003794999, Michael_Palumbo_ac107e5_1527003773088, +Guest)|2018-05-16|Michael Palumbo|testing the git commit author spec|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
+32cb0ce|b49dbef cf14ac6| (refs/stash, Guest_32cb0ce_1526596433491, Guest_32cb0ce_1526595924132)|2018-05-17|Graham Wakefield|WIP on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
+cf14ac6|b49dbef||2018-05-17|Graham Wakefield|index on texture_coordinates: b49dbef Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 b49dbef|b952d54| (test_branch_name, Guest_b49dbef)|2018-05-16|Nicholas|Making progress in texture coords for segmented creature. Added smin_tex, capsules 1 and 2 tex, and have the segmented creature currently at a satisfying recreation of the original, but not exactly the same.|
 
  segment.frag.glsl | 129 ++++++++++++++++++++++++++++--------------------------
@@ -61,7 +81,7 @@ f99eb23|a16938b| (Full_Name, +Micel_Palumbo)|2018-05-14|Graham Wakefield|testing
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
-a16938b|93d1c44||2018-05-14|Graham Wakefield|reticulating splines|
+a16938b|93d1c44| (Michael_Palumbo_a16938b_1527003857716, Michael_Palumbo_a16938b_1527003654623)|2018-05-14|Graham Wakefield|reticulating splines|
 
  project.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
