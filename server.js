@@ -291,7 +291,7 @@ wss.on('connection', function(ws, req) {
 	ws.on('message', function(message) {
 		//console.log(message)
 		var userName; //this is what the client has signed in as
-		var userWorktree = "+" + userName; //the worktree dir for any changes within rightEditor. 
+		var userWorktree; //the worktree dir for any changes within rightEditor. 
 		
 		
 		//probably not in use
@@ -526,8 +526,7 @@ wss.on('connection', function(ws, req) {
 
 							console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
 							userEmail = userEntry[arg];
-							console.log(userWorktree)
-							console.log(arg)
+
 						} else {
 							//if worktree directory doesn't yet exist, create it
 							exec('git worktree add --no-checkout ' + userWorktree, {cwd: project_path}, (stdout, stderr, err) => {
