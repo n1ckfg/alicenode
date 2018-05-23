@@ -323,4 +323,29 @@ void sdf_from_binary_deadreckoning(const glm::ivec3 dim, const float * binary, f
 	}
 }
 
+// compute normal of an SDF field by using the gradient over 4 tetrahedral points around a location `p`
+// (cheaper than the usual technique of sampling 6 cardinal points)
+// 'p' is assumed to be a normalized 0..1 position over the dim 'dim' that covers 'field'
+// `eps` is the distance to compare points around the location `p` 
+// a smaller eps gives sharper edges, but it should be large enough to overcome sampling error
+// in theory, the gradient magnitude of an SDF should everywhere = 1, 
+// but in practice this isn’t always held, so need to normalize() the result
+glm::vec3 sdf_field_normal4(const glm::ivec3 dim, float * const field, glm::vec3 p, const float eps) {
+	glm::vec2 e = glm::vec2(-eps, eps);
+	// tetrahedral points
+	const glm::vec3 e1 = glm::vec3( eps, -eps, -eps);
+	const glm::vec3 e2 = glm::vec3(-eps, -eps,  eps);
+	const glm::vec3 e3 = glm::vec3(-eps,  eps, -eps);
+	const glm::vec3 e4 = glm::vec3( eps,  eps,  eps);
+	const float t1 = al_field3d_readnorm_interp(dim, field, p + e1);
+	const float t2 = al_field3d_readnorm_interp(dim, field, p + e2);
+	const float t3 = al_field3d_readnorm_interp(dim, field, p + e3);
+	const float t4 = al_field3d_readnorm_interp(dim, field, p + e4);
+	const glm::vec3 n = (e1*t1 + e2*t2 + e3*t3 + e4*t4);
+	// normalize for a consistent SDF:
+	//return n / (4.f*eps*eps);
+	// otherwise:
+	return glm::normalize(n);
+}
+
 #endif // AL_DISTANCE_H
