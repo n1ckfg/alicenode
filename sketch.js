@@ -27,6 +27,10 @@ const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
 
+
+exec('git log --all --source --abbrev-commit --pretty=oneline -- build.sh', {cwd: project_path}, (stdout, stderr, err) => {
+  console.log(stderr)
+})
 //THIS FILE IS USED AS A SANDBOX FOR TESTING/ADDING NEW IDEAS/CODE
 
 // console.log( path.join(server_path + '/branchList.csv'))
@@ -35,38 +39,49 @@ const client_path = path.join(server_path, "client");
 
 // })
 
-userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+// userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
 
-console.log(userEntry)
+// console.log(userEntry)
 
 
-var ls = require('list-directory-contents');
- 
-ls(project_path, function (err, tree) {
-  
-  // NOTE:
-  // everything ending in `/` in the output below is a path to a directory
-  // all other paths are to files
-  
-  
-  // `tree` =>
-  [
-    'index.js',
-    'README',
-    'package.json',
-    'CONTRIBUTING.md',
-    'node_modules/',
- 
-    'node_modules/lodash/',
-    'node_modules/async/',
-    'node_modules/fs-extra/',
- 
-    'node_modules/fs-extra/index.js',
-    'node_modules/fs-extra/lib/',
-    'node_modules/fs-extra/node_modules/'
-  ];
-  console.log(tree, err)
-});
+// Walker(project_path)
+//   .filterDir(function(dir, stat) {
+//     if (dir === '/etc/pam.d') {
+//       console.warn('Skipping /etc/pam.d and children')
+//       return false
+//     }
+//     return true
+//   })
+//   .on('entry', function(entry, stat) {
+//     console.log('Got entry: ' + entry)
+//   })
+//   .on('dir', function(dir, stat) {
+//     console.log('Got directory: ' + dir)
+//   })
+//   .on('file', function(file, stat) {
+//     console.log('Got file: ' + file)
+//   })
+//   .on('symlink', function(symlink, stat) {
+//     console.log('Got symlink: ' + symlink)
+//   })
+//   .on('blockDevice', function(blockDevice, stat) {
+//     console.log('Got blockDevice: ' + blockDevice)
+//   })
+//   .on('fifo', function(fifo, stat) {
+//     console.log('Got fifo: ' + fifo)
+//   })
+//   .on('socket', function(socket, stat) {
+//     console.log('Got socket: ' + socket)
+//   })
+//   .on('characterDevice', function(characterDevice, stat) {
+//     console.log('Got characterDevice: ' + characterDevice)
+//   })
+//   .on('error', function(er, entry, stat) {
+//     console.log('Got error ' + er + ' on entry ' + entry)
+//   })
+//   .on('end', function() {
+//     console.log('All files traversed.')
+//   })
 
 
 // arg = "Michael"

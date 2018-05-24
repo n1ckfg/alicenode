@@ -77,7 +77,7 @@ const find = require('find-process');
 
 pruneWorktree()
 function pruneWorktree() {
-	// TO DO:   
+	// TO DO: where in the code are the worktrees counted or checked   
 	// update the worktree list, if any worktrees had been removed by user, make sure they aren't
 	// still tracked by git
 	exec("git worktree prune", {cwd: project_path}, () => {
