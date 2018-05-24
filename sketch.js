@@ -21,7 +21,8 @@ const execPromise = require('child-process-promise');
 const libext = process.platform == "win32" ? "dll" : "dylib";
 
 // derive project to launch from first argument:
-// process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
+process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
+
 const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
@@ -33,10 +34,45 @@ const client_path = path.join(server_path, "client");
 //     console.log(err.split("\r\n", ""))
 
 // })
-arg = "Michael"
-exec('git worktree add ' + path.join(project_path, "+" + arg), {cwd: project_path}, (stdout, stderr, err) => {
-  console.log(err, stderr, stdout)
-})
+
+userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+
+console.log(userEntry)
+
+
+var ls = require('list-directory-contents');
+ 
+ls(project_path, function (err, tree) {
+  
+  // NOTE:
+  // everything ending in `/` in the output below is a path to a directory
+  // all other paths are to files
+  
+  
+  // `tree` =>
+  [
+    'index.js',
+    'README',
+    'package.json',
+    'CONTRIBUTING.md',
+    'node_modules/',
+ 
+    'node_modules/lodash/',
+    'node_modules/async/',
+    'node_modules/fs-extra/',
+ 
+    'node_modules/fs-extra/index.js',
+    'node_modules/fs-extra/lib/',
+    'node_modules/fs-extra/node_modules/'
+  ];
+  console.log(tree, err)
+});
+
+
+// arg = "Michael"
+// exec('git worktree add ' + path.join(project_path, "+" + arg), {cwd: project_path}, (stdout, stderr, err) => {
+//   console.log(err, stderr, stdout)
+// })
 
 // "use strict";
 // // Optional. You will see this name in eg. 'ps' or 'top' command
