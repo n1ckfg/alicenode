@@ -80,7 +80,7 @@ void sdf_from_binary(const glm::ivec3 dim, const float * binary, float * dst, fl
 				const float bbc = binary[al_field3d_index(dim, x, y, z+1)];	
 
 				// average:
-				const float nhoodavg = abb+cbb+bab+bcb+bba+bbc / 6.f;
+				//const float nhoodavg = abb+cbb+bab+bcb+bba+bbc / 6.f;
 
 				if (b != abb || b != cbb || b != bab || b != bcb || b != bba || b != bbc) {
 					// this is a border cell, because neighbor != center
