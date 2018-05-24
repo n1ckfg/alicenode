@@ -501,6 +501,66 @@ struct FloatTexture3D {
 	}
 };
 
+struct FloatTexture2D {
+
+	GLuint id;
+
+	void dest_closing() {
+		if (id) {
+			glDeleteTextures(1, &id);
+			id = 0;
+		}
+	}
+
+	void dest_changed() {
+		dest_closing();
+		
+		glGenTextures(1, &id);
+
+		glBindTexture(GL_TEXTURE_2D, id);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+		glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void bind(GLenum texture_unit = 0) {
+		if (!id) dest_changed();
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_2D, id);
+	}
+	static void unbind(GLenum texture_unit = 0) {
+		glActiveTexture(GL_TEXTURE0+texture_unit);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	
+	// single-plane:
+	void submit(glm::ivec2 dim, float * data, bool generateMipMap=false) {
+		bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, dim.x, dim.y, 0, GL_RED, GL_FLOAT, data);
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_2D);  
+		unbind();
+	}
+	
+	// 3-plane:
+	void submit(glm::ivec2 dim, glm::vec3 * data, bool generateMipMap=false) {
+		bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, dim.x, dim.y, 0, GL_RGB, GL_FLOAT, data);
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_2D);  
+		unbind();
+	}
+	
+	// 4-plane:
+	void submit(glm::ivec2 dim, glm::vec4 * data, bool generateMipMap=false) {
+		bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, dim.x, dim.y, 0, GL_RGBA, GL_FLOAT, data);
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_2D);  
+		unbind();
+	}
+};
+
 struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;

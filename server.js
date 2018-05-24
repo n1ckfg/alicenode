@@ -72,8 +72,15 @@ const find = require('find-process');
 // 	})
 
 
+//check if the userlist exists on the server machine, if not, create an empty json file:
 
- 
+if (fs.existsSync(path.join(project_path, "userlist.json"))) {
+
+	console.log("found userlist.json")
+} else {
+	fs.writeFileSync(path.join(project_path, "userlist.json"), "{}", 'utf8');
+	console.log("created userlist.json on " + os.hostname());
+}
 
 pruneWorktree()
 function pruneWorktree() {

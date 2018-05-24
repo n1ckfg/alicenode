@@ -39,6 +39,7 @@ exec('git log --all --source --abbrev-commit --pretty=oneline -- build.sh', {cwd
 
 // })
 
+<<<<<<< HEAD
 // userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
 
 // console.log(userEntry)
@@ -83,6 +84,14 @@ exec('git log --all --source --abbrev-commit --pretty=oneline -- build.sh', {cwd
 //     console.log('All files traversed.')
 //   })
 
+=======
+if (fs.existsSync(path.join(project_path, "userlist.json"))) {
+
+	console.log("it exists")
+} else {console.log("it doesn't exist")}
+
+
+>>>>>>> eb0a006a99a96494e4c17180d7173412acc3d8e5
 
 // arg = "Michael"
 // exec('git worktree add ' + path.join(project_path, "+" + arg), {cwd: project_path}, (stdout, stderr, err) => {
