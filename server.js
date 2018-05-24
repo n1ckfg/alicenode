@@ -952,15 +952,10 @@ watcher
 		{
 			// first, reload & rebuild sim:
 			try {
-				
-				unloadsim();
 			
 				// let clients know the sources have changed
 				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
 			
-				project_build();
-				loadsim();
-
 				//git_add_and_commit();
 
 				
