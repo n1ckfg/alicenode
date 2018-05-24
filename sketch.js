@@ -33,10 +33,18 @@ const client_path = path.join(server_path, "client");
 //     console.log(err.split("\r\n", ""))
 
 // })
-arg = "Michael"
-exec('git worktree add ' + path.join(project_path, "+" + arg), {cwd: project_path}, (stdout, stderr, err) => {
-  console.log(err, stderr, stdout)
-})
+
+if (fs.existsSync(path.join(project_path, "userlist.json"))) {
+
+	console.log("it exists")
+} else {console.log("it doesn't exist")}
+
+
+
+// arg = "Michael"
+// exec('git worktree add ' + path.join(project_path, "+" + arg), {cwd: project_path}, (stdout, stderr, err) => {
+//   console.log(err, stderr, stdout)
+// })
 
 // "use strict";
 // // Optional. You will see this name in eg. 'ps' or 'top' command
