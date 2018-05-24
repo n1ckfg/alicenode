@@ -1,0 +1,44 @@
+{
+    "nodes": {
+        "p1": {
+            "op": "param",
+            "args": [ "p" ],
+            "pos": [ 10, 10 ]
+        },
+        "q1": {
+            "op": "param",
+            "args": [ "q" ],
+            "pos": [ 50, 10 ]
+        },
+        "plus1": {
+            "op": "code",
+            "args": [ `
+                auto x = ${inputs[0]};
+                auto y = ${inputs[1]};
+                ${outputs[0]} = x*x + y*y;` ],
+            "pos": [ 10, 50 ]
+        },
+        "out1": {
+            "op": "codefile",
+            "args": [ "print.cpp" ],
+            "pos": [ 10, 90 ]
+        }
+    },
+    "arcs": [
+        { 
+            "from": "p1", "fromidx": 0,
+            "to": "plus1", "toidx": 0,
+        },
+        { 
+            "from": "q1", "fromidx": 0,
+            "to": "plus1", "toidx": 1,
+        },
+        { 
+            "from": "plus1", "fromidx": 0,
+            "to": "out1", "toidx": 0,
+        }
+    ],
+    "meta": {
+
+    }
+}
