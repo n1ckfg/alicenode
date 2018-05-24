@@ -3,7 +3,7 @@ alice
 alice.exe
 
 _tests
-tmp/gitlog.txt
+tmp/*
 
 #IDE_workspace
 alicenode.code-workspace
