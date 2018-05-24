@@ -87,7 +87,7 @@ inline void al_field3d_read_interp(const glm::ivec3 dim, const T * data, double 
 	const T& vbba = data[al_field3d_index(dim, xb, yb, za)];
 	const T& vbbb = data[al_field3d_index(dim, xb, yb, zb)];
 	// do the 3D interp:
-	val =  ((vaaa * faaa) +
+	*val = ((vaaa * faaa) +
 			(vbaa * fbaa) +
 			(vaba * faba) +
 			(vaab * faab) +
@@ -101,6 +101,18 @@ inline void al_field3d_read_interp(const glm::ivec3 dim, const T * data, double 
 template<typename T>
 inline void al_field3d_read_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
 	al_field3d_read_interp<T>(dim, data, pos.x, pos.y, pos.z, val); 
+}
+
+template<typename T>
+inline void al_field3d_readnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
+	al_field3d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, pos.z * dim.z, val); 
+}
+
+template<typename T>
+inline T al_field3d_readnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 pos) {
+	T val = T(0);
+	al_field3d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, pos.z * dim.z, &val); 
+	return val;
 }
 
 template<typename T>

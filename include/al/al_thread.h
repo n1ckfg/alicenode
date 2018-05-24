@@ -2,6 +2,7 @@
 #define AL_THREAD_H
 
 #include <thread>
+#include <mutex>
 
 #include "al_time.h"
 
@@ -10,6 +11,13 @@
     
     std::thread t1(call_from_thread);
     t1.join();
+
+    std::mutex mutex;
+    mutex.lock(); // waits until mutex is available
+    mutex.try_lock(); // does not block; returns true if acquired, false if not acquired
+    mutex.unlock(); // releases mutex for others to acquire
+
+    std::lock_guard<std::mutex> guard(mutex); // locks mutex until scope exits
 */
 
 /*

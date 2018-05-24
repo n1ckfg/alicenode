@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
-<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
+<meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080">
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -415,6 +415,10 @@ function openSocket() {
                     case "updateRepo":
                         log('Update Repo Graph')
                         break;
+
+                    case "edit":
+                            console.log("edit:\n\n" + arg)
+                    break;
                     default:
                         log("cmd: " + cmd + ", " + arg);
                     }
@@ -649,6 +653,7 @@ function userSelect()  {
 
         
         authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+
 
         
            

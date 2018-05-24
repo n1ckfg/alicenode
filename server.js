@@ -46,7 +46,7 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
-let userName = "Guest"; //temporary: default to guest when using the client app
+//let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 let worktreepath = path.join(client_path, "worktreeList.txt");
@@ -60,7 +60,7 @@ var terminate = require('terminate');
 const find = require('find-process');
 
 
-//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(s) which branch the main code editor is currently pointed to. 
+//maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(edits) which branch the main code editor is currently pointed to. 
 // exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
 		
 // 	if (err.replace("\n", "") !== "master") {
@@ -234,48 +234,48 @@ function send_all_clients(msg) {
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
-	
+		
 	let per_session_data = {
 		id: sessionId++,
 		socket: ws,
 
 
 	};
-		//get the current list of authors involved in the alicenode_inhabitat project
-		let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
-		ws.send("setUserList?" + JSON.stringify(userlist));
+	//get the current list of authors involved in the alicenode_inhabitat project
+	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
+	ws.send("setUserList?" + JSON.stringify(userlist));
 
-		// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
-		// 	console.log(err)
-		// })
+	// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
+	// 	console.log(err)
+	// })
 
-		// send a handshake?
-		// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
-		// if (statebuf) ws.send(statebuf);
-		
-		ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
+	// send a handshake?
+	// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
+	// if (statebuf) ws.send(statebuf);
+	
+	ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
 
-		exec('git branch -v', {cwd: project_path}, (stdout,err,stderr) => {
-			//console.log(err.split("\n"))
-			ws.send("setBranchList?" + err)
-		
-		})
-		// //get the names of current worktrees
-		// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
-		
-		// 	//send updated list to client
-		// 	err = err.split(/\n/g).filter(String)
-		// 	// worktrees = [];
-		// 	        // err.forEach(function(element) {
-		// 			// console.log("test " + element)
-		// 			// worktrees.push(element)
-		// 			// })
-		// 			//console.log(element)
-		// 			// console.log(Array.isArray(err))
-		// 			// console.log(typeof err[1])
-		// 	ws.send("worktreeList?" + JSON.stringify(err))
+	exec('git branch -v', {cwd: project_path}, (stdout,err,stderr) => {
+		//console.log(err.split("\n"))
+		ws.send("setBranchList?" + err)
+	
+	})
+	// //get the names of current worktrees
+	// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {  
+	
+	// 	//send updated list to client
+	// 	err = err.split(/\n/g).filter(String)
+	// 	// worktrees = [];
+	// 	        // err.forEach(function(element) {
+	// 			// console.log("test " + element)
+	// 			// worktrees.push(element)
+	// 			// })
+	// 			//console.log(element)
+	// 			// console.log(Array.isArray(err))
+	// 			// console.log(typeof err[1])
+	// 	ws.send("worktreeList?" + JSON.stringify(err))
 
-		// }) 
+	// }) 
 
 
 	sessions[per_session_data.id] = per_session_data;
@@ -290,29 +290,30 @@ wss.on('connection', function(ws, req) {
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
 		//console.log(message)
+		var userName; //this is what the client has signed in as
+		var userWorktree; //the worktree dir for any changes within rightEditor. 
 		
-		var clientOrigRightWorktree; //the worktree used by origRight, and specific to the client. declare this within session scope
-		var fullName;
+		
+		//probably not in use
+		// //create and set worktree
+		// if (message.includes("addWorktree")){
+		// 	newWorkTree = message.replace("addWorktree ", "+")
+		// 	console.log(newWorkTree)
+		// 	exec("git worktree add --no-checkout " + message.replace("addWorktree ", "+"), (stdout, err, stderr) => {
 
-		//create and set worktree
-		if (message.includes("addWorktree")){
-			newWorkTree = message.replace("addWorktree ", "+")
-			console.log(newWorkTree)
-			exec("git worktree add --no-checkout " + message.replace("addWorktree ", "+"), (stdout, err, stderr) => {
-
-				getWorktreeList();
+		// 		getWorktreeList();
 				
 
 		
-			});
-		}
-
-		if (message.includes("switchWorktree")){
-			//console.log("worktree is " + arg)
-			clientOrigRightWorktree = message.replace("switchWorktree ", "")
-			exec("cd " + clientOrigRightWorktree) 
-			console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree")
-		}
+		// 	});
+		// }
+		//probably not in use anymore
+		// if (message.includes("switchWorktree")){
+		// 	//console.log("worktree is " + arg)
+		// 	clientOrigRightWorktree = message.replace("switchWorktree ", "")
+		// 	exec("cd " + clientOrigRightWorktree) 
+		// 	console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree") 
+		// }
 
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: project_path }, (stdout, stderr, err) => {
@@ -332,7 +333,7 @@ wss.on('connection', function(ws, req) {
 
 			if (libext == "dylib") {
 				//if on unix, do this:
-				exec("git branch | wc -l", (stdout, stderr, err) => {
+				exec("git branch | wc -l", {cwd: userWorktree}, (stdout, stderr, err) => {
 
 					onHash = message.replace("createNewBranch ", "")
 					numBranches = Number(stderr.replace(/\s+/g,''));
@@ -341,11 +342,11 @@ wss.on('connection', function(ws, req) {
 
 			else {
 				//if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
-				//console.log(fullName);
+				//console.log(userName);
 
 				//console.log(gitCommand.substr(gitCommand.lastIndexOf('_')+1));
 				console.log("working on windows machine\nchecked out new branch: " + gitCommand.substr(0, gitCommand.indexOf('_')))
-				exec('git checkout -b ' + gitCommand, {cwd: project_path}, (stdout, err, stderr) => {
+				exec('git checkout -b ' + gitCommand, {cwd: userWorktree}, (stdout, err, stderr) => {
 					console.log("---\ngit: " + stderr + "\n---")
 
 				})
@@ -447,7 +448,7 @@ wss.on('connection', function(ws, req) {
 
 
 		if (message.includes("git return to master")){
-
+			console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
 			 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
 			 ws.send("edit?" + err)
 
@@ -470,15 +471,15 @@ wss.on('connection', function(ws, req) {
 
 			case "newUser":
 				//var userlist = [];
-				let fullname = arg.substr(0, arg.indexOf("$?$"));
-				let useremail = arg.split('$?$')[1];
-				clientOrigRightWorktree = fullname;
+				userName = arg.substr(0, arg.indexOf("$?$"));
+				useremail = arg.split('$?$')[1];
+				clientOrigRightWorktree = userName;
 				
 				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
-				userlist[fullname] = useremail;
+				userlist[userName] = userEmail;
 				
 				var jsonstring = (JSON.stringify(userlist))
-				console.log(jsonstring)
+				console.log("user:" + jsonstring)
 				
 				fs.writeFileSync(path.join(project_path, "userlist.json"), jsonstring, 'utf8');
 
@@ -491,8 +492,9 @@ wss.on('connection', function(ws, req) {
 				//add a new worktree to alicenode_inhabitat
 				//the '+' symbol at the beginning will help us remember
 				//that dir is a worktree, and gitignore will catch it
-				exec("git worktree add --checkout +" + fullname.split(' ').join('_'), (stdout, err, stderr) => {
+				exec("git worktree add --checkout +" + userName.split(' ').join('_'), (stdout, err, stderr) => {
 					});
+					
 				// 	getWorktreeList();
 
 				//TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
@@ -507,16 +509,33 @@ wss.on('connection', function(ws, req) {
 						case "Guest":
 						userName = "Guest";
 						userEmail = "grrrwaaa@gmail.com";
+						userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
+						
 						console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
+						console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
 
 
 						break;
 
 						default: 
-						userName = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
-						userEmail = userName[arg];
+						userName = arg;						
+						userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+						userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
 
-						clientOrigRightWorktree = userName;
+						if (fs.existsSync(userWorktree)) {
+
+							console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
+							userEmail = userEntry[arg];
+
+						} else {
+							//if worktree directory doesn't yet exist, create it
+							exec('git worktree add --no-checkout ' + userWorktree, {cwd: project_path}, (stdout, stderr, err) => {
+									console.log(err, stderr, stdout)
+							})
+
+						}
+
+
 						break;
 
 					}
@@ -921,7 +940,7 @@ function unloadsim() {
 // would be better to be able to use a dependency tracer,
 // so that any file that sim.cpp depends on also triggers.
 
-let watcher = chokidar.watch(project_path, {ignored: project_path+"/.git" } );
+let watcher = chokidar.watch(project_path, {ignored: project_path+"/.git" || project_path+"+\*" } );
 
 watcher
 .on('error', error => console.log(`Watcher error: ${error}`))
@@ -933,15 +952,10 @@ watcher
 		{
 			// first, reload & rebuild sim:
 			try {
-				
-				unloadsim();
 			
 				// let clients know the sources have changed
 				send_all_clients("edit?"+fs.readFileSync("project.cpp", "utf8"));
 			
-				project_build();
-				loadsim();
-
 				//git_add_and_commit();
 
 				
