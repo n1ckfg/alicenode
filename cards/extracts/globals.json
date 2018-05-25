@@ -1,0 +1,2391 @@
+{
+ "fastcall": {
+  "name": "fastcall",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "fastcall"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "fastcall",
+      "raw": "\"fastcall\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "express": {
+  "name": "express",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "express"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "express",
+      "raw": "'express'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "WebSocket": {
+  "name": "WebSocket",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "WebSocket"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "ws",
+      "raw": "'ws'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "mmapfile": {
+  "name": "mmapfile",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "mmapfile"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "mmapfile",
+      "raw": "'mmapfile'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "chokidar": {
+  "name": "chokidar",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "chokidar"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "chokidar",
+      "raw": "'chokidar'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "pako": {
+  "name": "pako",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "pako"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "pako",
+      "raw": "'pako'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "JSON5": {
+  "name": "JSON5",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "JSON5"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "json5",
+      "raw": "'json5'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "http": {
+  "name": "http",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "http"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "http",
+      "raw": "'http'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "url": {
+  "name": "url",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "url"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "url",
+      "raw": "'url'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "fs": {
+  "name": "fs",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "fs"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "fs",
+      "raw": "\"fs\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "path": {
+  "name": "path",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "path"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "path",
+      "raw": "\"path\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "os": {
+  "name": "os",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "os"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "os",
+      "raw": "\"os\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "undefined": {
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "ObjectPattern",
+    "properties": [
+     {
+      "type": "Property",
+      "key": {
+       "type": "Identifier",
+       "name": "exec"
+      },
+      "computed": false,
+      "value": {
+       "type": "Identifier",
+       "name": "exec"
+      },
+      "kind": "init",
+      "method": false,
+      "shorthand": true
+     },
+     {
+      "type": "Property",
+      "key": {
+       "type": "Identifier",
+       "name": "execSync"
+      },
+      "computed": false,
+      "value": {
+       "type": "Identifier",
+       "name": "execSync"
+      },
+      "kind": "init",
+      "method": false,
+      "shorthand": true
+     },
+     {
+      "type": "Property",
+      "key": {
+       "type": "Identifier",
+       "name": "spawn"
+      },
+      "computed": false,
+      "value": {
+       "type": "Identifier",
+       "name": "spawn"
+      },
+      "kind": "init",
+      "method": false,
+      "shorthand": true
+     },
+     {
+      "type": "Property",
+      "key": {
+       "type": "Identifier",
+       "name": "spawnSync"
+      },
+      "computed": false,
+      "value": {
+       "type": "Identifier",
+       "name": "spawnSync"
+      },
+      "kind": "init",
+      "method": false,
+      "shorthand": true
+     },
+     {
+      "type": "Property",
+      "key": {
+       "type": "Identifier",
+       "name": "fork"
+      },
+      "computed": false,
+      "value": {
+       "type": "Identifier",
+       "name": "fork"
+      },
+      "kind": "init",
+      "method": false,
+      "shorthand": true
+     }
+    ]
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "child_process",
+      "raw": "'child_process'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "execPromise": {
+  "name": "execPromise",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "execPromise"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "child-process-promise",
+      "raw": "'child-process-promise'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "random": {
+  "name": "random",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "random"
+   },
+   "params": [
+    {
+     "type": "Identifier",
+     "name": "low"
+    },
+    {
+     "type": "Identifier",
+     "name": "high"
+    }
+   ],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ReturnStatement",
+      "argument": {
+       "type": "BinaryExpression",
+       "operator": "+",
+       "left": {
+        "type": "BinaryExpression",
+        "operator": "*",
+        "left": {
+         "type": "CallExpression",
+         "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+           "type": "Identifier",
+           "name": "Math"
+          },
+          "property": {
+           "type": "Identifier",
+           "name": "random"
+          }
+         },
+         "arguments": []
+        },
+        "right": {
+         "type": "BinaryExpression",
+         "operator": "-",
+         "left": {
+          "type": "Identifier",
+          "name": "high"
+         },
+         "right": {
+          "type": "Identifier",
+          "name": "low"
+         }
+        }
+       },
+       "right": {
+        "type": "Identifier",
+        "name": "low"
+       }
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "randomInt": {
+  "name": "randomInt",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "randomInt"
+   },
+   "params": [
+    {
+     "type": "Identifier",
+     "name": "low"
+    },
+    {
+     "type": "Identifier",
+     "name": "high"
+    }
+   ],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ReturnStatement",
+      "argument": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "Identifier",
+         "name": "Math"
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "floor"
+        }
+       },
+       "arguments": [
+        {
+         "type": "BinaryExpression",
+         "operator": "+",
+         "left": {
+          "type": "BinaryExpression",
+          "operator": "*",
+          "left": {
+           "type": "CallExpression",
+           "callee": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+             "type": "Identifier",
+             "name": "Math"
+            },
+            "property": {
+             "type": "Identifier",
+             "name": "random"
+            }
+           },
+           "arguments": []
+          },
+          "right": {
+           "type": "BinaryExpression",
+           "operator": "-",
+           "left": {
+            "type": "Identifier",
+            "name": "high"
+           },
+           "right": {
+            "type": "Identifier",
+            "name": "low"
+           }
+          }
+         },
+         "right": {
+          "type": "Identifier",
+          "name": "low"
+         }
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "libext": {
+  "name": "libext",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "libext"
+   },
+   "init": {
+    "type": "ConditionalExpression",
+    "test": {
+     "type": "BinaryExpression",
+     "operator": "==",
+     "left": {
+      "type": "MemberExpression",
+      "computed": false,
+      "object": {
+       "type": "Identifier",
+       "name": "process"
+      },
+      "property": {
+       "type": "Identifier",
+       "name": "platform"
+      }
+     },
+     "right": {
+      "type": "Literal",
+      "value": "win32",
+      "raw": "\"win32\""
+     }
+    },
+    "consequent": {
+     "type": "Literal",
+     "value": "dll",
+     "raw": "\"dll\""
+    },
+    "alternate": {
+     "type": "Literal",
+     "value": "dylib",
+     "raw": "\"dylib\""
+    }
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "project_path": {
+  "name": "project_path",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "project_path"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "process"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "cwd"
+     }
+    },
+    "arguments": []
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "server_path": {
+  "name": "server_path",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "server_path"
+   },
+   "init": {
+    "type": "Identifier",
+    "name": "__dirname"
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "client_path": {
+  "name": "client_path",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "client_path"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "path"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "join"
+     }
+    },
+    "arguments": [
+     {
+      "type": "Identifier",
+      "name": "server_path"
+     },
+     {
+      "type": "Literal",
+      "value": "client",
+      "raw": "\"client\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "projectlib": {
+  "name": "projectlib",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "projectlib"
+   },
+   "init": {
+    "type": "BinaryExpression",
+    "operator": "+",
+    "left": {
+     "type": "Literal",
+     "value": "project.",
+     "raw": "\"project.\""
+    },
+    "right": {
+     "type": "Identifier",
+     "name": "libext"
+    }
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "gitHash": {
+  "name": "gitHash",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "gitHash"
+   },
+   "init": null
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "projectCPPVersion": {
+  "name": "projectCPPVersion",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "projectCPPVersion"
+   },
+   "init": null
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "worktreepath": {
+  "name": "worktreepath",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "worktreepath"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "path"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "join"
+     }
+    },
+    "arguments": [
+     {
+      "type": "Identifier",
+      "name": "client_path"
+     },
+     {
+      "type": "Literal",
+      "value": "worktreeList.txt",
+      "raw": "\"worktreeList.txt\""
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "worktreeJSON": {
+  "name": "worktreeJSON",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "worktreeJSON"
+   },
+   "init": {
+    "type": "ArrayExpression",
+    "elements": []
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "commitMsg": {
+  "name": "commitMsg",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "commitMsg"
+   },
+   "init": {
+    "type": "Literal",
+    "value": "client updated project",
+    "raw": "\"client updated project\""
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "terminate": {
+  "name": "terminate",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "terminate"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "terminate",
+      "raw": "'terminate'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "find": {
+  "name": "find",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "find"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "require"
+    },
+    "arguments": [
+     {
+      "type": "Literal",
+      "value": "find-process",
+      "raw": "'find-process'"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "pruneWorktree": {
+  "name": "pruneWorktree",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "pruneWorktree"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "Identifier",
+        "name": "exec"
+       },
+       "arguments": [
+        {
+         "type": "Literal",
+         "value": "git worktree prune",
+         "raw": "\"git worktree prune\""
+        },
+        {
+         "type": "ObjectExpression",
+         "properties": [
+          {
+           "type": "Property",
+           "key": {
+            "type": "Identifier",
+            "name": "cwd"
+           },
+           "computed": false,
+           "value": {
+            "type": "Identifier",
+            "name": "project_path"
+           },
+           "kind": "init",
+           "method": false,
+           "shorthand": false
+          }
+         ]
+        },
+        {
+         "type": "ArrowFunctionExpression",
+         "id": null,
+         "params": [],
+         "body": {
+          "type": "BlockStatement",
+          "body": [
+           {
+            "type": "IfStatement",
+            "test": {
+             "type": "CallExpression",
+             "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+               "type": "Identifier",
+               "name": "fs"
+              },
+              "property": {
+               "type": "Identifier",
+               "name": "existsSync"
+              }
+             },
+             "arguments": [
+              {
+               "type": "Identifier",
+               "name": "worktreepath"
+              }
+             ]
+            },
+            "consequent": {
+             "type": "BlockStatement",
+             "body": [
+              {
+               "type": "ExpressionStatement",
+               "expression": {
+                "type": "CallExpression",
+                "callee": {
+                 "type": "MemberExpression",
+                 "computed": false,
+                 "object": {
+                  "type": "Identifier",
+                  "name": "fs"
+                 },
+                 "property": {
+                  "type": "Identifier",
+                  "name": "unlinkSync"
+                 }
+                },
+                "arguments": [
+                 {
+                  "type": "Identifier",
+                  "name": "worktreepath"
+                 }
+                ]
+               }
+              }
+             ]
+            },
+            "alternate": null
+           }
+          ]
+         },
+         "generator": false,
+         "expression": false,
+         "async": false
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "project_build": {
+  "name": "project_build",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "project_build"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "VariableDeclaration",
+      "declarations": [
+       {
+        "type": "VariableDeclarator",
+        "id": {
+         "type": "Identifier",
+         "name": "out"
+        },
+        "init": {
+         "type": "Literal",
+         "value": "",
+         "raw": "\"\""
+        }
+       }
+      ],
+      "kind": "let"
+     },
+     {
+      "type": "IfStatement",
+      "test": {
+       "type": "BinaryExpression",
+       "operator": "==",
+       "left": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "Identifier",
+         "name": "process"
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "platform"
+        }
+       },
+       "right": {
+        "type": "Literal",
+        "value": "win32",
+        "raw": "\"win32\""
+       }
+      },
+      "consequent": {
+       "type": "BlockStatement",
+       "body": [
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+           "type": "Identifier",
+           "name": "out"
+          },
+          "right": {
+           "type": "CallExpression",
+           "callee": {
+            "type": "Identifier",
+            "name": "execSync"
+           },
+           "arguments": [
+            {
+             "type": "BinaryExpression",
+             "operator": "+",
+             "left": {
+              "type": "BinaryExpression",
+              "operator": "+",
+              "left": {
+               "type": "Literal",
+               "value": "build.bat \"",
+               "raw": "'build.bat \"'"
+              },
+              "right": {
+               "type": "Identifier",
+               "name": "server_path"
+              }
+             },
+             "right": {
+              "type": "Literal",
+              "value": "\"",
+              "raw": "'\"'"
+             }
+            },
+            {
+             "type": "ObjectExpression",
+             "properties": [
+              {
+               "type": "Property",
+               "key": {
+                "type": "Identifier",
+                "name": "stdio"
+               },
+               "computed": false,
+               "value": {
+                "type": "Literal",
+                "value": "inherit",
+                "raw": "'inherit'"
+               },
+               "kind": "init",
+               "method": false,
+               "shorthand": false
+              }
+             ]
+            }
+           ]
+          }
+         }
+        }
+       ]
+      },
+      "alternate": {
+       "type": "BlockStatement",
+       "body": [
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "AssignmentExpression",
+          "operator": "=",
+          "left": {
+           "type": "Identifier",
+           "name": "out"
+          },
+          "right": {
+           "type": "CallExpression",
+           "callee": {
+            "type": "Identifier",
+            "name": "execSync"
+           },
+           "arguments": [
+            {
+             "type": "BinaryExpression",
+             "operator": "+",
+             "left": {
+              "type": "BinaryExpression",
+              "operator": "+",
+              "left": {
+               "type": "Literal",
+               "value": "sh build.sh \"",
+               "raw": "'sh build.sh \"'"
+              },
+              "right": {
+               "type": "Identifier",
+               "name": "server_path"
+              }
+             },
+             "right": {
+              "type": "Literal",
+              "value": "\"",
+              "raw": "'\"'"
+             }
+            },
+            {
+             "type": "ObjectExpression",
+             "properties": [
+              {
+               "type": "Property",
+               "key": {
+                "type": "Identifier",
+                "name": "stdio"
+               },
+               "computed": false,
+               "value": {
+                "type": "Literal",
+                "value": "inherit",
+                "raw": "'inherit'"
+               },
+               "kind": "init",
+               "method": false,
+               "shorthand": false
+              }
+             ]
+            }
+           ]
+          }
+         }
+        }
+       ]
+      }
+     },
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "Identifier",
+         "name": "console"
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "log"
+        }
+       },
+       "arguments": [
+        {
+         "type": "Literal",
+         "value": "built project",
+         "raw": "\"built project\""
+        },
+        {
+         "type": "CallExpression",
+         "callee": {
+          "type": "MemberExpression",
+          "computed": false,
+          "object": {
+           "type": "Identifier",
+           "name": "out"
+          },
+          "property": {
+           "type": "Identifier",
+           "name": "toString"
+          }
+         },
+         "arguments": []
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "git_add_and_commit": {
+  "name": "git_add_and_commit",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "git_add_and_commit"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "TryStatement",
+      "block": {
+       "type": "BlockStatement",
+       "body": [
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "CallExpression",
+          "callee": {
+           "type": "Identifier",
+           "name": "execSync"
+          },
+          "arguments": [
+           {
+            "type": "Literal",
+            "value": "git add .",
+            "raw": "'git add .'"
+           },
+           {
+            "type": "ObjectExpression",
+            "properties": [
+             {
+              "type": "Property",
+              "key": {
+               "type": "Identifier",
+               "name": "cwd"
+              },
+              "computed": false,
+              "value": {
+               "type": "Identifier",
+               "name": "project_path"
+              },
+              "kind": "init",
+              "method": false,
+              "shorthand": false
+             }
+            ]
+           },
+           {
+            "type": "ArrowFunctionExpression",
+            "id": null,
+            "params": [],
+            "body": {
+             "type": "BlockStatement",
+             "body": [
+              {
+               "type": "ExpressionStatement",
+               "expression": {
+                "type": "CallExpression",
+                "callee": {
+                 "type": "MemberExpression",
+                 "computed": false,
+                 "object": {
+                  "type": "Identifier",
+                  "name": "console"
+                 },
+                 "property": {
+                  "type": "Identifier",
+                  "name": "log"
+                 }
+                },
+                "arguments": [
+                 {
+                  "type": "Literal",
+                  "value": "git added",
+                  "raw": "\"git added\""
+                 }
+                ]
+               }
+              }
+             ]
+            },
+            "generator": false,
+            "expression": false,
+            "async": false
+           }
+          ]
+         }
+        },
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "CallExpression",
+          "callee": {
+           "type": "Identifier",
+           "name": "execSync"
+          },
+          "arguments": [
+           {
+            "type": "BinaryExpression",
+            "operator": "+",
+            "left": {
+             "type": "BinaryExpression",
+             "operator": "+",
+             "left": {
+              "type": "Literal",
+              "value": "git commit -m \"",
+              "raw": "'git commit -m \\\"'"
+             },
+             "right": {
+              "type": "Identifier",
+              "name": "commitMsg"
+             }
+            },
+            "right": {
+             "type": "Literal",
+             "value": "\"",
+             "raw": "'\\\"'"
+            }
+           },
+           {
+            "type": "ObjectExpression",
+            "properties": [
+             {
+              "type": "Property",
+              "key": {
+               "type": "Identifier",
+               "name": "cwd"
+              },
+              "computed": false,
+              "value": {
+               "type": "Identifier",
+               "name": "project_path"
+              },
+              "kind": "init",
+              "method": false,
+              "shorthand": false
+             }
+            ]
+           },
+           {
+            "type": "ArrowFunctionExpression",
+            "id": null,
+            "params": [],
+            "body": {
+             "type": "BlockStatement",
+             "body": [
+              {
+               "type": "ExpressionStatement",
+               "expression": {
+                "type": "CallExpression",
+                "callee": {
+                 "type": "MemberExpression",
+                 "computed": false,
+                 "object": {
+                  "type": "Identifier",
+                  "name": "console"
+                 },
+                 "property": {
+                  "type": "Identifier",
+                  "name": "log"
+                 }
+                },
+                "arguments": [
+                 {
+                  "type": "Literal",
+                  "value": "git committed",
+                  "raw": "\"git committed\""
+                 }
+                ]
+               }
+              }
+             ]
+            },
+            "generator": false,
+            "expression": false,
+            "async": false
+           }
+          ]
+         }
+        },
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "CallExpression",
+          "callee": {
+           "type": "Identifier",
+           "name": "execSync"
+          },
+          "arguments": [
+           {
+            "type": "Literal",
+            "value": "git status",
+            "raw": "'git status'"
+           },
+           {
+            "type": "ObjectExpression",
+            "properties": [
+             {
+              "type": "Property",
+              "key": {
+               "type": "Identifier",
+               "name": "cwd"
+              },
+              "computed": false,
+              "value": {
+               "type": "Identifier",
+               "name": "project_path"
+              },
+              "kind": "init",
+              "method": false,
+              "shorthand": false
+             }
+            ]
+           },
+           {
+            "type": "ArrowFunctionExpression",
+            "id": null,
+            "params": [
+             {
+              "type": "Identifier",
+              "name": "stdout"
+             }
+            ],
+            "body": {
+             "type": "BlockStatement",
+             "body": [
+              {
+               "type": "ExpressionStatement",
+               "expression": {
+                "type": "CallExpression",
+                "callee": {
+                 "type": "MemberExpression",
+                 "computed": false,
+                 "object": {
+                  "type": "Identifier",
+                  "name": "console"
+                 },
+                 "property": {
+                  "type": "Identifier",
+                  "name": "log"
+                 }
+                },
+                "arguments": [
+                 {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                   "type": "Literal",
+                   "value": "\n\n\n\n\n\n\n",
+                   "raw": "\"\\n\\n\\n\\n\\n\\n\\n\""
+                  },
+                  "right": {
+                   "type": "Identifier",
+                   "name": "stdout"
+                  }
+                 }
+                ]
+               }
+              }
+             ]
+            },
+            "generator": false,
+            "expression": false,
+            "async": false
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "handler": {
+       "type": "CatchClause",
+       "param": {
+        "type": "Identifier",
+        "name": "e"
+       },
+       "body": {
+        "type": "BlockStatement",
+        "body": [
+         {
+          "type": "ExpressionStatement",
+          "expression": {
+           "type": "CallExpression",
+           "callee": {
+            "type": "MemberExpression",
+            "computed": false,
+            "object": {
+             "type": "Identifier",
+             "name": "console"
+            },
+            "property": {
+             "type": "Identifier",
+             "name": "error"
+            }
+           },
+           "arguments": [
+            {
+             "type": "CallExpression",
+             "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+               "type": "Identifier",
+               "name": "e"
+              },
+              "property": {
+               "type": "Identifier",
+               "name": "toString"
+              }
+             },
+             "arguments": []
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      "finalizer": null
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "alice": {
+  "name": "alice",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "alice"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "spawn"
+    },
+    "arguments": [
+     {
+      "type": "CallExpression",
+      "callee": {
+       "type": "MemberExpression",
+       "computed": false,
+       "object": {
+        "type": "Identifier",
+        "name": "path"
+       },
+       "property": {
+        "type": "Identifier",
+        "name": "join"
+       }
+      },
+      "arguments": [
+       {
+        "type": "Identifier",
+        "name": "__dirname"
+       },
+       {
+        "type": "Literal",
+        "value": "alice",
+        "raw": "\"alice\""
+       }
+      ]
+     },
+     {
+      "type": "ArrayExpression",
+      "elements": [
+       {
+        "type": "Identifier",
+        "name": "projectlib"
+       }
+      ]
+     },
+     {
+      "type": "ObjectExpression",
+      "properties": [
+       {
+        "type": "Property",
+        "key": {
+         "type": "Identifier",
+         "name": "cwd"
+        },
+        "computed": false,
+        "value": {
+         "type": "Identifier",
+         "name": "project_path"
+        },
+        "kind": "init",
+        "method": false,
+        "shorthand": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "alice_command": {
+  "name": "alice_command",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "alice_command"
+   },
+   "params": [
+    {
+     "type": "Identifier",
+     "name": "command"
+    },
+    {
+     "type": "Identifier",
+     "name": "arg"
+    }
+   ],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "VariableDeclaration",
+      "declarations": [
+       {
+        "type": "VariableDeclarator",
+        "id": {
+         "type": "Identifier",
+         "name": "msg"
+        },
+        "init": {
+         "type": "BinaryExpression",
+         "operator": "+",
+         "left": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+           "type": "BinaryExpression",
+           "operator": "+",
+           "left": {
+            "type": "Identifier",
+            "name": "command"
+           },
+           "right": {
+            "type": "Literal",
+            "value": "?",
+            "raw": "\"?\""
+           }
+          },
+          "right": {
+           "type": "Identifier",
+           "name": "arg"
+          }
+         },
+         "right": {
+          "type": "Literal",
+          "value": "\u0000",
+          "raw": "\"\\0\""
+         }
+        }
+       }
+      ],
+      "kind": "let"
+     },
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "Identifier",
+         "name": "console"
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "log"
+        }
+       },
+       "arguments": [
+        {
+         "type": "Literal",
+         "value": "sending alice",
+         "raw": "\"sending alice\""
+        },
+        {
+         "type": "Identifier",
+         "name": "msg"
+        }
+       ]
+      }
+     },
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "MemberExpression",
+         "computed": false,
+         "object": {
+          "type": "Identifier",
+          "name": "alice"
+         },
+         "property": {
+          "type": "Identifier",
+          "name": "stdin"
+         }
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "write"
+        }
+       },
+       "arguments": [
+        {
+         "type": "BinaryExpression",
+         "operator": "+",
+         "left": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+           "type": "BinaryExpression",
+           "operator": "+",
+           "left": {
+            "type": "Identifier",
+            "name": "command"
+           },
+           "right": {
+            "type": "Literal",
+            "value": "?",
+            "raw": "\"?\""
+           }
+          },
+          "right": {
+           "type": "Identifier",
+           "name": "arg"
+          }
+         },
+         "right": {
+          "type": "Literal",
+          "value": "\u0000",
+          "raw": "\"\\0\""
+         }
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "statebuf": {
+  "name": "statebuf",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "statebuf"
+   },
+   "init": null
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "sessionId": {
+  "name": "sessionId",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "sessionId"
+   },
+   "init": {
+    "type": "Literal",
+    "value": 0,
+    "raw": "0"
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "sessions": {
+  "name": "sessions",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "sessions"
+   },
+   "init": {
+    "type": "ArrayExpression",
+    "elements": []
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "app": {
+  "name": "app",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "app"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "Identifier",
+     "name": "express"
+    },
+    "arguments": []
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "server": {
+  "name": "server",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "server"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "http"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "createServer"
+     }
+    },
+    "arguments": [
+     {
+      "type": "Identifier",
+      "name": "app"
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "wss": {
+  "name": "wss",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "wss"
+   },
+   "init": {
+    "type": "NewExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "WebSocket"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "Server"
+     }
+    },
+    "arguments": [
+     {
+      "type": "ObjectExpression",
+      "properties": [
+       {
+        "type": "Property",
+        "key": {
+         "type": "Identifier",
+         "name": "server"
+        },
+        "computed": false,
+        "value": {
+         "type": "Identifier",
+         "name": "server"
+        },
+        "kind": "init",
+        "method": false,
+        "shorthand": true
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "send_all_clients": {
+  "name": "send_all_clients",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "send_all_clients"
+   },
+   "params": [
+    {
+     "type": "Identifier",
+     "name": "msg"
+    }
+   ],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+         "type": "MemberExpression",
+         "computed": false,
+         "object": {
+          "type": "Identifier",
+          "name": "wss"
+         },
+         "property": {
+          "type": "Identifier",
+          "name": "clients"
+         }
+        },
+        "property": {
+         "type": "Identifier",
+         "name": "forEach"
+        }
+       },
+       "arguments": [
+        {
+         "type": "FunctionExpression",
+         "id": {
+          "type": "Identifier",
+          "name": "each"
+         },
+         "params": [
+          {
+           "type": "Identifier",
+           "name": "client"
+          }
+         ],
+         "body": {
+          "type": "BlockStatement",
+          "body": [
+           {
+            "type": "ExpressionStatement",
+            "expression": {
+             "type": "CallExpression",
+             "callee": {
+              "type": "MemberExpression",
+              "computed": false,
+              "object": {
+               "type": "Identifier",
+               "name": "client"
+              },
+              "property": {
+               "type": "Identifier",
+               "name": "send"
+              }
+             },
+             "arguments": [
+              {
+               "type": "Identifier",
+               "name": "msg"
+              }
+             ]
+            }
+           }
+          ]
+         },
+         "generator": false,
+         "expression": false,
+         "async": false
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "loadsim": {
+  "name": "loadsim",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "loadsim"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "Identifier",
+        "name": "alice_command"
+       },
+       "arguments": [
+        {
+         "type": "Literal",
+         "value": "openlib",
+         "raw": "\"openlib\""
+        },
+        {
+         "type": "Identifier",
+         "name": "projectlib"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "unloadsim": {
+  "name": "unloadsim",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "unloadsim"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "ExpressionStatement",
+      "expression": {
+       "type": "CallExpression",
+       "callee": {
+        "type": "Identifier",
+        "name": "alice_command"
+       },
+       "arguments": [
+        {
+         "type": "Literal",
+         "value": "closelib",
+         "raw": "\"closelib\""
+        },
+        {
+         "type": "Identifier",
+         "name": "projectlib"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ },
+ "watcher": {
+  "name": "watcher",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "watcher"
+   },
+   "init": {
+    "type": "CallExpression",
+    "callee": {
+     "type": "MemberExpression",
+     "computed": false,
+     "object": {
+      "type": "Identifier",
+      "name": "chokidar"
+     },
+     "property": {
+      "type": "Identifier",
+      "name": "watch"
+     }
+    },
+    "arguments": [
+     {
+      "type": "Identifier",
+      "name": "project_path"
+     },
+     {
+      "type": "ObjectExpression",
+      "properties": [
+       {
+        "type": "Property",
+        "key": {
+         "type": "Identifier",
+         "name": "ignored"
+        },
+        "computed": false,
+        "value": {
+         "type": "LogicalExpression",
+         "operator": "||",
+         "left": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+           "type": "Identifier",
+           "name": "project_path"
+          },
+          "right": {
+           "type": "Literal",
+           "value": "/.git",
+           "raw": "\"/.git\""
+          }
+         },
+         "right": {
+          "type": "BinaryExpression",
+          "operator": "+",
+          "left": {
+           "type": "Identifier",
+           "name": "project_path"
+          },
+          "right": {
+           "type": "Literal",
+           "value": "+*",
+           "raw": "\"+\\*\""
+          }
+         }
+        },
+        "kind": "init",
+        "method": false,
+        "shorthand": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
+ "codeForensics": {
+  "name": "codeForensics",
+  "type": "function",
+  "ast": {
+   "type": "FunctionDeclaration",
+   "id": {
+    "type": "Identifier",
+    "name": "codeForensics"
+   },
+   "params": [],
+   "body": {
+    "type": "BlockStatement",
+    "body": [
+     {
+      "type": "IfStatement",
+      "test": {
+       "type": "BinaryExpression",
+       "operator": "==",
+       "left": {
+        "type": "MemberExpression",
+        "computed": true,
+        "object": {
+         "type": "MemberExpression",
+         "computed": false,
+         "object": {
+          "type": "Identifier",
+          "name": "process"
+         },
+         "property": {
+          "type": "Identifier",
+          "name": "argv"
+         }
+        },
+        "property": {
+         "type": "Literal",
+         "value": 3,
+         "raw": "3"
+        }
+       },
+       "right": {
+        "type": "Literal",
+        "value": "--forensics",
+        "raw": "\"--forensics\""
+       }
+      },
+      "consequent": {
+       "type": "BlockStatement",
+       "body": [
+        {
+         "type": "ExpressionStatement",
+         "expression": {
+          "type": "CallExpression",
+          "callee": {
+           "type": "Identifier",
+           "name": "exec"
+          },
+          "arguments": [
+           {
+            "type": "Literal",
+            "value": "gulp webserver",
+            "raw": "'gulp webserver'"
+           },
+           {
+            "type": "ObjectExpression",
+            "properties": [
+             {
+              "type": "Property",
+              "key": {
+               "type": "Identifier",
+               "name": "cwd"
+              },
+              "computed": false,
+              "value": {
+               "type": "Identifier",
+               "name": "__dirname"
+              },
+              "kind": "init",
+              "method": false,
+              "shorthand": false
+             }
+            ]
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "alternate": null
+     }
+    ]
+   },
+   "generator": false,
+   "expression": false,
+   "async": false
+  },
+  "isFunction": true,
+  "count": 1
+ }
+}

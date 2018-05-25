@@ -18,6 +18,16 @@ think about nested scopes of code, and think about different kinds of event sour
 1. a data structure to represent a "patcher". Probably json, or dot. A list (or dictionary) of nodes, a list of arcs between them, and maybe some other metadata global to the patcher. 
 
 2. a way of visually representing the patcher in a browser window.
+    examples: 
+    highly appealing: 
+    https://gojs.net/latest/samples/grouping.html
+    https://gojs.net/latest/samples/dynamicPorts.html
+    nice features:
+    https://gojs.net/latest/samples/interactiveForce.html
+    https://gojs.net/latest/samples/customContextMenu.html
+    https://gojs.net/latest/samples/linksToLinks.html
+    https://gojs.net/latest/samples/localView.html
+    https://gojs.net/latest/samples/dataFlow.html <<this one might be of interest to graham as its similar to the blueprints' exec cords
 
 3. serving the patcher from a node.js server to the browser.
 
@@ -27,7 +37,7 @@ think about nested scopes of code, and think about different kinds of event sour
 - create arc between objects
 - delete arc
 
-5. the default node operator is the "code bubble", in which arbitrary C++ code can be written.
+5. the default node operator is the "code card", in which arbitrary C++ code can be written.
 
 6. create a "generator" that parses the patcher data structure, and outputs a new text representation of it (as C++ code)
 
