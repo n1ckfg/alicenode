@@ -254,16 +254,19 @@ struct VAO {
 		attr(location, al_sizeof(member) / gl_type_size(type), type, sizeof(T), al_offsetof(member), instanced);
 	}
 
-	void draw(GLsizei numvertices, GLenum primitive=GL_TRIANGLES) {
+	void draw(GLsizei num_vertices, GLenum primitive=GL_TRIANGLES) {
 		bind();
-		// draw instances:
-		glDrawArrays(primitive, 0, numvertices); 
+		glDrawArrays(primitive, 0, num_vertices); 
 	}
 	
-	void drawInstanced(GLsizei numvertices, GLsizei numinstances, GLenum primitive=GL_TRIANGLES) {
+	void drawInstanced(GLsizei num_vertices, GLsizei num_instances, GLenum primitive=GL_TRIANGLES) {
 		bind();
-		// draw instances:
-		glDrawArraysInstanced(primitive, 0, numvertices, numinstances); 
+		glDrawArraysInstanced(primitive, 0, num_vertices, num_instances); 
+	}
+
+	void drawElements(GLsizei num_elements, GLenum primitive=GL_TRIANGLES) {
+		bind();
+   	 	glDrawElements(primitive, num_elements, GL_UNSIGNED_INT, 0);
 	}
 };
 

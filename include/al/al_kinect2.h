@@ -89,7 +89,7 @@ struct CloudFrame {
 struct CloudDevice {
     int use_colour = 1;
 	int use_uv = 1;
-    int capturing = 1;
+    int capturing = 0;
 
 	FILE * recordFD;
 
