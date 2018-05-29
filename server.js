@@ -59,6 +59,8 @@ var terminate = require('terminate');
 
 const find = require('find-process');
 
+let fileList = [] //list of files in the project_path
+
 
 //maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(edits) which branch the main code editor is currently pointed to. 
 // exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
@@ -253,6 +255,21 @@ wss.on('connection', function(ws, req) {
 	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 	ws.send("setUserList?" + JSON.stringify(userlist));
 
+
+	//get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
+	fileList = fs.readdirSync(project_path).filter(function(file) {
+		if(file.charAt(0) == "+");
+		else if(file.charAt(0) == ".");
+		else if(file.includes("userlist.json"));
+		else if(file.includes(".code-workspace"));
+		else if(file.includes("tmp"));
+		//to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp. 
+		else {
+		  return file
+		}
+	  })
+	  
+	  ws.send("setFileList?" + JSON.stringify(fileList))
 	// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
 	// 	console.log(err)
 	// })
@@ -322,6 +339,11 @@ wss.on('connection', function(ws, req) {
 		// 	exec("cd " + clientOrigRightWorktree) 
 		// 	console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree") 
 		// }
+
+		if (message.includes("fileRequest")){
+			let fileName = message.replace("fileRequest", '')
+			ws.send("currentVersion?"+fs.readFileSync(fileName, "utf8"));
+		}
 
 		if (message.includes("getCurrentBranch")){
 			exec("git rev-parse --abbrev-ref HEAD", { cwd: project_path }, (stdout, stderr, err) => {

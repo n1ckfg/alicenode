@@ -3,7 +3,7 @@
 //const fastcall = require("fastcall")
 const express = require('express');
 const WebSocket = require('ws');
-const mmapfile = require('mmapfile');
+// const mmapfile = require('mmapfile');
 const chokidar = require('chokidar');
 
 //zlib compression:
@@ -27,7 +27,7 @@ const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
 
-let text_file_array = fs.readdirSync(project_path).filter(function(file) {
+let fileList = fs.readdirSync(project_path).filter(function(file) {
   if(file.charAt(0) == "+");
   else if(file.charAt(0) == ".");
   else if(file.includes("userlist.json"));
@@ -39,7 +39,7 @@ let text_file_array = fs.readdirSync(project_path).filter(function(file) {
   }
 })
 
-console.log(text_file_array)
+console.log(fileList)
 
 // exec('git log --all --source --abbrev-commit --pretty=oneline ', {cwd: project_path}, (stdout, stderr, err) => {
 //   console.log(stderr)

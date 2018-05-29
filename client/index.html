@@ -68,6 +68,18 @@
                         <!-- emailmichaelpalumbo@gmail.com -->
                 </form>
         </th>
+
+        <th>
+            <form name="FileNames">
+                <select id="openFileName" onchange="chooseFileName();">
+                        <option selected disabled>Please Select File</option> 
+                        <option value="New File...">New File...</option>
+                        
+            
+                </select> Current File
+            </form>
+
+        </th>
        
     
     </tr>
@@ -283,6 +295,25 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "setFileList":
+                    
+                    fileList = JSON.parse(arg);
+                        var sel = document.getElementById('openFileName');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(fileList).forEach(function (key, value) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(key) );
+                            opt.value = key;
+                            sel.appendChild(opt);
+                        })
+//                        sel.selectedIndex = 2; 
+
+                    
+
                     case "setUserList":
                         
                         userlist = JSON.parse(arg);
@@ -701,6 +732,14 @@ function addWorktree(){
         }
     }
 }
+
+
+//file selection
+function chooseFileName(){
+    selection = document.FileNames.openFileName.value;
+    ws.send("fileRequest" + selection)
+}
+
 //username selection (for git commits)
 function userSelect()  { 
     
