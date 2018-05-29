@@ -314,6 +314,9 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
+		//current file being edited in the client
+		let fileName;	
+		
 		//console.log(message)
 		var userName; //this is what the client has signed in as
 		var userWorktree; //the worktree dir for any changes within rightEditor. 
@@ -341,8 +344,13 @@ wss.on('connection', function(ws, req) {
 		// }
 
 		if (message.includes("fileRequest")){
-			let fileName = message.replace("fileRequest", '')
+			fileName = message.replace("fileRequest", '')
 			ws.send("currentVersion?"+fs.readFileSync(fileName, "utf8"));
+			exec('git log --all --source --abbrev-commit --pretty=oneline ', {cwd: project_path}, (stdout, stderr, err) => {
+				// console.log(JSON.stringify(stderr))
+				ws.send("branchCommits?" + stderr)
+
+				})
 		}
 
 		if (message.includes("getCurrentBranch")){

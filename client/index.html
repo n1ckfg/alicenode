@@ -128,7 +128,7 @@
 <table style="background-color: blue">  
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branch HEADs: Left code editor currently pointed to highlighted branch!</b></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>view commits on selected branch; choose one</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Current File found in following commits</b></th>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b> view files affected by selected commit. choose one to load into Codemirror!</b></th>
 
     </tr>
@@ -295,6 +295,33 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "branchCommits":
+                    var branchesList = arg.split("\n")
+                        
+
+                    // name="CommitList" size="5" id="ChooseCommit
+
+                        // usebranchList = JSON.parse(arg);
+                        var sel = document.getElementById('ChooseCommit');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(branchesList).forEach(function (value, key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
+                            sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+                            if (value.includes("HEAD")) {
+                                sel.selectedIndex = key
+                            }
+                        })
+
+                        break;
+
+
                     case "setFileList":
                     
                     fileList = JSON.parse(arg);
@@ -312,7 +339,7 @@ function openSocket() {
                         })
 //                        sel.selectedIndex = 2; 
 
-                    
+                    break;
 
                     case "setUserList":
                         
