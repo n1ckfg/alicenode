@@ -23,6 +23,7 @@
     "function-extractor": "0.0.5",
     "get-scope": "0.0.4",
     "globals": "^11.5.0",
+    "gojs": "^1.8.20",
     "http": "0.0.0",
     "install": "^0.11.0",
     "line-by-line": "^0.1.6",
