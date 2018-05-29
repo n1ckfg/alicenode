@@ -254,16 +254,19 @@ struct VAO {
 		attr(location, al_sizeof(member) / gl_type_size(type), type, sizeof(T), al_offsetof(member), instanced);
 	}
 
-	void draw(GLsizei numvertices, GLenum primitive=GL_TRIANGLES) {
+	void draw(GLsizei num_vertices, GLenum primitive=GL_TRIANGLES) {
 		bind();
-		// draw instances:
-		glDrawArrays(primitive, 0, numvertices); 
+		glDrawArrays(primitive, 0, num_vertices); 
 	}
 	
-	void drawInstanced(GLsizei numvertices, GLsizei numinstances, GLenum primitive=GL_TRIANGLES) {
+	void drawInstanced(GLsizei num_vertices, GLsizei num_instances, GLenum primitive=GL_TRIANGLES) {
 		bind();
-		// draw instances:
-		glDrawArraysInstanced(primitive, 0, numvertices, numinstances); 
+		glDrawArraysInstanced(primitive, 0, num_vertices, num_instances); 
+	}
+
+	void drawElements(GLsizei num_elements, GLenum primitive=GL_TRIANGLES) {
+		bind();
+   	 	glDrawElements(primitive, num_elements, GL_UNSIGNED_INT, 0);
 	}
 };
 
@@ -443,6 +446,7 @@ struct Shader {
 struct FloatTexture3D {
 
 	GLuint id;
+	GLenum wrap = GL_REPEAT;
 
 	void dest_closing() {
 		if (id) {
@@ -459,9 +463,9 @@ struct FloatTexture3D {
 		glBindTexture(GL_TEXTURE_3D, id);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, 0);		
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
-		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrap);  
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrap);  
 		glTexParameteri( GL_TEXTURE_3D, GL_GENERATE_MIPMAP, GL_TRUE ); 
 		glBindTexture(GL_TEXTURE_3D, 0);
 	}
@@ -504,6 +508,7 @@ struct FloatTexture3D {
 struct FloatTexture2D {
 
 	GLuint id;
+	GLenum wrap = GL_REPEAT;
 
 	void dest_closing() {
 		if (id) {
@@ -520,8 +525,8 @@ struct FloatTexture2D {
 		glBindTexture(GL_TEXTURE_2D, id);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);  
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);  
 		glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE ); 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
