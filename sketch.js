@@ -26,7 +26,7 @@ process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
 const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
-
+//TODO: send this array to client, put it into a select object. use this to filter commits on a branch. (restrict commits to only pertaining to given file)
 let text_file_array = fs.readdirSync(project_path).filter(function(file) {
   if(file.charAt(0) == "+");
   else if(file.charAt(0) == ".");
