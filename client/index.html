@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
-<meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080">
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -50,53 +50,103 @@
 
 <!--        HTML UI Elements        -->
 
-    <!-- server address & open/close -->
-    <input id="server" type="text" value="ws://localhost:8080" size="40">
-    <button onclick="openSocket()">Open</button>
-    <button onclick="closeSocket()">Close</button>
+
+
+
+    <!-- Customize the Codemirror Instance -->
+
+<table style="width: 60%; float: left;"> 
+    <tr>
+        <th>
+            <form name="usernames">
+                    <select id="chooseUser" onchange="userSelect();">
+                            <option selected disabled>Please Select User</option> 
+                            <option value="Add User...">Add User...</option>
+                            <option value="Guest">Guest</option>
+                
+                    </select> Current User
+                        <!-- emailmichaelpalumbo@gmail.com -->
+                </form>
+        </th>
+       
+    
+    </tr>
+</table>
+
+<table style="width: 40%; float: right;">
+    <tr>
+            <th>
+                    <p>Editor Settings </p> 
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Live Diffing
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Collapse Changes
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Align Changes
+        
+                </th>
+    </tr>
+
+</table>
+<br>
       
 <!-- Client 'logs in' to server using the full name and email associated with their github account -->
 </form>
-<form name="usernames"> Current User: 
-    <select id="chooseUser" onchange="userSelect();">
-            <option selected disabled>Please Select User</option> 
-            <option value="Add User...">Add User...</option>
-            <option value="Guest">Guest</option>
-
-    </select> 
-       <!-- emailmichaelpalumbo@gmail.com -->
-</form>
-
-<div id="Branch">Branch HEADs: Left code editor currently pointed to highlighted branch below!
- 
-    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
-
-    </select> 
-
-</div>
 
 
-<!-- Customize the Codemirror Instance -->
-Editor Settings
-<p></p>
 
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Live Diffing
+<table style="background-color: blue">  
+    <tr>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branch HEADs: Left code editor currently pointed to highlighted branch!</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>view commits on selected branch; choose one</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b> view files affected by selected commit. choose one to load into Codemirror!</b></th>
 
-<br>
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Collapse Changes
+    </tr>
+    <tr> 
+        <td style="width:33%; height:100%">
+            <div id="Branch">
+                <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
+                </select> 
+            </div>
+            
+        </td>
 
-<br>
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Align Changes
-<br>
+        <td style="width:33%; height:100%; text-align:center;">
+            <div id="CommitList">
+                <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();"> 
+                </select> 
+            </div>       
+        </td>
+<!-- view files affected by selected commit. choose one to load into Codemirror -->
+        <td style="width:33%; height:100%;  text-align:center;">
+            <div id="CommitDetails">
+                <select style="width:100%; height:100%" name="ChooseFile" size="5" id="ChooseFile" onchange="ChooseFile();"> 
+                </select> 
+            </div>  
+        </td>
+    </tr>
+</table>
+
+
+
+
+
+
 
 <!-- Send code to server -->
 <button onclick="sendLeftCode()">Send Left Code</button>
@@ -126,6 +176,10 @@ Editor Settings
 </div>
 
 
+<!-- server address & open/close -->
+<input id="server" type="text" value="ws://localhost:8080" size="40">
+<button onclick="openSocket()">Open</button>
+<button onclick="closeSocket()">Close</button>
 
 <!-- Client interaction with the git commit nodes -->
 <script type="text/ecmascript">
