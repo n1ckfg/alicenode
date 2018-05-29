@@ -1,5 +1,13 @@
 [
   {
+    "begin": 12,
+    "type": "declaration",
+    "name": "http",
+    "value": "require('http')",
+    "string": "http",
+    "original": "var http = require('http');"
+  },
+  {
     "begin": 21,
     "type": "function statement",
     "name": "random",
@@ -28,6 +36,14 @@
     "value": "require('terminate')",
     "string": "terminate",
     "original": "var terminate = require('terminate');"
+  },
+  {
+    "begin": 60,
+    "type": "declaration",
+    "name": "dave",
+    "value": "32",
+    "string": "dave",
+    "original": "var dave = 32;"
   },
   {
     "begin": 85,

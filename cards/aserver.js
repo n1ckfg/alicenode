@@ -9,7 +9,7 @@
      const pako = require('pako');
      
      const JSON5 = require('json5');
-     const http = require('http');
+     var http = require('http');
      const url = require('url');
      const fs = require("fs");
      const path = require("path");
@@ -57,7 +57,7 @@
      var terminate = require('terminate');
      
      const find = require('find-process');
-     
+     var dave = 32;
      
      //maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(edits) which branch the main code editor is currently pointed to. 
      // exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {

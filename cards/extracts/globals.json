@@ -931,6 +931,24 @@
   "isFunction": false,
   "count": 1
  },
+ "dave": {
+  "name": "dave",
+  "type": "var",
+  "ast": {
+   "type": "VariableDeclarator",
+   "id": {
+    "type": "Identifier",
+    "name": "dave"
+   },
+   "init": {
+    "type": "Literal",
+    "value": 32,
+    "raw": "32"
+   }
+  },
+  "isFunction": false,
+  "count": 1
+ },
  "pruneWorktree": {
   "name": "pruneWorktree",
   "type": "function",
