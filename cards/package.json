@@ -1,0 +1,39 @@
+{
+  "name": "cards",
+  "version": "1.0.0",
+  "description": "",
+  "main": "aserver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ast-flow-graph": "^1.0.14",
+    "code-context": "^0.5.3",
+    "dependency-tree": "^6.1.0",
+    "detective": "^5.1.0",
+    "escope": "^3.6.0",
+    "esgraph": "^0.3.0",
+    "esprima": "^4.0.0",
+    "esprima-ast-utils": "0.0.7",
+    "express": "^4.16.3",
+    "find-globals": "^1.0.1",
+    "function-extractor": "0.0.5",
+    "get-scope": "0.0.4",
+    "globals": "^11.5.0",
+    "gojs": "^1.8.20",
+    "http": "0.0.0",
+    "install": "^0.11.0",
+    "line-by-line": "^0.1.6",
+    "magic-window": "^1.0.9",
+    "npm": "^6.1.0",
+    "path": "^0.12.7",
+    "styx": "0.0.8",
+    "styx-cli": "0.0.10"
+  },
+  "devDependencies": {
+    "function-from-file": "^1.0.2"
+  }
+}

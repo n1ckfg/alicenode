@@ -1,0 +1,18 @@
+[
+  "fastcall",
+  "express",
+  "ws",
+  "mmapfile",
+  "chokidar",
+  "pako",
+  "json5",
+  "http",
+  "url",
+  "fs",
+  "path",
+  "os",
+  "child_process",
+  "child-process-promise",
+  "terminate",
+  "find-process"
+]

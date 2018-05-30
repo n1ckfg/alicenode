@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ast-flow-graph": "^1.0.15",
     "bower": "^1.8.4",
     "child-process-promise": "^2.2.1",
     "chokidar": "^2.0.3",
@@ -25,6 +26,7 @@
     "find-process": "^1.1.1",
     "git-log-to-json": "^1.1.1",
     "json5": "^1.0.1",
+    "list-directory-contents": "0.0.3",
     "mmapfile": "^0.1.1",
     "node-giff": "0.0.7",
     "pako": "^1.0.6",
@@ -32,6 +34,7 @@
     "redis": "^2.8.0",
     "socket.io": "^2.1.1",
     "terminate": "^2.1.0",
+    "uglify-js": "^3.3.27",
     "vis": "^4.21.0",
     "websocket": "^1.0.26",
     "ws": "^5.1.0"

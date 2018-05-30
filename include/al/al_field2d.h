@@ -80,17 +80,17 @@ inline void al_field2d_read_interp(const glm::ivec2 dim, const T * data, double 
 	const double ybf = al_fract(y);
 	const double yaf = 1. - ybf;
 	// get the interpolation corner weights:
-	const double faa = xaf * yaf;
-	const double fab = xaf * ybf;
-	const double fba = xbf * yaf;
-	const double fbb = xbf * ybf;
+	const T faa = T(xaf * yaf);
+	const T fab = T(xaf * ybf);
+	const T fba = T(xbf * yaf);
+	const T fbb = T(xbf * ybf);
 	// get the cell addresses for each neighbor:
 	const T& vaa = data[al_field2d_index(dim, xa, ya)];
 	const T& vab = data[al_field2d_index(dim, xa, yb)];
 	const T& vba = data[al_field2d_index(dim, xb, ya)];
 	const T& vbb = data[al_field2d_index(dim, xb, yb)];
 	// do the 3D interp:
-	val =  ((vaa * faa) +
+	*val = ((vaa * faa) +
 			(vba * fba) +
 			(vab * fab) +
 			(vbb * fbb) );
@@ -100,6 +100,18 @@ inline void al_field2d_read_interp(const glm::ivec2 dim, const T * data, double 
 template<typename T>
 inline void al_field2d_read_interp(const glm::ivec2 dim, T * data, glm::vec2 pos, T * val) {
 	al_field2d_read_interp<T>(dim, data, pos.x, pos.y, val); 
+}
+
+template<typename T>
+inline void al_field2d_readnorm_interp(const glm::ivec2 dim, T * data, glm::vec2 pos, T * val) {
+	al_field2d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, val); 
+}
+
+template<typename T>
+inline T al_field2d_readnorm_interp(const glm::ivec2 dim, T * data, glm::vec2 pos) {
+	T val = T(0);
+	al_field2d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, &val); 
+	return val;
 }
 
 template<typename T>

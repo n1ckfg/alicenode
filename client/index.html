@@ -1,6 +1,6 @@
 <!doctype html>
 
-<title>Alicenode: Client</title>
+<title>Alicenode Editor</title>
 <meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
@@ -50,53 +50,118 @@
 
 <!--        HTML UI Elements        -->
 
-    <!-- server address & open/close -->
-    <input id="server" type="text" value="ws://localhost:8080" size="40">
-    <button onclick="openSocket()">Open</button>
-    <button onclick="closeSocket()">Close</button>
+
+
+
+
+    <!-- Client 'logs in' to server using the full name and email associated with their github account -->
+<table style="width: 60%; float: left;"> 
+    <tr>
+        <th>
+            <form name="usernames">
+                    <select id="chooseUser" onchange="userSelect();">
+                            <option selected disabled>Please Select User</option> 
+                            <option value="Add User...">Add User...</option>
+                            <option value="Guest">Guest</option>
+                
+                    </select> Current User
+                        <!-- emailmichaelpalumbo@gmail.com -->
+                </form>
+        </th>
+
+        <th>
+            <form name="FileNames">
+                <select id="openFileName" onchange="chooseFileName();">
+                        <option selected disabled>Please Select File</option> 
+                        <option value="New File...">New File...</option>
+                        
+            
+                </select> Current File
+            </form>
+
+        </th>
+       
+    
+    </tr>
+</table>
+
+
+    <!-- Customize the Codemirror Instance -->
+
+<table style="width: 40%; float: right;">
+    <tr>
+            <th>
+                    <p>Editor Settings </p> 
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Live Diffing
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Collapse Changes
+                </th>
+        
+                <th>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
+                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                    </div>Align Changes
+        
+                </th>
+    </tr>
+
+</table>
+<br>
       
-<!-- Client 'logs in' to server using the full name and email associated with their github account -->
-</form>
-<form name="usernames"> Current User: 
-    <select id="chooseUser" onchange="userSelect();">
-            <option selected disabled>Please Select User</option> 
-            <option value="Add User...">Add User...</option>
-            <option value="Guest">Guest</option>
 
-    </select> 
-       <!-- emailmichaelpalumbo@gmail.com -->
 </form>
 
-<div id="Branch">Branch HEADs: Left code editor currently pointed to highlighted branch below!
- 
-    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
-
-    </select> 
-
-</div>
 
 
-<!-- Customize the Codemirror Instance -->
-Editor Settings
-<p></p>
+<table style="background-color: blue">  
+    <tr>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branch HEADs: Left code editor currently pointed to highlighted branch!</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Current File found in following commits</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b> view files affected by selected commit. choose one to load into Codemirror!</b></th>
 
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Live Diffing
+    </tr>
+    <tr> 
+        <td style="width:33%; height:100%">
+            <div id="Branch">
+                <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
+                </select> 
+            </div>
+            
+        </td>
 
-<br>
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Collapse Changes
+        <td style="width:33%; height:100%; text-align:center;">
+            <div id="CommitList">
+                <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();"> 
+                </select> 
+            </div>       
+        </td>
+<!-- view files affected by selected commit. choose one to load into Codemirror -->
+        <td style="width:33%; height:100%;  text-align:center;">
+            <div id="CommitDetails">
+                <select style="width:100%; height:100%" name="ChooseFile" size="5" id="ChooseFile" onchange="ChooseFile();"> 
+                </select> 
+            </div>  
+        </td>
+    </tr>
+</table>
 
-<br>
-<div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
-    <label class="onoffswitch-label" for="myonoffswitch"></label>
-</div>Align Changes
-<br>
+
+
+
+
+
 
 <!-- Send code to server -->
 <button onclick="sendLeftCode()">Send Left Code</button>
@@ -106,8 +171,11 @@ Editor Settings
 
 
 <!-- the Codemirror mergeview instance! -->
+<!-- since i can't get the css right, i'm using unerlines for now! -->
+<p align="left">Always at master:HEAD_____________________________________________________Begins at master:HEAD, can be pointed to any commit chosen from graph to the right</p>
 <div id="container">
     <div id="view"></div>
+    
     <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
 </div>
 <p>
@@ -123,6 +191,10 @@ Editor Settings
 </div>
 
 
+<!-- server address & open/close -->
+<input id="server" type="text" value="ws://localhost:8080" size="40">
+<button onclick="openSocket()">Open</button>
+<button onclick="closeSocket()">Close</button>
 
 <!-- Client interaction with the git commit nodes -->
 <script type="text/ecmascript">
@@ -223,6 +295,52 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "branchCommits":
+                    var branchesList = arg.split("\n")
+                        
+
+                    // name="CommitList" size="5" id="ChooseCommit
+
+                        // usebranchList = JSON.parse(arg);
+                        var sel = document.getElementById('ChooseCommit');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(branchesList).forEach(function (value, key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
+                            sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+                            if (value.includes("HEAD")) {
+                                sel.selectedIndex = key
+                            }
+                        })
+
+                        break;
+
+
+                    case "setFileList":
+                    
+                    fileList = JSON.parse(arg);
+                        var sel = document.getElementById('openFileName');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(fileList).forEach(function (key, value) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(key) );
+                            opt.value = key;
+                            sel.appendChild(opt);
+                        })
+//                        sel.selectedIndex = 2; 
+
+                    break;
+
                     case "setUserList":
                         
                         userlist = JSON.parse(arg);
@@ -641,6 +759,14 @@ function addWorktree(){
         }
     }
 }
+
+
+//file selection
+function chooseFileName(){
+    selection = document.FileNames.openFileName.value;
+    ws.send("fileRequest" + selection)
+}
+
 //username selection (for git commits)
 function userSelect()  { 
     
