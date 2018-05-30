@@ -31,11 +31,13 @@ struct SimpleOBJ {
 	std::vector<Vertex> vertices;
 	std::vector<Element> indices;
 
-	
-	SimpleOBJ(std::string filename) {
+	// 
+	// the object will be centered in a box at the origin
+	// if normalized_span is nonzero, it will scaled such that it fits within it
+	SimpleOBJ(std::string filename, bool center=false, float normalized_span=0) {
 		FILE * file = fopen(filename.c_str(), "r");
 		if (!file) {
-			console_error("SimpleOBJ failed: can't open data file \"%s\".",
+			console.error("SimpleOBJ failed: can't open data file \"%s\".",
 				filename.c_str());
 			return;
 		}
@@ -45,6 +47,9 @@ struct SimpleOBJ {
 		std::vector<glm::vec3> normals;
 		std::vector<glm::vec2> texcoords;
 		std::vector<Triangle> triangles;
+
+		glm::vec3 minv = glm::vec3( FLT_MAX);
+		glm::vec3 maxv = glm::vec3(-FLT_MIN);
 		
 		while(fscanf(file, "%s", buf) != EOF) {
 			switch(buf[0]) {
@@ -55,10 +60,12 @@ struct SimpleOBJ {
 				case '\0': 
 					fscanf(file, "%f %f %f", &v.x, &v.y, &v.z);
 					positions.push_back(v);
+					minv = glm::min(minv, v);
+					maxv = glm::max(maxv, v);
 					break;
 				case 'n':  
 					fscanf(file, "%f %f %f", &v.x, &v.y, &v.z);
-					normals.push_back(v);
+					normals.push_back(glm::normalize(v));
 					break;
 				case 't':      
 					fscanf(file, "%f %f", &t.x, &t.y);
@@ -171,50 +178,61 @@ struct SimpleOBJ {
 					break;
 			}
 		}
-		console_log("loaded %s: %d vertices, %d texcoords, %d normals, %d triangles",
+		console.log("loaded %s: %d vertices, %d texcoords, %d normals, %d triangles",
 			filename.c_str(),
 			positions.size(), texcoords.size(), normals.size(), triangles.size());
-			
 		vertices.clear();
 		indices.clear();
 		
-		if (0) {
+		console.log("min %f %f %f max %f %f %f", 
+			minv.x, minv.y, minv.z, 
+			maxv.x, maxv.y, maxv.z);
 		
-		} else {
-			for (int i=0; i<triangles.size(); i++) {
-				// need to shift indices down by 1 because obj counts from 1
-				int i0 = triangles[i].vertices[0].x-1;
-				int i1 = triangles[i].vertices[1].x-1;
-				int i2 = triangles[i].vertices[2].x-1;
-				
-				
-				
-			
-				//console_log("%d i %d %d %d", i, indices[indices.size()-3], indices[indices.size()-2], indices[indices.size()-1]);
-			
-			}
-			
-			// NOTE: this assumes all face vertex indices are the same:
+		if (normalized_span) {
+			glm::vec3 diff = maxv - minv;
+			glm::vec3 centre = minv + diff * 0.5f;
+			float normscale = normalized_span/glm::max(diff.x, glm::max(diff.y, diff.z));
+
 			for (int i=0; i<positions.size(); i++) {
-				Vertex v;
-				v.position = positions[i];
-				v.texcoord = texcoords.size() > i ? texcoords[i] : glm::vec2(0.f);
-				v.normal = normals.size() > i ? normals[i] : glm::vec3(0., 1., 0.);
-				vertices.push_back(v);
-			
-				//Vertex& v1 = vertices[vertices.size()-1]; console_log("%d v %f %f %f n %f %f %f", i, v1.position.x, v1.position.y, v1.position.z, v1.normal.x, v1.normal.y, v1.normal.z);
-			}
-			for (int i=0; i<triangles.size(); i++) {
-				// need to shift indices down by 1
-				indices.push_back(triangles[i].vertices[0].x-1);
-				indices.push_back(triangles[i].vertices[1].x-1);
-				indices.push_back(triangles[i].vertices[2].x-1);
-			
-				//console_log("%d i %d %d %d", i, indices[indices.size()-3], indices[indices.size()-2], indices[indices.size()-1]);
-			
+				
+				if (center) { 
+					positions[i] -= centre;
+				}
+				if (normalized_span) {
+					positions[i] *= normscale;
+				}
 			}
 		}
-		console_log("loaded %s: %d vertices, %d indices",
+		
+		for (int i=0; i<triangles.size(); i++) {
+			// need to shift indices down by 1 because obj counts from 1
+			int i0 = triangles[i].vertices[0].x-1;
+			int i1 = triangles[i].vertices[1].x-1;
+			int i2 = triangles[i].vertices[2].x-1;
+			//console_log("%d i %d %d %d", i, indices[indices.size()-3], indices[indices.size()-2], indices[indices.size()-1]);
+		}
+		
+		// NOTE: this assumes all face vertex indices are the same:
+		for (int i=0; i<positions.size(); i++) {
+			Vertex v;
+			v.position = positions[i];
+			v.texcoord = texcoords.size() > i ? texcoords[i] : glm::vec2(0.f);
+			v.normal = normals.size() > i ? normals[i] : glm::vec3(0., 1., 0.);
+			vertices.push_back(v);
+		
+			//Vertex& v1 = vertices[vertices.size()-1]; console_log("%d v %f %f %f n %f %f %f", i, v1.position.x, v1.position.y, v1.position.z, v1.normal.x, v1.normal.y, v1.normal.z);
+		}
+		for (int i=0; i<triangles.size(); i++) {
+			// need to shift indices down by 1
+			indices.push_back(triangles[i].vertices[0].x-1);
+			indices.push_back(triangles[i].vertices[1].x-1);
+			indices.push_back(triangles[i].vertices[2].x-1);
+		
+			//console_log("%d i %d %d %d", i, indices[indices.size()-3], indices[indices.size()-2], indices[indices.size()-1]);
+		
+		}
+	
+		console.log("loaded %s: %d vertices, %d indices",
 			filename.c_str(),
 			vertices.size(), indices.size());
 		
