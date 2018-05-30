@@ -227,19 +227,7 @@ function parseAST(){
 
 
     }
-    console.log("document parsed")
 
-    // console.log(cards)
-    // console.log(globals)
-
-    deck.push(globals)
-    console.log("globals collected")
-    deck.push(cards)
-    console.log("functions collected")
-
-    deck.push(requireStatements)
-    console.log("deck folded")
-    fs.writeFileSync(extractsPath + 'deck.json', deck, 'utf8');
 
 
     function createsNewScope(node){
@@ -248,6 +236,20 @@ function parseAST(){
         node.type === 'Program';
 }
 
+
+console.log("document parsed")
+
+// console.log(cards)
+// console.log(globals)
+
+deck.push(globals)
+console.log("globals collected")
+deck.push(cards)
+console.log("functions collected")
+
+deck.push(requireStatements)
+console.log("deck folded")
+fs.writeFileSync(extractsPath + 'deck.json', JSON.stringify(deck, null, 2), 'utf8');
 }
 //To DO: can you compare the variables inside each function with global variables, and list those here?
     // var localVars = findGlobals(esprima.parse(gF.toString()))
