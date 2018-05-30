@@ -28,6 +28,7 @@ const server_path = __dirname;
 const client_path = path.join(server_path, "client");
 
 let fileList = fs.readdirSync(project_path).filter(function(file) {
+
   if(file.charAt(0) == "+");
   else if(file.charAt(0) == ".");
   else if(file.includes("userlist.json"));
