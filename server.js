@@ -458,8 +458,8 @@ wss.on('connection', function(ws, req) {
 		// }
 
 		if (message.includes("git show")) {
-
-			var gitCommand = (message + ":" + "project.cpp");
+			if (fileName){
+			var gitCommand = (message + ":" + filename);
 			var gitHash = message.replace("git show ", "")
 			console.log("githash = " + gitHash)
 
@@ -478,10 +478,33 @@ wss.on('connection', function(ws, req) {
 
 
 			});
+			} else {			
+				var gitCommand = (message + ":" + "project.cpp");
+				var gitHash = message.replace("git show ", "")
+				console.log("githash = " + gitHash)
+	
+				// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
+				// 	console.log(stderr, err, stdout);
+				// })
+	
+				//path.join("..", "alicenode_inhabitat/project.cpp")
+					exec(gitCommand, { cwd: project_path }, (err, stdout) => {
+						
+						ws.send("show?" + stdout)
+	
+						console.log("sending show");
+						//console.log(stdout);
+						//console.log(projectCPPVersion); 
 
 			
-			//console.log(gitCommand);
-		}
+			
+
+					
+						//console.log(gitCommand);
+					})
+				}
+			}
+	
 
 
 
