@@ -25,6 +25,8 @@
     <script src="cm/modes/javascript.js"></script>
     <script src="cm/modes/clike.js"></script>
     <script src="cm/modes/glsl.js"></script>
+    <script src="cm/matchbrackets.js"></script>
+    <script src="cmclosebrackets.js"></script>
 
 <!-- xterm.js sources -->
     <!-- style -->
@@ -78,9 +80,14 @@
 
         <th>
             <button onclick="window.open('http://192.168.137.1:8080')" id="myButton">New Editor</button>
+        </th>
 
+        <th>
+                <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
 
         </th>
+
+
         <!-- <th style="text-decoration: none">
             <form name="FileNames">
                 <select id="openFileName" onchange="chooseFileName();">
@@ -665,6 +672,16 @@ function mouseLeaveCommit(evt) {
     evt.target.setAttributeNS(null,"opacity","1");
 }
 
+function clientNewBranch(){
+    var branchName = prompt("Please enter new branch name (work-in-progress, not ready yet)", "(noSpacesPlease)");
+
+
+    //TODO: at ws connect, get the list of current branch names in the project_path, and check 'branchName' result against this list. if match, throw error to client saying 'branchname already in use, try another'. 
+    // if (worktreeList.includes(worktree) == true){
+
+    // alert("provided worktree name already in use")
+
+}
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
