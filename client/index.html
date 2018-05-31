@@ -26,7 +26,7 @@
     <script src="cm/modes/clike.js"></script>
     <script src="cm/modes/glsl.js"></script>
     <script src="cm/matchbrackets.js"></script>
-    <script src="cmclosebrackets.js"></script>
+    <script src="cm/closebrackets.js"></script>
 
 <!-- xterm.js sources -->
     <!-- style -->
@@ -34,6 +34,9 @@
     <!-- script -->
     <!-- <script src="bower_components/xterm.js/dist/xterm.js"></script> -->
 
+    <!-- socket io chat -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <!-- General Sources -->
     <!-- style -->
     <link rel=stylesheet href="css/jquery-ui.css">
@@ -231,29 +234,29 @@
 
 
 <!-- TODO: mouseover a node puts the commit detail into this heading: -->
-<table width="100%" height="20%" >
+<table width="100%" height="20%" style="background-color: rgb(225, 225, 225)">
     <tr height="20%">
         <th>Chat and System Messages</th>
         <th>Integrated Terminal (Your Machine)</th>
 
     </tr>
 
-    <tr heigh="80%">
-        <td width:33%; height:300px; Style="text-align:center;">
-            <ul id="messages"></ul>   
+    <tr height="100%">
+        <td width:33%; height:300px; Style="text-align:center"; >
+            <ul id="chat_messages" overflow=scroll></ul> 
         </td>
-
         <td>
-                <div id="terminal"></div>
-
-                <!-- <ul id="intergratedTerminal"></ul> -->
-
-            </td>
-
-
-
+            <div id="terminal"></div>
+        </td>
     </tr>
-
+    <tr style="background-color: rgb(0, 0, 0)">           
+        <td> 
+            <form id="chat_form" overflow="scroll" onSubmit="return false;">
+                <input id="m" autocomplete="on" overflow="scroll" />
+                <button id="chatSendMsg" type="button" name="">Send</button>
+            </form>  
+        </td>
+        </tr>
 </table>
 
 <!-- server address & open/close -->
@@ -352,6 +355,16 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "chatMsg":
+                    console.log(arg)
+                    var li = document.createElement('li');
+                    var list = document.getElementById('chat_messages');
+
+                    li.innerHTML = arg;
+                    list.appendChild(li);
+
+                    break;
+
                     case "branchCommits":
                     var branchesList = arg.split("\n")
                         
@@ -599,8 +612,9 @@ function openSocket() {
                         log("cmd: " + cmd + ", " + arg);
                     }
         
-                } else {
-            
+                } else 
+                    if (message.includes("chatMsg")){}
+                    else {
                 log('received: ' + e.data);
                 }
             }
@@ -626,10 +640,11 @@ function chooseCommit(){
    // selection = document.selectCommit.value;
 //    var
 var e = document.getElementById("selectCommit");
-var c = (e.options[e.selectedIndex].value).substring(0, 7)
+selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
 
-    console.log(c)
-    ws.send("git show " + c);
+
+    console.log(selectedCommit)
+    ws.send("git show " + selectedCommit);
 
 
 
@@ -754,10 +769,37 @@ function encodeHexString(data) {
 //Client log
 function log(message) {
     var li = document.createElement('li');
-    li.innerHTML = message;
-     var list = document.getElementById('messages');
-     list.insertBefore(li, list.childNodes[0]);
+    li.innerHTML = ("system: " + message);
+     var list = document.getElementById('chat_messages');
+     list.appendChild(li);
 }
+
+// //chat client:
+
+//if user click's the 'send' button
+$(document).ready(function() {
+  $('#chatSendMsg').click(function() {
+    var outMessage = ($('#m').val());
+    ws.send("chatMsg?" + outMessage)
+    console.log(outMessage)
+  });
+});
+//if user hits 'enter' in the chat form:
+//this prevents the chat form from refreshing the page when you hit Enter, and reroutes the enter command to the chatSendMsg button. 
+// Get the input field
+var input = document.getElementById("m");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Cancel the default action, if needed
+  event.preventDefault();
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Trigger the button element with a click
+    document.getElementById("chatSendMsg").click();
+  }
+});
+
 
 if (sessionStorage.echoServer) {
     document.getElementById('server').value = sessionStorage.echoServer;

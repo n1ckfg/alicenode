@@ -7,6 +7,7 @@ const mmapfile = require('mmapfile');
 const chokidar = require('chokidar');
 
 //zlib compression:
+
 const pako = require('pako');
 
 const JSON5 = require('json5');
@@ -46,6 +47,7 @@ console.log("client_path", client_path);
 
 const projectlib = "project." + libext;
 
+let port = 8080;
 //let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash;
 let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
@@ -241,6 +243,21 @@ function send_all_clients(msg) {
     });
 }
 
+//chat app: 
+// var chatHTTP = require('http').Server(app);
+// var io = require('socket.io')(http);
+// var chatPort = process.env.PORT || 3000;
+
+// io.on('connection', function(socket){
+// 	socket.on('chat message', function(msg){
+// 		console.log(msg)
+// 	  io.emit('chat message', msg);
+// 	});
+//   });
+  
+//   chatHTTP.listen(port, function(){
+// 	console.log('listening on *:' + port);
+//   });
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
@@ -322,7 +339,7 @@ wss.on('connection', function(ws, req) {
 	
 		
 		//console.log(message)
-		var userName; //this is what the client has signed in as
+		var userName = "Guest"; //this is what the client has signed in as
 		var userWorktree; //the worktree dir for any changes within rightEditor. 
 		
 		
@@ -373,6 +390,7 @@ wss.on('connection', function(ws, req) {
 		if (message.includes("editedRightCode")){
 			console.log(message)
 			let gitCommand = message.replace("editedRightCode", "");
+			console.log(gitCommand)
 			let onHash;
 				let numBranches;	
 			//get number of branches in alicenode_inhabitat
@@ -535,6 +553,19 @@ wss.on('connection', function(ws, req) {
 				// break;
 
 //CLIENT: ///////////////////////////////////////////////////////
+
+case "chatMsg":
+console.log(arg)
+wss.clients.forEach(function each(client) {
+	let dateStamp = (new Date().getHours()) + ":" + (new Date().getMinutes()) + ":" + (new Date().getSeconds())
+	client.send("chatMsg? " + dateStamp + " " + userName + ": " + arg);
+ });
+
+
+break;
+
+
+
 	//Add user
 
 			case "newUser":
@@ -573,7 +604,7 @@ wss.on('connection', function(ws, req) {
 			case "selectUser":
 					console.log(arg)
 					switch (arg) {
-
+						
 						case "Guest":
 						userName = "Guest";
 						userEmail = "grrrwaaa@gmail.com";
