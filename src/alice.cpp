@@ -405,6 +405,40 @@ int main(int argc, char ** argv) {
 	// TODO: remove
 	alice.leap->connect();
 
+	void ALeapMotionDebugInfo ::Tick( float DeltaTime )
+	{
+		Super::Tick( DeltaTime );
+		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
+	}
+
+	Device->SetReferenceFrameOncePerTick();
+	Leap::Frame frame = Device->Frame();
+
+	void ALeapMotionDebugInfo::Tick( float DeltaTime )
+	{
+		Super::Tick( DeltaTime );
+		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
+		GEngine->ClearOnScreenDebugMessages();
+
+		if (Device && Device->IsConnected())
+		{
+			Device->SetReferenceFrameOncePerTick();
+			Leap::Frame frame = Device->Frame();
+
+			FString leapLabel = FString::Printf( TEXT( "LeapController - Frame: %u"), frame.id());
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, leapLabel);
+		}
+		else{
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, FString(TEXT ("LeapController - No Data" )));
+		}
+	}
+
+	ALeapMotionDebugInfo::ALeapMotionDebugInfo()
+	{
+		PrimaryActorTick.bCanEverTick = true;
+		PrimaryActorTick.bStartWithTickEnabled = true;
+	}
+
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
 	uv_read_start((uv_stream_t *)&stdin_pipe, &alloc_cb, &read_stdin);
