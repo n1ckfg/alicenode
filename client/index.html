@@ -55,9 +55,9 @@
 
 
     <!-- Client 'logs in' to server using the full name and email associated with their github account -->
-<table style="width: 60%; float: left;"> 
-    <tr>
-        <th>
+<table style="width: 100%; float: left; background-color: rgba(19, 119, 32, 0.74)"> 
+    <tr style="float: left">
+        <th style="text-decoration: none">
             <form name="usernames">
                     <select id="chooseUser" onchange="userSelect();">
                             <option selected disabled>Please Select User</option> 
@@ -69,29 +69,29 @@
                 </form>
         </th>
 
-        <th>
+        <!-- <th style="text-decoration: none">
             <form name="FileNames">
                 <select id="openFileName" onchange="chooseFileName();">
                         <option selected disabled>Please Select File</option> 
                         <option value="New File...">New File...</option>
                         
             
-                </select> Current File
+                </select> Current File -->
             </form>
 
         </th>
        
     
     </tr>
-</table>
+
 
 
     <!-- Customize the Codemirror Instance -->
 
-<table style="width: 40%; float: right;">
-    <tr>
+    <tr style="float: right">
+        
             <th>
-                    <p>Editor Settings </p> 
+                    <p><b>Editor Settings: </b></p> 
                 </th>
         
                 <th>
@@ -127,9 +127,12 @@
 
 <table style="background-color: blue">  
     <tr>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branch HEADs: Left code editor currently pointed to highlighted branch!</b></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Current File found in following commits</b></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b> view files affected by selected commit. choose one to load into Codemirror!</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><div id="fileInCommit"></div>
+            
+                </div>
+        </th>
 
     </tr>
     <tr> 
@@ -140,20 +143,35 @@
             </div>
             
         </td>
+        <td style="width:33%; height:100%; text-align:center;">
+
+                <select size="5" style="width:100%" id="openFileName" onchange="chooseFileName();">
+                        <option selected disabled>Please Select File</option> 
+                        <option value="New File...">New File...</option>
+                        
+            
+                </select> 
+                <!-- <div id="fileInCommit"><b></b> -->
+                    <!-- <select style="width:100%; height:100%" name="filesInCommit" size="5" id="fileInCommit" onchange="chooseFileName();"> 
+                        </select>  -->
+            <!-- 
+                <div id="CommitDetails">
+                        <select style="width:100%; height:100%" name="ChooseFile" size="5" id="ChooseFile" onchange="ChooseFile();"> 
+                        </select> 
+                    </div>   -->
+
+            </td>
 
         <td style="width:33%; height:100%; text-align:center;">
-            <div id="CommitList">
-                <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();"> 
+            <!-- <div id="CommitList"> -->
+                <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
                 </select> 
-            </div>       
+            <!-- </div>        -->
         </td>
 <!-- view files affected by selected commit. choose one to load into Codemirror -->
-        <td style="width:33%; height:100%;  text-align:center;">
-            <div id="CommitDetails">
-                <select style="width:100%; height:100%" name="ChooseFile" size="5" id="ChooseFile" onchange="ChooseFile();"> 
-                </select> 
-            </div>  
-        </td>
+        <!-- <td style="width:33%; height:100%;  text-align:center;">
+
+        </td> -->
     </tr>
 </table>
 
@@ -164,50 +182,74 @@
 
 
 <!-- Send code to server -->
-<button onclick="sendLeftCode()">Send Left Code</button>
-<button onclick="sendCodeRelay()">Send Right Code</button>
 <br>
 
 
 
 <!-- the Codemirror mergeview instance! -->
 <!-- since i can't get the css right, i'm using unerlines for now! -->
-<p align="left">Always at master:HEAD_____________________________________________________Begins at master:HEAD, can be pointed to any commit chosen from graph to the right</p>
+<table width="100%">
+<tr>
+    <th style="text-align:center">Shared Editor</th>
+    <th style="text-align:center">Branching Improvisor</th>
+    <th style="text-align:center">Commit History Graph</th>
+</tr>
+
+<!-- <td style="width:80%; height:100%; text-align:center;"> -->
+
+    
+
+</table>
 <div id="container">
     <div id="view"></div>
     
     <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
 </div>
-<p>
+<table width="80%">
+        <tr>
+            <th style="text-align:left">
+                    <button onclick="sendLeftCode()">Send Left Code</button>
+
+
+            </th>
+            <th>
+                    <button onclick="sendCodeRelay()">Send Right Code</button>
+
+
+
+            </th>
+        </tr>
+
 
 <!-- TODO: mouseover a node puts the commit detail into this heading: -->
+<table width="100%" height="20%" >
+    <tr height="20%">
+        <th>Chat and System Messages</th>
+        <th>Integrated Terminal (Your Machine)</th>
 
-<!-- server messages -->
-<div id="serverMessages">
-    <!-- <ul id="messages"></ul> -->
-    <ul id="messages"></ul>
+    </tr>
 
-    <!-- <ul id="commit_detail">Commit Details</h3> -->
-</div>
+    <tr heigh="80%">
+        <td width:33%; height:300px; Style="text-align:center;">
+            <ul id="messages"></ul>   
+        </td>
 
+        <td>
+                <ul id="intergratedTerminal"></ul>
+
+            </td>
+
+
+
+    </tr>
+
+</table>
 
 <!-- server address & open/close -->
 <input id="server" type="text" value="ws://localhost:8080" size="40">
 <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button>
 
-<!-- Client interaction with the git commit nodes -->
-<script type="text/ecmascript">
-
-  
-
-
-
-           // sendRightCode("hash?" + evt.target.id);
-     // }
-
-
-</script>
 
 <script>
 
@@ -302,7 +344,7 @@ function openSocket() {
                     // name="CommitList" size="5" id="ChooseCommit
 
                         // usebranchList = JSON.parse(arg);
-                        var sel = document.getElementById('ChooseCommit');
+                        var sel = document.getElementById('selectCommit');
                         //var length = select;
                             
                         // for (i = 3; i < sel.length; i++) {
@@ -562,6 +604,24 @@ setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
 
+
+//git commit list
+function chooseCommit(){
+   // selection = document.selectCommit.value;
+//    var
+var e = document.getElementById("selectCommit");
+var c = (e.options[e.selectedIndex].value).substring(0, 7)
+
+    console.log(c)
+    ws.send("git show " + c);
+
+
+
+// <!-- 
+//                 <div id="CommitList">
+//                 <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();">  -->
+}
+
 //Git Graph
 //clicking on a commit node sends the commit's hash to server
 function getCommitDetail(evt) {
@@ -763,8 +823,17 @@ function addWorktree(){
 
 //file selection
 function chooseFileName(){
-    selection = document.FileNames.openFileName.value;
-    ws.send("fileRequest" + selection)
+var e = document.getElementById("openFileName");
+var selection = e.options[e.selectedIndex].value
+    if (selection == "New File..."){
+        alert("Client not set up to create new file yet, work-in-progress")
+    } else {
+        ws.send("fileRequest" + selection)
+        //change page title to filename!
+        document.title = selection;
+
+        fileInCommit.InnerHTML = (selection + " found in following commits")
+    }
 }
 
 //username selection (for git commits)

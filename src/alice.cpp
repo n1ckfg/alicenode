@@ -9,6 +9,7 @@
 #include "al/al_time.h"
 #include "al/al_fs.h"
 #include "al/al_kinect2.h"
+#include "al/al_leap.h"
 
 #include <string>
 #include <map>
@@ -339,6 +340,7 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 
 int main(int argc, char ** argv) {
 
+
 	// initialize the clock:
 	al_now();
 
@@ -357,6 +359,7 @@ int main(int argc, char ** argv) {
 #else
 	runtime_support_path = runtime_path + "/support/osx";
 #endif
+
 
 	{
 		// try to load any dlls in the /support folder:
@@ -385,6 +388,7 @@ int main(int argc, char ** argv) {
 		uv_fs_req_cleanup(&scandir_req);
 	}
 
+
 	// arg[1] is the path to the lib
 	if (argc > 1) project_lib_path = argv[1];
 	project_path = al_fs_dirname(project_lib_path);
@@ -396,6 +400,44 @@ int main(int argc, char ** argv) {
 
 	alice.hmd = new Hmd;
 	alice.cloudDevice = new CloudDevice;
+	alice.leap = new LeapMotion;
+
+	// TODO: remove
+	alice.leap->connect();
+
+	void ALeapMotionDebugInfo ::Tick( float DeltaTime )
+	{
+		Super::Tick( DeltaTime );
+		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
+	}
+
+	Device->SetReferenceFrameOncePerTick();
+	Leap::Frame frame = Device->Frame();
+
+	void ALeapMotionDebugInfo::Tick( float DeltaTime )
+	{
+		Super::Tick( DeltaTime );
+		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
+		GEngine->ClearOnScreenDebugMessages();
+
+		if (Device && Device->IsConnected())
+		{
+			Device->SetReferenceFrameOncePerTick();
+			Leap::Frame frame = Device->Frame();
+
+			FString leapLabel = FString::Printf( TEXT( "LeapController - Frame: %u"), frame.id());
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, leapLabel);
+		}
+		else{
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, FString(TEXT ("LeapController - No Data" )));
+		}
+	}
+
+	ALeapMotionDebugInfo::ALeapMotionDebugInfo()
+	{
+		PrimaryActorTick.bCanEverTick = true;
+		PrimaryActorTick.bStartWithTickEnabled = true;
+	}
 
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
@@ -416,6 +458,9 @@ int main(int argc, char ** argv) {
 	alice.onReset.emit();
 
 	console.log("begin rendering");
+
+	
+	
 	
     while(frame()) {
     	//printf("%d\n", alice.framecount);
