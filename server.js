@@ -249,30 +249,35 @@ wss.on('connection', function(ws, req) {
 		id: sessionId++,
 		socket: ws,
 
-
+		
 	};
 	//get the current list of authors involved in the alicenode_inhabitat project
 	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 	ws.send("setUserList?" + JSON.stringify(userlist));
-
 
 	//get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
 	fileList = fs.readdirSync(project_path).filter(function(file) {
 		if(file.charAt(0) == "+");
 		else if(file.charAt(0) == ".");
 		else if(file.includes("userlist.json"));
+		else if(file.includes("userWorktree"));
 		else if(file.includes(".code-workspace"));
 		else if(file.includes("tmp"));
+		else if(file.includes(".bin"));
+		else if(file.includes(".dll"));
+		else if(file.includes(".lib"));
 		//to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp. 
 		else {
 		  return file
 		}
 	  })
-	  
+
+
 	  ws.send("setFileList?" + JSON.stringify(fileList))
 	// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
 	// 	console.log(err)
 	// })
+	let fileName; //user-selected fileName
 
 	// send a handshake?
 	// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
@@ -314,8 +319,7 @@ wss.on('connection', function(ws, req) {
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
-		//current file being edited in the client
-		let fileName;	
+	
 		
 		//console.log(message)
 		var userName; //this is what the client has signed in as
@@ -345,10 +349,14 @@ wss.on('connection', function(ws, req) {
 
 		if (message.includes("fileRequest")){
 			fileName = message.replace("fileRequest", '')
+			//send the content of the file to the client editor
 			ws.send("currentVersion?"+fs.readFileSync(fileName, "utf8"));
-			exec('git log --all --source --abbrev-commit --pretty=oneline ', {cwd: project_path}, (stdout, stderr, err) => {
+			
+			//get all of the commits which contain the file
+			exec('git log --all --source --abbrev-commit --pretty="%h | %cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
 				// console.log(JSON.stringify(stderr))
-				ws.send("branchCommits?" + stderr)
+				let commitList = stderr.split('refs/heads').join('')
+				ws.send("branchCommits?" + commitList)
 
 				})
 		}
@@ -458,29 +466,28 @@ wss.on('connection', function(ws, req) {
 		// }
 
 		if (message.includes("git show")) {
+			//if a fileName has been selected
 			if (fileName){
-			var gitCommand = (message + ":" + filename);
-			var gitHash = message.replace("git show ", "")
-			console.log("githash = " + gitHash)
 
 			// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
 			// 	console.log(stderr, err, stdout);
 			// })
 
 			//path.join("..", "alicenode_inhabitat/project.cpp")
-				exec(gitCommand, { cwd: project_path }, (err, stdout) => {
+				exec(message + ":" + fileName, { cwd: project_path }, (err, stdout) => {
 					
 					ws.send("show?" + stdout)
 
-					console.log("sending show");
+					console.log("sending show " + stdout);
 					//console.log(stdout);
 					//console.log(projectCPPVersion); 
 
 
 			});
-			} else {			
-				var gitCommand = (message + ":" + "project.cpp");
-				var gitHash = message.replace("git show ", "")
+			} 	//this is run when a client connects. its a bit of a lgeacy feature left over from the earliest version of the client-server. 
+				else {			
+				var gitCommand = (gitHash + ":" + "project.cpp");
+				//var gitHash = message.replace("git show ", "")
 				console.log("githash = " + gitHash)
 	
 				// exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
