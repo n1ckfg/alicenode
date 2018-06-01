@@ -1,151 +1,135 @@
-<!-- 
-when the cards server.js runs, it hosts the fileviewer 'magic-window' on a public url. find out
-how to get that url from magic-window, then send it over websocket when a client joins, and have it injected
-into the jquery script below:
-<script>$("#testLoad").load("url:port");</script>
-<div id="testLoad"></div>
+<!doctype html>
+
+<title>Alicenode Editor</title>
+<meta charset="utf-8"/>
+
+<!-- //TEMPORARY: just to aid in development workflow -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
+<!--        SOURCES         -->
+<!-- Codemirror -->
+    <!-- styles -->
+    <link rel=stylesheet href="cm/docs.css">
+    <link rel=stylesheet href="cm/codemirror.css">
+    <link rel=stylesheet href="cm/merge.css">
+    <link rel=stylesheet href="cm/icecoder.css">
+
+    <!-- scripts -->
+    <script src="cm/codemirror.js"></script>
+    <script src="cm/css.js"></script>
+    <!-- load local server version if cdn unavailable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
+
+    <script src="cm/htmlmixed.js"></script>
+    <script src="cm/xml.js"></script>
+    <script src="cm/merge.js"></script>
+    <script src="cm/modes/javascript.js"></script>
+    <script src="cm/modes/clike.js"></script>
+    <script src="cm/modes/glsl.js"></script>
+
+<!-- General Sources -->
+    <!-- style -->
+    <link rel=stylesheet href="css/jquery-ui.css">
+    <link rel=stylesheet href="css/alicenode.css">
+
+
+    <!-- server address & open/close -->
+<input id="server" type="text" value="ws://localhost:8080" size="40">
+<button onclick="openSocket()">Open</button>
+<button onclick="closeSocket()">Close</button>
+
+
+    <script>
+    
+    
+    var ws_url;
+var worktreeList;
+var history;
+var ws;
+var ws_url = "ws://" + window.location.host;
+
+function log(msg){
+  console.log(msg)
+}
 
 
 
-<!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Grouping</title>
-  <meta name="description" content="A diagram holding groups that incrementally grow the diagram as groups are expanded." />
-  <!-- Copyright 1998-2018 by Northwoods Software Corporation. -->
-  <meta charset="UTF-8">
-  <script src="https://gojs.net/latest/release/go-debug.js"></script>
-    <!-- <script src="../assets/js/goSamples.js"></script>  this is only for the GoJS Samples framework -->
-  <script id="code">
-    function init() {
-      if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-      var $ = go.GraphObject.make;  // for conciseness in defining templates
-      myDiagram =
-        $(go.Diagram, "myDiagramDiv",  // Diagram refers to its DIV HTML element by id
-          {
-            // start everything in the middle of the viewport
-            initialContentAlignment: go.Spot.Center,
-            layout: $(go.TreeLayout,  // the layout for the entire diagram
-                      {
-                        angle: 90,
-                        arrangement: go.TreeLayout.ArrangementHorizontal,
-                        isRealtime: false
-                      })
-          });
-      // define the node template for non-groups
-      myDiagram.nodeTemplate =
-        $(go.Node, "Auto",
-          $(go.Shape, "Rectangle",
-            { stroke: null, strokeWidth: 0 },
-            new go.Binding("fill", "key")),
-          $(go.TextBlock,
-            { margin: 7, font: "Bold 14px Sans-Serif" },
-            //the text, color, and key are all bound to the same property in the node data
-            new go.Binding("text", "key"))
-        );
-      myDiagram.linkTemplate =
-        $(go.Link,
-          { routing: go.Link.Orthogonal, corner: 10 },
-          $(go.Shape, { strokeWidth: 2 }),
-          $(go.Shape, { toArrow: "OpenTriangle" })
-        );
-      // define the group template
-      myDiagram.groupTemplate =
-        $(go.Group, "Auto",
-          { // define the group's internal layout
-            layout: $(go.TreeLayout,
-                      { angle: 90, arrangement: go.TreeLayout.ArrangementHorizontal, isRealtime: false }),
-            // the group begins unexpanded;
-            // upon expansion, a Diagram Listener will generate contents for the group
-            isSubGraphExpanded: false,
-            // when a group is expanded, if it contains no parts, generate a subGraph inside of it
-            subGraphExpandedChanged: function(group) {
-              if (group.memberParts.count === 0) {
-                randomGroup(group.data.key);
-              }
+
+document.getElementById('server').value = ws_url;
+
+function openSocket() {
+    log('opening');
+    var url = document.getElementById('server').value;
+    ws = new WebSocket(ws_url);
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = function() {
+        // log('open');  
+        ws.send("client_SVG?")
+
+        ws.send("getCurrentBranch")
+        
+        //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
+        ws.send("selectUser?" + "Guest");
+
+        sessionStorage.echoServer = url;
+    };
+    ws.onclose = function() {
+        // log('close');
+    };
+    ws.onmessage = function(e) {
+        /*if (e.data instanceof Blob) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
+            };
+            reader.readAsArrayBuffer(e.data);
+        } else */
+        if (e.data instanceof ArrayBuffer) {
+            //log(encodeHexString(new Uint8Array(e.data)));
+            //log("received arraybuffer size: " + e.data.byteLength + " bytes");
+            
+            let s = "";
+            let fv = new Float32Array(e.data);
+            for (var i = 0; i < fv.length; i+=3) {
+                s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
             }
-          },
-          $(go.Shape, "Rectangle",
-            { fill: null, stroke: "gray", strokeWidth: 2 }),
-          $(go.Panel, "Vertical",
-            { defaultAlignment: go.Spot.Left, margin: 4 },
-            $(go.Panel, "Horizontal",
-              { defaultAlignment: go.Spot.Top },
-              // the SubGraphExpanderButton is a panel that functions as a button to expand or collapse the subGraph
-              $("SubGraphExpanderButton"),
-              $(go.TextBlock,
-                { font: "Bold 18px Sans-Serif", margin: 4 },
-                new go.Binding("text", "key"))
-            ),
-            // create a placeholder to represent the area where the contents of the group are
-            $(go.Placeholder,
-              { padding: new go.Margin(0, 10) })
-          )  // end Vertical Panel
-        );  // end Group
-      // generate the initial model
-      randomGroup();
-    }
-    // Generate a random number of nodes, including groups.
-    // If a group's key is given as a parameter, put these nodes inside it
-    function randomGroup(group) {
-      // all modification to the diagram is within this transaction
-      myDiagram.startTransaction("addGroupContents");
-      var addedKeys = [];  // this will contain the keys of all nodes created
-      var groupCount = 0;  // the number of groups in the diagram, to determine the numbers in the keys of new groups
-      myDiagram.nodes.each(function(node) {
-        if (node instanceof go.Group) groupCount++;
-      });
-      // create a random number of groups
-      // ensure there are at least 10 groups in the diagram
-      var groups = Math.floor(Math.random() * 2);
-      if (groupCount < 10) groups += 1;
-      for (var i = 0; i < groups; i++) {
-        var name = "group" + (i + groupCount);
-        myDiagram.model.addNodeData({ key: name, isGroup: true, group: group });
-        addedKeys.push(name);
-      }
-      var nodes = Math.floor(Math.random() * 3) + 2;
-      // create a random number of non-group nodes
-      for (var i = 0; i < nodes; i++) {
-        var color = go.Brush.randomColor();
-        // make sure the color, which will be the node's key, is unique in the diagram before adding the new node
-        if (myDiagram.findPartForKey(color) === null) {
-          myDiagram.model.addNodeData({ key: color, group: group });
-          addedKeys.push(color);
-        }
-      }
-      // add at least one link from each node to another
-      // this could result in clusters of nodes unreachable from each other, but no lone nodes
-      var arr = [];
-      for (var x in addedKeys) arr.push(addedKeys[x]);
-      arr.sort(function (x, y) { return Math.random(2)-1; });
-      for (var i = 0; i < arr.length; i++) {
-        var from = Math.floor(Math.random() * (arr.length - i)) + i;
-        if (from !== i) {
-          myDiagram.model.addLinkData({ from: arr[from], to: arr[i] });
-        }
-      }
-      myDiagram.commitTransaction("addGroupContents");
-    }
-  </script>
-</head>
-<body onload="init()">
-<div id="sample">
-  <div id="myDiagramDiv" style="height:600px;width:100%;border:1px solid black"></div>
-  <p>
-  This sample demonstrates subgraphs that are created only as groups are expanded.
-  </p>
-  <p>
-  The model is initially a random number of nodes, including some groups, in a tree layout.
-  When a group is expanded, the <a>Group.subGraphExpandedChanged</a> event handler calls a function to generate a random number of nodes
-  in a tree layout inside the group if it did not contain none any.
-  Each non-group node added has a unique random color, and links are added by giving each node one link to another node.
-  </p>
-  <p>
-  The addition of nodes and links is performed within a transaction to ensure that the diagram updates itself properly.
-  The diagram's tree layout and the tree layouts within each group are performed again when a sub-graph is expanded or collapsed.
-  </p>
-</div>
-</body>
-</html>
+            
+            // document.getElementById('state').innerHTML = s;     
+            
+        } else {
+            let message = e.data;
+            let q = message.indexOf("?");
+            if (q > 0) {
+                let cmd = message.substring(0, q);
+                let arg = message.substring(q+1);
+                switch(cmd) {
+                    
+                    case "branchCommits":
+                    var branchesList = arg.split("\n")
+                    break;
+                    default:
+                        log("cmd: " + cmd + ", " + arg);
+                    }
+        
+                } else {
+            
+                log('received: ' + e.data);
+                }
+            }
+        };
+    ws.onerror = function() {
+        log('error');
+    };
+}
+
+function closeSocket() {
+    log('closing');
+    ws.close();
+}
+
+// keep checking socket status, re-open if closed:
+setInterval(function(){
+        if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
+}, 2000);
+
+
+</script>

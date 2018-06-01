@@ -27,20 +27,20 @@ const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
 
-let fileList = fs.readdirSync(project_path).filter(function(file) {
+// let fileList = fs.readdirSync(project_path).filter(function(file) {
 
-  if(file.charAt(0) == "+");
-  else if(file.charAt(0) == ".");
-  else if(file.includes("userlist.json"));
-  else if(file.includes(".code-workspace"));
-  else if(file.includes("tmp"));
-  //to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp. 
-  else {
-    return file
-  }
-})
+//   if(file.charAt(0) == "+");
+//   else if(file.charAt(0) == ".");
+//   else if(file.includes("userlist.json"));
+//   else if(file.includes(".code-workspace"));
+//   else if(file.includes("tmp"));
+//   //to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp. 
+//   else {
+//     return file
+//   }
+// })
 
-console.log(fileList)
+// console.log(fileList)
 
 // exec('git log --all --source --abbrev-commit --pretty=oneline ', {cwd: project_path}, (stdout, stderr, err) => {
 //   console.log(stderr)
@@ -221,3 +221,31 @@ console.log(fileList)
 //     }
 //   });
 // });
+// let stderr = "4f8579f refs/heads/MichaelPalumbo jdkdkfjfjdk\n38f8fhs refs/heads/master dave went to the store\nf8d7r4t refs/heads/master hjskfhjfjkh"
+// // String.prototype.replaceAll = function(search, replacement) {
+// //   //var target = this;
+// //   console.log(stderr.replace(new RegExp(search, 'refs/heads'), replacement))
+// // };
+// // let find = "refs/heads";
+// // let re = new RegExp(find, "refs/heads")
+// // let str = stderr.replace(re, '');
+
+// // console.log(str)
+
+// // function replaceAll(str, find, replace) {
+// //   return str.replace(new RegExp(find, 'g'), replace);
+// // }
+// // console.log(replaceAll())
+
+// let some_str = stderr.split('refs/heads').join('')
+
+// console.log(some_str)
+
+let fileName = "project.cpp"
+exec('git log --all --source --abbrev-commit --pretty="%cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
+  // console.log(JSON.stringify(stderr))
+  let commitList = stderr.split('refs/heads').join('')
+  // ws.send("branchCommits?" + commitList)
+  console.log(commitList)
+
+  })
