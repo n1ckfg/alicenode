@@ -10,6 +10,8 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const chokidar = require('chokidar');
+const url = require('url');
+
 
 const parseContext = require('code-context');
 var detective = require('detective');
@@ -84,6 +86,10 @@ let locals = {} // contains any variables declared within a function's scope
 var requireStatements = {} //containing all of the require statements
 
 
+
+
+/* this is above the http server for now,  */
+///////////////////////AST PARSER/////////////////////////
 
 //comb js file for all top-level functions
 var functions = functionExtractor.parse(source);
@@ -265,6 +271,123 @@ fs.writeFileSync(extractsPath + 'deck.json', JSON.stringify(deck, null, 2), 'utf
 
 //thirdly: https://www.npmjs.com/package/code-context as it provides line-based context!!:
 fs.writeFileSync(extractsPath + 'parseContext.json', JSON.stringify(parseContext(source), null, 2), 'utf8');
+
+
+////////////////////////HTTP SERVER////////////////////////
+
+
+
+let sessionId = 0;
+let sessions = [];
+
+const app = express();
+app.use(express.static(client_path))
+app.get('/', function(req, res) {
+	res.sendFile(path.join(client_path, 'index.html'));
+
+});
+//app.get('*', function(req, res) { console.log(req); });
+const server = http.createServer(app);
+
+// add a websocket service to the http server:
+const wss = new WebSocket.Server({ server });
+
+// send a (string) message to all connected clients:
+function send_all_clients(msg) {
+	wss.clients.forEach(function each(client) {
+       client.send(msg);
+    });
+}
+
+
+// whenever a client connects to this websocket:
+wss.on('connection', function(ws, req) {
+		
+	let per_session_data = {
+		id: sessionId++,
+		socket: ws,
+
+
+	};
+    
+    ws.send(JSON.stringify(deck));
+
+	sessions[per_session_data.id] = per_session_data;
+
+	console.log("server received a connection, new session " + per_session_data.id);
+	console.log("server has "+wss.clients.size+" connected clients");
+	
+	const location = url.parse(req.url, true);
+	// You might use location.query.access_token to authenticate or share sessions
+	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+	
+	// respond to any messages from the client:
+	ws.on('message', function(message) {
+
+        if (message.includes("git return to master")){
+			console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
+			 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
+			 ws.send("edit?" + err)
+
+            })
+		}
+
+
+		let q = message.indexOf("?");
+		if (q > 0) {
+			let cmd = message.substring(0, q);
+			let arg = message.substring(q+1);
+			switch(cmd) {
+			
+				// case "newUser":
+				// 	console.log(arg)
+				// break;
+
+//CLIENT: ///////////////////////////////////////////////////////
+	//Add user
+
+            case "newUser":
+            
+        break;
+        }
+
+    } else {
+        //console.log("message", message, typeof message);
+    }
+}); 
+
+ws.on('error', function (e) {
+
+
+    if (e.message === "read ECONNRESET") {
+        // ignore this, client will still emit close event
+    } else {
+        console.error("websocket error: ", e.message);
+    }
+});
+
+// what to do if client disconnects?
+ws.on('close', function(connection) {
+    console.log("client connection closed");
+
+    delete sessions[per_session_data.id];
+
+    // tell git-in-vr to push the atomic commits?
+});
+
+
+
+});
+
+server.listen(8080, function() {
+console.log('server listening on %d', server.address().port);
+});
+
+setInterval(function() {
+//if (statebuf) send_all_clients(statebuf);
+//send_all_clients("fps?"+);
+}, 100);
+
 
 
 /*
