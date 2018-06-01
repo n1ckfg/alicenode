@@ -56,7 +56,7 @@ struct LeapMotion : public Leap::Listener {
             Leap::Finger finger = Leap::Finger(pointable);
         }
 
-        Leap::FingerList fingers = frame.hands()[0].fingers();
+        fingers = frame.hands()[0].fingers();
         for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
         Leap::Bone bone;
         Leap::Bone::Type boneType;
