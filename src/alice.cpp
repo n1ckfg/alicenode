@@ -405,6 +405,7 @@ int main(int argc, char ** argv) {
 	// TODO: remove
 	alice.leap->connect();
 
+	/*
 	void ALeapMotionDebugInfo ::Tick( float DeltaTime )
 	{
 		Super::Tick( DeltaTime );
@@ -438,6 +439,7 @@ int main(int argc, char ** argv) {
 		PrimaryActorTick.bCanEverTick = true;
 		PrimaryActorTick.bStartWithTickEnabled = true;
 	}
+	*/
 
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
