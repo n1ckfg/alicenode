@@ -25,7 +25,18 @@
     <script src="cm/modes/javascript.js"></script>
     <script src="cm/modes/clike.js"></script>
     <script src="cm/modes/glsl.js"></script>
+    <script src="cm/matchbrackets.js"></script>
+    <script src="cm/closebrackets.js"></script>
 
+<!-- xterm.js sources -->
+    <!-- style -->
+    <!-- <link rel="stylesheet" href="css/xterm.css" /> -->
+    <!-- script -->
+    <!-- <script src="bower_components/xterm.js/dist/xterm.js"></script> -->
+
+    <!-- socket io chat -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <!-- General Sources -->
     <!-- style -->
     <link rel=stylesheet href="css/jquery-ui.css">
@@ -69,6 +80,17 @@
                 </form>
         </th>
 
+
+        <th>
+            <button onclick="window.open('http://192.168.137.1:8080')" id="myButton">New Editor</button>
+        </th>
+
+        <th>
+                <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+
+        </th>
+
+
         <!-- <th style="text-decoration: none">
             <form name="FileNames">
                 <select id="openFileName" onchange="chooseFileName();">
@@ -77,9 +99,7 @@
                         
             
                 </select> Current File -->
-            </form>
 
-        </th>
        
     
     </tr>
@@ -96,22 +116,22 @@
         
                 <th>
                     <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="toggleDifferences()" checked>
-                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleLiveDiffing" onclick="toggleDifferences()" checked>
+                        <label class="onoffswitch-label" for="toggleLiveDiffing"></label>
                     </div>Live Diffing
                 </th>
         
                 <th>
                     <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="collapse = !collapse; initUI()">
-                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; initUI()">
+                        <label class="onoffswitch-label" for="toggleCollapse"></label>
                     </div>Collapse Changes
                 </th>
         
                 <th>
                     <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" onclick="connect = connect ? null : 'align'; initUI()">
-                        <label class="onoffswitch-label" for="myonoffswitch"></label>
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="connect = connect ? null : 'align'; initUI()">
+                        <label class="onoffswitch-label" for="toggleAlign"></label>
                     </div>Align Changes
         
                 </th>
@@ -129,9 +149,8 @@
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b></th>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><div id="fileInCommit"></div>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
             
-                </div>
         </th>
 
     </tr>
@@ -145,20 +164,13 @@
         </td>
         <td style="width:33%; height:100%; text-align:center;">
 
-                <select size="5" style="width:100%" id="openFileName" onchange="chooseFileName();">
+                <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="chooseFileName();">
                         <option selected disabled>Please Select File</option> 
                         <option value="New File...">New File...</option>
                         
             
                 </select> 
-                <!-- <div id="fileInCommit"><b></b> -->
-                    <!-- <select style="width:100%; height:100%" name="filesInCommit" size="5" id="fileInCommit" onchange="chooseFileName();"> 
-                        </select>  -->
-            <!-- 
-                <div id="CommitDetails">
-                        <select style="width:100%; height:100%" name="ChooseFile" size="5" id="ChooseFile" onchange="ChooseFile();"> 
-                        </select> 
-                    </div>   -->
+
 
             </td>
 
@@ -222,27 +234,29 @@
 
 
 <!-- TODO: mouseover a node puts the commit detail into this heading: -->
-<table width="100%" height="20%" >
+<table width="100%" height="20%" style="background-color: rgb(225, 225, 225)">
     <tr height="20%">
         <th>Chat and System Messages</th>
         <th>Integrated Terminal (Your Machine)</th>
 
     </tr>
 
-    <tr heigh="80%">
-        <td width:33%; height:300px; Style="text-align:center;">
-            <ul id="messages"></ul>   
+    <tr height="100%">
+        <td width:33%; height:300px; Style="text-align:center"; >
+            <ul id="chat_messages" overflow=scroll></ul> 
         </td>
-
         <td>
-                <ul id="intergratedTerminal"></ul>
-
-            </td>
-
-
-
+            <div id="terminal"></div>
+        </td>
     </tr>
-
+    <tr style="background-color: rgb(0, 0, 0)">           
+        <td> 
+            <form id="chat_form" overflow="scroll" onSubmit="return false;">
+                <input id="m" autocomplete="on" overflow="scroll" />
+                <button id="chatSendMsg" type="button" name="">Send</button>
+            </form>  
+        </td>
+        </tr>
 </table>
 
 <!-- server address & open/close -->
@@ -281,7 +295,11 @@ var userlist = []; //list of git authors associated with alicenode_inhabitat (fr
 var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
-
+// xterm.js integrated terminal
+// NOTE: script source 'xterm.js' is missing from all releases and pkgs, so... don't use xterm.js until this is resolved. posted issue to https://github.com/xtermjs/xterm.js/issues/1480
+// var term = new Terminal();
+//         term.open(document.getElementById('#terminal'));
+//         term.write('Hello from \033[1;3;31mxterm.js\033[0m $ ')
      
 //send the code from right pane
 function sendCodeRelay(){
@@ -337,6 +355,16 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "chatMsg":
+                    console.log(arg)
+                    var li = document.createElement('li');
+                    var list = document.getElementById('chat_messages');
+
+                    li.innerHTML = arg;
+                    list.appendChild(li);
+
+                    break;
+
                     case "branchCommits":
                     var branchesList = arg.split("\n")
                         
@@ -356,9 +384,10 @@ function openSocket() {
                             opt.value = value;
                             sel.appendChild(opt);
                             //find out the current branch, and highlight it in the select.
-                            if (value.includes("HEAD")) {
-                                sel.selectedIndex = key
-                            }
+
+                                //default set right editor at most-recent commit
+                                sel.selectedIndex = 0;
+                          
                         })
 
                         break;
@@ -583,8 +612,9 @@ function openSocket() {
                         log("cmd: " + cmd + ", " + arg);
                     }
         
-                } else {
-            
+                } else 
+                    if (message.includes("chatMsg")){}
+                    else {
                 log('received: ' + e.data);
                 }
             }
@@ -610,10 +640,11 @@ function chooseCommit(){
    // selection = document.selectCommit.value;
 //    var
 var e = document.getElementById("selectCommit");
-var c = (e.options[e.selectedIndex].value).substring(0, 7)
+selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
 
-    console.log(c)
-    ws.send("git show " + c);
+
+    console.log(selectedCommit)
+    ws.send("git show " + selectedCommit);
 
 
 
@@ -656,6 +687,16 @@ function mouseLeaveCommit(evt) {
     evt.target.setAttributeNS(null,"opacity","1");
 }
 
+function clientNewBranch(){
+    var branchName = prompt("Please enter new branch name (work-in-progress, not ready yet)", "(noSpacesPlease)");
+
+
+    //TODO: at ws connect, get the list of current branch names in the project_path, and check 'branchName' result against this list. if match, throw error to client saying 'branchname already in use, try another'. 
+    // if (worktreeList.includes(worktree) == true){
+
+    // alert("provided worktree name already in use")
+
+}
 
 //Get current content within CodeMirror's Left Mergeview
 function sendLeftCode() {
@@ -728,10 +769,37 @@ function encodeHexString(data) {
 //Client log
 function log(message) {
     var li = document.createElement('li');
-    li.innerHTML = message;
-     var list = document.getElementById('messages');
-     list.insertBefore(li, list.childNodes[0]);
+    li.innerHTML = ("system: " + message);
+     var list = document.getElementById('chat_messages');
+     list.appendChild(li);
 }
+
+// //chat client:
+
+//if user click's the 'send' button
+$(document).ready(function() {
+  $('#chatSendMsg').click(function() {
+    var outMessage = ($('#m').val());
+    ws.send("chatMsg?" + outMessage)
+    console.log(outMessage)
+  });
+});
+//if user hits 'enter' in the chat form:
+//this prevents the chat form from refreshing the page when you hit Enter, and reroutes the enter command to the chatSendMsg button. 
+// Get the input field
+var input = document.getElementById("m");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Cancel the default action, if needed
+  event.preventDefault();
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Trigger the button element with a click
+    document.getElementById("chatSendMsg").click();
+  }
+});
+
 
 if (sessionStorage.echoServer) {
     document.getElementById('server').value = sessionStorage.echoServer;
@@ -823,18 +891,30 @@ function addWorktree(){
 
 //file selection
 function chooseFileName(){
-var e = document.getElementById("openFileName");
-var selection = e.options[e.selectedIndex].value
-    if (selection == "New File..."){
-        alert("Client not set up to create new file yet, work-in-progress")
-    } else {
-        ws.send("fileRequest" + selection)
-        //change page title to filename!
-        document.title = selection;
+    var e = document.getElementById("openFileName");
+    var selection = e.options[e.selectedIndex].value
 
-        fileInCommit.InnerHTML = (selection + " found in following commits")
+    //clear the commits list in the select element each time a file is opened
+    function removeOptions(selectbox){
+        var i;
+        for(i = selectCommit.options.length - 1 ; i>= 0 ; i--)
+        {
+            selectCommit.remove(i)
+        }
     }
-}
+    removeOptions(document.getElementById("selectCommit"))
+    fileInCommit.innerHTML = (selection + " found in following commits")
+
+
+        if (selection == "New File..."){
+            alert("Client not set up to create new file yet, work-in-progress")
+        } else {
+            ws.send("fileRequest" + selection)
+            //change page title to filename!
+            document.title = selection;
+
+        }
+    }
 
 //username selection (for git commits)
 function userSelect()  { 
@@ -884,7 +964,6 @@ function userSelect()  {
 
 function chooseBranch() {
     selection = document.Branch.chooseBranch.value;
-    console.log(selection)
 }
 
 /////////////////////////////////////
@@ -913,15 +992,15 @@ function initUI() {
         mode: "clike",
         //highlightDifferences: "highlight",
         
-        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT seems to have been the source of the sluggishness in the client app!!
+        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
         viewportMargin: 10,
         revertButtons: true,
         allowEditingOriginals: true,
-        autoRefresh: true,
-
+        // autoRefresh: true,
+        showDifferences: true,
         linewrapping: true,
         connect: "connect",
-        theme: "icecode",
+        // theme: "icecode",
         collapseIdentical: true,
         // collapse: collapse
         
@@ -929,12 +1008,12 @@ function initUI() {
         
         /* init: */
         //place cursor in left editor at client init
-        //autofocus: 1,
+        autofocus: 1,
 
             //TODO: disable/enable editing in the codemirror instance. will use this once user worktrees are set up so that editing can only be enabled once a user worktree is chosen (or created). Once a worktree is chosen, change the readOnly value to false.
             //readOnly: "nocursor"
         //set tab index for editor
-        // tabindex: 2,
+        //  tabindex: 2,
         
 
         //editing

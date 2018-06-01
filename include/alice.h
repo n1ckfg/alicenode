@@ -4,6 +4,7 @@
 #include "al/al_glfw.h"
 #include "al/al_signals.h"
 #include "al/al_hmd.h"
+#include "al/al_leap.h"
 
 struct AL_ALICE_EXPORT Alice {
 	
@@ -27,6 +28,9 @@ struct AL_ALICE_EXPORT Alice {
 	Window window;
 	CloudDevice * cloudDevice;
 	Hmd * hmd;
+	LeapMotion * leap;
+
+
 	
 	static Alice& Instance();	
 	
