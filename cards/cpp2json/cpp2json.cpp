@@ -25,13 +25,20 @@ https://github.com/nlohmann/json/tree/master
 // for convenience
 using json = nlohmann::json;
 
+json jdoc;
+
 struct VisitorData {
 	int indent = 0;
+
+	json * parent = 0;
+	json * children = 0;
 };
 
 CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data) {
 	
 	auto kind = clang_getCursorKind(c);
+	
+
 	if (clang_isUnexposed(kind)) {
 
 		// this is an AST node that has no useful information for CIndex
@@ -41,6 +48,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 	} else {
 
 		VisitorData& vd = *(VisitorData *)client_data;
+		bool doVisitChildren = true;
 	
 		CXSourceRange range = clang_getCursorExtent(c);
 		CXSourceLocation start = clang_getRangeStart(range);
@@ -56,17 +64,35 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 		// C++ type; may be invalid, unexposed, a built-in like int, float etc, or more
 		CXType ctype = clang_getCursorType(c);
+
+		switch(kind) {
+		
+		default:
+		break;
+
+		}
+
+		json& children = (*vd.parent)["children"];
+		json jnode = {
+			{"kind", clang_getCString(clang_getCursorKindSpelling(kind)) }
+		};
+		children.push_back("x");
 		
 		auto str = clang_getCursorKindSpelling(kind);
 		printf("%s%s at line %d:%d to line %d:%d: %s <%s>\n", std::string(vd.indent,'-').c_str(), clang_getCString(str), line, column, line1, column1, clang_getCString(clang_getCursorSpelling(c)), clang_getCString(clang_getTypeSpelling(ctype)));
 		clang_disposeString(str);
 
-		vd.indent++;
+		if (doVisitChildren) {
+			json jchildren = json::array();
+			vd.children = &jchildren;
+			vd.indent++;
 
-		// visit children:
-		clang_visitChildren(c, visit, client_data);
+			// visit children:
+			clang_visitChildren(c, visit, client_data);
 
-		vd.indent--;
+			vd.indent--;
+			(*vd.parent)["children"] = jchildren;
+		}
 
 	}
 
@@ -93,16 +119,21 @@ int main(int argc, const char ** argv) {
 
 	// for f in unit.get_includes(): print '\t'*f.depth, f.include.name
 
-	//clang_getTranslationUnitSpelling(unit) // gives the filename
+	// // gives the filename
+
+	jdoc["filename"] = clang_getCString(clang_getTranslationUnitSpelling(unit));
 
 	// To traverse the AST of the TU, we need a Cursor:
 	CXCursor cursor = clang_getTranslationUnitCursor(unit);
 
 	// visit all the tree starting from the unit root:
 	VisitorData vd;
+	vd.parent = &jdoc;
 	visit(cursor, cursor, &vd);
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);
+
+	printf("JSON: %s", jdoc.dump().c_str());
 	return 0;
 }
