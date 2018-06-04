@@ -31,12 +31,24 @@
     <link rel=stylesheet href="css/jquery-ui.css">
     <link rel=stylesheet href="css/alicenode.css">
 
+    <script src="js/jquery-3.3.1.js" type="javascript"></script>
+    <script src="js/jquery.js" type="javascript"></script>
+
+
 
     <!-- server address & open/close -->
 <input id="server" type="text" value="ws://localhost:8080" size="40">
 <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button>
 
+<body>
+
+  <template id="mytemplate">
+    <img src="" alt="great image">
+    <div class="comment"></div>
+  </template>
+  
+</body>
 
     <script>
     
@@ -50,6 +62,34 @@ var ws_url = "ws://" + window.location.host;
 function log(msg){
   console.log(msg)
 }
+
+//codemirror instance
+var myCodeMirror = CodeMirror(document.body, {
+  value: "function myScript(){return 100;}\n",
+  mode:  "clike"
+});
+
+////codemirror card template
+
+function supportsTemplate() {
+  return 'content' in document.createElement('template');
+}
+
+if (supportsTemplate()) {
+  // Good to go!
+  console.log("browser supports templates")
+} else {
+  // Use old templating techniques or libraries.
+  console.log("browser doesn't support templates")
+
+}
+
+var t = document.querySelector('#mytemplate');
+// Populate the src at runtime.
+t.content.querySelector('html').src = 'card.html';
+
+var clone = document.importNode(t.content, true);
+document.body.appendChild(clone);
 
 
 
@@ -133,3 +173,5 @@ setInterval(function(){
 
 
 </script>
+
+
