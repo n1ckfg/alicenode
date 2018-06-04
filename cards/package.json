@@ -30,6 +30,8 @@
     "magic-window": "^1.0.9",
     "npm": "^6.1.0",
     "path": "^0.12.7",
+    "ref-array": "^1.2.0",
+    "ref-struct": "^1.1.0",
     "styx": "0.0.8",
     "styx-cli": "0.0.10"
   },
