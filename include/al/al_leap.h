@@ -20,6 +20,7 @@ struct LeapMotion : public Leap::Listener {
 
     virtual void onConnect(const Leap::Controller&) {
         console.log("Leap connected!!!!!!!");
+        //controller.addListener(Listener);
         controller.enableGesture(Leap::Gesture::TYPE_SWIPE);
         controller.config().setFloat("Gesture.Swipe.MinLength", 200.0);
         controller.config().save();
@@ -56,7 +57,7 @@ struct LeapMotion : public Leap::Listener {
             Leap::Finger finger = Leap::Finger(pointable);
         }
 
-        Leap::FingerList fingers = frame.hands()[0].fingers();
+        fingers = frame.hands()[0].fingers();
         for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
         Leap::Bone bone;
         Leap::Bone::Type boneType;
@@ -69,10 +70,37 @@ struct LeapMotion : public Leap::Listener {
             }
         }
 
-
     }
 
+    virtual void onServiceConnect(const Leap::Controller& controller) {
+        std::cout << "Service connected " << std::endl;
+    }
 
+    virtual void onServiceDisconnect(const Leap::Controller&) {
+        std::cout << "Service disconnected " << std::endl;
+    }
+
+    virtual void onServiceChange(const Leap::Controller& controller) {
+        std::cout << "Service state change " << std::endl;
+    }
+
+    /*
+    int main(int argc, char** argv) {
+        std::cout << "Press Enter to quit, or enter 'p' to pause or unpause the service..." << std::endl;
+
+        bool paused = false;
+        while (true) {
+            char c = std::cin.get();
+            if (c == 'p') {
+            paused = !paused;
+            controller.setPaused(paused);
+            std::cin.get(); //skip the newline
+            }
+            else
+            break;
+        }
+    }
+    */
 
 };
 

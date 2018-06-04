@@ -23,6 +23,7 @@
     "diff2html-cli": "^2.5.4",
     "dirty-object": "^1.0.6",
     "express": "^4.16.3",
+    "ffi": "^2.2.0",
     "find-process": "^1.1.1",
     "git-log-to-json": "^1.1.1",
     "json5": "^1.0.1",
