@@ -13,6 +13,8 @@
   <link rel=stylesheet href="cm/codemirror.css">
   <link rel=stylesheet href="cm/merge.css">
   <link rel=stylesheet href="cm/icecoder.css">
+  <!-- <link rel="stylesheet" href="cm/addons/buttons/buttons.css"> -->
+
   <style>
   </style>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -31,80 +33,54 @@
   <script src="cm/modes/javascript.js"></script>
   <script src="cm/modes/clike.js"></script>
   <script src="cm/modes/glsl.js"></script>
+  <script src="cm/addons/buttons/buttons.js"></script>
+  <script src="cm/addons/panel.js"></script>
+
+
   
 <!-- //   $( "#set div" ).draggable({ stack: "#set div" }); -->
   </script>
 </head>
+
+<!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
 
-
-       
-<button id="button" onclick="newCard()"></button>
+<!--container for all cards  -->
 <div class="deck">
-
-</body>
-
-
 
 <script>
 
-// var elemDiv = document.createElement('div');
-// document.body.appendChild(elemDiv);
-// draggable.style.cssText = 'position:absolute;width:100%;height:100%;opacity:0.3;z-index:100;background:#000;';
-
-
-// var myCodeMirror = CodeMirror({
-//   value: "function myScript(){return 100;}\n",
-//   mode:  "clike",
-//   lineNumbers: 1
-// });
-
-// document.body.draggable.appendChild(myCodeMirror)
-
-// document.getElementById("draggable").innerHTML = myCodeMirror;
-
-
-// var myCodeMirror = CodeMirror.fromTextArea(view, {
-//     value: "function myScript(){return 100;}\n",
-//   mode:  "clike"
-
-// });
 var cardIdArray = []; //store the list of card ID names
-var value = "leftCodeEditor content"
-orig1 = "origRight editor content"
+var value = "//new card" //default contents of a new card. can be replaced by a code fragment from the server
 
-var count = 1;
+var count = 1; //count the number of cards generated, start at 1
 var cardId = 1; //id for each new card div created
 
-//double-click anywhere on html body to create new card
+//double-click anywhere on html body to create a blank new card
 function doubleClick(e) {
-                    // e.target -> element that was clicked
-                //    console.log(e.target)
-    var body = e.target
-    if (body.nodeName == "BODY"){
-        newCard(e.pageX, e.pageY);
-        console.log(e.pageX, e.pageY)
+    if (e.target.nodeName == "BODY"){
+        // generate new card at current mouse x and y position
+        newCard(e.pageX, e.pageY); 
     }
 }
 
-
+//create a blank new card, add to the deck
 function newCard(x, y){
-    cardId = ("card_" + (count ++));
+    var instance = count ++;
+    frameId = ("frame_" + instance);
+
+    cardId = ("card_" + instance);
     cardIdArray.push(cardId)
-    value = ("leftCodeEditor content" + cardId)
-    
-    //var toAdd = $('input[name=annotateItem]').val();
-    // $('.margin').append("<div class='note'>"+toAdd+"</div>");
+    value = ("//new card")
             
     // create a 'card' div, place it at the mouse position
-    var $item = $('<div class="card" id="' + cardId + '" style="position: absolute; left: ' + x + '; top: ' + y + '";/>')
+    var $item = $('<div class="frame" overflow="fixed" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h3>' + cardId + '</h3>').append('<div class="card" id="' + cardId + '"/>')
 
-    // (2) make it draggable and auto-reorder the cards based on last-clicked (stack)
-    $item.draggable({ stack: cardId + " div" });    
-    
-    
-
-    // (3) append it to the document
+    // make it draggable and auto-reorder the cards based on last-clicked (stack)
+    $item.draggable({ stack: cardId + " div" }); 
+    $item.accordion({collapsible: true, heightStyle: "content"});   
+    // .append($("<div class='row'>")
+    // add it to the deck
     $item.appendTo('.deck');
 
     initUI();   
@@ -113,23 +89,13 @@ function newCard(x, y){
     });  
    
 }
-//make card Divs draggable
-// $( function() {
-//     $( cardIdArray ).draggable({ scroll: true });
-//   } );
 
-
-
-
-
-
-
-//get and set code in either of the MergeView editor panes
+//get and set code in the new card
 function initUI() {
    // isRightDirty = false;
 
     if (value == null) return;
-    console.log('received div id ' + cardId)
+
     var target = document.getElementById(cardId);
     target.innerHTML = "";
     dv = CodeMirror(target, {
@@ -147,21 +113,16 @@ function initUI() {
         // autoRefresh: true,
         // showDifferences: true,
         linewrapping: true,
+        // addPanel: cardId
         // connect: "connect",
         // theme: "icecode",
         // collapseIdentical: true,
         // collapse: collapse
         
-
-        
+        fullscreen: true,
         /* init: */
         //place cursor in left editor at client init
         autofocus: 1,
-
-            //TODO: disable/enable editing in the codemirror instance. will use this once user worktrees are set up so that editing can only be enabled once a user worktree is chosen (or created). Once a worktree is chosen, change the readOnly value to false.
-            //readOnly: "nocursor"
-        //set tab index for editor
-        //  tabindex: 2,
         
 
         //editing
@@ -170,66 +131,123 @@ function initUI() {
 
         //cursor settings:
         cursorBlinkRate: 300,
-        cursorScrollMargin: 0
-    });
-/* this is if we want to check that the code has changed: 
+        cursorScrollMargin: 0,
+        
+        //eventually change these buttons to minimize, mute, fullscreen, etc. 
+        buttons: [
+        {
+            hotkey: 'Ctrl-B',
+            class: 'bold',
+            label: '<strong>B</strong>',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                cm.replaceSelection('**' + selection + '**');
+                if (!selection) {
+                    var cursorPos = cm.getCursor();
+                    cm.setCursor(cursorPos.line, cursorPos.ch - 2);
+                }
+            }
+        },
+        {
+            hotkey: 'Ctrl-I',
+            class: 'italic',
+            label: '<i>I</i>',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                cm.replaceSelection('*' + selection + '*');
+                if (!selection) {
+                    var cursorPos = cm.getCursor();
+                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+                }
+            }
+        },
+        {
+            class: 'inline-code',
+            label: 'code',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                cm.replaceSelection("`" + selection + "`");
+                if (!selection) {
+                    var cursorPos = cm.getCursor();
+                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+                }
+            }
+        },
+        {
+            class: 'block-php',
+            label: '&lt;php&gt;',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                cm.replaceSelection("```php\n<?php\n" + selection + "\n```\n");
+                if (!selection) {
+                    var cursorPos = cm.getCursor();
+                    cm.setCursor(cursorPos.line - 2, 0);
+                }
+            }
+        },
+        {
+            class: 'block-code',
+            label: '&lt;-&gt;',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                cm.replaceSelection("```\n" + selection + "\n```\n");
+                if (!selection) {
+                    var cursorPos = cm.getCursor();
+                    cm.setCursor(cursorPos.line - 2, 0);
+                }
+            }
+        },
+        {
+            class: 'quote',
+            label: '>',
+            callback: function (cm) {
+                cm.replaceSelection("> " + cm.getSelection());
+            }
+        },
+        {
+            class: 'ul',
+            label: 'ul',
+            callback: function (cm) {
+                cm.replaceSelection("- " + cm.getSelection());
+            }
+        },
+        {
+            class: 'ol',
+            label: 'ol',
+            callback: function (cm) {
+                cm.replaceSelection("1. " + cm.getSelection());
+            }
+        },
+        {
+            class: 'a',
+            label: 'a',
+            callback: function (cm) {
+                var selection = cm.getSelection();
+                var text = '';
+                var link = '';
 
-    //when new code loaded into right pane, reset isRightDirty flag   
-    isRightDirty = false;
+                if (selection.match(/^https?:\/\//)) {
+                    link = selection;
+                } else {
+                    text = selection;
+                }
+                cm.replaceSelection('[' + text + '](' + link + ')');
 
-    //when user changes something in origRight, always create a new branch from this point in the history (new branch starting from previously chosen commit)
-    dv.editor().on("changes", function(dv, changeObj){
-        // && currentBranch == "master"
-        console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
-        if (isRightDirty == false) {
-             ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
- */
-        //    switch (currentBranch) {
-        //         case "master":
-        //         console.log("the current branch is MASTER")
-
-        //         ws.send("newBranch" + thisHash);
-        //         break;
-
-        //         case (currentBranch !== "master"):
-        //         console.log("The current branch is " + currentBranch)
-        //         if (confirm("already on branch " + currentBranch + "This branch began from " + thisHash + "Create new?")) {
-        //             // Save it!
-        //         } 
-        //         //alert("already on branch " + currentBranch + "\nstarted from " + thisHash + "create new?")
-        //         break;
-
-
+                var cursorPos = cm.getCursor();
+                if (!selection) {
+                    cm.setCursor(cursorPos.line, cursorPos.ch - 3);
+                } else if (link) {
+                    cm.setCursor(cursorPos.line, cursorPos.ch - (3 + link.length));
+                } else {
+                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+                }
+            }
         }
-   
-        //  if (currentBranch == "master")
-        //     {
-
-        //         //TODO: then switch to new branch by sending this message to server + the currently selected commit hash
-
-        //         // ws.send("newBranch" + thisHash);
-        //     }
-        // else {
-        //             //TODO: alert user already on branch, ask if you want to switch to a new branch
-        //     }
-/*
-        isRightDirty = true;
+    ],
 
     });
-
-
 }
-*/
-function mergeViewHeight(mergeView) {
-    function editorHeight(editor) {
-        if (!editor) return 0;
-        return editor.getScrollInfo().height;
-    }
-    return Math.max(editorHeight(mergeView.leftOriginal()),
-    editorHeight(mergeView.editor()),
-    editorHeight(mergeView.rightOriginal()));
-} 
-
 
 </script>
+</body>
 </html>
