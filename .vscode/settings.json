@@ -74,7 +74,8 @@
         "__tree": "cpp",
         "bitset": "cpp",
         "iterator": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "xxatomic": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"

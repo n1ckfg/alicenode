@@ -118,7 +118,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
 		LeapMotion::Arm& ra = alice.leap->arms[1];
 		//FINGERS
 		//LeapMotion::Pointable& fingerOne = alice.leap->pointables[0];
-		LeapMotion::Finger& lf = alice.leap->fingers[0];
+		//LeapMotion::Finger& lf = alice.leap->fingers[0];
 
 		//Print Hand
 		console.log("R_HAND pos %f\n L_HAND pos %f", rh.palmPos.x,  lh.palmPos.x);
@@ -128,7 +128,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
 		console.log("L_WRIST pos %f\n R_WRIST pos %f", la.wristPos.x, ra.wristPos.x);
 		//Print Fingers
 		//console.load("FINGER pos %f", fingerOne.fingerPos.x);
-		console.load("FINGER pos %f", lf.fingerPos.x);
+		//console.load("FINGER pos %f", lf.fingerPos.x);
 	}
     
     glfwSwapBuffers(alice.window.pointer);
