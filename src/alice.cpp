@@ -104,6 +104,30 @@ extern "C" AL_ALICE_EXPORT int frame() {
      
 	if (alice.isRendering) 
     	alice.onFrame.emit(alice.window.width, alice.window.height);
+
+	// TODO: remove
+	{
+		// debug-draw the Leap data
+		// alice.leap->pos ?
+
+		//HANDS
+		LeapMotion::Hand& rh = alice.leap->hands[1];
+		LeapMotion::Hand& lh = alice.leap->hands[0];
+		//ARMS - ELBOW AND WRIST
+		LeapMotion::Arm& la = alice.leap->arms[0];
+		LeapMotion::Arm& ra = alice.leap->arms[1];
+		//FINGERS
+		LeapMotion::Pointable& fingerOne = alice.leap->pointables[0];
+
+		//Print Hand
+		console.log("R_HAND pos %f\n L_HAND pos %f", rh.palmPos.x,  lh.palmPos.x);
+		//Print Elbow
+		console.log("L_ELBOW pos %f\n R_ELBOW pos %f", la.elbowPos.x, ra.elbowPos.x);
+		//Print Wrist
+		console.log("L_WRIST pos %f\n R_WRIST pos %f", la.wristPos.x, ra.wristPos.x);
+		//Print Fingers
+		//console.load("FINGER pos %f", fingerOne.fingerPos.x);
+	}
     
     glfwSwapBuffers(alice.window.pointer);
     
@@ -465,6 +489,7 @@ int main(int argc, char ** argv) {
 	
 	
     while(frame()) {
+
     	//printf("%d\n", alice.framecount);
     	uv_run(&uv_main_loop, UV_RUN_NOWAIT);
     }

@@ -22,19 +22,17 @@ lib/win64/Leap.lib lib/win64/LeapC.lib ^
 lib/win64/SpoutLibrary.lib "%KINECTSDK20_DIR%\lib\x64\kinect20.lib" lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib shlwapi.lib gdi32.lib advapi32.lib iphlpapi.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib psapi.lib userenv.lib uuid.lib winspool.lib comdlg32.lib ws2_32.lib opengl32.lib
 rem echo Exit Code is %errorlevel% 
 
+rem if compiled OK, run it:
+if %errorlevel% neq 0 (
+    echo Exit Code is %errorlevel%
+) else (
+    alice.exe
+)
 
 rem /DELAYLOAD:support/win64/openvr_api.dll
 
 @del alice.obj alice.exp
 
-rem dumpbin /exports alice.lib
 
-REM if errorlevel 0 (
-REM    echo No failure %errorlevel%
-REM    exit /b %errorlevel%
-REM )
-
-alice.exe
-echo Exit Code is %errorlevel%
 
 @endlocal
