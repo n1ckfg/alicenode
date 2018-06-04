@@ -30,11 +30,16 @@ struct LeapMotion : public Leap::Listener {
          glm::vec3 pointablePos;
     };
 
+    struct Finger {
+         glm::vec3 fingerPos;
+    };
+
     // left, right
     Hand hands[2];
     Arm arms[2];
     // fingers
     Pointable pointables[5];
+    Finger fingers[5];
     
     bool connect() {
        controller.addListener(*this);
@@ -44,7 +49,6 @@ struct LeapMotion : public Leap::Listener {
     virtual void onConnect(const Leap::Controller&) {
         console.log("Leap connected!!!!!!!");
         //controller.addListener(Listener);
-
         controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
         controller.enableGesture(Leap::Gesture::TYPE_SWIPE);
         controller.config().setFloat("Gesture.Swipe.MinLength", 200.0);
@@ -72,7 +76,12 @@ struct LeapMotion : public Leap::Listener {
 
         //Get Fingers
         Leap::Pointable pointableOne = frame.pointables().frontmost();
-        pointables[0].pointablePos = toGLM(pointableOne.tipPosition());
+        pointables[0].pointablePos = toGLM(pointableOne.TipPosition());
+
+        //Vector currentPosition = finger.TipPosition;
+        Leap::Finger farLeft = frame.fingers().leftmost();
+        fingers[0].fingerPos = toGLM(farLeft.TipPosition());
+
         //Leap::Vector position = pointable.tipPosition();
         /*
         if (pointable.isTool()) {
