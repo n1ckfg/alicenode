@@ -4,18 +4,7 @@
 #include "al_console.h"
 #include "al_math.h"
 
-#include "leap/LeapC.h"
-#include "leap/Leap.h"
-
-//using namespace Leap;
-
-glm::vec3 toGLM(Leap::Vector v) {
-    return glm::vec3(v.x, v.y, v.z);
-}
-
-struct LeapMotion : public Leap::Listener {
-
-    Leap::Controller controller; 
+struct LeapMotionData {
 
     struct Arm {
          glm::vec3 elbowPos;
@@ -35,6 +24,24 @@ struct LeapMotion : public Leap::Listener {
     Arm arms[2];
     // fingers
     Pointable pointables[5];
+};
+
+#ifdef AL_WIN
+#define AL_LEAP_SUPPORTED 1
+#include "leap/LeapC.h"
+#include "leap/Leap.h"
+
+glm::vec3 toGLM(Leap::Vector v) {
+    return glm::vec3(v.x, v.y, v.z);
+}
+
+#endif
+
+#ifdef AL_LEAP_SUPPORTED
+
+struct LeapMotion : public LeapMotionData, public Leap::Listener {
+
+    Leap::Controller controller; 
     
     bool connect() {
        controller.addListener(*this);
@@ -147,6 +154,17 @@ struct LeapMotion : public Leap::Listener {
     */
 
 };
+
+#else 
+
+struct LeapMotion : public LeapMotionData {
+
+    bool connect() {
+        return false;
+    }
+};
+
+#endif
 
 
 #endif
