@@ -63,6 +63,7 @@ function doubleClick(e) {
         newCard(e.pageX, e.pageY); 
     }
 }
+$( "div, p" ).disableSelection();
 
 //create a blank new card, add to the deck
 function newCard(x, y){
@@ -73,13 +74,14 @@ function newCard(x, y){
     cardIdArray.push(cardId)
     value = ("//new card")
             
-    // create a 'card' div, place it at the mouse position
-    var $item = $('<div class="frame" overflow="fixed" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h3>' + cardId + '</h3>').append('<div class="card" id="' + cardId + '"/>')
+    // create a frame place it at the mouse position, and insert the code card within
+    var $item = $('<div class="frame" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
 
-    // make it draggable and auto-reorder the cards based on last-clicked (stack)
-    $item.draggable({ stack: cardId + " div" }); 
-    $item.accordion({collapsible: true, heightStyle: "content"});   
-    // .append($("<div class='row'>")
+    // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+    $item.draggable({ cancel: "div.card", stack: cardId + " div" }); 
+        //difficult to get accordion working with codemirror, comes out weird
+        // $item.accordion({collapsible: true, heightStyle: "content"});   
+
     // add it to the deck
     $item.appendTo('.deck');
 
@@ -173,76 +175,76 @@ function initUI() {
                 }
             }
         },
-        {
-            class: 'block-php',
-            label: '&lt;php&gt;',
-            callback: function (cm) {
-                var selection = cm.getSelection();
-                cm.replaceSelection("```php\n<?php\n" + selection + "\n```\n");
-                if (!selection) {
-                    var cursorPos = cm.getCursor();
-                    cm.setCursor(cursorPos.line - 2, 0);
-                }
-            }
-        },
-        {
-            class: 'block-code',
-            label: '&lt;-&gt;',
-            callback: function (cm) {
-                var selection = cm.getSelection();
-                cm.replaceSelection("```\n" + selection + "\n```\n");
-                if (!selection) {
-                    var cursorPos = cm.getCursor();
-                    cm.setCursor(cursorPos.line - 2, 0);
-                }
-            }
-        },
-        {
-            class: 'quote',
-            label: '>',
-            callback: function (cm) {
-                cm.replaceSelection("> " + cm.getSelection());
-            }
-        },
-        {
-            class: 'ul',
-            label: 'ul',
-            callback: function (cm) {
-                cm.replaceSelection("- " + cm.getSelection());
-            }
-        },
-        {
-            class: 'ol',
-            label: 'ol',
-            callback: function (cm) {
-                cm.replaceSelection("1. " + cm.getSelection());
-            }
-        },
-        {
-            class: 'a',
-            label: 'a',
-            callback: function (cm) {
-                var selection = cm.getSelection();
-                var text = '';
-                var link = '';
+        // {
+        //     class: 'block-php',
+        //     label: '&lt;php&gt;',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("```php\n<?php\n" + selection + "\n```\n");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line - 2, 0);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'block-code',
+        //     label: '&lt;-&gt;',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("```\n" + selection + "\n```\n");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line - 2, 0);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'quote',
+        //     label: '>',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("> " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'ul',
+        //     label: 'ul',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("- " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'ol',
+        //     label: 'ol',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("1. " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'a',
+        //     label: 'a',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         var text = '';
+        //         var link = '';
 
-                if (selection.match(/^https?:\/\//)) {
-                    link = selection;
-                } else {
-                    text = selection;
-                }
-                cm.replaceSelection('[' + text + '](' + link + ')');
+        //         if (selection.match(/^https?:\/\//)) {
+        //             link = selection;
+        //         } else {
+        //             text = selection;
+        //         }
+        //         cm.replaceSelection('[' + text + '](' + link + ')');
 
-                var cursorPos = cm.getCursor();
-                if (!selection) {
-                    cm.setCursor(cursorPos.line, cursorPos.ch - 3);
-                } else if (link) {
-                    cm.setCursor(cursorPos.line, cursorPos.ch - (3 + link.length));
-                } else {
-                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
-                }
-            }
-        }
+        //         var cursorPos = cm.getCursor();
+        //         if (!selection) {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 3);
+        //         } else if (link) {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - (3 + link.length));
+        //         } else {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // }
     ],
 
     });
