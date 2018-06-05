@@ -25,13 +25,10 @@ https://github.com/nlohmann/json/tree/master
 // for convenience
 using json = nlohmann::json;
 
-json jdoc;
-
 struct VisitorData {
 	int indent = 0;
+	json * container = 0;
 
-	json * parent = 0;
-	json * children = 0;
 };
 
 CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data) {
@@ -72,28 +69,43 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 		}
 
-		json& children = (*vd.parent)["children"];
-		json jnode = {
-			{"kind", clang_getCString(clang_getCursorKindSpelling(kind)) }
-		};
-		children.push_back("x");
-		
+
 		auto str = clang_getCursorKindSpelling(kind);
-		printf("%s%s at line %d:%d to line %d:%d: %s <%s>\n", std::string(vd.indent,'-').c_str(), clang_getCString(str), line, column, line1, column1, clang_getCString(clang_getCursorSpelling(c)), clang_getCString(clang_getTypeSpelling(ctype)));
+		//printf("%s%s at line %d:%d to line %d:%d: %s <%s>\n", std::string(vd.indent,'-').c_str(), clang_getCString(str), line, column, line1, column1, clang_getCString(clang_getCursorSpelling(c)), clang_getCString(clang_getTypeSpelling(ctype)));
 		clang_disposeString(str);
 
+		/*
+		printf("parent old %s\n", jparent.dump().c_str());
+		json& jchildren = jparent["children"];
+		json jnode = {
+			{"kind", clang_getCString(clang_getCursorKindSpelling(kind)) },
+			//{"children", json::array() },
+		};
+		jchildren.push_back(jnode);
+		printf("parent new %s\n", jparent.dump().c_str());
+		printf("jdoc: %s\n\n", jdoc.dump().c_str());
+		*/
+
+		json& jsiblings = (*vd.container);
+		json jnode = {
+			{"ast", clang_getCString(clang_getCursorKindSpelling(kind)) },
+			{"loc", { 
+				{"begin", { {"line", line}, {"col", column}, {"char", offset} } }, 
+				{"end", { {"line", line1}, {"col", column1}, {"char", offset1} } }
+			} }
+		};
+	
 		if (doVisitChildren) {
-			json jchildren = json::array();
-			vd.children = &jchildren;
-			vd.indent++;
-
-			// visit children:
-			clang_visitChildren(c, visit, client_data);
-
-			vd.indent--;
-			(*vd.parent)["children"] = jchildren;
+			json jkids = json::array();
+			VisitorData vd1;
+			vd1.indent = vd.indent+1;
+			vd1.container = &jkids;
+			clang_visitChildren(c, visit, &vd1);
+			if (jkids.size()) {
+				jnode["nodes"] = jkids;
+			}
 		}
-
+		jsiblings.push_back(jnode);
 	}
 
 	return CXChildVisit_Continue;//return CXChildVisit_Recurse;
@@ -117,23 +129,24 @@ int main(int argc, const char ** argv) {
 		exit(-1);
 	}
 
-	// for f in unit.get_includes(): print '\t'*f.depth, f.include.name
-
-	// // gives the filename
-
-	jdoc["filename"] = clang_getCString(clang_getTranslationUnitSpelling(unit));
-
 	// To traverse the AST of the TU, we need a Cursor:
 	CXCursor cursor = clang_getTranslationUnitCursor(unit);
 
+	// for f in unit.get_includes(): print '\t'*f.depth, f.include.name
+	json jdoc = {
+	 	{ "ast", clang_getCString(clang_getCursorKindSpelling(clang_getCursorKind(cursor))) },
+		{ "filename", clang_getCString(clang_getTranslationUnitSpelling(unit)) },
+		{ "nodes", json::array() }
+	};
+
 	// visit all the tree starting from the unit root:
 	VisitorData vd;
-	vd.parent = &jdoc;
-	visit(cursor, cursor, &vd);
+	vd.container = &jdoc["nodes"];
+	clang_visitChildren(cursor, visit, &vd);
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);
-
-	printf("JSON: %s", jdoc.dump().c_str());
+	
+	printf("%s\n\n", jdoc.dump(3).c_str());
 	return 0;
 }
