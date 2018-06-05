@@ -48,21 +48,23 @@
 
 <!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
-    <input id="server" type="text" value="ws://localhost:8080" size="40">
-    <button onclick="openSocket()">Open</button>
-    <button onclick="closeSocket()">Close</button>
+
 
 
 
     <table width="100%">
         <tr height="30px" bgcolor="#daeef4">
             <th style="text-decoration: none">Deck of Cards ide</th>
+            <th><input id="server" type="text" value="ws://localhost:8080" size="40">
+                <button onclick="openSocket()">Open</button>
+                <button onclick="closeSocket()">Close</button></th>
         </tr>
+        
     </table>
     <!--container for all cards  -->
     <div class="deck">
 
-  
+
 </body>
 
 <script>
@@ -73,7 +75,7 @@ var value = "//new card" //default contents of a new card. can be replaced by a 
 var count = 1; //count the number of cards generated, start at 1
 var cardId = 1; //id for each new card div created
 
-
+var bodySize = [document.body.clientWidth, document.body.clientHeight]
 var ws_url;
 var worktreeList;
 var history;
@@ -89,7 +91,11 @@ function log(msg){
 function doubleClick(e) {
     if (e.target.nodeName == "BODY"){
         // generate new card at current mouse x and y position
-        newCard(e.pageX, e.pageY); 
+        
+        var x = (e.pageX)
+        var y = (e.pageY - 30) //to compensate for the header bar in the main page. update this number if anything else gets added to top or left of page. 
+        newCard(x, y); 
+        console.log(x, y)
     }
 }
 $( "div, p" ).disableSelection();
@@ -114,7 +120,7 @@ function newCard(x, y){
     // create a frame place it at the mouse position, and insert the code card within
     // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
         // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
-    var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr><td><form> <input type="text" name="' + cardId + '_title" value="' + cardId + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+            var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + cardId + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
  
  
@@ -134,6 +140,39 @@ function newCard(x, y){
    
 }
 
+
+//create a deck of cards received from server:
+function sortDeck(x, y, ast, comment, name){
+
+    var instance = count ++;
+    frameId = ("frame_" + instance);
+
+    cardId = ("card_" + instance);
+    cardIdArray.push(cardId)
+    value = ("//new card")
+            
+    // create a frame place it at the mouse position, and insert the code card within
+    // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+        // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+    var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + name + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+               // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+ 
+ 
+            console.log(cardIdArray)
+    // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+    $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+        //difficult to get accordion working with codemirror, comes out weird
+        // $item.accordion({collapsible: true, heightStyle: "content"});   
+
+    // add it to the deck
+    $item.appendTo('.deck');
+
+    initUI(comment);   
+    $( function() {
+        $( cardId )
+    });  
+   
+}
 
 //codemirror instance
 // var myCodeMirror = CodeMirror(document.body, {
@@ -165,7 +204,7 @@ function newCard(x, y){
 
 
 //get and set code in the new card
-function initUI() {
+function initUI(comment) {
    // isRightDirty = false;
 
     if (value == null) return;
@@ -173,7 +212,7 @@ function initUI() {
     var target = document.getElementById(cardId);
     target.innerHTML = "";
     dv = CodeMirror(target, {
-        value: value,
+        value: comment,
         // origLeft: panes == 3 ? orig1 : null,
         // origRight: orig1,
         lineNumbers: true,
@@ -332,13 +371,13 @@ function openSocket() {
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
         // log('open');  
-        ws.send("client_SVG?")
+        // ws.send("client_SVG?")
 
-        ws.send("getCurrentBranch")
+        // ws.send("getCurrentBranch")
         
-        //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
-        ws.send("selectUser?" + "Guest");
-
+        // //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
+        // ws.send("selectUser?" + "Guest");
+        
         sessionStorage.echoServer = url;
     };
     ws.onclose = function() {
@@ -372,8 +411,32 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
-                    case "branchCommits":
-                    var branchesList = arg.split("\n")
+                    case "deck":
+                    deck = (JSON.parse(arg))
+                    // console.log(deck)
+                    //var newCard = [];
+
+
+                    console.log( deck.nodes[0])
+
+                    Object.keys(deck.nodes).forEach(function(key) {
+                                            //for now, generate random positions for each card of the received deck
+                        function newInt(max) {
+                            return Math.floor(Math.random() * Math.floor(max));
+                        }
+                        cardX = newInt(bodySize[0])
+                        cardY = newInt(bodySize[1])
+                        
+                        var ast = deck.nodes[key].ast //get the ast type
+                        var comment = deck.nodes[key].comment.text //get comment from function
+                        //todo how to use loc?
+                        var name = deck.nodes[key].name
+                        
+                        console.log(comment)
+                        sortDeck(cardX, cardY, ast, comment, name)
+
+                    })
+                    // console.log(newCard)
                     break;
                     default:
                         log("cmd: " + cmd + ", " + arg);
