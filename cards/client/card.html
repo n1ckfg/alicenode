@@ -27,14 +27,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
     <script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
 
-  <script src="cm/htmlmixed.js"></script>
+  <!-- <script src="cm/htmlmixed.js"></script> -->
   <script src="cm/xml.js"></script>
-  <script src="cm/merge.js"></script>
+  <!-- <script src="cm/merge.js"></script> -->
   <script src="cm/modes/javascript.js"></script>
   <script src="cm/modes/clike.js"></script>
   <script src="cm/modes/glsl.js"></script>
-  <script src="cm/addons/buttons/buttons.js"></script>
-  <script src="cm/addons/panel.js"></script>
+  <!-- <script src="cm/addons/buttons/buttons.js"></script> -->
+  <!-- <script src="cm/addons/panel.js"></script> -->
 
 
   
@@ -75,7 +75,7 @@ function newCard(x, y){
     value = ("//new card")
             
     // create a frame place it at the mouse position, and insert the code card within
-    var $item = $('<div class="frame" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+    var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
 
     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
     $item.draggable({ cancel: "div.card", stack: cardId + " div" }); 
