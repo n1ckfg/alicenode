@@ -17,6 +17,7 @@ https://github.com/nlohmann/json/tree/master
 */
 
 #include <clang-c/Index.h>
+#include <clang-c/Documentation.h>
 #include <json.hpp>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,15 +60,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		clang_getSpellingLocation(start, &file, &line, &column, &offset);
 		clang_getSpellingLocation(end, &file, &line1, &column1, &offset1);
 
-		// C++ type; may be invalid, unexposed, a built-in like int, float etc, or more
-		CXType ctype = clang_getCursorType(c);
 
-		switch(kind) {
-		
-		default:
-		break;
-
-		}
 
 
 		auto str = clang_getCursorKindSpelling(kind);
@@ -94,6 +87,74 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 				{"end", { {"line", line1}, {"col", column1}, {"char", offset1} } }
 			} }
 		};
+
+		// check for names:
+		const char * name = clang_getCString(clang_getCursorSpelling(c));
+		if (strlen(name)) { jnode["name"] = name; }
+		
+		// check for comments:
+		if (clang_isDeclaration(kind)) {
+			
+			auto comment = clang_Cursor_getParsedComment(c);
+			auto commentkind = clang_Comment_getKind(comment);
+
+			if (commentkind) {
+				//printf("commentkind %d\n", commentkind);
+				/*
+					There's quite a bit of parsing of comment types available in clang-c's Documentation.h
+					such as params, embedded code, html tags, etc.
+					A comment itself can thus be explored as an AST containing these tokens
+				*/
+				
+				// the simplest option:
+				auto rawcomment = clang_Cursor_getRawCommentText(c);
+				jnode["comment"] = { { "text", clang_getCString(rawcomment) } };
+			}
+			
+			
+		}
+
+
+
+		// C++ type; may be invalid, unexposed, a built-in like int, float etc, or more
+		CXType ctype = clang_getCursorType(c);
+		if (ctype.kind) {
+			// clang_getCanonicalType
+			// clang_isConstQualifiedType
+			// clang_isPODType
+			jnode["type"] = clang_getCString(clang_getTypeSpelling(ctype));
+		}
+
+
+		switch(kind) {
+		case CXCursor_FunctionDecl: {
+			// for a functiondecl 
+			// clang_getFunctionTypeCallingConv
+			// clang_isFunctionTypeVariadic
+			// clang_getResultType
+			CXType rtype = clang_getResultType(ctype);
+			jnode["type_ret"] = clang_getCString(clang_getTypeSpelling(rtype));
+			int nargs = clang_getNumArgTypes(ctype);
+			auto args = json::array();
+			for (int i=0; i<nargs; i++) {
+				CXType atype = clang_getArgType(ctype, i);
+				args.push_back(clang_getCString(clang_getTypeSpelling(atype)));
+			}
+			jnode["type_args"] = args;
+
+			// clang_Cursor_getNumArguments, clang_Cursor_getArgument
+			// clang_getCursorResultType
+		
+		} break;
+		default:
+		break;
+
+		}
+		
+		
+
+		
+
 	
 		if (doVisitChildren) {
 			json jkids = json::array();
@@ -116,17 +177,46 @@ int main(int argc, const char ** argv) {
 
 	// The index object is our main interface to libclang
 	CXIndex index = clang_createIndex(0, 0);
-	// The TU represents an invocation of the compiler, based on a source file:
-	const char * args[2] = { "-x", "c++" };
+
+	// The TU represents an invocation of the compiler, based on a source file
+	// it needs to know what the invocation arguments to the compiler would be:
+	char const * args[] = { "-x", "c++", "-fparse-all-comments" };
+	int nargs = sizeof(args)/sizeof(char *);
+
+	// see http://www.myopictopics.com/?p=368 for example of adding "unsaved files" to the compilation
+	
+	unsigned parseOptions = CXTranslationUnit_None // see CXTranslationUnit_Flags
+  		// | CXTranslationUnit_SkipFunctionBodies 	// uncomment this to skip function bodies
+		// | CXTranslationUnit_KeepGoing // don't give up with fatal errors (e.g. missing includes)
+		// | CXTranslationUnit_SingleFileParse
+		;
 	CXTranslationUnit unit = clang_parseTranslationUnit(
 		index,
-		"test.h", 
-		args, 2, // command line args
-		nullptr, 0,
-		CXTranslationUnit_None);
+		argc ? argv[1] : "test.h", 
+		args, nargs, // command line args
+		nullptr, 0, // "unsaved files"
+		parseOptions);
+
 	if (!unit) {
 		fprintf(stderr, "Unable to parse translation unit. Quitting.\n");
 		exit(-1);
+	}
+
+	// the parse may have produced errors:
+	unsigned int numDiagnostics = clang_getNumDiagnostics(unit);
+	if (numDiagnostics) {
+		// Use clang_getDiagnostic, clang_getDiagnosticSpelling, etc. to get human-readable error messages.
+		for ( unsigned int i=0; i < numDiagnostics; i++) {
+			CXDiagnostic diag = clang_getDiagnostic(unit, i);
+			CXString diagCategory = clang_getDiagnosticCategoryText(diag);
+			CXString diagText = clang_getDiagnosticSpelling(diag);
+			CXDiagnosticSeverity severity = clang_getDiagnosticSeverity(diag);
+			printf( "Diagnostic[%d] - %s(%d)- %s\n", i, clang_getCString(diagCategory), severity, clang_getCString(diagText));
+										
+			clang_disposeString(diagText);
+			clang_disposeString(diagCategory);
+			clang_disposeDiagnostic(diag);
+		}
 	}
 
 	// To traverse the AST of the TU, we need a Cursor:

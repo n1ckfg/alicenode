@@ -6,7 +6,8 @@
                 "/usr/include",
                 "/usr/local/include",
                 "${workspaceRoot}",
-                "${workspaceRoot}/../include"
+                "${workspaceRoot}/../include",
+                "${workspaceFolder}/cards/cpp2json/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
