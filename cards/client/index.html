@@ -2,7 +2,7 @@
 
 <title>Alicenode Editor</title>
 <meta charset="utf-8"/>
-
+<head>
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
 <!--        SOURCES         -->
@@ -40,17 +40,14 @@
 <input id="server" type="text" value="ws://localhost:8080" size="40">
 <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button>
-
+</head>
 <body>
 
-  <template id="mytemplate">
-    <img src="" alt="great image">
-    <div class="comment"></div>
-  </template>
+
   
 </body>
 
-    <script>
+<script>
     
     
     var ws_url;
@@ -64,32 +61,32 @@ function log(msg){
 }
 
 //codemirror instance
-var myCodeMirror = CodeMirror(document.body, {
-  value: "function myScript(){return 100;}\n",
-  mode:  "clike"
-});
+// var myCodeMirror = CodeMirror(document.body, {
+//   value: "function myScript(){return 100;}\n",
+//   mode:  "clike"
+// });
 
 ////codemirror card template
 
-function supportsTemplate() {
-  return 'content' in document.createElement('template');
-}
+// function supportsTemplate() {
+//   return 'content' in document.createElement('template');
+// }
 
-if (supportsTemplate()) {
-  // Good to go!
-  console.log("browser supports templates")
-} else {
-  // Use old templating techniques or libraries.
-  console.log("browser doesn't support templates")
+// if (supportsTemplate()) {
+//   // Good to go!
+//   console.log("browser supports templates")
+// } else {
+//   // Use old templating techniques or libraries.
+//   console.log("browser doesn't support templates")
 
-}
+// }
 
-var t = document.querySelector('#mytemplate');
-// Populate the src at runtime.
-t.content.querySelector('html').src = 'card.html';
+// var t = document.querySelector('#mytemplate');
+// // Populate the src at runtime.
+// t.content.querySelector('html').src = 'card.html';
 
-var clone = document.importNode(t.content, true);
-document.body.appendChild(clone);
+// var clone = document.importNode(t.content, true);
+// document.body.appendChild(clone);
 
 
 

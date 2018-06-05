@@ -44,7 +44,11 @@
 
 <!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
-
+<table width="100%">
+    <tr height="30px" bgcolor="#daeef4">
+        <th style="text-decoration: none">Deck of Cards ide</th>
+    </tr>
+</table>
 <!--container for all cards  -->
 <div class="deck">
 
@@ -75,8 +79,13 @@ function newCard(x, y){
     value = ("//new card")
             
     // create a frame place it at the mouse position, and insert the code card within
-    var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
-
+    // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+        // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+            var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr><td><form> <input type="text" name="' + cardId + '_title" value="' + cardId + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+               // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+ 
+ 
+            console.log(cardIdArray)
     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
     $item.draggable({ cancel: "div.card", stack: cardId + " div" }); 
         //difficult to get accordion working with codemirror, comes out weird
