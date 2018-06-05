@@ -75,7 +75,15 @@
         "bitset": "cpp",
         "iterator": "cpp",
         "array": "cpp",
-        "xxatomic": "cpp"
+        "xxatomic": "cpp",
+        "random": "cpp",
+        "stack": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "string_view": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "valarray": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"
