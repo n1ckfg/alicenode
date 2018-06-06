@@ -144,6 +144,8 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 			// clang_Cursor_getNumArguments, clang_Cursor_getArgument
 			// clang_getCursorResultType
+
+			jnode["mangled_name"] = clang_getCString(clang_Cursor_getMangling(c));
 		
 		} break;
 		default:
