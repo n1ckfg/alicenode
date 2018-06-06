@@ -12,6 +12,8 @@
 
     <link rel=stylesheet href="cm/docs.css">
     <link rel=stylesheet href="cm/codemirror.css">
+    <link rel=stylesheet href="cm/addons/fullscreen/fullscreen.css">
+
     <!-- <link rel=stylesheet href="cm/merge.css">
     <link rel=stylesheet href="cm/icecoder.css"> -->
 
@@ -27,6 +29,13 @@
     <!-- <script src="cm/modes/javascript.js"></script> -->
     <script src="cm/modes/clike.js"></script>
     <script src="cm/modes/glsl.js"></script>
+      <script src="cm/addons/buttons/buttons.js"></script>
+  <script src="cm/addons/panel.js"></script>
+  <script src="cm/addons/fullscreen/fullscreen.js"></script>
+
+
+
+
 
 <!-- General Sources -->
     <!-- style -->
@@ -115,25 +124,25 @@ function newCard(x, y){
 
     cardId = ("card_" + instance);
     cardIdArray.push(cardId)
-    value = ("//new card")
             
     // create a frame place it at the mouse position, and insert the code card within
     // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
         // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
-            var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + cardId + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+            var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + cardId + '"></form></td></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
  
  
             console.log(cardIdArray)
     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
-    $item.draggable({ cancel: "div.card", stack: cardId + " div" }); 
+    $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
         //difficult to get accordion working with codemirror, comes out weird
         // $item.accordion({collapsible: true, heightStyle: "content"});   
 
     // add it to the deck
     $item.appendTo('.deck');
+    value = ("//new card")
 
-    initUI();   
+    initUI(value);   
     $( function() {
         $( cardId )
     });  
@@ -167,7 +176,7 @@ function sortDeck(x, y, ast, comment, name){
     // add it to the deck
     $item.appendTo('.deck');
 
-    initUI(comment);   
+    initUI(comment, (ast + '_' + name, cardId));   
     $( function() {
         $( cardId )
     });  
@@ -204,7 +213,7 @@ function sortDeck(x, y, ast, comment, name){
 
 
 //get and set code in the new card
-function initUI(comment) {
+function initUI(comment, name, cardId) {
    // isRightDirty = false;
 
     if (value == null) return;
@@ -232,7 +241,7 @@ function initUI(comment) {
         // collapseIdentical: true,
         // collapse: collapse
         
-        fullscreen: true,
+        // fullscreen: true,
         /* init: */
         //place cursor in left editor at client init
         autofocus: 1,
@@ -248,44 +257,68 @@ function initUI(comment) {
         
         //eventually change these buttons to minimize, mute, fullscreen, etc. 
         buttons: [
-        {
-            hotkey: 'Ctrl-B',
-            class: 'bold',
-            label: '<strong>B</strong>',
+        {   //minimize
+            hotkey: 'Ctrl-M',
+            label: '--',
             callback: function (cm) {
-                var selection = cm.getSelection();
-                cm.replaceSelection('**' + selection + '**');
-                if (!selection) {
-                    var cursorPos = cm.getCursor();
-                    cm.setCursor(cursorPos.line, cursorPos.ch - 2);
-                }
+
+                // $(cardId).hide();
+                
+                // $("#show").click(function(){
+                //     $("p").show();
+                // });
+                
             }
         },
         {
-            hotkey: 'Ctrl-I',
-            class: 'italic',
-            label: '<i>I</i>',
+            hotkey: 'Ctrl-F',
+            label: 'F',
             callback: function (cm) {
-                var selection = cm.getSelection();
-                cm.replaceSelection('*' + selection + '*');
-                if (!selection) {
-                    var cursorPos = cm.getCursor();
-                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
-                }
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                document.title = name;
             }
+
+
+
         },
-        {
-            class: 'inline-code',
-            label: 'code',
-            callback: function (cm) {
-                var selection = cm.getSelection();
-                cm.replaceSelection("`" + selection + "`");
-                if (!selection) {
-                    var cursorPos = cm.getCursor();
-                    cm.setCursor(cursorPos.line, cursorPos.ch - 1);
-                }
-            }
-        },
+        // {
+        //     hotkey: 'Ctrl-B',
+        //     class: 'bold',
+        //     label: '<strong>B</strong>',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection('**' + selection + '**');
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 2);
+        //         }
+        //     }
+        // },
+        // {
+        //     hotkey: 'Ctrl-I',
+        //     class: 'italic',
+        //     label: '<i>I</i>',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection('*' + selection + '*');
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'inline-code',
+        //     label: 'code',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("`" + selection + "`");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // },
         // {
         //     class: 'block-php',
         //     label: '&lt;php&gt;',
@@ -361,6 +394,16 @@ function initUI(comment) {
     });
 }
 
+//codemirror interaction:
+
+// $(document).keyup(function(e) {
+//      if (e.keyCode == 27) { // escape key maps to keycode `27`
+//         // <DO YOUR WORK HERE>
+//         cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+//         document.title = "Deck of Cards ide";
+//     }
+// });
+
 
 document.getElementById('server').value = ws_url;
 
@@ -426,7 +469,7 @@ function openSocket() {
                         }
                         cardX = newInt(bodySize[0])
                         cardY = newInt(bodySize[1])
-                        
+
                         var ast = deck.nodes[key].ast //get the ast type
                         var comment = deck.nodes[key].comment.text //get comment from function
                         //todo how to use loc?
