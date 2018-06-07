@@ -90,10 +90,20 @@ var requireStatements = {} //containing all of the require statements
 getCpp2json();
 console.log( __dirname + "/cpp2json/")
 function getCpp2json(){
-    //doesn't work in a child process yet
-    exec('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr) => {
+    exec('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
         console.log("deck folded")
-        deck = stderr;
+        if (stderr !== null){
+            
+            deck = (stderr)
+        } else if (err !== null){
+            
+            deck = (err)
+        } else if (stdout !== null){
+            
+            deck = (stdout)
+        }
+
+
     })
 
      
@@ -139,7 +149,7 @@ wss.on('connection', function(ws, req) {
 
 	};
     
-    ws.send("deck?" + JSON.stringify(deck));
+    ws.send("deck?" + deck);
 
 	sessions[per_session_data.id] = per_session_data;
 

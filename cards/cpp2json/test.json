@@ -19,6 +19,7 @@
                "line": 8
             }
          },
+         "mangled_name": "__Z3foof",
          "name": "foo",
          "nodes": [
             {
@@ -113,6 +114,7 @@
                "line": 13
             }
          },
+         "mangled_name": "__Z3barf",
          "name": "bar",
          "nodes": [
             {

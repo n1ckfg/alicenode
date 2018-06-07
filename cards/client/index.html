@@ -104,7 +104,6 @@ function doubleClick(e) {
         var x = (e.pageX)
         var y = (e.pageY - 30) //to compensate for the header bar in the main page. update this number if anything else gets added to top or left of page. 
         newCard(x, y); 
-        console.log(x, y)
     }
 }
 $( "div, p" ).disableSelection();
@@ -116,7 +115,37 @@ $( "div, p" ).disableSelection();
 
 
 // code cards:
+//this card holds the file name, and info about the file
+// function deckMeta(filename, ast){
 
+//     // var instance = count ++;
+//     frameId = ("frame_" + filename);
+
+//     cardId = ("card_" + filename);
+//     cardIdArray.push(cardId)
+//     value = (ast + "\n" + filename)
+            
+//     // create a frame place it at the mouse position, and insert the code card within
+//     // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+//         // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+//     var $item = $('<table width=300px style="position: absolute; margin-left:' + 40 + 'px; margin-top:' + 40 + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + filename + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+//                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+ 
+ 
+//     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+//     $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+//         //difficult to get accordion working with codemirror, comes out weird
+//         // $item.accordion({collapsible: true, heightStyle: "content"});   
+
+//     // add it to the deck
+//     $item.appendTo('.deck');
+
+//     initUI();   
+//     $( function() {
+//         $( cardId )
+//     });  
+
+// }
 //create a blank new card, add to the deck
 function newCard(x, y){
     var instance = count ++;
@@ -132,7 +161,6 @@ function newCard(x, y){
                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
  
  
-            console.log(cardIdArray)
     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
     $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
         //difficult to get accordion working with codemirror, comes out weird
@@ -152,7 +180,6 @@ function newCard(x, y){
 
 //create a deck of cards received from server:
 function sortDeck(x, y, ast, comment, name){
-
     var instance = count ++;
     frameId = ("frame_" + instance);
 
@@ -167,7 +194,6 @@ function sortDeck(x, y, ast, comment, name){
                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
  
  
-            console.log(cardIdArray)
     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
     $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
         //difficult to get accordion working with codemirror, comes out weird
@@ -176,46 +202,19 @@ function sortDeck(x, y, ast, comment, name){
     // add it to the deck
     $item.appendTo('.deck');
 
-    initUI(comment, (ast + '_' + name, cardId));   
+    initUI(comment, (ast + '_' + name), cardId);   
     $( function() {
         $( cardId )
     });  
    
 }
 
-//codemirror instance
-// var myCodeMirror = CodeMirror(document.body, {
-//   value: "function myScript(){return 100;}\n",
-//   mode:  "clike"
-// });
 
-////codemirror card template
-
-// function supportsTemplate() {
-//   return 'content' in document.createElement('template');
-// }
-
-// if (supportsTemplate()) {
-//   // Good to go!
-//   console.log("browser supports templates")
-// } else {
-//   // Use old templating techniques or libraries.
-//   console.log("browser doesn't support templates")
-
-// }
-
-// var t = document.querySelector('#mytemplate');
-// // Populate the src at runtime.
-// t.content.querySelector('html').src = 'card.html';
-
-// var clone = document.importNode(t.content, true);
-// document.body.appendChild(clone);
 
 
 //get and set code in the new card
 function initUI(comment, name, cardId) {
    // isRightDirty = false;
-
     if (value == null) return;
 
     var target = document.getElementById(cardId);
@@ -456,12 +455,11 @@ function openSocket() {
                     
                     case "deck":
                     deck = (JSON.parse(arg))
-                    // console.log(deck)
                     //var newCard = [];
 
 
-                    console.log( deck.nodes[0])
-
+                    console.log(deck.nodes)
+                    
                     Object.keys(deck.nodes).forEach(function(key) {
                                             //for now, generate random positions for each card of the received deck
                         function newInt(max) {
@@ -469,17 +467,14 @@ function openSocket() {
                         }
                         cardX = newInt(bodySize[0])
                         cardY = newInt(bodySize[1])
-
                         var ast = deck.nodes[key].ast //get the ast type
-                        var comment = deck.nodes[key].comment.text //get comment from function
+                        comment = deck.nodes[key].comment.text //get comment from function
                         //todo how to use loc?
                         var name = deck.nodes[key].name
                         
-                        console.log(comment)
                         sortDeck(cardX, cardY, ast, comment, name)
 
                     })
-                    // console.log(newCard)
                     break;
                     default:
                         log("cmd: " + cmd + ", " + arg);
