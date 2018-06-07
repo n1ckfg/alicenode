@@ -51,14 +51,14 @@ th {
 /* } */
 
 #terminal {
-    /* float: left; */
+    float: left; 
     color:#1bb700;
     font-weight: bold;
-    background:#001623;
+    background-color:#001623;
     /* position: fixed; */
     /* top: 0; */
     /* left: 0; */
-    /* width: 50%; */
+    width: 50%;
     /* overflow: scroll; */
     text-align: left;
     overflow: auto;
@@ -71,8 +71,17 @@ th {
 #chat_form {background: #000; padding: 3px; position: fixed; width: 43.2%; }
 #chat_form input {border: 0; padding: 10px; width: 86%; margin-right: .5%; }
 #chat_form button {width: 10%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-#chat_messages {list-style-type: none; margin: 5px; padding: 0; overflow: scroll;}
-#chat_messages li {padding: 0px 0px; font: 12px Helvetica Arial; text-align: left}
+#chat_messages {
+    list-style-type: none; 
+    margin: 5px; 
+    padding: 0; 
+    float:left;
+    overflow: auto; 
+    height: 100%; 
+    width: 49%; 
+    float: left;
+}
+#chat_messages li {padding: 0px 0px; font: 12px Helvetica Arial; text-align: left;}
 #chat_messages li:nth-child(odd) { background: #eee; }
 #chat_messages { margin-top: 0px }
    
