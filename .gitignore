@@ -3,6 +3,8 @@ alice
 alice.exe
 
 clang+llvm-6
+cpp2json.exe
+cpp2json
 
 _tests
 tmp/*

@@ -3,11 +3,14 @@
 .CodeMirror {
   /* Set height, width, borders, and global font properties here */
   font-family: monospace;
-  height: 300px;
-  width: 40%;
+  height: 100%;
+  width: 100%;
   align: left;
   color: black;
   direction: ltr;
+  box-shadow: 2px 3px 3px gray;
+  border-radius: 3px;
+  border: 1px solid black
 }
 
 /* PADDING */
@@ -47,7 +50,7 @@
 .CodeMirror-cursor {
   border-left: 1px solid black;
   border-right: none;
-  width: 2;
+  width: 4;
 }
 /* Shown when moving in bi-directional text */
 .CodeMirror div.CodeMirror-secondarycursor {
