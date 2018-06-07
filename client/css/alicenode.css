@@ -1,6 +1,6 @@
 
 
-* { margin:0;padding: 0; text-decoration: none}
+* { margin:0;padding: 0; text-decoration: none;}
 
     .CodeMirror { line-height: 1 }
     @media screen and (min-width: 1300px) {
@@ -50,15 +50,14 @@ th {
     /* height: 10%;     */
 /* } */
 
+
 #terminal {
-    float: left; 
     color:#1bb700;
     font-weight: bold;
     background-color:#001623;
     /* position: fixed; */
     /* top: 0; */
     /* left: 0; */
-    width: 50%;
     /* overflow: scroll; */
     text-align: left;
     overflow: auto;
@@ -68,18 +67,14 @@ th {
 /* chat messages */
 /* * { margin: 0; padding: 0;  } */
 /* body { font: 13px Helvetica, Arial; } */
-#chat_form {background: #000; padding: 3px; position: fixed; width: 43.2%; }
+#chat_form {background: #000; padding: 3px; position: absolute; bottom: 0px; width: 43.2%; }
 #chat_form input {border: 0; padding: 10px; width: 86%; margin-right: .5%; }
 #chat_form button {width: 10%; background: rgb(130, 224, 255); border: none; padding: 10px; }
 #chat_messages {
     list-style-type: none; 
     margin: 5px; 
     padding: 0; 
-    float:left;
     overflow: auto; 
-    height: 100%; 
-    width: 49%; 
-    float: left;
 }
 #chat_messages li {padding: 0px 0px; font: 12px Helvetica Arial; text-align: left;}
 #chat_messages li:nth-child(odd) { background: #eee; }
