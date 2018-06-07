@@ -75,7 +75,12 @@
         "bitset": "cpp",
         "iterator": "cpp",
         "array": "cpp",
-        "xxatomic": "cpp"
+        "xxatomic": "cpp",
+        "clocale": "cpp",
+        "forward_list": "cpp",
+        "mutex": "cpp",
+        "numeric": "cpp",
+        "valarray": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"

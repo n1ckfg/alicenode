@@ -117,18 +117,28 @@ extern "C" AL_ALICE_EXPORT int frame() {
 		LeapMotion::Arm& la = alice.leap->arms[0];
 		LeapMotion::Arm& ra = alice.leap->arms[1];
 		//FINGERS
-		//LeapMotion::Pointable& fingerOne = alice.leap->pointables[0];
-		//LeapMotion::Finger& lf = alice.leap->fingers[0];
+		LeapMotion::Finger& forwardFingerR = alice.leap->fingers[1];
+		LeapMotion::Finger& forwardFingerL = alice.leap->fingers[0];
 
+		//BONES
+		LeapMotion::Bone& bonesLH_0 = alice.leap->bones[0];
+		LeapMotion::Bone& bonesLH_1 = alice.leap->bones[1];
+		//LeapMotion::Bone& bonesLH_2 = alice.leap->bones[2];
+		//LeapMotion::Bone& bonesLH_3 = alice.leap->bones[3];
+
+		
 		//Print Hand
-		console.log("R_HAND pos %f\n L_HAND pos %f", rh.palmPos.x,  lh.palmPos.x);
+		console.log("R_HAND pos %f\nL_HAND pos %f", rh.palmPos.x,  lh.palmPos.x);
 		//Print Elbow
-		console.log("L_ELBOW pos %f\n R_ELBOW pos %f", la.elbowPos.x, ra.elbowPos.x);
+		console.log("L_ELBOW pos %f\nR_ELBOW pos %f", la.elbowPos.x, ra.elbowPos.x);
 		//Print Wrist
-		console.log("L_WRIST pos %f\n R_WRIST pos %f", la.wristPos.x, ra.wristPos.x);
+		console.log("L_WRIST pos %f\nR_WRIST pos %f", la.wristPos.x, ra.wristPos.x);
 		//Print Fingers
-		//console.load("FINGER pos %f", fingerOne.fingerPos.x);
-		//console.load("FINGER pos %f", lf.fingerPos.x);
+		//console.log("FINGER RIGHT pos %f\nFINGER LEFT pos %f\n", forwardFingerR.fingerPos.x, forwardFingerL.fingerPos.x);
+		//console.log("FINGER LEFT 0: %f\n", fingerL0);
+		//Print Bones
+		//console.log("BONE_M %f\nBONE_P %f", bonesLH_0, bonesLH_1);
+		
 	}
     
     glfwSwapBuffers(alice.window.pointer);

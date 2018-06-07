@@ -21,14 +21,22 @@ struct LeapMotionData {
 
     struct Finger {
          glm::vec3 fingerPos;
+         float indexFing;
+    };
+
+    struct Bone {
+        float boneLength;
     };
 
     // left, right
     Hand hands[2];
     Arm arms[2];
     // fingers
-    Pointable pointables[5];
     Finger fingers[5];
+    Bone bones[4];
+
+    Finger fingersLeft[5];
+    Finger fingersRight[5];
 };
 
 #ifdef AL_WIN
@@ -82,26 +90,43 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         //printf("onFrame %f\n", position.x);
 
         //Get Fingers
-        Leap::Pointable pointableOne = frame.pointables().frontmost();
-        //pointables[0].pointablePos = toGLM(pointableOne.TipPosition);
+        Leap::Finger rightForwardFinger = handR.fingers().frontmost();
+        //fingers[1].fingerPos = toGLM(rightForwardFinger.tipPosition());
 
-        //Vector currentPosition = finger.TipPosition;
-        Leap::Finger farLeft = frame.fingers().leftmost();
-        //fingers[0].fingerPos = farLeft.TipPosition;
+        Leap::Finger leftForwardFinger = handL.fingers().frontmost();
+       // fingers[0].fingerPos = toGLM(leftForwardFinger.tipPosition());
 
+        //Get Bones on left hand fingers
+        Leap::FingerList fingers = frame.hands()[0].fingers();
+        for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
+            Leap::Bone bone;
+            Leap::Bone::Type boneType;
+            for(int b = 0; b < 4; b++)
+            {
+                boneType = static_cast<Leap::Bone::Type>(b);
+                bone = (*fl).bone(boneType);
+                //bones[0].boneLength = bone.length();
+                /*
+                if (bone.type() == 0) { //TYPE_METACARPAL
+                    bones[0].boneLength = bone.length();
+                } else if (bone.type() == 1) { //TYPE_PROXIMAL
+                    bones[1].boneLength = bone.length();
+                } else if (bone.type() == 2) { //TYPE_INTERMEDIATE
+                    bones[2].boneLength = bone.length();
+                } else if (bone.type() == 3) { //TYPE_DISTAL
+                    bones[3].boneLength = bone.length();
+                }*/
+                std::cout << "Finger index: " << (*fl).type() << " " << bone << std::endl;
+            }
+        }
 
-        //Leap::Vector position = pointable.tipPosition();
         /*
-        if (pointable.isTool()) {
-        Leap::Tool tool = Leap::Tool(pointable);
-        } else {
-            Leap::Finger finger = Leap::Finger(pointable);
+        Leap::FingerList fingersRH = frame.hands()[1].fingers();
+        for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
+            if ((*fl).type() == 0) {
+                fingers[0].indexFing = (*fl).type();
+            }
         }*/
-
-        //Leap::FingerList fingers = frame.fingers();
-        //Leap::Finger mostForwardOnHand = frame.hands()[0].fingers().frontmost();
-       
-        //fingers[0].fingerPos = toGLM(mostForwardOnHand.tipPosition()); 
 
         //Leap::PointableList pointables = frame.pointables();
         //Leap::Pointable pointable = frame.pointables().frontmost();
@@ -116,20 +141,6 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         arms[0].elbowPos = toGLM(armR.elbowPosition());
         arms[1].wristPos = toGLM(armR.wristPosition());
         arms[0].wristPos = toGLM(armR.wristPosition());
-
-        /*
-        fingers = frame.hands()[0].fingers();
-        for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
-        Leap::Bone bone;
-        Leap::Bone::Type boneType;
-        
-            for(int b = 0; b < 4; b++)
-            {
-                boneType = static_cast<Leap::Bone::Type>(b);
-                bone = (*fl).bone(boneType);
-                std::cout << "Finger index: " << (*fl).type() << " " << bone << std::endl;
-            }
-        }*/
     
     }
 
