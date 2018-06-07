@@ -95,6 +95,47 @@
     </table>
 
 
+    <table style="background-color: blue" width=100%>  
+        <tr>
+            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b></th>
+            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
+            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
+                
+            </th>
+    
+        </tr>
+        <tr> 
+            <td style="width:33%; height:100%">
+                <div id="Branch">
+                    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
+                    </select> 
+                </div>
+                
+            </td>
+            <td style="width:33%; height:100%; text-align:center;">
+    
+                    <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="chooseFileName();">
+                            <option selected disabled>Please Select File</option> 
+                            <option value="New File...">New File...</option>
+                            
+                
+                    </select> 
+    
+    
+                </td>
+    
+            <td style="width:33%; height:100%; text-align:center;">
+                <!-- <div id="CommitList"> -->
+                    <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
+                    </select> 
+                <!-- </div>        -->
+            </td>
+    <!-- view files affected by selected commit. choose one to load into Codemirror -->
+            <!-- <td style="width:33%; height:100%;  text-align:center;">
+    
+            </td> -->
+        </tr>
+    </table>
 
 <div id="container">
     <div id="view"></div>
@@ -200,6 +241,8 @@ function initUI() {
     origLeft: panes == 3 ? orig1 : null,
     orig: orig2,
     lineNumbers: true,
+    viewportMargin: 10,
+
     mode: "text/html",
     highlightDifferences: highlight,
     allowEditingOriginals: true,
@@ -245,6 +288,36 @@ function resize(mergeView) {
   mergeView.wrap.style.height = height + "px";
 }
 
+
+//file selection
+function chooseFileName(){
+    var e = document.getElementById("openFileName");
+    var selection = e.options[e.selectedIndex].value
+
+    //clear the commits list in the select element each time a file is opened
+    function removeOptions(selectbox){
+        var i;
+        for(i = selectCommit.options.length - 1 ; i>= 0 ; i--)
+        {
+            selectCommit.remove(i)
+        }
+    }
+    removeOptions(document.getElementById("selectCommit"))
+    fileInCommit.innerHTML = (selection + " found in following commits")
+
+
+        if (selection == "New File..."){
+            alert("Client not set up to create new file yet, work-in-progress")
+        } else {
+            ws.send("fileRequest" + selection)
+            //change page title to filename!
+            document.title = selection;
+
+        }
+    }
+
+
+
 /**
  * Web Socket Client
  **/
@@ -286,6 +359,107 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+
+
+
+                    //set available users list
+                    case "setUserList":
+                    
+                    userlist = JSON.parse(arg);
+                    var sel = document.getElementById('chooseUser');
+                    //var length = select;
+                        
+                    // for (i = 3; i < sel.length; i++) {
+                    //     sel.options[i] = null;
+                    //     }
+                    Object.keys(userlist).forEach(function (key) {
+                        var opt = document.createElement('option');
+                        opt.appendChild( document.createTextNode(key) );
+                        opt.value = key;
+                        sel.appendChild(opt);
+                    })
+                    sel.selectedIndex = 2; 
+
+                    break;
+
+                    //////List all Branches, Files, Commits:
+                    
+                    //Branches List
+                    case "setBranchList":
+                    //  console.log(arg)
+                    // <form name="branches"> 
+                    //  <select id="chooseBranch" onchange="chooseBranch();"> 
+
+
+                        var branchesList = arg.split("\n")
+                        
+                        // usebranchList = JSON.parse(arg);
+                        var sel = document.getElementById('chooseBranch');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(branchesList).forEach(function (value, key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
+                            sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+                            if (value.includes("*")) {
+                                sel.selectedIndex = key
+                            }
+                        })
+                        //sel.selectedIndex = 0;
+
+                    break;
+                    //Files List
+                    case "setFileList":
+                    
+                    fileList = JSON.parse(arg);
+                        var sel = document.getElementById('openFileName');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(fileList).forEach(function (key, value) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(key) );
+                            opt.value = key;
+                            sel.appendChild(opt);
+                        })
+//                        sel.selectedIndex = 2; 
+
+                    break;
+
+
+                    case "branchCommits":
+                    var branchesList = arg.split("\n")
+                        
+
+                    // name="CommitList" size="5" id="ChooseCommit
+
+                    // usebranchList = JSON.parse(arg);
+                    var sel = document.getElementById('selectCommit');
+                    //var length = select;
+                        
+                    // for (i = 3; i < sel.length; i++) {
+                    //     sel.options[i] = null;
+                    //     }
+                    Object.values(branchesList).forEach(function (value, key) {
+                        var opt = document.createElement('option');
+                        opt.appendChild( document.createTextNode(value) );
+                        opt.value = value;
+                        sel.appendChild(opt);
+                        //find out the current branch, and highlight it in the select.
+
+                            //default set right editor at most-recent commit
+                            sel.selectedIndex = 0;
+                        
+                        })
+
+                        break;
                     default:
                    // log("cmd: " + cmd + ", " + arg);
                 }
