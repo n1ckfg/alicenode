@@ -62,7 +62,7 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
     }
 
     virtual void onConnect(const Leap::Controller&) {
-        console.log("Leap connected!!!!!!!");
+        console.log("Leap connected");
         //controller.addListener(Listener);
         controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
         controller.enableGesture(Leap::Gesture::TYPE_SWIPE);
