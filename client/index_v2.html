@@ -501,6 +501,29 @@ function openSocket() {
 
                     case "branchCommits":
                     var branchesList = arg.split("\n")
+
+                                        // name="CommitList" size="5" id="ChooseCommit
+
+                        // usebranchList = JSON.parse(arg);
+                        var sel = document.getElementById('selectCommit');
+                        //var length = select;
+                            
+                        // for (i = 3; i < sel.length; i++) {
+                        //     sel.options[i] = null;
+                        //     }
+                        Object.values(branchesList).forEach(function (value, key) {
+                            var opt = document.createElement('option');
+                            opt.appendChild( document.createTextNode(value) );
+                            opt.value = value;
+                            sel.appendChild(opt);
+                            //find out the current branch, and highlight it in the select.
+
+                                //default set right editor at most-recent commit
+                                sel.selectedIndex = 0;
+                          
+                        })
+
+                        break;
                         
 
                     // name="CommitList" size="5" id="ChooseCommit
