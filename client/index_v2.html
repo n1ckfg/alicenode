@@ -285,10 +285,12 @@ var authorEmail;
 
 
 function initUI() {
-  if (value == null) return;
-  var target = document.getElementById("view");
-  target.innerHTML = "";
-  dv = CodeMirror.MergeView(target, {
+    isRightDirty = false;
+
+    if (value == null) return;
+    var target = document.getElementById("view");
+    target.innerHTML = "";
+    dv = CodeMirror.MergeView(target, {
     value: value,
     origLeft: panes == 3 ? orig1 : null,
     origRight: orig1,
@@ -300,7 +302,18 @@ function initUI() {
     allowEditingOriginals: true,
     //connect: connect,
     collapseIdentical: collapse
-  });
+    });
+
+    //Detect when user first makes a change to the code in the right editor view
+    dv.rightOriginal().on("changes", function(dv, changeObj){
+    // && currentBranch == "master"
+    console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
+        if (isRightDirty == false) {
+                ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
+                isRightDirty = true;
+
+        }
+    });
 }
 
 function toggleDifferences() {
@@ -340,6 +353,36 @@ function resize(mergeView) {
   mergeView.wrap.style.height = height + "px";
 }
 
+
+//Send current content within CodeMirror's Left editor to the server (will restart simulation)
+function sendLeftCode() {
+    //TODO: figure out how to include the var 'authorName' in this
+    //message, so that git will commit under this client's git username
+    //i.e.  git commit --author="John Doe john@doe.org" -m "message"
+    //also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
+    //and email
+    var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
+    //   var message = "edit?" + editorCM.getValue();   
+    var changes = "edit?" + '?author' + authorName + " <" + authorEmail + ">?commit" + commitMsg + "?code" + dv.editor().getValue()
+    log("Sent LeftEditor Contents to server: " + commitMsg);
+    //log('sending: ' + message);
+    ws.send(changes);
+}
+//Send current content within CodeMirror's Right editor to the server on the branch it is assigned to.
+function sendRightCode(val){
+    if (val.includes("hash?")){
+
+        thisHash = (val.replace("hash?", ""))
+        console.log("Hash " + thisHash + " chosen")
+    } 
+    else {
+    var message = "newbranch?" + dv.rightOriginal().getValue();
+    console.log("SENDING TO SERVER: \n" + message)
+    ws.send(message);
+    selectedHash("this hash");
+    }
+
+}
 
 //file selection
 function chooseFileName(){
