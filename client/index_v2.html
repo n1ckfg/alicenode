@@ -1,10 +1,10 @@
 <!doctype html>
 
 <title>Alicenode Editor Client</title>
-<meta charset="utf-8"/>meta charset="utf-8"/>
+<meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
-<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -206,20 +206,20 @@
             </td>
             </tr>
     </table> -->
-    <div style="height: 30%;">
-         <div style="float:left; width: 50%; height: 100%;">Chat and System Messages
+    <div class="chatFooter">
+         <div id="chatHeader">Chat and System Messages
              <div id="chat_messages">
-
-                <form id="chat_form" onSubmit="return false;">
+            </div>
+            <form id="chat_form" onSubmit="return false;">
                     <input id="m" autocomplete="on"/>
                     <button id="chatSendMsg" type="button" name="">Send</button>
                 </form>  
-            </div>
         </div> 
-        <div style="float: left; width: 50%; height: 100%;">Integrated Terminal
+        <div id="chatHeader" style="float: right;">Integrated Terminal
             <div id="terminal">
                 jhbhjghujhyu
             </div>
+            <li id="state"></li>
         </div>
     </div>
 
@@ -250,7 +250,10 @@ var ws;
 var ws_url = "ws://localhost:8080";
 console.log(ws_url);
 
-
+var test="test";
+for(var i=0;i<100;i++){
+    log(test);
+}
 
 
 var value, orig1, orig2, dv, panes = 2, highlight = true, connect = "align", collapse = false;
