@@ -1,7 +1,7 @@
 <!doctype html>
 
-<title>Alicenode Editor Client</title>
-<meta charset="utf-8"/>meta charset="utf-8"/>
+<title>Alicenode Editor</title>
+<meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
@@ -9,6 +9,9 @@
 <!-- Codemirror -->
     <!-- styles -->
     <link rel=stylesheet href="cm/docs.css">
+    <link rel=stylesheet href="cm/codemirror.css">
+    <link rel=stylesheet href="cm/merge.css">
+    
 
 <link rel=stylesheet href="cm/codemirror.css">
 <link rel=stylesheet href="cm/merge.css">
@@ -22,6 +25,8 @@
 <script src="cm/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
 
+<!-- temp fix for the 'cannot find 'favicon.ico' error -->
+    <link rel="shortcut icon">
 
 <!-- scripts -->
 <script type="text/javascript" src="js/pako.js"></script>
@@ -241,19 +246,42 @@ stretches of text.</p> -->
 <!-- <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button> -->
 
+
 <script>
 
-//Global Variables
+//globals
+var currentBranch;
+var thisHash;
+var selectedCommit;
+var currentWorktree
 var ws_url;
+var worktreeList;
+var history;
 var ws;
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
 var ws_url = "ws://localhost:8080";
 console.log(ws_url);
 
+//var col;
+// codemirror/mergeview globals:
+var value;
+var orig1;
+var dv;
+panes = 2;
+highlight = true;
+// connect = "align";
+var target;
+var collapse = false;
+var requested;
+var current;
+var isRightDirty = false;
+var currentBranch;
+var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
+var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
+var authorEmail;
 
 
 
-var value, orig1, orig2, dv, panes = 2, highlight = true, connect = "align", collapse = false;
 function initUI() {
   if (value == null) return;
   var target = document.getElementById("view");
@@ -353,12 +381,12 @@ function openSocket() {
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
         // log('open');  
-        // ws.send("client_SVG?")
+        ws.send("client_SVG?")
 
-        // ws.send("getCurrentBranch")
+        ws.send("getCurrentBranch")
         
         //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
-        // ws.send("selectUser?" + "Guest");
+        ws.send("selectUser?" + "Guest");
 
         sessionStorage.echoServer = url;
     };
@@ -381,8 +409,17 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+                    
+                    //receive chat message from chat server (can include one's own)
+                    case "chatMsg":
+                    console.log(arg)
+                    var li = document.createElement('li');
+                    var list = document.getElementById('chat_messages');
 
+                    li.innerHTML = arg;
+                    list.appendChild(li);
 
+                    break;
 
                     //set available users list
                     case "setUserList":
