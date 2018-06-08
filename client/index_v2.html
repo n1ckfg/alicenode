@@ -82,6 +82,8 @@
             <th>
                     <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
                     <input id="server" type="text" value="ws://localhost:8080" size="40">
+                    <button onclick="openSocket()">Open</button>
+                    <button onclick="closeSocket()">Close</button>
     
             </th>
         
@@ -217,7 +219,7 @@
              <div id="chat_messages">
             </div>
             <form id="chat_form" onSubmit="return false;">
-                    <input id="m" autocomplete="on"/>
+                    <input id="m"/>
                     <button id="chatSendMsg" type="button" name="">Send</button>
                 </form>  
         </div> 
@@ -243,9 +245,6 @@ onclick="collapse = !collapse; initUI()">collapse</span> unchanged
 stretches of text.</p> -->
 
 <!-- Manually Start and Stop Client -->
-
-<!-- <button onclick="openSocket()">Open</button>
-<button onclick="closeSocket()">Close</button> -->
 
 
 <script>
