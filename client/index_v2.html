@@ -1,14 +1,17 @@
 <!doctype html>
 
-<title>Alicenode Editor Client</title>
-<meta charset="utf-8"/>meta charset="utf-8"/>
+<title>Alicenode Editor</title>
+<meta charset="utf-8"/>
 
 <!-- //TEMPORARY: just to aid in development workflow -->
-<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
     <link rel=stylesheet href="cm/docs.css">
+    <link rel=stylesheet href="cm/codemirror.css">
+    <link rel=stylesheet href="cm/merge.css">
+    
 
 <link rel=stylesheet href="cm/codemirror.css">
 <link rel=stylesheet href="cm/merge.css">
@@ -22,6 +25,8 @@
 <script src="cm/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
 
+<!-- temp fix for the 'cannot find 'favicon.ico' error -->
+    <link rel="shortcut icon">
 
 <!-- scripts -->
 <script type="text/javascript" src="js/pako.js"></script>
@@ -76,11 +81,12 @@
     
             <th>
                     <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+                    <input id="server" type="text" value="ws://localhost:8080" size="40">
     
             </th>
         
         </tr>
-    
+        
     
     
         <!-- Customize the Codemirror Instance -->
@@ -206,20 +212,20 @@
             </td>
             </tr>
     </table> -->
-    <div style="height: 30%;">
-         <div style="float:left; width: 50%; height: 100%;">Chat and System Messages
+    <div class="chatFooter">
+         <div id="chatHeader">Chat and System Messages
              <div id="chat_messages">
-
-                <form id="chat_form" onSubmit="return false;">
+            </div>
+            <form id="chat_form" onSubmit="return false;">
                     <input id="m" autocomplete="on"/>
                     <button id="chatSendMsg" type="button" name="">Send</button>
                 </form>  
-            </div>
         </div> 
-        <div style="float: left; width: 50%; height: 100%;">Integrated Terminal
+        <div id="chatHeader" style="float: right;">Integrated Terminal
             <div id="terminal">
                 jhbhjghujhyu
             </div>
+            <li id="state"></li>
         </div>
     </div>
 
@@ -237,23 +243,46 @@ onclick="collapse = !collapse; initUI()">collapse</span> unchanged
 stretches of text.</p> -->
 
 <!-- Manually Start and Stop Client -->
-<input id="server" type="text" value="ws://localhost:8080" size="40">
+
 <!-- <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button> -->
 
+
 <script>
 
-//Global Variables
+//globals
+var currentBranch;
+var thisHash;
+var selectedCommit;
+var currentWorktree
 var ws_url;
+var worktreeList;
+var history;
 var ws;
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
 var ws_url = "ws://localhost:8080";
 console.log(ws_url);
 
+//var col;
+// codemirror/mergeview globals:
+var value;
+var orig1;
+var dv;
+panes = 2;
+highlight = true;
+// connect = "align";
+var target;
+var collapse = false;
+var requested;
+var current;
+var isRightDirty = false;
+var currentBranch;
+var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
+var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
+var authorEmail;
 
 
 
-var value, orig1, orig2, dv, panes = 2, highlight = true, connect = "align", collapse = false;
 function initUI() {
   if (value == null) return;
   var target = document.getElementById("view");
@@ -261,7 +290,7 @@ function initUI() {
   dv = CodeMirror.MergeView(target, {
     value: value,
     origLeft: panes == 3 ? orig1 : null,
-    orig: orig2,
+    origRight: value,
     lineNumbers: true,
     viewportMargin: 10,
 
@@ -281,7 +310,7 @@ window.onload = function() {
   orig1 = value;
   orig2 = value;
   initUI();
-  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
+  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d);
 };
 
 function mergeViewHeight(mergeView) {
@@ -353,12 +382,12 @@ function openSocket() {
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
         // log('open');  
-        // ws.send("client_SVG?")
+        ws.send("client_SVG?")
 
-        // ws.send("getCurrentBranch")
+        ws.send("getCurrentBranch")
         
         //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
-        // ws.send("selectUser?" + "Guest");
+        ws.send("selectUser?" + "Guest");
 
         sessionStorage.echoServer = url;
     };
@@ -374,6 +403,9 @@ function openSocket() {
             for (var i = 0; i < fv.length; i+=3) {
                 s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
             }
+            
+            // document.getElementById('state').innerHTML = s;     
+            
         } else {
             let message = e.data;
             let q = message.indexOf("?");
@@ -381,8 +413,20 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+                    
+                    //receive chat message from chat server (can include one's own)
+                    case "chatMsg":
+                    console.log(arg)
+                    var li = document.createElement('li');
+                    var list = document.getElementById('chat_messages');
 
+                    li.innerHTML = arg;
+                    list.appendChild(li);
 
+                    var chatMessages = document.querySelector('#chat_messages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+
+                    break;
 
                     //set available users list
                     case "setUserList":
@@ -462,25 +506,53 @@ function openSocket() {
 
                     // name="CommitList" size="5" id="ChooseCommit
 
-                    // usebranchList = JSON.parse(arg);
-                    var sel = document.getElementById('selectCommit');
-                    //var length = select;
+                    //populate the worktree drop-down with current list of worktrees
+                    case "fps":
+                        //document.getElementById('fps').innerHTML = arg;
+                        break;
                         
-                    // for (i = 3; i < sel.length; i++) {
-                    //     sel.options[i] = null;
-                    //     }
-                    Object.values(branchesList).forEach(function (value, key) {
-                        var opt = document.createElement('option');
-                        opt.appendChild( document.createTextNode(value) );
-                        opt.value = value;
-                        sel.appendChild(opt);
-                        //find out the current branch, and highlight it in the select.
-
-                            //default set right editor at most-recent commit
-                            sel.selectedIndex = 0;
+                    case "branchname":  
+                        // var steve = message.replace("currentBranch?", "")
                         
-                        })
+                        log("on branch " + arg);
+                        currentBranch = arg;
+                        break;
+                    
+                    case "Switched to Branch":
+                        log(arg)
+                        break;
 
+                    case "currentVersion":
+                        // editorCM.setValue(arg);
+                        // fillEditor("a" + arg);
+
+                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                        
+                        //load current state into leftMergeview
+                        value = arg
+                        orig1 = arg
+                        initUI();   
+                        $( function() {
+                            $( "#view" )
+                        });                       
+                        break;
+
+                    case "show":
+                        // fillEditor("b" + arg);
+                        //TODO: alert ask to continue (will lose work if they continue without committing)
+                        // if (isRightDirty){
+                            //alert(whatever, but essentially an ok and cancel button)
+                        //}
+                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+                        orig1 = arg;
+
+                        initUI();
+                        break;    
+                    case "state":
+                        //document.getElementById('state').innerHTML = arg;
+                        break;
+                    case "updateRepo":
+                        log('Update Repo Graph')
                         break;
                     default:
                    // log("cmd: " + cmd + ", " + arg);
@@ -509,6 +581,23 @@ setInterval(function(){
 }, 2000);
 
 
+//git commit list
+function chooseCommit(){
+   // selection = document.selectCommit.value;
+//    var
+var e = document.getElementById("selectCommit");
+selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
+
+
+    console.log(selectedCommit)
+    ws.send("git show " + selectedCommit);
+
+
+
+// <!-- 
+//                 <div id="CommitList">
+//                 <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();">  -->
+}
 //Client log
 function log(message) {
     var li = document.createElement('li');
@@ -516,6 +605,33 @@ function log(message) {
      var list = document.getElementById('chat_messages');
      list.appendChild(li);
 }
+
+// //chat client:
+
+//if user click's the 'send' button
+$(document).ready(function() {
+  $('#chatSendMsg').click(function() {
+    var outMessage = ($('#m').val());
+    ws.send("chatMsg?" + outMessage)
+    console.log(outMessage)
+  });
+});
+//if user hits 'enter' in the chat form:
+//this prevents the chat form from refreshing the page when you hit Enter, and reroutes the enter command to the chatSendMsg button. 
+// Get the input field
+var input = document.getElementById("m");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Cancel the default action, if needed
+  event.preventDefault();
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Trigger the button element with a click
+    document.getElementById("chatSendMsg").click();
+  }
+});
+
 
 if (sessionStorage.echoServer) {
     document.getElementById('server').value = sessionStorage.echoServer;
