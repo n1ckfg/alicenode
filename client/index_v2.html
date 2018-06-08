@@ -258,6 +258,8 @@ var ws_url;
 var worktreeList;
 var history;
 var ws;
+
+var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
 var ws_url = "ws://localhost:8080";
 console.log(ws_url);
@@ -315,10 +317,12 @@ function initUI() {
     //Detect when user first makes a change to the code in the right editor view
     dv.rightOriginal().on("changes", function(dv, changeObj){
     // && currentBranch == "master"
-    console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
         if (isRightDirty == false) {
                 ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
                 isRightDirty = true;
+                console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
+                ws.send("chatMsg?Edited file " + fileName + " from commit " + selectedCommit + ". <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>")
+
 
         }
     });
@@ -396,7 +400,8 @@ function sendRightCode(val){
 function chooseFileName(){
     var e = document.getElementById("openFileName");
     var selection = e.options[e.selectedIndex].value
-
+    fileName = selection;
+    console.log(fileName)
     //clear the commits list in the select element each time a file is opened
     function removeOptions(selectbox){
         var i;
@@ -620,8 +625,10 @@ function openSocket() {
                         //}
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                         orig1 = arg;
-
                         initUI();
+                        //make sure that the right code editor dirty flag is reset
+                        isRightDirty == false;
+
                         break;    
                     case "state":
                         //document.getElementById('state').innerHTML = arg;
@@ -756,21 +763,24 @@ setInterval(function(){
 
 //git commit list
 function chooseCommit(){
-   // selection = document.selectCommit.value;
-//    var
-var e = document.getElementById("selectCommit");
-selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
+    // selection = document.selectCommit.value;
+    //    var
+    var e = document.getElementById("selectCommit");
+    selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
 
 
     console.log(selectedCommit)
     ws.send("git show " + selectedCommit);
 
+    //make sure that the right editor will now watch for changes
+    isRightDirty = false;
 
 
 // <!-- 
 //                 <div id="CommitList">
 //                 <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();">  -->
 }
+
 //Client log
 function log(message) {
     var li = document.createElement('li');
