@@ -310,7 +310,7 @@ window.onload = function() {
   orig1 = value;
   orig2 = value;
   initUI();
-  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d);
+  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
 };
 
 function mergeViewHeight(mergeView) {
@@ -554,6 +554,104 @@ function openSocket() {
                     case "updateRepo":
                         log('Update Repo Graph')
                         break;
+                        
+                        
+                        
+                        
+                    //svg from server:
+                    case "gitLog":
+                    //let graph = arg;
+
+                  
+                    let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
+                    
+                    let svg = make_svg_from_commits(graph);
+
+                    //push the svg content to the gitgraph div
+                    $("#gitgraph").html(svg)
+                    //make the gitgraph resizeable
+                    //see more at https://jqueryui.com/resizable
+                    $( function() {
+                        $( "#gitgraph" ).resizable();
+                    });
+                    break;
+                        
+                    //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
+                    case "worktreeList":
+                        console.log(arg)
+                        //var names = arg
+                        //html select element
+                        var sel = document.getElementById('userWorktree');
+                        //var length = select;
+                        
+                        //first clear the worktree items from select (so we don't add duplicates)
+                        for (i = 1; i < sel.length; i++) {
+                            sel.options[i] = null;
+                            }
+                        // console.log(arg.length)
+                        // for (var i = 0, len = arg.length; i < len; i++) {
+                        // console.log(arg.[i])
+                        // }
+                                            //PLO
+                        // arg.forEach(function(element) {
+                        // console.log("test " + element)
+                        // })
+                        // console.log(names)
+                        
+                        // var iterator = arg.values();
+                        // for (let letter of iterator) {
+                        //     console.log(letter)
+                        // }
+                        
+
+
+
+
+                            //TODO: got to figure out how to populate the select menu with the 'options' variable:
+                            
+                        // for (var i = 0; i < sel.options.length; i++) {
+                        //     var opt = document.createElement('option');
+                        //     opt.innerHTML = options[i];
+                        //     opt.value = options[i];
+                        //     sel.appendChild(opt);
+                        // }
+
+
+                        // var err = arg.split("\n");
+                        // var select = document.getElementById('userWorktree')
+                        // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+                    
+
+                        //     err.foreach(function(element) {
+                        //     var x = document.getElementById("userWorktree");
+                        //     var option = document.createElement("option")
+                        //     option.text = (err);
+                        //     option.value = (err);
+                        //     x.add(option);
+                    // for (let i = 0; i < err.split("\s").length; i++) {
+                    // // let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+                    // //if (err !== undefined) {	
+                    //     console.log(err)
+                    //     // for(var i = 0; i < options.length; i++) {
+                    //     // options.foreach(function(element) {
+                    //         var x = document.getElementById("userWorktree");
+                    //         var option = document.createElement("option")
+                    //         option.text = (err);
+                    //         option.value = (err);
+                    //         x.add(option);
+
+                    //     // })
+
+
+                    //  //   }  
+                    // }
+                        //populate the userWorkTree drop-down menu
+                        // populateWorktreeMenu(arg)   
+                        
+                        
+                        // var options = JSON.parse(arg);
+
+                        break;
                     default:
                    // log("cmd: " + cmd + ", " + arg);
                 }
@@ -635,6 +733,117 @@ input.addEventListener("keyup", function(event) {
 
 if (sessionStorage.echoServer) {
     document.getElementById('server').value = sessionStorage.echoServer;
+}
+
+///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
+
+// spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)
+var rowsize = 20;
+var colsize = 10;
+
+// a way of mapping column to colour
+function col_hue(col) {
+    return col * 30;
+}
+// the main function, expects to receive a graph, of the form
+// { roots:["hash", "hash", ...], commits:[obj, obj, ...], paths:[obj, obj, ...], maxcolumn: integer }
+// returns the HTML code for an SVG representation of it
+function make_svg_from_commits(graph) {
+
+    var commits = graph.commits;
+    var paths = graph.paths;
+    var maxcolumn = graph.maxcolumn;
+    
+    // build a lookup-table from hash name to commit object:
+    var commit_map = {};
+    
+    // build an array of svg elements:
+    var svg = [];
+    
+    // compute required size of the svg canvas:
+    var height = (commits.length + 2) * rowsize;
+    var width = (maxcolumn + 1) * colsize;
+    
+    for (var i in commits) {
+        let commit = commits[i];
+        // build a lookup-table from hash name to commit object:
+        commit_map[commit.hash] = commit;
+        // annotate the commits with x, y positions:
+        commit.x = commit.col * colsize;
+        commit.y = commit.row * rowsize;
+    }
+    
+    for (var i in paths) {
+        var path = paths[i];
+        // get the relevant commit objects:
+        var from = commit_map[path.from];
+        var to = commit_map[path.to];
+        
+        // start an SVG line segment
+        var d = `M${from.x},${from.y}`;
+        var hue = col_hue(from.col);
+        // how we render the line depends on the relative columns of the two commits:
+        if (to.col > from.col) {
+            // new branch
+            hue = col_hue(to.col);
+            // append to SVG line segment command
+            d += `L${to.x},${from.y + rowsize / 2}`;
+        } else if (to.col < from.col) {
+            // merge branch
+            // append to SVG line segment command
+            d += `L${from.x},${to.y - rowsize / 2}`;
+        }
+        // regular commit
+        // append to SVG line segment command
+        d += `L${to.x},${to.y}`;
+
+        // store in our list of svg elements:
+        svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`);
+    }
+    
+    for (var i in commits) {
+        let commit = commits[i];
+        // add a svg element for each commit:
+        svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)" onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_files.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`);
+    }
+
+    // wrap the svg commands in an svg element, and return:
+    return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}<g id="nodes"></svg>`;
+
+}
+
+//Git Graph
+//clicking on a commit node sends the commit's hash to server
+function getCommitDetail(evt) {
+    selectedCommit = evt.target.id
+    //console.log(evt.target.id)
+    
+    ws.send("git show " + selectedCommit);
+    ws.send("getCurrentBranch");
+    evt.target.setAttributeNS(null,"opacity","0.5");
+}
+//mouseover a commit node: change node's opacity
+function mouseEnterCommit(evt) {
+var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
+
+//place hovered commit details in a list onscreen
+//console.log(details)
+// evt.target.setAttributeNS(null,"opacity","0.5");
+// var li = document.createElement('li');
+// li.innerHTML = evt;
+// var list = document.getElementById('commit_detail');
+// list.insertBefore(li, list.childNodes[0]);
+
+//console.log(evt.target.ref)
+}
+
+//get all commit nodes that contain the filename chosen by client, and highlight them in the svg
+function highlightFileName(evt){
+//TODO
+}
+//change commit node's colour opacity back to normal after mouseLeave
+function mouseLeaveCommit(evt) {
+    evt.target.setAttributeNS(null,"opacity","1");
 }
 </script>
 
