@@ -76,6 +76,12 @@
         "iterator": "cpp",
         "array": "cpp",
         "xxatomic": "cpp",
+<<<<<<< HEAD
+        "clocale": "cpp",
+        "forward_list": "cpp",
+        "mutex": "cpp",
+        "numeric": "cpp",
+=======
         "random": "cpp",
         "stack": "cpp",
         "__bit_reference": "cpp",
@@ -83,6 +89,7 @@
         "string_view": "cpp",
         "forward_list": "cpp",
         "unordered_set": "cpp",
+>>>>>>> cf0654eca8106565792a30d0f860dd74f9622c14
         "valarray": "cpp"
     },
     "editor.wordWrap": "on",
