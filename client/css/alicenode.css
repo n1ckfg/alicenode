@@ -65,7 +65,7 @@ th {
     text-align: left;
     overflow: auto;
     font-size: 8pt; 
-    height: 300px;
+    height: 100%;
 }
 /* chat messages */
 /* * { margin: 0; padding: 0;  } */
@@ -78,7 +78,9 @@ th {
     margin: 5px; 
     padding: 0; 
     overflow: auto; 
+    width: 100%;
     margin-top: 0px;
+    height: 100%;
 }
 #chat_messages li {padding: 0px 0px; font: 12px Helvetica Arial; text-align: left;}
 #chat_messages li:nth-child(odd) { background: #eee; }

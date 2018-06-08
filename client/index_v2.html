@@ -201,14 +201,13 @@
             </td>
             </tr>
     </table> -->
-    <div>
-         <div style="float:left; width: 49%;">Chat and System Messages
-             <div id="chat_messages" style="overflow: auto;">
-                <form id="chat_form" overflow="scroll" onSubmit="return false;">
-                    <input id="m" autocomplete="on" overflow="scroll" />
+    <div style="height: 30%;">
+         <div style="float:left; width: 50%; height: 100%">Chat and System Messages
+             <div id="chat_messages">
+                <form id="chat_form" onSubmit="return false;">
+                    <input id="m" autocomplete="on"/>
                     <button id="chatSendMsg" type="button" name="">Send</button>
                 </form>  
-            
             </div>
         </div> 
         <div style="float: left; width: 50%; height: 100%;">Integrated Terminal
@@ -381,172 +380,8 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
 
-
-
-                    //set available users list
-                    case "setUserList":
-                    
-                    userlist = JSON.parse(arg);
-                    var sel = document.getElementById('chooseUser');
-                    //var length = select;
-                        
-                    // for (i = 3; i < sel.length; i++) {
-                    //     sel.options[i] = null;
-                    //     }
-                    Object.keys(userlist).forEach(function (key) {
-                        var opt = document.createElement('option');
-                        opt.appendChild( document.createTextNode(key) );
-                        opt.value = key;
-                        sel.appendChild(opt);
-                    })
-                    sel.selectedIndex = 2; 
-
-                    break;
-
-                    //////List all Branches, Files, Commits:
-                    
-                    //Branches List
-                    case "setBranchList":
-                    //  console.log(arg)
-                    // <form name="branches"> 
-                    //  <select id="chooseBranch" onchange="chooseBranch();"> 
-
-
-                        var branchesList = arg.split("\n")
-                        
-                        // usebranchList = JSON.parse(arg);
-                        var sel = document.getElementById('chooseBranch');
-                        //var length = select;
-                            
-                        // for (i = 3; i < sel.length; i++) {
-                        //     sel.options[i] = null;
-                        //     }
-                        Object.values(branchesList).forEach(function (value, key) {
-                            var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(value) );
-                            opt.value = value;
-                            sel.appendChild(opt);
-                            //find out the current branch, and highlight it in the select.
-                            if (value.includes("*")) {
-                                sel.selectedIndex = key
-                            }
-                        })
-                        //sel.selectedIndex = 0;
-
-                    break;
-                    //Files List
-                    case "setFileList":
-                    
-                    fileList = JSON.parse(arg);
-                        var sel = document.getElementById('openFileName');
-                        //var length = select;
-                            
-                        // for (i = 3; i < sel.length; i++) {
-                        //     sel.options[i] = null;
-                        //     }
-                        Object.values(fileList).forEach(function (key, value) {
-                            var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(key) );
-                            opt.value = key;
-                            sel.appendChild(opt);
-                        })
-//                        sel.selectedIndex = 2; 
-
-                    break;
-
-
-                    case "branchCommits":
-                    var branchesList = arg.split("\n")
-                        
-
-                    // name="CommitList" size="5" id="ChooseCommit
-
-                    // usebranchList = JSON.parse(arg);
-                    var sel = document.getElementById('selectCommit');
-                    //var length = select;
-                        
-                    // for (i = 3; i < sel.length; i++) {
-                    //     sel.options[i] = null;
-                    //     }
-                    Object.values(branchesList).forEach(function (value, key) {
-                        var opt = document.createElement('option');
-                        opt.appendChild( document.createTextNode(value) );
-                        opt.value = value;
-                        sel.appendChild(opt);
-                        //find out the current branch, and highlight it in the select.
-
-                            //default set right editor at most-recent commit
-                            sel.selectedIndex = 0;
-                        
-                        })
-
-
-                    ////////Codemirror Section:
-
-                    //retrieve a file's contents from the server. this will be at the HEAD of whichever branch we're on. 
-                    case "currentVersion":
-                        // editorCM.setValue(arg);
-                        // fillEditor("a" + arg);
-
-                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                        
-                        //load current state into leftMergeview
-                        value = arg
-                        orig1 = arg
-                        initUI();   
-                        $( function() {
-                            $( "#view" )
-                        });                       
-                        break;
-
-
-                    case "show":
-                        // fillEditor("b" + arg);
-                        //TODO: alert ask to continue (will lose work if they continue without committing)
-                        // if (isRightDirty){
-                            //alert(whatever, but essentially an ok and cancel button)
-                        //}
-                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                        orig1 = arg;
-
-                        initUI();
-                        break;  
-
-                    ///////gitgraph section
-                    case "gitLog":
-                    //let graph = arg;
-
-                  
-                    let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
-                    
-                    let svg = make_svg_from_commits(graph);
-
-                    //push the svg content to the gitgraph div
-                    $("#gitgraph").html(svg)
-                    //make the gitgraph resizeable
-                    //see more at https://jqueryui.com/resizable
-                    $( function() {
-                        $( "#gitgraph" ).resizable();
-                    });
-                    break;
-                        
-                
-
-                    //chat section:
-                    case "chatMsg":
-                    console.log(arg)
-                    var li = document.createElement('li');
-                    var list = document.getElementById('chat_messages');
-
-                    li.innerHTML = arg;
-                    list.appendChild(li);
-
-                    break;
-
-
-                        break;
                     default:
-                   // log("cmd: " + cmd + ", " + arg);
+                    log("cmd: " + cmd + ", " + arg);
                 }
     
             } else if (message.includes("chatMsg")){
