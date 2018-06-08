@@ -473,6 +473,19 @@ function openSocket() {
                     
                     //receive chat message from chat server (can include one's own)
                     case "chatMsg":
+
+                    // if (arg.contains("newCommit")) {
+                    // var li = document.createElement('li');
+                    // var list = document.getElementById('chat_messages');
+
+                    // li.innerHTML = arg.replace("newCommit", '');
+                    // list.appendChild(li);
+
+                    // var chatMessages = document.querySelector('#chat_messages');
+                    // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+                    // }
+
+                    // else {
                     console.log(arg)
                     var li = document.createElement('li');
                     var list = document.getElementById('chat_messages');
@@ -482,7 +495,7 @@ function openSocket() {
 
                     var chatMessages = document.querySelector('#chat_messages');
                     chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
-
+                    // }
                     break;
 
                     //set available users list
@@ -816,9 +829,17 @@ input.addEventListener("keyup", function(event) {
 });
 
 
+
 if (sessionStorage.echoServer) {
     document.getElementById('server').value = sessionStorage.echoServer;
 }
+
+
+
+
+
+
+
 
 ///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
 

@@ -393,8 +393,11 @@ wss.on('connection', function(ws, req) {
 			console.log(gitCommand)
 			let onHash;
 				let numBranches;	
-
-			send_all_clients(userName + " changed " + fileName + " on branch ")
+				
+				wss.clients.forEach(function each(client) {
+					client.send('chatMsg?newCommit ' + userName + " changed " + fileName + " on branch ");
+				 });
+			//send_all_clients(userName + " changed " + fileName + " on branch ")
 			//get number of branches in alicenode_inhabitat
 
 			if (libext == "dylib") {
