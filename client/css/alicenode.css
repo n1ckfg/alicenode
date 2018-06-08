@@ -54,7 +54,7 @@ th {
 /* } */
 
 .chatFooter{
-    height: 33%;
+    height: 32%;
     bottom: 0px;
     width: 100%;
 }
@@ -77,6 +77,7 @@ th {
     overflow: auto;
     font-size: 8pt;
     height: calc(100% - 26px);
+    padding: 2px 5px 2px 5px;
 }
 /* chat messages */
 /* * { margin: 0; padding: 0;  } */
