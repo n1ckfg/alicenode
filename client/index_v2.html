@@ -81,11 +81,12 @@
     
             <th>
                     <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+                    <input id="server" type="text" value="ws://localhost:8080" size="40">
     
             </th>
         
         </tr>
-    
+        
     
     
         <!-- Customize the Codemirror Instance -->
@@ -242,7 +243,7 @@ onclick="collapse = !collapse; initUI()">collapse</span> unchanged
 stretches of text.</p> -->
 
 <!-- Manually Start and Stop Client -->
-<input id="server" type="text" value="ws://localhost:8080" size="40">
+
 <!-- <button onclick="openSocket()">Open</button>
 <button onclick="closeSocket()">Close</button> -->
 
@@ -421,6 +422,9 @@ function openSocket() {
 
                     li.innerHTML = arg;
                     list.appendChild(li);
+
+                    var chatMessages = document.querySelector('#chat_messages');
+                    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
 
                     break;
 
