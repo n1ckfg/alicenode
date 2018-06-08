@@ -1,6 +1,9 @@
 
 
-* { margin:0;padding: 0; text-decoration: none;}
+* { margin:0;
+    padding: 0; 
+    text-decoration: none;
+  }
 
     .CodeMirror { line-height: 1 }
     @media screen and (min-width: 1300px) {
@@ -75,10 +78,10 @@ th {
     margin: 5px; 
     padding: 0; 
     overflow: auto; 
+    margin-top: 0px;
 }
 #chat_messages li {padding: 0px 0px; font: 12px Helvetica Arial; text-align: left;}
 #chat_messages li:nth-child(odd) { background: #eee; }
-#chat_messages { margin-top: 0px }
    
 #commit_detail {
     color:#19191b;
