@@ -286,14 +286,16 @@ var authorEmail;
 
 
 //username selection (for git commits)
-function userSelect()  { 
-    
+function userSelect(selection)  { 
+    if(selection == null){
     selection = document.usernames.chooseUser.value;
+    }
     switch (selection) {
 
         case "Add User...":
         
         authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+        localStorage.setItem("FullName", authorName);
 
         
         authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
@@ -377,6 +379,12 @@ function toggleDifferences() {
 window.onload = function() {
   value = "This editor affects the simulation";
   orig1 = "This editor pulls code in from other commits/branches";
+  if(localStorage.getItem("FullName")==null){
+      //gonna Prompt here
+  } else {
+      log(localStorage.getItem("FullName"));
+    userSelect(localStorage.getItem("FullName"));
+  }
   initUI();
   let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
 };
