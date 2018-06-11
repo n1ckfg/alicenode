@@ -285,6 +285,48 @@ var authorName = "Guest"; //git will make commits under this provided name, will
 var authorEmail;
 
 
+//username selection (for git commits)
+function userSelect()  { 
+    
+    selection = document.usernames.chooseUser.value;
+    switch (selection) {
+
+        case "Add User...":
+        
+        authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+
+        
+        authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+
+
+        
+           
+            //TODO: create a worktree for user with their username. replace all spaces with underscores. 
+            ws.send("newUser?" + authorName + "$?$" + authorEmail)
+            //console.log(userName, userEmail)
+
+        //add new user to select in HTML, make sure its checked. 
+        var select = document.getElementById('chooseUser');
+        var length = select.length;
+        var opt = document.createElement('option');
+        opt.value = authorName;
+        opt.innerHTML = authorName;
+        select.appendChild(opt);
+        document.getElementById('chooseUser').selectedIndex = (length);
+
+        
+        log("Working as git author " + authorName + " via " + authorEmail);
+            
+        break;
+
+        default: log("Working as git author " + selection + " via " + userlist[selection]);
+        authorName = selection;
+        authorEmail = userlist[selection];
+        ws.send("selectUser?" + selection);
+        break;
+    }
+
+}
 
 function initUI() {
 
@@ -391,7 +433,7 @@ function sendRightCode(val){
     var message = "newbranch?" + dv.rightOriginal().getValue();
     console.log("SENDING TO SERVER: \n" + message)
     ws.send(message);
-    selectedHash("this hash");
+    // selectedHash("this hash");
     }
 
 }
@@ -623,7 +665,7 @@ function openSocket() {
                         
                         //load current state into leftMergeview
                         value = arg
-                        orig1 = arg
+                        //orig1 = arg
                         initUI();   
                         $( function() {
                             $( "#view" )
@@ -638,9 +680,10 @@ function openSocket() {
                         //}
                         // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
                         orig1 = arg;
+                        isRightDirty == false;
+
                         initUI();
                         //make sure that the right code editor dirty flag is reset
-                        isRightDirty == false;
 
                         break;    
                     case "state":
