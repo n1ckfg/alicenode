@@ -36,6 +36,7 @@ struct LeapMotionData {
         float grab, pinch;
         // fingers
         Finger fingers[5];
+        int32_t id;
 
         bool isVisible = 0;
     };
@@ -98,12 +99,28 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         hands[1].isVisible = 0;
         int count = frame.hands().count();
 
+        /*
+            we would like the hands to remain consistent between frames
+            the sdk gives each hand an .id(), which is unique and retained between frames
+            but when tracking is lost, the id is incremented to a new one
+            how to map these to the h of hands[h] ?
+
+            how to know when a new id appears, and which h to bind it to?
+
+        */
+
         for (int j=0; j<count; j++) {
             Leap::Hand leaphand = frame.hands()[j];
+            // unique ID, preserved across frames
+            int32_t id = leaphand.id();
+            
+
+            hand.id = id;
+
+
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
             hand.isVisible = true;
-            //console.log("hand %d %d\n", j, leaphand.isLeft());
 
             hand.palmPos = toGLM(leaphand.palmPosition()) * .001f;
             //Hand normal
@@ -112,10 +129,14 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             hand.direction = toGLM(leaphand.direction());
             //Hand velocity
             hand.velocity = toGLM(leaphand.palmVelocity()) * .001f;
+
+
+            //console.log("hand %d %d %d\n", j, hand.id, leaphand.isLeft());
         
             //Hand grab and pinch strength
-            hand.grab = leaphand.grabStrength();
+            hand.grab = leaphand.grabAngle();
             hand.pinch = leaphand.pinchStrength();
+
 
             //Get Fingers
             // Leap::Finger forwardFinger = handR.fingers().frontmost();
