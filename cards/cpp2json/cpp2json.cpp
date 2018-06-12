@@ -194,14 +194,14 @@ int main(int argc, const char ** argv) {
 		;
 	CXTranslationUnit unit = clang_parseTranslationUnit(
 		index,
-		argc ? argv[1] : "test.h", 
+		argv[1] ? argv[1] : "test.h", 
 		args, nargs, // command line args
 		nullptr, 0, // "unsaved files"
 		parseOptions);
 
 	if (!unit) {
 		fprintf(stderr, "Unable to parse translation unit. Quitting.\n");
-		exit(-1);
+		//exit(-1);
 	}
 
 	// the parse may have produced errors:
