@@ -189,7 +189,7 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-	char const * args[] = { "-x", "c++", "-fparse-all-comments" };
+	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang

@@ -14,7 +14,7 @@ rem if compiled OK, run it:
 if %errorlevel% neq 0 (
     echo Exit Code is %errorlevel%
 ) else (
-    cpp2json.exe
+    cpp2json.exe test.h
 )
 
 @endlocal
