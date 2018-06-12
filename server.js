@@ -222,7 +222,7 @@ let sessions = [];
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-	res.sendFile(path.join(client_path, 'index_v2.html'));
+	res.sendFile(path.join(client_path, 'index.html'));
 
 });
 //app.get('*', function(req, res) { console.log(req); });
@@ -798,7 +798,8 @@ break;
 						
 						let graph = make_graph_from_gitlog(gitlog);
 						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-						fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
+						// commenting this out for now because gitignore is not working...?
+						// fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
 					})
