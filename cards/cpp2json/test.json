@@ -3,149 +3,184 @@
    "filename": "test.h",
    "nodes": [
       {
-         "ast": "FunctionDecl",
+         "ast": "StructDecl",
          "comment": {
-            "text": "// this is a comment\n// meta={ \"x\": 100, \"y\": 50 }"
+            "text": "/*\n\tFooey foofoo\n*/"
          },
          "loc": {
             "begin": {
-               "char": 73,
+               "char": 21,
                "col": 1,
-               "line": 6
+               "line": 5
             },
             "end": {
-               "char": 104,
+               "char": 92,
                "col": 2,
-               "line": 8
+               "line": 12
             }
          },
-         "mangled_name": "__Z3foof",
-         "name": "foo",
+         "name": "Foo",
          "nodes": [
             {
-               "ast": "ParmDecl",
+               "ast": "FieldDecl",
                "loc": {
                   "begin": {
-                     "char": 81,
-                     "col": 9,
+                     "char": 35,
+                     "col": 2,
                      "line": 6
                   },
                   "end": {
-                     "char": 88,
-                     "col": 16,
+                     "char": 44,
+                     "col": 11,
                      "line": 6
                   }
                },
                "name": "x",
-               "type": "float"
-            },
-            {
-               "ast": "CompoundStmt",
-               "loc": {
-                  "begin": {
-                     "char": 90,
-                     "col": 18,
-                     "line": 6
-                  },
-                  "end": {
-                     "char": 104,
-                     "col": 2,
-                     "line": 8
-                  }
-               },
                "nodes": [
                   {
-                     "ast": "ReturnStmt",
+                     "ast": "IntegerLiteral",
                      "loc": {
                         "begin": {
-                           "char": 93,
-                           "col": 2,
-                           "line": 7
+                           "char": 43,
+                           "col": 10,
+                           "line": 6
                         },
                         "end": {
-                           "char": 101,
-                           "col": 10,
-                           "line": 7
+                           "char": 44,
+                           "col": 11,
+                           "line": 6
+                        }
+                     },
+                     "type": "int"
+                  }
+               ],
+               "type": "int"
+            },
+            {
+               "ast": "CXXMethod",
+               "comment": {
+                  "text": "// methy meth"
+               },
+               "loc": {
+                  "begin": {
+                     "char": 63,
+                     "col": 2,
+                     "line": 9
+                  },
+                  "end": {
+                     "char": 90,
+                     "col": 3,
+                     "line": 11
+                  }
+               },
+               "name": "meth",
+               "nodes": [
+                  {
+                     "ast": "CompoundStmt",
+                     "loc": {
+                        "begin": {
+                           "char": 74,
+                           "col": 13,
+                           "line": 9
+                        },
+                        "end": {
+                           "char": 90,
+                           "col": 3,
+                           "line": 11
                         }
                      },
                      "nodes": [
                         {
-                           "ast": "DeclRefExpr",
+                           "ast": "ReturnStmt",
                            "loc": {
                               "begin": {
-                                 "char": 100,
-                                 "col": 9,
-                                 "line": 7
+                                 "char": 78,
+                                 "col": 3,
+                                 "line": 10
                               },
                               "end": {
-                                 "char": 101,
-                                 "col": 10,
-                                 "line": 7
+                                 "char": 86,
+                                 "col": 11,
+                                 "line": 10
                               }
                            },
-                           "name": "x",
-                           "type": "float"
+                           "nodes": [
+                              {
+                                 "ast": "MemberRefExpr",
+                                 "loc": {
+                                    "begin": {
+                                       "char": 85,
+                                       "col": 10,
+                                       "line": 10
+                                    },
+                                    "end": {
+                                       "char": 86,
+                                       "col": 11,
+                                       "line": 10
+                                    }
+                                 },
+                                 "name": "x",
+                                 "type": "int"
+                              }
+                           ]
                         }
                      ]
                   }
-               ]
+               ],
+               "type": "int ()"
             }
          ],
-         "type": "int (float)",
-         "type_args": [
-            "float"
-         ],
-         "type_ret": "int"
+         "type": "Foo"
       },
       {
          "ast": "FunctionDecl",
          "comment": {
-            "text": "// this is a different comment"
+            "text": "// zappy zapzap"
          },
          "loc": {
             "begin": {
-               "char": 137,
+               "char": 111,
                "col": 1,
-               "line": 11
+               "line": 15
             },
             "end": {
-               "char": 168,
+               "char": 147,
                "col": 2,
-               "line": 13
+               "line": 17
             }
          },
-         "mangled_name": "__Z3barf",
-         "name": "bar",
+         "mangled_name": "__Z3zapf",
+         "name": "zap",
          "nodes": [
             {
                "ast": "ParmDecl",
                "loc": {
                   "begin": {
-                     "char": 145,
+                     "char": 119,
                      "col": 9,
-                     "line": 11
+                     "line": 15
                   },
                   "end": {
-                     "char": 152,
+                     "char": 126,
                      "col": 16,
-                     "line": 11
+                     "line": 15
                   }
                },
-               "name": "x",
+               "name": "f",
                "type": "float"
             },
             {
                "ast": "CompoundStmt",
                "loc": {
                   "begin": {
-                     "char": 154,
+                     "char": 128,
                      "col": 18,
-                     "line": 11
+                     "line": 15
                   },
                   "end": {
-                     "char": 168,
+                     "char": 147,
                      "col": 2,
-                     "line": 13
+                     "line": 17
                   }
                },
                "nodes": [
@@ -153,32 +188,66 @@
                      "ast": "ReturnStmt",
                      "loc": {
                         "begin": {
-                           "char": 157,
+                           "char": 131,
                            "col": 2,
-                           "line": 12
+                           "line": 16
                         },
                         "end": {
-                           "char": 165,
-                           "col": 10,
-                           "line": 12
+                           "char": 144,
+                           "col": 15,
+                           "line": 16
                         }
                      },
                      "nodes": [
                         {
-                           "ast": "DeclRefExpr",
+                           "ast": "BinaryOperator",
                            "loc": {
                               "begin": {
-                                 "char": 164,
+                                 "char": 138,
                                  "col": 9,
-                                 "line": 12
+                                 "line": 16
                               },
                               "end": {
-                                 "char": 165,
-                                 "col": 10,
-                                 "line": 12
+                                 "char": 144,
+                                 "col": 15,
+                                 "line": 16
                               }
                            },
-                           "name": "x",
+                           "nodes": [
+                              {
+                                 "ast": "IntegerLiteral",
+                                 "loc": {
+                                    "begin": {
+                                       "char": 138,
+                                       "col": 9,
+                                       "line": 16
+                                    },
+                                    "end": {
+                                       "char": 140,
+                                       "col": 11,
+                                       "line": 16
+                                    }
+                                 },
+                                 "type": "int"
+                              },
+                              {
+                                 "ast": "DeclRefExpr",
+                                 "loc": {
+                                    "begin": {
+                                       "char": 143,
+                                       "col": 14,
+                                       "line": 16
+                                    },
+                                    "end": {
+                                       "char": 144,
+                                       "col": 15,
+                                       "line": 16
+                                    }
+                                 },
+                                 "name": "f",
+                                 "type": "float"
+                              }
+                           ],
                            "type": "float"
                         }
                      ]

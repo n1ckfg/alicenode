@@ -5,7 +5,7 @@
 
 <head>
 <!-- //TEMPORARY: just to aid in development workflow -->
-<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.137.1:8080"> -->
+<meta http-equiv="refresh" content="5; URL=http://localhost:8080">
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -461,34 +461,58 @@ function openSocket() {
                     var numCards = 0;
                     //console.log(deck.nodes)
                     
-                    Object.keys(deck.nodes).forEach(function(key) {
-                                            //for now, generate random positions for each card of the received deck
+                    // Object.keys(deck.nodes).forEach(function(key) {
+                    //     //for now, generate random positions for each card of the received deck
+                    //     function newInt(max) {
+                    //         return Math.floor(Math.random() * Math.floor(max));
+                    //     }
+                    //     numCards++;
+                    //     cardX = newInt(bodySize[0])
+                    //     cardY = newInt(bodySize[1])
+
+                    //     var ast = deck.nodes[key].ast //get the ast type
+                    //     comment = deck.nodes[key].comment.text //get comment from function
+                    //     mangled = deck.nodes[key].mangled_name
+                    //     //todo how to use loc?
+                    //     var name = deck.nodes[key].name
+                    //     var nodes = deck.nodes[key].nodes
+                        
+                    //     //construct the contents of the card:
+                    //     type = deck.nodes[key].type
+                    //     func = type.replace(" ", " " + name)
+                    //     func = func.replace(")", " " + deck.nodes[key].nodes[0].name + ") {\n   return x;\n}")
+                    //     //console.log(comment + "\n" + func)
+                    //     card = comment + "\n" + func
+
+                    //     sortDeck(cardX, cardY, ast, card, name)
+
+                    // })
+
+                                        Object.keys(deck.nodes).forEach(function(key) {
+                        //for now, generate random positions for each card of the received deck
                         function newInt(max) {
                             return Math.floor(Math.random() * Math.floor(max));
                         }
                         numCards++;
-                        // cardX = newInt(bodySize[0])
-                        // cardY = newInt(bodySize[1])
-
-                        cardX = 20;
-                        cardY = numCards * 100
-
+                        cardX = newInt(bodySize[0])
+                        cardY = newInt(bodySize[1])
 
                         var ast = deck.nodes[key].ast //get the ast type
-                        comment = deck.nodes[key].comment.text //get comment from function
-                        mangled = deck.nodes[key].mangled_name
-                        //todo how to use loc?
-                        var name = deck.nodes[key].name
-                        var nodes = deck.nodes[key].nodes
+                        console.log(ast)
+                        // comment = deck.nodes[key].comment.text //get comment from function
+                        // mangled = deck.nodes[key].mangled_name
+                        // //todo how to use loc?
+                        // var name = deck.nodes[key].name
+                        // var nodes = deck.nodes[key].nodes
                         
-                        //construct the contents of the card:
-                        type = deck.nodes[key].type
-                        func = type.replace(" ", " " + name)
-                        func = func.replace(")", " " + deck.nodes[key].nodes[0].name + ") {\n   return x;\n}")
-                        //console.log(comment + "\n" + func)
-                        card = comment + "\n" + func
+                        // //construct the contents of the card:
+                        // type = deck.nodes[key].type
+                        // func = type.replace(" ", " " + name)
+                        // func = func.replace(")", " " + deck.nodes[key].nodes[0].name + ") {\n   return x;\n}")
+                        // //console.log(comment + "\n" + func)
+                        // card = comment + "\n" + func
 
-                        sortDeck(cardX, cardY, ast, card, name)
+                        // sortDeck(cardX, cardY, ast, card, name)
 
                     })
                     break;
