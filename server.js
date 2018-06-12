@@ -222,7 +222,7 @@ let sessions = [];
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-	res.sendFile(path.join(client_path, 'index_v2.html'));
+	res.sendFile(path.join(client_path, 'index.html'));
 
 });
 //app.get('*', function(req, res) { console.log(req); });
