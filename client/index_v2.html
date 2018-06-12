@@ -166,7 +166,16 @@
             </td> -->
         </tr>
     </table>
-
+    <table width="80%">
+        <tr>
+            <th style="text-align:center">
+                    <h1 style="font-size: 130%; margin-bottom: 0;">Left Panel</h1>
+            </th>
+            <th style="text-align:center">
+                <h1 style="font-size: 130%; margin-bottom: 0;">Right Panel</h1>
+            </th>
+        </tr>
+</table>
 <div id="container">
     <div id="view"></div>
     
@@ -179,7 +188,7 @@
 
 
             </th>
-            <th>
+            <th style="text-align:right">
                     <button onclick="sendCodeRelay()">Send Right Code</button>
 
 
@@ -318,7 +327,7 @@ function userSelect(selection)  {
         select.appendChild(opt);
         document.getElementById('chooseUser').selectedIndex = (length);
 
-        localStorage.setItem(currentUser);
+        localStorage.setItem(currentUser, authorName);
         log("Working as git author " + authorName + " via " + authorEmail);
             
         break;
