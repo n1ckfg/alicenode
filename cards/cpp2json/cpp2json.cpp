@@ -82,10 +82,11 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		json& jsiblings = (*vd.container);
 		json jnode = {
 			{"ast", clang_getCString(clang_getCursorKindSpelling(kind)) },
+			/*
 			{"loc", { 
 				{"begin", { {"line", line}, {"col", column}, {"char", offset} } }, 
 				{"end", { {"line", line1}, {"col", column1}, {"char", offset1} } }
-			} }
+			} }*/
 		};
 
 		// check for names:
@@ -127,7 +128,8 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 
 		switch(kind) {
-		case CXCursor_FunctionDecl: {
+		case CXCursor_FunctionDecl:
+		case CXCursor_CXXMethod: {
 			// for a functiondecl 
 			// clang_getFunctionTypeCallingConv
 			// clang_isFunctionTypeVariadic
@@ -147,6 +149,10 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 			jnode["mangled_name"] = clang_getCString(clang_Cursor_getMangling(c));
 		
+		} break;
+		case CXCursor_CompoundStmt: {
+			
+			doVisitChildren = false;
 		} break;
 		default:
 		break;

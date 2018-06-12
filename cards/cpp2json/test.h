@@ -1,13 +1,17 @@
 
-//#include <math.h>
+/*
+	Fooey foofoo
+*/
+struct Foo {
+	int x = 0;
 
-// this is a comment
-// meta={ "x": 100, "y": 50 }
-int foo(float x) {
-	return x;
-}
+	// methy meth
+	int meth() {
+		return x;
+	}
+};
 
-// this is a different comment
-int bar(float x) {
-	return x;
+// zappy zapzap
+int zap(float f) {
+	return 99 * f;
 }
