@@ -98,6 +98,9 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         hands[0].isVisible = 0;
         hands[1].isVisible = 0;
         int count = frame.hands().count();
+        for (int j=0; j<count; j++) {
+            
+        }
 
         /*
             we would like the hands to remain consistent between frames
@@ -115,11 +118,11 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             int32_t id = leaphand.id();
             
 
-            hand.id = id;
 
 
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
+            hand.id = id;
             hand.isVisible = true;
 
             hand.palmPos = toGLM(leaphand.palmPosition()) * .001f;
