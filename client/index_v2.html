@@ -258,6 +258,7 @@ var ws_url;
 var worktreeList;
 var history;
 var ws;
+var currentUser = "FullName";
 
 var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
@@ -290,12 +291,13 @@ function userSelect(selection)  {
     if(selection == null){
     selection = document.usernames.chooseUser.value;
     }
+    localStorage.setItem(currentUser, selection);
     switch (selection) {
 
         case "Add User...":
         
         authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
-        localStorage.setItem("FullName", authorName);
+        localStorage.setItem(currentUser, authorName);
 
         
         authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
@@ -316,7 +318,7 @@ function userSelect(selection)  {
         select.appendChild(opt);
         document.getElementById('chooseUser').selectedIndex = (length);
 
-        
+        localStorage.setItem(currentUser);
         log("Working as git author " + authorName + " via " + authorEmail);
             
         break;
@@ -379,12 +381,6 @@ function toggleDifferences() {
 window.onload = function() {
   value = "This editor affects the simulation";
   orig1 = "This editor pulls code in from other commits/branches";
-  if(localStorage.getItem("FullName")==null){
-      //gonna Prompt here
-  } else {
-      log(localStorage.getItem("FullName"));
-    userSelect(localStorage.getItem("FullName"));
-  }
   initUI();
   let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
 };
@@ -564,8 +560,26 @@ function openSocket() {
                         opt.value = key;
                         sel.appendChild(opt);
                     })
-                    sel.selectedIndex = 2; 
 
+                    if(localStorage.getItem(currentUser) != null){
+                        log(sel.value);
+                        log(sel.length);
+                        for(i =0; i < sel.length; i++){
+                            sel.selectedIndex = i;
+                            if(sel.value == localStorage.getItem(currentUser)){
+                                sel.selectedIndex = i;
+                                log(sel.value + " Should be set here!");
+                                break;
+                            } else {
+                                sel.selectedIndex = 0;
+                            }
+                        }
+                       
+                    } else {
+                        //Prompt
+                        //sel.selectedIndex = 2; 
+
+                    }
                     break;
 
                     //////List all Branches, Files, Commits:
