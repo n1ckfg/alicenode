@@ -16,6 +16,8 @@ alicenode.code-workspace
 *.DS_Store
 */.DS_Store
 
+*/gitgraph.json
+
 repo_graph.dot
 repo_graph.svg
 

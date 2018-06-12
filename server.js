@@ -91,12 +91,7 @@ function pruneWorktree() {
 	// TO DO: where in the code are the worktrees counted or checked   
 	// update the worktree list, if any worktrees had been removed by user, make sure they aren't
 	// still tracked by git
-	exec("git worktree prune", {cwd: project_path}, () => {
-		// delete work tree (if it exists):
-		if (fs.existsSync(worktreepath)) {
-			fs.unlinkSync(worktreepath);
-		}
-	})
+	exec("git worktree prune", {cwd: project_path})
 }
 
 
@@ -227,7 +222,7 @@ let sessions = [];
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-	res.sendFile(path.join(client_path, 'index.html'));
+	res.sendFile(path.join(client_path, 'index_v2.html'));
 
 });
 //app.get('*', function(req, res) { console.log(req); });
@@ -393,6 +388,11 @@ wss.on('connection', function(ws, req) {
 			console.log(gitCommand)
 			let onHash;
 				let numBranches;	
+				
+				wss.clients.forEach(function each(client) {
+					client.send('chatMsg?newCommit ' + userName + " changed " + fileName + " on branch ");
+				 });
+			//send_all_clients(userName + " changed " + fileName + " on branch ")
 			//get number of branches in alicenode_inhabitat
 
 			if (libext == "dylib") {
@@ -798,7 +798,7 @@ break;
 						
 						let graph = make_graph_from_gitlog(gitlog);
 						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-
+						fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
 					})

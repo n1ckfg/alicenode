@@ -170,7 +170,7 @@ function newCard(x, y){
     $item.appendTo('.deck');
     value = ("//new card")
 
-    initUI(value);   
+    initUI(value, cardId, cardId);   
     $( function() {
         $( cardId )
     });  
@@ -179,7 +179,7 @@ function newCard(x, y){
 
 
 //create a deck of cards received from server:
-function sortDeck(x, y, ast, comment, name){
+function sortDeck(x, y, ast, card, name){
     var instance = count ++;
     frameId = ("frame_" + instance);
 
@@ -198,11 +198,11 @@ function sortDeck(x, y, ast, comment, name){
     $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
         //difficult to get accordion working with codemirror, comes out weird
         // $item.accordion({collapsible: true, heightStyle: "content"});   
-
+    $item.tabs({ collapsible: true, event: "mouseover"})
     // add it to the deck
     $item.appendTo('.deck');
 
-    initUI(comment, (ast + '_' + name), cardId);   
+    initUI(card, (ast + '_' + name), cardId);   
     $( function() {
         $( cardId )
     });  
@@ -454,25 +454,41 @@ function openSocket() {
                 switch(cmd) {
                     
                     case "deck":
+                    //console.log(arg)
                     deck = (JSON.parse(arg))
                     //var newCard = [];
 
-
-                    console.log(deck.nodes)
+                    var numCards = 0;
+                    //console.log(deck.nodes)
                     
                     Object.keys(deck.nodes).forEach(function(key) {
                                             //for now, generate random positions for each card of the received deck
                         function newInt(max) {
                             return Math.floor(Math.random() * Math.floor(max));
                         }
-                        cardX = newInt(bodySize[0])
-                        cardY = newInt(bodySize[1])
+                        numCards++;
+                        // cardX = newInt(bodySize[0])
+                        // cardY = newInt(bodySize[1])
+
+                        cardX = 20;
+                        cardY = numCards * 100
+
+
                         var ast = deck.nodes[key].ast //get the ast type
                         comment = deck.nodes[key].comment.text //get comment from function
+                        mangled = deck.nodes[key].mangled_name
                         //todo how to use loc?
                         var name = deck.nodes[key].name
+                        var nodes = deck.nodes[key].nodes
                         
-                        sortDeck(cardX, cardY, ast, comment, name)
+                        //construct the contents of the card:
+                        type = deck.nodes[key].type
+                        func = type.replace(" ", " " + name)
+                        func = func.replace(")", " " + deck.nodes[key].nodes[0].name + ") {\n   return x;\n}")
+                        //console.log(comment + "\n" + func)
+                        card = comment + "\n" + func
+
+                        sortDeck(cardX, cardY, ast, card, name)
 
                     })
                     break;

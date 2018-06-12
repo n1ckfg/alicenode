@@ -79,12 +79,13 @@ var nodes
 
 
 //objects:
-let deck = {} //the temp name for the overall datastructure we will add to throughout this document
-
+let deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
+console.log(JSON.parse(deck))
 let cards = {}; //json object containing all card data: function, code data, attribute(s)
 let globals = {} // contains any variable declared at file's root
 let locals = {} // contains any variables declared within a function's scope
 var requireStatements = {} //containing all of the require statements
+
 
 //get the updated json of test.h (see ./cards/cpp2json)
 getCpp2json();

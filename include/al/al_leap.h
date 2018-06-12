@@ -11,32 +11,45 @@ struct LeapMotionData {
          glm::vec3 wristPos;
     };
 
+    struct Bone {
+        glm::vec3 center;
+        glm::vec3 direction;
+        //glm::mat4 basis;
+        float width;
+        float boneLength = 0.f;
+    };
+
+    struct Finger {
+         glm::vec3 tip;
+         glm::vec3 direction;
+         glm::vec3 velocity;
+         float width;
+         float length;
+         Bone bones[4];
+    };
+
     struct Hand {
         glm::vec3 palmPos;
+        glm::vec3 normal;
+        glm::vec3 direction;
+        glm::vec3 velocity;
+        float grab, pinch;
+        // fingers
+        Finger fingers[5];
+        int32_t id;
+
+        bool isVisible = 0;
     };
 
     struct Pointable {
          glm::vec3 pointablePos;
     };
 
-    struct Finger {
-         glm::vec3 fingerPos;
-         float indexFing;
-    };
-
-    struct Bone {
-        float boneLength;
-    };
-
     // left, right
     Hand hands[2];
     Arm arms[2];
-    // fingers
-    Finger fingers[5];
-    Bone bones[4];
 
-    Finger fingersLeft[5];
-    Finger fingersRight[5];
+    bool isConnected = 0;
 };
 
 #ifdef AL_WIN
@@ -45,7 +58,8 @@ struct LeapMotionData {
 #include "leap/Leap.h"
 
 glm::vec3 toGLM(Leap::Vector v) {
-    return glm::vec3(v.x, v.y, v.z);
+    //return glm::vec3(v.x, v.y, v.z);
+    return glm::vec3(-v.x, -v.z, -v.y);
 }
 
 #endif
@@ -68,80 +82,119 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         controller.enableGesture(Leap::Gesture::TYPE_SWIPE);
         controller.config().setFloat("Gesture.Swipe.MinLength", 200.0);
         controller.config().save();
+
+        isConnected = true;
     }
 
     virtual void onDisconnect(const Leap::Controller&) {
         console.log("Leap disconnected");
+
+        isConnected = false;
     }
 
     virtual void onFrame(const Leap::Controller&) {
         Leap::Frame frame = controller.frame();
 
-        //Get Hands
-       // Leap::HandList hands = frame.hands();
-        Leap::Hand handR = frame.hands().rightmost();
-        Leap::Hand handL = frame.hands().leftmost();
-        hands[1].palmPos = toGLM(handR.palmPosition());
-        hands[0].palmPos = toGLM(handL.palmPosition());
-
-        //Leap::Vector position = hand.palmPosition();
-        //Leap::Vector velocity = hand.palmVelocity();
-        //Leap::Vector direction = hand.direction();
-        //printf("onFrame %f\n", position.x);
-
-        //Get Fingers
-        Leap::Finger rightForwardFinger = handR.fingers().frontmost();
-        //fingers[1].fingerPos = toGLM(rightForwardFinger.tipPosition());
-
-        Leap::Finger leftForwardFinger = handL.fingers().frontmost();
-       // fingers[0].fingerPos = toGLM(leftForwardFinger.tipPosition());
-
-        //Get Bones on left hand fingers
-        Leap::FingerList fingers = frame.hands()[0].fingers();
-        for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
-            Leap::Bone bone;
-            Leap::Bone::Type boneType;
-            for(int b = 0; b < 4; b++)
-            {
-                boneType = static_cast<Leap::Bone::Type>(b);
-                bone = (*fl).bone(boneType);
-                //bones[0].boneLength = bone.length();
-                /*
-                if (bone.type() == 0) { //TYPE_METACARPAL
-                    bones[0].boneLength = bone.length();
-                } else if (bone.type() == 1) { //TYPE_PROXIMAL
-                    bones[1].boneLength = bone.length();
-                } else if (bone.type() == 2) { //TYPE_INTERMEDIATE
-                    bones[2].boneLength = bone.length();
-                } else if (bone.type() == 3) { //TYPE_DISTAL
-                    bones[3].boneLength = bone.length();
-                }*/
-                std::cout << "Finger index: " << (*fl).type() << " " << bone << std::endl;
-            }
+        hands[0].isVisible = 0;
+        hands[1].isVisible = 0;
+        int count = frame.hands().count();
+        for (int j=0; j<count; j++) {
+            
         }
 
         /*
-        Leap::FingerList fingersRH = frame.hands()[1].fingers();
-        for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); fl++){
-            if ((*fl).type() == 0) {
-                fingers[0].indexFing = (*fl).type();
+            we would like the hands to remain consistent between frames
+            the sdk gives each hand an .id(), which is unique and retained between frames
+            but when tracking is lost, the id is incremented to a new one
+            how to map these to the h of hands[h] ?
+
+            how to know when a new id appears, and which h to bind it to?
+
+        */
+
+        for (int j=0; j<count; j++) {
+            Leap::Hand leaphand = frame.hands()[j];
+            // unique ID, preserved across frames
+            int32_t id = leaphand.id();
+            
+
+
+
+            int h = leaphand.isLeft() ? 0 : 1;
+            Hand& hand = hands[h];
+            hand.id = id;
+            hand.isVisible = true;
+
+            hand.palmPos = toGLM(leaphand.palmPosition()) * .001f;
+            //Hand normal
+            hand.normal = toGLM(leaphand.palmNormal()); 
+            //Hand direction
+            hand.direction = toGLM(leaphand.direction());
+            //Hand velocity
+            hand.velocity = toGLM(leaphand.palmVelocity()) * .001f;
+
+
+            //console.log("hand %d %d %d\n", j, hand.id, leaphand.isLeft());
+        
+            //Hand grab and pinch strength
+            hand.grab = leaphand.grabAngle();
+            hand.pinch = leaphand.pinchStrength();
+
+
+            //Get Fingers
+            // Leap::Finger forwardFinger = handR.fingers().frontmost();
+
+            Leap::FingerList fingers = leaphand.fingers();
+            auto& outfingers = hand.fingers;
+            int i=0;
+            for(Leap::FingerList::const_iterator fl = fingers.begin(); fl != fingers.end() && i < 5; fl++, i++){
+                Leap::Finger finger = *fl;
+                
+                LeapMotionData::Finger& outfinger = outfingers[i];
+                //Tip position
+                outfinger.tip = toGLM(finger.tipPosition()) * .001f;
+                //Direction
+                outfinger.direction = toGLM(finger.direction());
+                //Velocity
+                outfinger.velocity = toGLM(finger.tipVelocity()) * .001f;
+                //width and length
+                outfinger.width = finger.width() * .001f;
+                outfinger.length = finger.length() * .001f;
+            
+                for(int b = 0; b < 4; b++)
+                { 
+
+                    Leap::Bone::Type boneType = static_cast<Leap::Bone::Type>(b);
+                    Leap::Bone bone = (*fl).bone(boneType);
+                    LeapMotionData::Bone& outbone = outfinger.bones[b];
+                    //Bone width length
+                    outbone.width = bone.width() * .001f;
+                    outbone.boneLength = bone.length() * .001f;
+                    //Bone center
+                    outbone.center = toGLM(bone.center()) * .001f;
+                    //Bone direction
+                    outbone.direction = toGLM(bone.direction()) * .001f;
+
+                    //std::cout << "Finger index: " << (*fl).type() << " " << bone << std::endl;
+                //console.log("finger %d bone %d %f\n", i, b,  hands[0].fingers[i].bones[b].boneLength);
+                }
             }
-        }*/
+            
+            //Get Arm
+            Leap::Arm arm = leaphand.arm();
+            arms[h].elbowPos = toGLM(arm.elbowPosition());
+            arms[h].wristPos = toGLM(arm.wristPosition());
+
+        }
+
+        
 
         //Leap::PointableList pointables = frame.pointables();
         //Leap::Pointable pointable = frame.pointables().frontmost();
         //Leap::FingerList fingers = frame.fingers();
         
-        Leap::ToolList tools = frame.tools();
+        //Leap::ToolList tools = frame.tools();
 
-        //Get Arm
-        Leap::Arm armR = handR.arm();
-        Leap::Arm armL = handL.arm();
-        arms[1].elbowPos = toGLM(armR.elbowPosition());
-        arms[0].elbowPos = toGLM(armR.elbowPosition());
-        arms[1].wristPos = toGLM(armR.wristPosition());
-        arms[0].wristPos = toGLM(armR.wristPosition());
-    
     }
 
     virtual void onServiceConnect(const Leap::Controller& controller) {
