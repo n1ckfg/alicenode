@@ -76,7 +76,7 @@
     
     
             <th>
-                <button onclick="window.open('http://192.168.137.1:8080')" id="myButton">New Editor</button>
+                <button onclick="newEditor()" id="myButton">New Editor</button>
             </th>
     
             <th>
@@ -331,7 +331,13 @@ function userSelect(selection)  {
     }
 
 }
+console.log(document.URL)
 
+// open new editor tab in browser
+function newEditor(){
+    window.open(document.URL)
+    
+}
 function initUI() {
 
     if (value == null) return;
