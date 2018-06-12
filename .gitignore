@@ -6,7 +6,8 @@ clang+llvm-6
 cpp2json.exe
 cpp2json
 
-gitgraph.json
+*gitgraph.json
+client/gitgraph.json
 _tests
 tmp/*
 

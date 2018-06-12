@@ -26,7 +26,7 @@
         "8ec8d97"
       ],
       "ref": [
-        " (HEAD -> master)"
+        " (master)"
       ],
       "row": 1,
       "col": 1,
@@ -1243,7 +1243,9 @@
       "children": [
         "6e7fcb5"
       ],
-      "ref": [],
+      "ref": [
+        " (HEAD -> Guest_fea84c9_1528826760813)"
+      ],
       "row": 47,
       "col": 8,
       "commit_date": [
