@@ -98,6 +98,9 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
         hands[0].isVisible = 0;
         hands[1].isVisible = 0;
         int count = frame.hands().count();
+        for (int j=0; j<count; j++) {
+            
+        }
 
         /*
             we would like the hands to remain consistent between frames
@@ -115,8 +118,14 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             int32_t id = leaphand.id();
             
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> d28079ddfe305f1606a92d8112bc20b36bdbe042
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
+            hand.id = id;
             hand.isVisible = true;
 
             hand.id = id;

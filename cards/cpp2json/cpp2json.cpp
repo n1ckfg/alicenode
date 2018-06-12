@@ -32,6 +32,8 @@ struct VisitorData {
 
 };
 
+std::string filetext;
+
 CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data) {
 	
 	auto kind = clang_getCursorKind(c);
@@ -60,6 +62,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		clang_getSpellingLocation(start, &file, &line, &column, &offset);
 		clang_getSpellingLocation(end, &file, &line1, &column1, &offset1);
 
+		//CXString clang_getFileName(file);
 
 
 
@@ -82,10 +85,11 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		json& jsiblings = (*vd.container);
 		json jnode = {
 			{"ast", clang_getCString(clang_getCursorKindSpelling(kind)) },
+			/*
 			{"loc", { 
 				{"begin", { {"line", line}, {"col", column}, {"char", offset} } }, 
 				{"end", { {"line", line1}, {"col", column1}, {"char", offset1} } }
-			} }
+			} }*/
 		};
 
 		// check for names:
@@ -127,7 +131,8 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 
 		switch(kind) {
-		case CXCursor_FunctionDecl: {
+		case CXCursor_FunctionDecl:
+		case CXCursor_CXXMethod: {
 			// for a functiondecl 
 			// clang_getFunctionTypeCallingConv
 			// clang_isFunctionTypeVariadic
@@ -147,6 +152,10 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 			jnode["mangled_name"] = clang_getCString(clang_Cursor_getMangling(c));
 		
+		} break;
+		case CXCursor_CompoundStmt: {
+			jnode["text"] = filetext.substr(offset, offset1-offset);
+			doVisitChildren = false;
 		} break;
 		default:
 		break;
@@ -176,14 +185,15 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 
 int main(int argc, const char ** argv) {
 
-
-	// The index object is our main interface to libclang
-	CXIndex index = clang_createIndex(0, 0);
+	const char * filename = argv[1] ? argv[1] : "test.h";
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-	char const * args[] = { "-x", "c++", "-fparse-all-comments" };
+	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments" };
 	int nargs = sizeof(args)/sizeof(char *);
+
+	// The index object is our main interface to libclang
+	CXIndex index = clang_createIndex(0, 0);
 
 	// see http://www.myopictopics.com/?p=368 for example of adding "unsaved files" to the compilation
 	
@@ -194,14 +204,14 @@ int main(int argc, const char ** argv) {
 		;
 	CXTranslationUnit unit = clang_parseTranslationUnit(
 		index,
-		argc ? argv[1] : "test.h", 
+		filename, 
 		args, nargs, // command line args
 		nullptr, 0, // "unsaved files"
 		parseOptions);
 
 	if (!unit) {
 		fprintf(stderr, "Unable to parse translation unit. Quitting.\n");
-		exit(-1);
+		//exit(-1);
 	}
 
 	// the parse may have produced errors:
@@ -223,6 +233,15 @@ int main(int argc, const char ** argv) {
 
 	// To traverse the AST of the TU, we need a Cursor:
 	CXCursor cursor = clang_getTranslationUnitCursor(unit);
+	CXFile cfile = clang_getFile(unit, filename);
+
+	size_t filesize;
+	filetext = clang_getFileContents(unit, cfile, &filesize);
+	//printf("%s\n", filetext);
+
+	/*
+	CINDEX_LINKAGE CXFile clang_getIncludedFile(CXCursor cursor);
+												 */
 
 	// for f in unit.get_includes(): print '\t'*f.depth, f.include.name
 	json jdoc = {
