@@ -118,12 +118,17 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             int32_t id = leaphand.id();
             
 
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> d28079ddfe305f1606a92d8112bc20b36bdbe042
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
             hand.id = id;
             hand.isVisible = true;
+
+            hand.id = id;
 
             hand.palmPos = toGLM(leaphand.palmPosition()) * .001f;
             //Hand normal
