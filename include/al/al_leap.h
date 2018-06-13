@@ -38,6 +38,7 @@ struct LeapMotionData {
         Finger fingers[5];
         int32_t id;
 
+        bool isLeft = 0;
         bool isVisible = 0;
     };
 
@@ -97,10 +98,31 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
 
         hands[0].isVisible = 0;
         hands[1].isVisible = 0;
+        
         int count = frame.hands().count();
-        for (int j=0; j<count; j++) {
-            
-        }
+        Leap::HandList hand_list = frame.hands();
+
+       // printf("hands %d: " , count);
+
+            /*
+            Leap::Hand rightmost = hand_list.rightmost();
+            Leap::Hand leftmost = hand_list.leftmost();
+            int handID_right = rightmost.id();
+            int handID_left = leftmost.id();
+
+
+             for (int j=0; j<count; j++) {
+                Leap::Hand leaphand = frame.hands()[j];
+
+                if (leaphand.isRight()) {
+                    leaphand = frame.hand(handID_right);
+                } else if (leaphand.isLeft()) {
+                    leaphand = frame.hand(handID_left);
+                }
+
+                console.log("hand %d %d\n", handID_right,  handID_left);
+
+             }*/
 
         /*
             we would like the hands to remain consistent between frames
@@ -112,18 +134,21 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
 
         */
 
+       //set as 1 to turn on, and 0 to turn off
+
         for (int j=0; j<count; j++) {
             Leap::Hand leaphand = frame.hands()[j];
             // unique ID, preserved across frames
             int32_t id = leaphand.id();
             
 
-
-
-            int h = leaphand.isLeft() ? 0 : 1;
+            int h = j;//
             Hand& hand = hands[h];
             hand.id = id;
+            hand.isLeft = leaphand.isLeft();
             hand.isVisible = true;
+
+           // printf("(%d)%d = %d ", j, h, id);
 
             hand.id = id;
 
@@ -188,8 +213,9 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             arms[h].wristPos = toGLM(arm.wristPosition());
 
         }
-
         
+
+        // printf("\n");
 
         //Leap::PointableList pointables = frame.pointables();
         //Leap::Pointable pointable = frame.pointables().frontmost();

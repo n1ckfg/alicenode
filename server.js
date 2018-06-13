@@ -266,9 +266,8 @@ wss.on('connection', function(ws, req) {
 	//get the current list of authors involved in the alicenode_inhabitat project
 	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 
-	console.log(userlist)
 	ws.send("setUserList?" + JSON.stringify(userlist));
-	let selectedBranch;
+	let currentBranch;
 	//get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
 	fileList = fs.readdirSync(project_path).filter(function(file) {
 		if(file.charAt(0) == "+");
@@ -285,7 +284,7 @@ wss.on('connection', function(ws, req) {
 		  return file
 		}
 	  })
-
+	let userWorktree; //the directory that a client's right editor will work in
 
 	  ws.send("setFileList?" + JSON.stringify(fileList))
 	// exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
@@ -297,7 +296,7 @@ wss.on('connection', function(ws, req) {
 	// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
 	// if (statebuf) ws.send(statebuf);
 	
-	ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
+	//ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
 
 	exec('git branch -v', {cwd: project_path}, (stdout,err,stderr) => {
 		//console.log(err.split("\n"))
@@ -337,7 +336,7 @@ wss.on('connection', function(ws, req) {
 		
 		//console.log(message)
 		var userName; //this is what the client has signed in as
-		var userWorktree; //the worktree dir for any changes within rightEditor. 
+		
 		
 		
 		//probably not in use
@@ -568,7 +567,7 @@ wss.on('connection', function(ws, req) {
 
 			break;
 
-
+//git checkout Michael_Palumbo_ac107e5_1527003819750
 
 	//Add user
 
@@ -576,8 +575,9 @@ wss.on('connection', function(ws, req) {
 				//var userlist = [];
 				userName = arg.substr(0, arg.indexOf("$?$"));
 				useremail = arg.split('$?$')[1];
-				clientOrigRightWorktree = userName;
-				
+				userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));;
+				//whenever a worktree is created, a branch is named after it too. we won't use this branch, but we do need to delete it before we can add a new worktree. 
+				execSync('git branch -d +' +  userName.split(' ').join('_'))
 				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
 				userlist[userName] = useremail;
 				
@@ -624,59 +624,40 @@ wss.on('connection', function(ws, req) {
 					console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
 
 				}
-			
-					// switch (arg) {
-						
-					// 	case "Guest":
-					// 	userName = "Guest";
-					// 	userEmail = "grrrwaaa@gmail.com";
-					// 	userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
-						
-					// 	console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
-					// 	console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
-
-
-					// 	break;
-
-					// 	default: 
-					// 	userName = arg;						
-					// 	userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
-					// 	userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
-
-					// 	if (fs.existsSync(userWorktree)) {
-
-					// 		console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
-					// 		userEmail = userEntry[arg];
-
-					// 	} else {
-					// 		//if worktree directory doesn't yet exist, create it
-					// 		exec('git worktree add --no-checkout ' + userWorktree, {cwd: project_path}, (stdout, stderr, err) => {
-					// 				console.log(err, stderr, stdout)
-					// 		})
-
-					// 	}
-
-
-					// 	break;
-
-					// }
-
-
-			
-	
-			
 				break;
 
+				case "currentBranch":
+				//console.log("\n\n\n\n\n" + userWorktree)
+				exec("git checkout " + arg, {cwd: userWorktree}, (stdout, stderr, err) => {
+					console.log(err)
 
+					//once the userWorktree is pointed at a branch, retrieve all files on the branch and send to client
+					fileList = fs.readdirSync(userWorktree).filter(function(file) {
+						if(file.charAt(0) == "+");
+						else if(file.charAt(0) == ".");
+						else if(file.includes("userlist.json"));
+						else if(file.includes("userWorktree"));
+						else if(file.includes(".code-workspace"));
+						else if(file.includes("tmp"));
+						else if(file.includes(".bin"));
+						else if(file.includes(".dll"));
+						else if(file.includes(".lib"));
+						//to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp. 
+						else {
+						  return file
+						}
+					  })
+				
+					ws.send("setFileList?" + JSON.stringify(fileList))
 
-
-				case "selectedBranch":
-
-				selectedBranch = arg
-				console.log(selectedBranch)
-				ws.send(selectedBranch)
-
+				})
 				break;
+
+				// currentBranch = arg
+				// console.log(currentBranch)
+				// ws.send(currentBranch)
+
+				// break;
 	//Build gitgraph and send to client
 			case "client_SVG":
 
@@ -856,7 +837,7 @@ wss.on('connection', function(ws, req) {
 				//console.log(thisAuthor)
 
 				
-				fs.writeFileSync(project_path + "/project.cpp", newCode, "utf8");
+				fs.writeFileSync(project_path + "/" + fileName, newCode, "utf8");
 				//git add and commit the new changes, including commitMsg
 				execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
 				execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
