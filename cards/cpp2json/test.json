@@ -14,7 +14,7 @@
                "line": 5
             },
             "end": {
-               "char": 92,
+               "char": 99,
                "col": 2,
                "line": 12
             }
@@ -68,66 +68,53 @@
                      "line": 9
                   },
                   "end": {
-                     "char": 90,
+                     "char": 97,
                      "col": 3,
                      "line": 11
                   }
                },
+               "mangled_name": "__ZN3Foo4methEi",
                "name": "meth",
                "nodes": [
+                  {
+                     "ast": "ParmDecl",
+                     "loc": {
+                        "begin": {
+                           "char": 72,
+                           "col": 11,
+                           "line": 9
+                        },
+                        "end": {
+                           "char": 77,
+                           "col": 16,
+                           "line": 9
+                        }
+                     },
+                     "name": "y",
+                     "type": "int"
+                  },
                   {
                      "ast": "CompoundStmt",
                      "loc": {
                         "begin": {
-                           "char": 74,
-                           "col": 13,
+                           "char": 79,
+                           "col": 18,
                            "line": 9
                         },
                         "end": {
-                           "char": 90,
+                           "char": 97,
                            "col": 3,
                            "line": 11
                         }
                      },
-                     "nodes": [
-                        {
-                           "ast": "ReturnStmt",
-                           "loc": {
-                              "begin": {
-                                 "char": 78,
-                                 "col": 3,
-                                 "line": 10
-                              },
-                              "end": {
-                                 "char": 86,
-                                 "col": 11,
-                                 "line": 10
-                              }
-                           },
-                           "nodes": [
-                              {
-                                 "ast": "MemberRefExpr",
-                                 "loc": {
-                                    "begin": {
-                                       "char": 85,
-                                       "col": 10,
-                                       "line": 10
-                                    },
-                                    "end": {
-                                       "char": 86,
-                                       "col": 11,
-                                       "line": 10
-                                    }
-                                 },
-                                 "name": "x",
-                                 "type": "int"
-                              }
-                           ]
-                        }
-                     ]
+                     "text": "{\n\t\treturn x*y;\n\t}"
                   }
                ],
-               "type": "int ()"
+               "type": "int (int)",
+               "type_args": [
+                  "int"
+               ],
+               "type_ret": "int"
             }
          ],
          "type": "Foo"
@@ -139,12 +126,12 @@
          },
          "loc": {
             "begin": {
-               "char": 111,
+               "char": 118,
                "col": 1,
                "line": 15
             },
             "end": {
-               "char": 147,
+               "char": 154,
                "col": 2,
                "line": 17
             }
@@ -156,12 +143,12 @@
                "ast": "ParmDecl",
                "loc": {
                   "begin": {
-                     "char": 119,
+                     "char": 126,
                      "col": 9,
                      "line": 15
                   },
                   "end": {
-                     "char": 126,
+                     "char": 133,
                      "col": 16,
                      "line": 15
                   }
@@ -173,86 +160,17 @@
                "ast": "CompoundStmt",
                "loc": {
                   "begin": {
-                     "char": 128,
+                     "char": 135,
                      "col": 18,
                      "line": 15
                   },
                   "end": {
-                     "char": 147,
+                     "char": 154,
                      "col": 2,
                      "line": 17
                   }
                },
-               "nodes": [
-                  {
-                     "ast": "ReturnStmt",
-                     "loc": {
-                        "begin": {
-                           "char": 131,
-                           "col": 2,
-                           "line": 16
-                        },
-                        "end": {
-                           "char": 144,
-                           "col": 15,
-                           "line": 16
-                        }
-                     },
-                     "nodes": [
-                        {
-                           "ast": "BinaryOperator",
-                           "loc": {
-                              "begin": {
-                                 "char": 138,
-                                 "col": 9,
-                                 "line": 16
-                              },
-                              "end": {
-                                 "char": 144,
-                                 "col": 15,
-                                 "line": 16
-                              }
-                           },
-                           "nodes": [
-                              {
-                                 "ast": "IntegerLiteral",
-                                 "loc": {
-                                    "begin": {
-                                       "char": 138,
-                                       "col": 9,
-                                       "line": 16
-                                    },
-                                    "end": {
-                                       "char": 140,
-                                       "col": 11,
-                                       "line": 16
-                                    }
-                                 },
-                                 "type": "int"
-                              },
-                              {
-                                 "ast": "DeclRefExpr",
-                                 "loc": {
-                                    "begin": {
-                                       "char": 143,
-                                       "col": 14,
-                                       "line": 16
-                                    },
-                                    "end": {
-                                       "char": 144,
-                                       "col": 15,
-                                       "line": 16
-                                    }
-                                 },
-                                 "name": "f",
-                                 "type": "float"
-                              }
-                           ],
-                           "type": "float"
-                        }
-                     ]
-                  }
-               ]
+               "text": "{\n\treturn 99 * f;\n}"
             }
          ],
          "type": "int (float)",
