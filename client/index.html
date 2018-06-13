@@ -61,127 +61,123 @@
 
      <!-- Client 'logs in' to server using the full name and email associated with their github account -->
 <table style="width: 100%; float: left; background-color: rgba(19, 119, 32, 0.74)"> 
-        <tr style="float: left">
-            <th style="text-decoration: none">
-                <form name="usernames">
-                        <select id="chooseUser" onchange="userSelect();">
-                                <!-- <option selected disabled>Please Select User</option>  -->
-                                <option value="Add User...">Add User...</option>
-                                
-                    
-                        </select> Current User
-                            <!-- emailmichaelpalumbo@gmail.com -->
-                    </form>
-            </th>
-    
-    
-            <th>
-                <button onclick="newEditor()" id="myButton">New Editor</button>
-            </th>
-    
-            <th>
-                    <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
-                    <input id="server" type="text" value="ws://localhost:8080" size="40">
-                    <button onclick="openSocket()">Open</button>
-                    <button onclick="closeSocket()">Close</button>
-    
-            </th>
-        
-        </tr>
-        
-    
-    
-        <!-- Customize the Codemirror Instance -->
-    
-        <tr style="float: right">
+    <tr style="float: left">
+        <th style="text-decoration: none">
+            <form name="usernames">
+                <select id="chooseUser" onchange="userSelect();">
+                        <!-- <option selected disabled>Please Select User</option>  -->
+                        <option value="Add User...">Add User...</option>
+                        
             
-                <th>
-                        <p><b>Editor Settings: </b></p> 
-                    </th>
-            
-                    <th>
-                        <div class="onoffswitch">
-                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleLiveDiffing" onclick="toggleDifferences()" checked>
-                            <label class="onoffswitch-label" for="toggleLiveDiffing"></label>
-                        </div>Diffing
-                    </th>
-            
-                    <th>
-                        <div class="onoffswitch">
-                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; initUI()">
-                            <label class="onoffswitch-label" for="toggleCollapse"></label>
-                        </div>Collapse Changes
-                    </th>
-            
-                    <th>
-                        <div class="onoffswitch">
-                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="connect = connect ? null : 'align'; initUI()">
-                            <label class="onoffswitch-label" for="toggleAlign"></label>
-                        </div>Align Changes
-            
-                    </th>
-        </tr>
-    
-    </table>
+                </select> -Current User
+                    <!-- emailmichaelpalumbo@gmail.com -->
+            </form>
+        </th>
 
 
-    <table style="background-color: blue" width=100%>  
-        <tr>
-            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
-                <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
-            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
-            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
-                
-            </th>
+        <th>
+            <button onclick="newEditor()" id="myButton">New Editor</button>
+        </th>
+
+        <th>
+                <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+                <input id="server" type="text" value="ws://localhost:8080" size="40">
+                <button onclick="openSocket()">Open</button>
+                <button onclick="closeSocket()">Close</button>
+
+        </th>
     
-        </tr>
-        <tr> 
-            <td style="width:33%; height:100%">
-                <div id="Branch">
-                    <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="chooseBranch();"> 
-                    </select> 
-                </div>
-                
-            </td>
-            <td style="width:33%; height:100%; text-align:center;">
-    
-                    <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="chooseFileName();">
-                            <option selected disabled>Please Select File</option> 
-                            <option value="New File...">New File...</option>
-                            
-                
-                    </select> 
+    </tr>
+        
     
     
-                </td>
+    <!-- Customize the Codemirror Instance -->
+
+    <tr style="float: right">
+        
+        <th>
+            <p><b>Editor Settings: </b></p> 
+        </th>
+
+        <th>
+            <div class="onoffswitch">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleLiveDiffing" onclick="toggleDifferences()" checked>
+                <label class="onoffswitch-label" for="toggleLiveDiffing"></label>
+            </div>Diffing
+        </th>
+
+        <th>
+            <div class="onoffswitch">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; initUI()">
+                <label class="onoffswitch-label" for="toggleCollapse"></label>
+            </div>Collapse Changes
+        </th>
+
+        <th>
+            <div class="onoffswitch">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="connect = connect ? null : 'align'; initUI()">
+                <label class="onoffswitch-label" for="toggleAlign"></label>
+            </div>Align Changes
+
+        </th>
+    </tr>
     
-            <td style="width:33%; height:100%; text-align:center;">
-                <!-- <div id="CommitList"> -->
-                    <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
-                    </select> 
-                <!-- </div>        -->
-            </td>
-    <!-- view files affected by selected commit. choose one to load into Codemirror -->
-            <!-- <td style="width:33%; height:100%;  text-align:center;">
-    
-            </td> -->
-        </tr>
-    </table>
-    <table width="80%">
-        <tr>
-            <th style="text-align:center">
-                    <h1 style="font-size: 130%; margin-bottom: 0;">Left Panel</h1>
-            </th>
-            <th style="text-align:center">
-                <h1 style="font-size: 130%; margin-bottom: 0;">Right Panel</h1>
-            </th>
-        </tr>
 </table>
+
+
+<table style="background-color: blue" width=100% id="gitSelector">  
+    <tr>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
+            <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
+            
+        </th>
+
+    </tr>
+    <tr> 
+        <td style="width:33%; height:100%">
+            <div id="Branch">
+                <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="selectBranch();"> 
+                </select> 
+            </div>
+            
+        </td>
+        <td style="width:33%; height:100%; text-align:center;">
+
+            <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="chooseFileName();">
+                    <option selected disabled>Please Select File</option> 
+                    <option value="New File...">New File...</option>
+                          
+            </select> 
+        </td>
+
+        <td style="width:33%; height:100%; text-align:center;">
+            <!-- <div id="CommitList"> -->
+                <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
+                </select> 
+        </td>
+    </tr>
+</table>
+
+
+<table width="80%">
+    <tr>
+        <th style="text-align:center">
+            <h1 style="font-size: 130%; margin-bottom: 0;">Master Version</h1>
+        </th>
+        <th style="text-align:center">
+            <h1 style="font-size: 130%; margin-bottom: 0;">Improvisor!</h1>
+        </th>
+    </tr>
+</table>
+<!-- CODEMIRROR & Gitgraph -->
 <div id="container">
     <div id="view"></div>
     
     <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
 </div>
+<!-- Send Code -->
 <table width="80%">
         <tr>
             <th style="text-align:left">
@@ -199,31 +195,7 @@
 </table>
 
 <!-- Chat and System Logs -->
-<!-- <table width="100%" height="30%" style="background-color: rgb(225, 225, 225)">
-        <tr height="20%">
-            <th>Chat and System Messages</th>
-            <th>Integrated Terminal (Your Machine)</th>
-    
-        </tr>
-    
-        <tr height="100%">
-            <td  style="text-align:center; width:50%; height:300px;" >
-                <ul id="chat_messages"></ul> 
-                
-            </td>
-            <td style="text-align:center; width:50%; height:300px;">
-                    <div id="terminal"></div>
-            </td>
-        </tr>
-        <tr style="background-color: rgb(0, 0, 0)">           
-            <td> 
-                <form id="chat_form" overflow="scroll" onSubmit="return false;">
-                    <input id="m" autocomplete="on" overflow="scroll" />
-                    <button id="chatSendMsg" type="button" name="">Send</button>
-                </form>  
-            </td>
-            </tr>
-    </table> -->
+
     <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
              <div id="chat_messages">
@@ -459,6 +431,12 @@ function sendRightCode(val){
 
 }
 
+
+//branch selection:
+function selectBranch() {
+    selection = document.Branch.chooseBranch.value;
+    console.log(selection)
+}
 //file selection
 function chooseFileName(){
     var e = document.getElementById("openFileName");
@@ -689,9 +667,9 @@ function openSocket() {
                     // name="CommitList" size="5" id="ChooseCommit
 
                     //populate the worktree drop-down with current list of worktrees
-                    case "fps":
-                        //document.getElementById('fps').innerHTML = arg;
-                        break;
+                    // case "fps":
+                    //     //document.getElementById('fps').innerHTML = arg;
+                    //     break;
                         
                     case "branchname":  
                         // var steve = message.replace("currentBranch?", "")
