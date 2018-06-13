@@ -64,8 +64,10 @@
     <tr style="float: left">
         <th style="text-decoration: none">
             <form name="usernames">
-                <select id="chooseUser" onchange="userSelect();">
+                <select id="chooseUser" onchange="userSelect(this.value);">
                         <!-- <option selected disabled>Please Select User</option>  -->
+                        <option value="emptyIgnore"></option>
+
                         <option value="Add User...">Add User...</option>
                         
             
@@ -167,7 +169,7 @@
             <h1 style="font-size: 130%; margin-bottom: 0;">Master Version</h1>
         </th>
         <th style="text-align:center">
-            <h1 style="font-size: 130%; margin-bottom: 0;">Improvisor!</h1>
+            <h1 id="improvisor" style="font-size: 130%; margin-bottom: 0;">Improvisor!</h1>
         </th>
     </tr>
 </table>
@@ -232,7 +234,12 @@ stretches of text.</p> -->
 <script>
 
 //globals
-var currentBranch;
+
+var clientState = []; /*TODO: right now the client state is ready, but nothing server-side is set up to receive or do anything with it. the goal: prevent server from resending data on startup if a client had previously been connected (and its window is still open)
+
+    clientState.json: stored in the client so that if the server stops/resets, it doesn't re-initialize all of the settings or content in the client's codemirror instances. 
+    
+    instead, on.connection: client sends clientState to server to set the related variables. */
 var thisHash;
 var selectedCommit;
 
@@ -240,7 +247,7 @@ var ws_url;
 
 var history;
 var ws;
-var currentUser = "FullName";
+var currentUser;
 
 var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
@@ -265,52 +272,59 @@ var isRightDirty = false;
 var currentBranch;
 var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
 var currentUserList = []; //this is a temporary storage location for all available users
-var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
+var authorName; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
 
 //username selection (for git commits)
 function userSelect(selection)  { 
-    if(selection == null){
-    selection = document.usernames.chooseUser.value;
-    }
-    localStorage.setItem(currentUser, selection);
-    switch (selection) {
 
-        case "Add User...":
-        
-        authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
-        localStorage.setItem(currentUser, authorName);
+    if(selection == "emptyIgnore"){
+        //we don't want to add this to local storage!
+    } else {
 
-        
-        authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
-        
-        ws.send("newUser?" + authorName + "$?$" + authorEmail)
-            //console.log(userName, userEmail)
 
-        //add new user to select in HTML, make sure its checked. 
-        var select = document.getElementById('chooseUser');
-        var length = select.length;
-        var opt = document.createElement('option');
-        opt.value = authorName;
-        opt.innerHTML = authorName;
-        select.appendChild(opt);
-        document.getElementById('chooseUser').selectedIndex = (length);
+        localStorage.setItem(currentUser, selection);
+        switch (selection) {
 
-        localStorage.setItem(currentUser, authorName);
-        log("Working as git author " + authorName + " via " + authorEmail);
+            case "Add User...":
             
-        break;
+            authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+            localStorage.setItem(currentUser, authorName);
 
-        default: log("Working as git author " + selection + " via " + userlist[selection]);
-        authorName = selection;
-        authorEmail = userlist[selection];
-        ws.send("selectUser?" + selection);
-        break;
+            
+            authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+            
+            ws.send("newUser?" + authorName + "$?$" + authorEmail)
+                //console.log(userName, userEmail)
+
+            //add new user to select in HTML, make sure its checked. 
+            var select = document.getElementById('chooseUser');
+            var length = select.length;
+            var opt = document.createElement('option');
+            opt.value = authorName;
+            opt.innerHTML = authorName;
+            select.appendChild(opt);
+            document.getElementById('chooseUser').selectedIndex = (length);
+
+            localStorage.setItem(currentUser, authorName);
+            log("Working as git author " + authorName + " via " + authorEmail);
+            
+            clientState.push({"authorName": authorName, "authorEmail":authorEmail})
+            
+            break;
+
+            default: 
+            log("Working as git author " + selection + " via " + userlist[selection]);
+            authorName = selection;
+            authorEmail = userlist[selection];
+            ws.send("selectUser?" + selection);
+            clientState.push({"authorName": authorName, "authorEmail":authorEmail})
+            
+            break;
+        }
     }
-
 }
-console.log(document.URL)
 
 // open new editor tab in browser
 function newEditor(){
@@ -432,16 +446,25 @@ function sendRightCode(val){
 function selectBranch() {
     //selection = document.Branch.chooseBranch.value;
     e = document.getElementById('chooseBranch')
-    var selectedBranch = e.options[e.selectedIndex].value;
-    console.log(selectedBranch)
-    ws.send("selectedBranch?" + selectedBranch)
+    var currentBranch = e.options[e.selectedIndex].value;
+    currentBranch = currentBranch.split(" ")[2];
+    console.log(currentBranch[2])
+    if (currentBranch == "*"){
+        //we don't want to ask the server to checkout the branch that is already checked out...
+    }
+    else {
+    
+    ws.send("currentBranch?" + currentBranch)
+    clientState.push({"currentBranch":currentBranch})
+    }   
+
 }
 //file selection
 function chooseFileName(){
     var e = document.getElementById("openFileName");
     var selection = e.options[e.selectedIndex].value
     fileName = selection;
-    console.log(fileName)
+    clientState.push({"fileName":fileName})
     //clear the commits list in the select element each time a file is opened
     function removeOptions(selectbox){
         var i;
@@ -457,9 +480,9 @@ function chooseFileName(){
         if (selection == "New File..."){
             alert("Client not set up to create new file yet, work-in-progress")
         } else {
-            ws.send("fileRequest" + selection)
+            ws.send("fileRequest" + fileName)
             //change page title to filename!
-            document.title = selection;
+            document.title = fileName;
 
         }
     }
@@ -558,7 +581,7 @@ function openSocket() {
                     })
                     //update userlist globally so that the next incoming userlist is compared against it
                     userlist = currentUserList;
-                    
+
 
                     if(localStorage.getItem(currentUser) != null){
                         // log("test" + sel.value);
@@ -567,9 +590,15 @@ function openSocket() {
                             sel.selectedIndex = i;
                             if(sel.value == localStorage.getItem(currentUser)){
                                 sel.selectedIndex = i;
-                                ws.send("selectUser?" + sel.value)
-                                log("Signed into Alicenode Editor as " + sel.value);
-                                break;
+
+                                userSelect(sel.value)
+                                console.log("sel.value " + sel.selectedIndex)
+                               // ws.send("selectUser?" + sel.value)
+                               // log("Signed into Alicenode Editor as " + sel.value);
+                            
+
+                                
+                               
                             } else {
                                 //sel.selectedIndex = 0;
                             }
@@ -617,7 +646,7 @@ function openSocket() {
                     break;
                     //Files List
                     case "setFileList":
-                    
+                    document.querySelectorAll('#openFileName option').forEach(option => option.remove())
                     fileList = JSON.parse(arg);
                         var sel = document.getElementById('openFileName');
                         //var length = select;
@@ -768,10 +797,12 @@ function chooseCommit(){
 
     console.log(selectedCommit)
     ws.send("git show " + selectedCommit);
+    clientState.push({"selectedCommit":selectedCommit})
 
     //make sure that the right editor will now watch for changes
     isRightDirty = false;
 
+    improvisor.innerHTML = ("Improvising within " + currentBranch + " at " + selectedCommit)
 
 // <!-- 
 //                 <div id="CommitList">
