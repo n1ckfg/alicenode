@@ -112,13 +112,14 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
 
         */
 
+       //set as 1 to turn on, and 0 to turn off
+       if(0){
+
         for (int j=0; j<count; j++) {
             Leap::Hand leaphand = frame.hands()[j];
             // unique ID, preserved across frames
             int32_t id = leaphand.id();
             
-
-
 
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
@@ -188,6 +189,7 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             arms[h].wristPos = toGLM(arm.wristPosition());
 
         }
+    }
 
         
 
