@@ -235,17 +235,17 @@ stretches of text.</p> -->
 var currentBranch;
 var thisHash;
 var selectedCommit;
-var currentWorktree
+
 var ws_url;
-var worktreeList;
+
 var history;
 var ws;
 var currentUser = "FullName";
 
 var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
-var ws_url = "ws://localhost:8080";
-console.log(ws_url);
+var ws_url = "ws://" + location.href.replace(/https?:\/\//i, "");
+
 
 //var col;
 // codemirror/mergeview globals:
@@ -284,12 +284,8 @@ function userSelect(selection)  {
 
         
         authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
-
-
         
-           
-            //TODO: create a worktree for user with their username. replace all spaces with underscores. 
-            ws.send("newUser?" + authorName + "$?$" + authorEmail)
+        ws.send("newUser?" + authorName + "$?$" + authorEmail)
             //console.log(userName, userEmail)
 
         //add new user to select in HTML, make sure its checked. 
@@ -664,15 +660,8 @@ function openSocket() {
                           
                         })
 
-                        break;
-                        
+                    break;
 
-                    // name="CommitList" size="5" id="ChooseCommit
-
-                    //populate the worktree drop-down with current list of worktrees
-                    // case "fps":
-                    //     //document.getElementById('fps').innerHTML = arg;
-                    //     break;
                         
                     case "branchname":  
                         // var steve = message.replace("currentBranch?", "")
