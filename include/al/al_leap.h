@@ -111,6 +111,7 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             how to know when a new id appears, and which h to bind it to?
 
         */
+       if(0){
 
         for (int j=0; j<count; j++) {
             Leap::Hand leaphand = frame.hands()[j];
@@ -118,11 +119,6 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             int32_t id = leaphand.id();
             
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> d28079ddfe305f1606a92d8112bc20b36bdbe042
             int h = leaphand.isLeft() ? 0 : 1;
             Hand& hand = hands[h];
             hand.id = id;
@@ -191,6 +187,7 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             arms[h].wristPos = toGLM(arm.wristPosition());
 
         }
+    }
 
         
 
