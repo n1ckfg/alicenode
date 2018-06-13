@@ -127,7 +127,8 @@
 
     <table style="background-color: blue" width=100%>  
         <tr>
-            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b></th>
+            <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
+                <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
             <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
             <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
                 
@@ -271,7 +272,7 @@ var currentUser = "FullName";
 
 var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
-var ws_url = "ws://192.168.137.103:8080";
+var ws_url = "ws://localhost:8080";
 console.log(ws_url);
 
 //var col;
@@ -605,8 +606,10 @@ function openSocket() {
                     // <form name="branches"> 
                     //  <select id="chooseBranch" onchange="chooseBranch();"> 
 
-
+                        //console.log(arg)
                         var branchesList = arg.split("\n")
+                        //console.log(branchesList)
+
                         
                         // usebranchList = JSON.parse(arg);
                         var sel = document.getElementById('chooseBranch');
@@ -1031,6 +1034,30 @@ function highlightFileName(evt){
 function mouseLeaveCommit(evt) {
     evt.target.setAttributeNS(null,"opacity","1");
 }
+
+
+
+function hideAndSeek() {
+  // Declare variables 
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("search");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    } 
+  }
+}
+
 </script>
 
 </body>
