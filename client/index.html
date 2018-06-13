@@ -65,9 +65,9 @@
             <th style="text-decoration: none">
                 <form name="usernames">
                         <select id="chooseUser" onchange="userSelect();">
-                                <option selected disabled>Please Select User</option> 
+                                <!-- <option selected disabled>Please Select User</option>  -->
                                 <option value="Add User...">Add User...</option>
-                                <option value="Guest">Guest</option>
+                                
                     
                         </select> Current User
                             <!-- emailmichaelpalumbo@gmail.com -->
@@ -292,6 +292,7 @@ var current;
 var isRightDirty = false;
 var currentBranch;
 var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
+var currentUserList = []; //this is a temporary storage location for all available users
 var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
@@ -505,8 +506,7 @@ function openSocket() {
 
         ws.send("getCurrentBranch")
         
-        //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
-        ws.send("selectUser?" + "Guest");
+
 
         sessionStorage.echoServer = url;
     };
@@ -548,7 +548,7 @@ function openSocket() {
                     // }
 
                     // else {
-                    console.log(arg)
+                    // console.log(arg)
                     var li = document.createElement('li');
                     var list = document.getElementById('chat_messages');
 
@@ -562,32 +562,39 @@ function openSocket() {
 
                     //set available users list
                     case "setUserList":
-                    
-                    userlist = JSON.parse(arg);
+                    //get the username <select> element
                     var sel = document.getElementById('chooseUser');
-                    //var length = select;
                         
-                    // for (i = 3; i < sel.length; i++) {
-                    //     sel.options[i] = null;
-                    //     }
-                    Object.keys(userlist).forEach(function (key) {
+                    currentUserList = JSON.parse(arg);
+                    Object.keys(currentUserList).forEach(function(key) {
+                        if(userlist.hasOwnProperty(key)){
+                            // console.log("name found " + key)
+                            //if found, don't add them again
+                        } else {
+                            //add the new names to the <select> element
                         var opt = document.createElement('option');
-                        opt.appendChild( document.createTextNode(key) );
+                        opt.appendChild(document.createTextNode(key) );
                         opt.value = key;
                         sel.appendChild(opt);
+                        }
                     })
+                    //store userlist globally so that new names are compared against this array
+                    userlist = currentUserList;
+                    //first check if any new usernames have been added
+                    
 
                     if(localStorage.getItem(currentUser) != null){
-                        log(sel.value);
-                        log(sel.length);
+                        // log("test" + sel.value);
+                        // log("length" + sel.length);
                         for(i =0; i < sel.length; i++){
                             sel.selectedIndex = i;
                             if(sel.value == localStorage.getItem(currentUser)){
                                 sel.selectedIndex = i;
-                                log(sel.value + " Should be set here!");
+                                ws.send("selectUser?" + sel.value)
+                                log("Signed into Alicenode Editor as " + sel.value);
                                 break;
                             } else {
-                                sel.selectedIndex = 0;
+                                //sel.selectedIndex = 0;
                             }
                         }
                        
@@ -834,9 +841,9 @@ function openSocket() {
                    // log("cmd: " + cmd + ", " + arg);
                 }
     
-            } else if (message.includes("chatMsg")){
+            } /*else if (message.includes("chatMsg")){
 
-            } else {
+            } */ else {
             log('received: ' + e.data);
             }
         }
