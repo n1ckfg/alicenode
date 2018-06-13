@@ -104,11 +104,7 @@ function getCpp2json(){
             deck = (stdout)
         }
 
-
     })
-
-     
-     
      
 }
 

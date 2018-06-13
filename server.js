@@ -222,7 +222,7 @@ let sessions = [];
 const app = express();
 app.use(express.static(client_path))
 app.get('/', function(req, res) {
-	res.sendFile(path.join(client_path, 'index_v2.html'));
+	res.sendFile(path.join(client_path, 'index.html'));
 
 });
 //app.get('*', function(req, res) { console.log(req); });
@@ -265,8 +265,10 @@ wss.on('connection', function(ws, req) {
 	};
 	//get the current list of authors involved in the alicenode_inhabitat project
 	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
-	ws.send("setUserList?" + JSON.stringify(userlist));
 
+	console.log(userlist)
+	ws.send("setUserList?" + JSON.stringify(userlist));
+	let selectedBranch;
 	//get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
 	fileList = fs.readdirSync(project_path).filter(function(file) {
 		if(file.charAt(0) == "+");
@@ -334,7 +336,7 @@ wss.on('connection', function(ws, req) {
 	
 		
 		//console.log(message)
-		var userName = "Guest"; //this is what the client has signed in as
+		var userName; //this is what the client has signed in as
 		var userWorktree; //the worktree dir for any changes within rightEditor. 
 		
 		
@@ -380,6 +382,8 @@ wss.on('connection', function(ws, req) {
 				//console.log("branchname?" + stderr.replace("\n", ""))
 				})
 		}
+
+
 		
 
 		if (message.includes("editedRightCode")){
@@ -468,7 +472,7 @@ wss.on('connection', function(ws, req) {
 		// 			})
 		// 			//change to new worktree directory	
 		// 			execSync("cd " + onHash, () => {
-
+ 
 		// 			//inform client
 		// 			ws.send("three cheers for playfulness! Working from new branch " + newBranchName + " starting from commit " + onHash)
 
@@ -533,13 +537,13 @@ wss.on('connection', function(ws, req) {
 
 
 
-		if (message.includes("git return to master")){
-			console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
-			 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
-			 ws.send("edit?" + err)
+		// if (message.includes("git return to master")){
+		// 	console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
+		// 	 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
+		// 	 ws.send("edit?" + err)
 
-            })
-		}
+        //     })
+		// }
 
 
 		let q = message.indexOf("?");
@@ -552,17 +556,17 @@ wss.on('connection', function(ws, req) {
 				// 	console.log(arg)
 				// break;
 
-//CLIENT: ///////////////////////////////////////////////////////
+			//CLIENT: ///////////////////////////////////////////////////////
 
-case "chatMsg":
-console.log(arg)
-wss.clients.forEach(function each(client) {
-	let dateStamp = (new Date().getHours()) + ":" + (new Date().getMinutes()) + ":" + (new Date().getSeconds())
-	client.send("chatMsg? " + dateStamp + " " + userName + ": " + arg);
- });
+			case "chatMsg":
+			console.log(arg)
+			wss.clients.forEach(function each(client) {
+				let dateStamp = (new Date().getHours()) + ":" + (new Date().getMinutes()) + ":" + (new Date().getSeconds())
+				client.send("chatMsg? " + dateStamp + " " + userName + ": " + arg);
+			});
 
 
-break;
+			break;
 
 
 
@@ -575,7 +579,7 @@ break;
 				clientOrigRightWorktree = userName;
 				
 				let userlist = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'))
-				userlist[userName] = userEmail;
+				userlist[userName] = useremail;
 				
 				var jsonstring = (JSON.stringify(userlist))
 				console.log("user:" + jsonstring)
@@ -584,7 +588,7 @@ break;
 
 				
 				//get current branch:
-				exec("git rev-parse ")
+				//exec("git rev-parse ")
 				//create a worktree under this user?
 				//first replace all spaces with underscores:
 
@@ -603,46 +607,75 @@ break;
 	//Select user
 			case "selectUser":
 					console.log(arg)
-					switch (arg) {
+				//have userlist ready
+				userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+				//client's git username
+				userName = arg;	
+				//client's git email					
+				userEmail = userEntry[arg];
+				userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
+
+					console.log(userWorktree)
+
+					ws.send("chatMsg?'Right Editor' set to work within worktree: " + userWorktree)
+
+				if (fs.existsSync(userWorktree)) {
+
+					console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
+
+				}
+			
+					// switch (arg) {
 						
-						case "Guest":
-						userName = "Guest";
-						userEmail = "grrrwaaa@gmail.com";
-						userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
+					// 	case "Guest":
+					// 	userName = "Guest";
+					// 	userEmail = "grrrwaaa@gmail.com";
+					// 	userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
 						
-						console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
-						console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
+					// 	console.log("---\ngit user: " + userName + "\nemail: " + userEmail + "\n---");
+					// 	console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
 
 
-						break;
+					// 	break;
 
-						default: 
-						userName = arg;						
-						userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
-						userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
+					// 	default: 
+					// 	userName = arg;						
+					// 	userEntry = JSON.parse(fs.readFileSync(path.join(project_path, "userlist.json"), 'utf8'));
+					// 	userWorktree = project_path + path.join("/+" + userName.split(' ').join('_'));
 
-						if (fs.existsSync(userWorktree)) {
+					// 	if (fs.existsSync(userWorktree)) {
 
-							console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
-							userEmail = userEntry[arg];
+					// 		console.log("\n---\nClient Session " + per_session_data.id + ": rightEditor working from worktree '" + userWorktree + "'\n---")
+					// 		userEmail = userEntry[arg];
 
-						} else {
-							//if worktree directory doesn't yet exist, create it
-							exec('git worktree add --no-checkout ' + userWorktree, {cwd: project_path}, (stdout, stderr, err) => {
-									console.log(err, stderr, stdout)
-							})
+					// 	} else {
+					// 		//if worktree directory doesn't yet exist, create it
+					// 		exec('git worktree add --no-checkout ' + userWorktree, {cwd: project_path}, (stdout, stderr, err) => {
+					// 				console.log(err, stderr, stdout)
+					// 		})
 
-						}
+					// 	}
 
 
-						break;
+					// 	break;
 
-					}
+					// }
 
 
 			
 	
 			
+				break;
+
+
+
+
+				case "selectedBranch":
+
+				selectedBranch = arg
+				console.log(selectedBranch)
+				ws.send(selectedBranch)
+
 				break;
 	//Build gitgraph and send to client
 			case "client_SVG":
@@ -798,7 +831,8 @@ break;
 						
 						let graph = make_graph_from_gitlog(gitlog);
 						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'});
-						fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
+						// commenting this out for now because gitignore is not working...?
+						// fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
 						// send graph as json to client
 						ws.send("gitLog?" + graphjson)
 					})
@@ -822,7 +856,7 @@ break;
 				//console.log(thisAuthor)
 
 				
-				fs.writeFileSync("project.cpp", newCode, "utf8");
+				fs.writeFileSync(project_path + "/project.cpp", newCode, "utf8");
 				//git add and commit the new changes, including commitMsg
 				execSync('git add .', {cwd: project_path }, () => {console.log("git added")});
 				execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => {console.log("git committed")});
@@ -942,20 +976,20 @@ break;
 						let child = commit_map[commit.children[i]];
 						if (child) { // skip if the child commit is not in our source
 						// if we haven't visited this child yet, 
-						if (!visited[child_hash]) {
-							// assign it a new column, relative to parent
-							child.col = commit.col + i;
-							// and add it to our "todo" stack:
-							stack.push(child);
-						}
+							if (!visited[child_hash]) {
+								// assign it a new column, relative to parent
+								child.col = commit.col + i;
+								// and add it to our "todo" stack:
+								stack.push(child);
+							}
 						// add an object representation of this path:
 						paths.push({
 							from: commit.hash,
 							to: child.hash
 						});
-						}
 					}
-					}
+				}
+				}
 					// return a full representation of the graph:
 					return {
 					maxcolumn: maxcolumn,

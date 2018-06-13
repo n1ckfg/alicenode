@@ -487,8 +487,10 @@ function openSocket() {
                     //     sortDeck(cardX, cardY, ast, card, name)
 
                     // })
+                        //define the name of the deck
+                        var deckFile = deck.filename;
 
-                                        Object.keys(deck.nodes).forEach(function(key) {
+                        Object.keys(deck.nodes).forEach(function(key) {
                         //for now, generate random positions for each card of the received deck
                         function newInt(max) {
                             return Math.floor(Math.random() * Math.floor(max));
@@ -498,7 +500,25 @@ function openSocket() {
                         cardY = newInt(bodySize[1])
 
                         var ast = deck.nodes[key].ast //get the ast type
-                        console.log(ast)
+                        var name = deck.nodes[key].name
+                        var comment = deck.nodes[key].comment.text
+
+                        if (ast == "StructDecl") {
+                            struct = "struct " + name + "{\n}"
+                            
+                            Object.keys(deck.nodes[key].nodes).forEach(function(key) {
+                                //console.log(key)
+                                console.log(deck.nodes[key].nodes[key].ast)
+                            });
+                            
+                            
+                            console.log(comment + "\n" + struct)
+                        }
+
+                        if (ast == "FunctionDecl") {
+                        
+                        }
+                        //console.log("test")
                         // comment = deck.nodes[key].comment.text //get comment from function
                         // mangled = deck.nodes[key].mangled_name
                         // //todo how to use loc?

@@ -111,6 +111,8 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             how to know when a new id appears, and which h to bind it to?
 
         */
+
+       //set as 1 to turn on, and 0 to turn off
        if(0){
 
         for (int j=0; j<count; j++) {

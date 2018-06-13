@@ -19,13 +19,15 @@ const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 const execPromise = require('child-process-promise');
 
 const libext = process.platform == "win32" ? "dll" : "dylib";
-
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
 
 const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
+
+
+console.log(project_path + "/project.cpp")
 
 // let fileList = fs.readdirSync(project_path).filter(function(file) {
 
@@ -241,11 +243,11 @@ const client_path = path.join(server_path, "client");
 
 // console.log(some_str)
 
-let fileName = "project.cpp"
-exec('git log --all --source --abbrev-commit --pretty="%cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
-  // console.log(JSON.stringify(stderr))
-  let commitList = stderr.split('refs/heads').join('')
-  // ws.send("branchCommits?" + commitList)
-  console.log(commitList)
+// let fileName = "project.cpp"
+// exec('git log --all --source --abbrev-commit --pretty="%cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
+//   // console.log(JSON.stringify(stderr))
+//   let commitList = stderr.split('refs/heads').join('')
+//   // ws.send("branchCommits?" + commitList)
+//   console.log(commitList)
 
-  })
+//   })
