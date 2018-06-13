@@ -177,7 +177,7 @@ function newCard(x, y){
    
 }
 
-
+/*
 //create a deck of cards received from server:
 function sortDeck(x, y, ast, card, name){
     var instance = count ++;
@@ -207,7 +207,7 @@ function sortDeck(x, y, ast, card, name){
         $( cardId )
     });  
    
-}
+} */
 
 
 
@@ -458,7 +458,121 @@ function openSocket() {
                     deck = (JSON.parse(arg))
                     //var newCard = [];
 
-                    var numCards = 0;
+                    //var numCards = 0;
+
+
+
+                    function visit(node, parentnode, ctx) {
+                        //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
+
+                        //ctx.card.push(node.ast);
+                        // if (node.comment.text){
+                        //   //  ctx.card.push(node.comment.text)
+                       
+                        var card = {}
+                        // }
+                        let ctx1 = {
+                            card: [],
+                        }
+
+                        // add more props depending on the node type
+
+                        //first check if a node has children, if not, ignore. 
+                        if (node.nodes){
+                            if (node.ast == "TranslationUnit"){
+                                //establish TU as top of hierarchy for this deck
+                                ctx.card.push(node.filename);
+
+                                /* //this may or may not be necessary... hopefully not, hopefully we can just use pass the completed 'ctx' to a graph library and generate the entire 'patcher' 
+                                var children = [];
+
+                                Object.keys(deck.nodes).forEach(function(key) {
+
+                                    children.push(deck.nodes[key].name)
+
+                                })
+                                sortDeck(100, 100, node.ast, children.toString(), node.filename)
+                                */
+                            }
+                            //console.log(node.ast)
+                            if (node.ast == "StructDecl"){
+                                var children = [];
+
+                                Object.keys(node.nodes).forEach(function(key) {
+                                    //if a child has a mangled name, get it
+                                    if (node.nodes[key].mangled_name) {
+                                        children.push(node.nodes[key].mangled_name)
+
+                                    } else {
+                                        //some types don't have a mangled name, so just get its name
+                                        children.push(node.nodes[key].name)
+                                    }
+
+                                });  
+                                console.log(children)
+
+                                
+                                if (node.comment){
+                                // ctx.card.push(node.comment.text)
+                                }   
+                                ctx.card.push(node.comment.text + "struct " + node.name + "{")
+
+                                sortDeck(300, 200, node.ast, (node.comment.text + "struct " + node.name + "{"), node.name)
+                                //console.log(node.ast + " true")
+                            }
+
+                            
+                            // do this for structs, tranlation units, 
+                            // but not for functions
+                            for (c of node.nodes) {
+                                //console.log(node.nodes)
+                                visit(c, node, ctx1);
+                            }
+                            //console.log("exit", node.ast);
+
+                            ctx.card.push(ctx1);
+                            //ctx.card.push("</div>")
+                        }
+                    }
+
+                    let ctx = {
+                        card: [],
+                    }
+
+                    visit(deck, null, ctx);
+
+                    console.log(JSON.stringify(ctx, null, 3));
+
+                    //create a deck of cards received from server:
+                    function sortDeck(x, y, ast, card, name, children){
+                        var instance = count ++;
+                        frameId = ("frame_" + instance);
+
+                        cardId = ("card_" + instance);
+                        cardIdArray.push(cardId)
+                        value = ("//new card")
+                                
+                        // create a frame place it at the mouse position, and insert the code card within
+                        // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+                            // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+                        var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + name + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+                                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+                    
+                    
+                        // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+                        $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+                            //difficult to get accordion working with codemirror, comes out weird
+                            // $item.accordion({collapsible: true, heightStyle: "content"});   
+                        $item.tabs({ collapsible: true, event: "mouseover"})
+                        // add it to the deck
+                        $item.appendTo('.deck');
+
+                        initUI(card, (ast + '_' + name), cardId);   
+                        $( function() {
+                            $( cardId )
+                        });  
+                    
+                    }
                     //console.log(deck.nodes)
                     
                     // Object.keys(deck.nodes).forEach(function(key) {
@@ -488,36 +602,36 @@ function openSocket() {
 
                     // })
                         //define the name of the deck
-                        var deckFile = deck.filename;
+                        // var deckFile = deck.filename;
 
-                        Object.keys(deck.nodes).forEach(function(key) {
-                        //for now, generate random positions for each card of the received deck
-                        function newInt(max) {
-                            return Math.floor(Math.random() * Math.floor(max));
-                        }
-                        numCards++;
-                        cardX = newInt(bodySize[0])
-                        cardY = newInt(bodySize[1])
+                        // Object.keys(deck.nodes).forEach(function(key) {
+                        // //for now, generate random positions for each card of the received deck
+                        // function newInt(max) {
+                        //     return Math.floor(Math.random() * Math.floor(max));
+                        // }
+                        // numCards++;
+                        // cardX = newInt(bodySize[0])
+                        // cardY = newInt(bodySize[1])
 
-                        var ast = deck.nodes[key].ast //get the ast type
-                        var name = deck.nodes[key].name
-                        var comment = deck.nodes[key].comment.text
+                        // var ast = deck.nodes[key].ast //get the ast type
+                        // var name = deck.nodes[key].name
+                        // var comment = deck.nodes[key].comment.text
 
-                        if (ast == "StructDecl") {
-                            struct = "struct " + name + "{\n}"
+                        // if (ast == "StructDecl") {
+                        //     struct = "struct " + name + "{\n}"
                             
-                            Object.keys(deck.nodes[key].nodes).forEach(function(key) {
-                                //console.log(key)
-                                console.log(deck.nodes[key].nodes[key].ast)
-                            });
+                        //     Object.keys(deck.nodes[key].nodes).forEach(function(key) {
+                        //         //console.log(key)
+                        //         console.log(deck.nodes[key].nodes[key].ast)
+                        //     });
                             
                             
-                            console.log(comment + "\n" + struct)
-                        }
+                        //     console.log(comment + "\n" + struct)
+                        // }
 
-                        if (ast == "FunctionDecl") {
+                        // if (ast == "FunctionDecl") {
                         
-                        }
+                        // }
                         //console.log("test")
                         // comment = deck.nodes[key].comment.text //get comment from function
                         // mangled = deck.nodes[key].mangled_name
@@ -534,7 +648,7 @@ function openSocket() {
 
                         // sortDeck(cardX, cardY, ast, card, name)
 
-                    })
+                    //})
                     break;
                     default:
                         log("cmd: " + cmd + ", " + arg);
