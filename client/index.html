@@ -564,23 +564,23 @@ function openSocket() {
                     case "setUserList":
                     //get the username <select> element
                     var sel = document.getElementById('chooseUser');
-                        
+                    //store the incoming userlist in a global
                     currentUserList = JSON.parse(arg);
+                    //compare the previous userlist with the incoming list
+                    //append any new names
                     Object.keys(currentUserList).forEach(function(key) {
                         if(userlist.hasOwnProperty(key)){
-                            // console.log("name found " + key)
                             //if found, don't add them again
                         } else {
                             //add the new names to the <select> element
-                        var opt = document.createElement('option');
-                        opt.appendChild(document.createTextNode(key) );
-                        opt.value = key;
-                        sel.appendChild(opt);
+                            var opt = document.createElement('option');
+                            opt.appendChild(document.createTextNode(key) );
+                            opt.value = key;
+                            sel.appendChild(opt);
                         }
                     })
-                    //store userlist globally so that new names are compared against this array
+                    //update userlist globally so that the next incoming userlist is compared against it
                     userlist = currentUserList;
-                    //first check if any new usernames have been added
                     
 
                     if(localStorage.getItem(currentUser) != null){
