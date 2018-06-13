@@ -268,7 +268,7 @@ wss.on('connection', function(ws, req) {
 
 	console.log(userlist)
 	ws.send("setUserList?" + JSON.stringify(userlist));
-
+	let selectedBranch;
 	//get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
 	fileList = fs.readdirSync(project_path).filter(function(file) {
 		if(file.charAt(0) == "+");
@@ -382,6 +382,8 @@ wss.on('connection', function(ws, req) {
 				//console.log("branchname?" + stderr.replace("\n", ""))
 				})
 		}
+
+
 		
 
 		if (message.includes("editedRightCode")){
@@ -663,6 +665,17 @@ wss.on('connection', function(ws, req) {
 			
 	
 			
+				break;
+
+
+
+
+				case "selectedBranch":
+
+				selectedBranch = arg
+				console.log(selectedBranch)
+				ws.send(selectedBranch)
+
 				break;
 	//Build gitgraph and send to client
 			case "client_SVG":

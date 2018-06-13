@@ -434,8 +434,11 @@ function sendRightCode(val){
 
 //branch selection:
 function selectBranch() {
-    selection = document.Branch.chooseBranch.value;
-    console.log(selection)
+    //selection = document.Branch.chooseBranch.value;
+    e = document.getElementById('chooseBranch')
+    var selectedBranch = e.options[e.selectedIndex].value;
+    console.log(selectedBranch)
+    ws.send("selectedBranch?" + selectedBranch)
 }
 //file selection
 function chooseFileName(){
