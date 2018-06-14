@@ -970,23 +970,17 @@ function mouseLeaveCommit(evt) {
 
 
 function hideAndSeek() {
-  // Declare variables 
-  var input, filter, table, tr, td, i;
+  var input, filter, a, i;
   input = document.getElementById("search");
   filter = input.value.toUpperCase();
-  table = document.getElementById("myTable");
-  tr = table.getElementsByTagName("tr");
-
-  // Loop through all table rows, and hide those who don't match the search query
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
-    if (td) {
-      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    } 
+  div = document.getElementById("chooseBranch");
+  a = div.getElementsByTagName("option");
+  for (i = 0; i < a.length; i++) {
+    if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+      a[i].style.display = "";
+    } else {
+      a[i].style.display = "none";
+    }
   }
 }
 
