@@ -16,8 +16,8 @@
 
  .node circle {
    fill: #fff;
-   stroke: steelblue;
-   stroke-width: 1px;
+   stroke: rgb(7, 10, 192);
+   stroke-width: 3px;
  }
 
  .node text { font: 12px sans-serif; }
@@ -26,6 +26,7 @@
    fill: none;
    stroke: #ccc;
    stroke-width: 4px;
+   cursor: crosshair;
  }
 
   .node {
@@ -289,6 +290,14 @@ updateDepth = 180;
 
 
 function update(source) {
+    var drag = d3.behavior.drag()
+        .on("drag", function(d,i) {
+            d.x += d3.event.dx
+            d.y += d3.event.dy
+            d3.select(this).attr("transform", function(d,i){
+                return "translate(" + [ d.x,d.y ] + ")"
+            })
+        });
 
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
@@ -303,6 +312,7 @@ function update(source) {
 
   // Enter the nodes. horizontal layout:
   var nodeEnter = node.enter().append("g")
+  .call(drag)
    .attr("class", "node")
    .on('click', function(data,index){
         console.log(data.name)
@@ -319,8 +329,9 @@ function update(source) {
     //         return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeEnter.append("circle")
-   .attr("r", 10)
-   .style("fill", "#fff");
+   .attr("r", 8)
+   .style("fill", "rgb(66, 134, 244)")
+
 
 //text position for horizontal layout
   nodeEnter.append("text")
