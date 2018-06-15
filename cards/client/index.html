@@ -50,10 +50,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
     <script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
 
+    <script src="http://d3js.org/d3.v3.min.js"></script>
 
     <!-- server address & open/close -->
 
 </head>
+
+<style>
+
+ .node circle {
+   fill: #fff;
+   stroke: rgb(7, 10, 192);
+   stroke-width: 3px;
+ }
+
+ .node text { font: 12px sans-serif; }
+
+ .link {
+   fill: none;
+   stroke: #ccc;
+   stroke-width: 4px;
+   cursor: crosshair;
+ }
+
+  .node {
+      /* allow for mouse interaction on the nodes */
+  cursor: pointer; 
+ }
+
+</style>
 
 <!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
@@ -454,125 +479,123 @@ function openSocket() {
                 switch(cmd) {
                     
                     case "deck":
-                    //console.log(arg)
+                    
                     deck = (JSON.parse(arg))
                     //var newCard = [];
+                    let name;
+                    newDeckArray = []
 
-                    //var numCards = 0;
-
-
+                    visit(arg)
 
                     function visit(node, parentnode, ctx) {
                         //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
+                        
+                        if (node.ast == "TranslationUnit"){
+                            ctx.name = node.filename;
+                        
+                            //ctx.children.push(node.ast);
 
-                        ctx.card.push(node.ast);
-                        // if (node.comment.text){
-                        //   //  ctx.card.push(node.comment.text)
-                       
-                        var card = {}
-                        // }
+                            let ctx1 = {
+                                name: name,
+                                children: [],
+                            }  
+
+
+                                    // add more props depending on the node type
+
+                            //first check if a node has children, if not, ignore. 
+                            if (node.nodes){
+                                
+                                // do this for structs, tranlation units, 
+                                // but not for functions
+                                for (c of node.nodes) {
+                                    visit(c, node, ctx1);
+                                }
+                            // console.log("exit", node.ast);
+
+                                ctx.children.push(ctx1);
+
+                                //ctx.children.push("</div>")
+                            }
+                        } else if (node.name) {
+
+                        ctx.children.push(node.name);
+                        ctx.name = node.name;
+
                         let ctx1 = {
-                            card: [],
+                            name: name,
+                            children: [],
                         }
-
-                        // add more props depending on the node type
+                        
+                            // add more props depending on the node type
 
                         //first check if a node has children, if not, ignore. 
                         if (node.nodes){
-                            if (node.ast == "TranslationUnit"){
-                                //establish TU as top of hierarchy for this deck
-                                ctx.card.push(node.filename);
-
-                                /* //this may or may not be necessary... hopefully not, hopefully we can just use pass the completed 'ctx' to a graph library and generate the entire 'patcher' 
-                                var children = [];
-
-                                Object.keys(deck.nodes).forEach(function(key) {
-
-                                    children.push(deck.nodes[key].name)
-
-                                })
-                                sortDeck(100, 100, node.ast, children.toString(), node.filename)
-                                */
-                            }
-                            //console.log(node.ast)
-                            if (node.ast == "StructDecl"){
-                                var children = [];
-
-                                Object.keys(node.nodes).forEach(function(key) {
-                                    //if a child has a mangled name, get it
-                                    if (node.nodes[key].mangled_name) {
-                                        children.push(node.nodes[key].mangled_name)
-
-                                    } else {
-                                        //some types don't have a mangled name, so just get its name
-                                        children.push(node.nodes[key].name)
-                                    }
-
-                                });  
-                                console.log(children)
-
-                                
-                                if (node.comment){
-                                // ctx.card.push(node.comment.text)
-                                }   
-                                ctx.card.push(node.comment.text + "struct " + node.name + "{")
-
-                                sortDeck(300, 200, node.ast, (node.comment.text + "struct " + node.name + "{"), node.name)
-                                //console.log(node.ast + " true")
-                            }
-
                             
                             // do this for structs, tranlation units, 
                             // but not for functions
                             for (c of node.nodes) {
-                                //console.log(node.nodes)
                                 visit(c, node, ctx1);
                             }
-                            //console.log("exit", node.ast);
 
-                            ctx.card.push(ctx1);
-                            //ctx.card.push("</div>")
+                            ctx.children.push(ctx1);
+
                         }
+
+                    }
+
+                    else if (node.mangled_name){
+
+                        ctx.children.push(node.name);
+                        ctx.name = node.name;
+
+                        let ctx1 = {
+                            name: name,
+                            children: [],
+                        }
+                        
+                            // add more props depending on the node type
+
+                        //first check if a node has children, if not, ignore. 
+                        if (node.nodes){
+                            
+                            // do this for structs, tranlation units, 
+                            // but not for functions
+                            for (c of node.nodes) {
+                                visit(c, node, ctx1);
+                            }
+                        // console.log("exit", node.ast);
+
+                            ctx.children.push(ctx1);
+
+                        }
+
+                    }
+
                     }
 
                     let ctx = {
-                        card: [],
-                    }
+                        name: name,
 
+                        children: [],
+                    }
+                    //recurse through the rest of the JSON
                     visit(deck, null, ctx);
+                    //build the new tree
+                    //newDeck = JSON.stringify(ctx, null, 3);
+                    //the tree builder expects an array but the visitor function outputs an object, so:
+                    //create a new array...
+                    newTree = new Array();
+                    //...and then add ctx to the array as its only object
+                    newTree[0] = ctx;
 
-                    console.log(JSON.stringify(ctx, null, 3));
+                    root = newTree[0];
 
-                    //create a deck of cards received from server:
-                    function sortDeck(x, y, ast, card, name, children){
-                        var instance = count ++;
-                        frameId = ("frame_" + instance);
-
-                        cardId = ("card_" + instance);
-                        cardIdArray.push(cardId)
-                        value = ("//new card")
-                                
-                        // create a frame place it at the mouse position, and insert the code card within
-                        // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
-                            // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
-                        var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + name + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
-                                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
                     
+                    update(root);
                     
-                        // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
-                        $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
-                            //difficult to get accordion working with codemirror, comes out weird
-                            // $item.accordion({collapsible: true, heightStyle: "content"});   
-                        $item.tabs({ collapsible: true, event: "mouseover"})
-                        // add it to the deck
-                        $item.appendTo('.deck');
+            
 
-                        initUI(card, (ast + '_' + name), cardId);   
-                        $( function() {
-                            $( cardId )
-                        });  
-                    
-                    }
                     //console.log(deck.nodes)
                     
                     // Object.keys(deck.nodes).forEach(function(key) {
@@ -676,6 +699,175 @@ setInterval(function(){
 }, 2000);
 
 
+//currently opened card:
+let currentCardID;
+// ************** Generate the tree diagram  *****************
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+ width = 960 - margin.right - margin.left,
+ height = 500 - margin.top - margin.bottom;
+ 
+var i = 0;
+
+var tree = d3.layout.tree()
+ .size([height, width]);
+
+//horizontal layout
+var diagonal = d3.svg.diagonal()
+ .projection(function(d) { return [d.y, d.x]; });
+
+ //vertical laout:
+//  var diagonal = d3.svg.diagonal()
+//  .projection(function(d) { return [d.x, d.y]; });
+
+var svg = d3.select("body").append("svg")
+ .attr("width", width + margin.right + margin.left)
+ .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+ .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+updateDepth = 180;
+
+
+function update(source) {
+
+    //note, likely for a better version of drag, see this: https://github.com/d3/d3-drag
+    //for now, a weak drag version (links won't move with a dragged node...)
+    // var drag = d3.behavior.drag()
+    //     .on("drag", function(d,i) {
+    //         d.x += d3.event.dx
+    //         d.y += d3.event.dy
+    //         d3.select(this).attr("transform", function(d,i){
+    //             return "translate(" + [ d.x,d.y ] + ")"
+    //         })
+    //     });
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+   links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * updateDepth; });
+
+  // Declare the nodesâ€¦
+  var node = svg.selectAll("g.node")
+   .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter the nodes. horizontal layout:
+  var nodeEnter = node.enter().append("g")
+//   .call(drag)
+   .attr("class", "node")
+   .on('click', function(data,index){
+        if (currentCardID){
+            $(currentCardID).remove();
+
+        }
+
+        console.log(data.name, data.x, data.y)
+        thisX = data.x;
+        thisY = data.y;
+        //for now: (TODO: put the ast into the newTree array)
+        ast = data.name; 
+        name = data.name;
+        currentCardID = data.name;
+        //for now: (TODO: generate the code from var data)
+        card = "//here is some bogus code\nyep pretty lame";
+        showCard(thisX, thisY, card, name)
+
+         d3.event; // => Original DOM Event
+     })
+   .attr("transform", function(d) { 
+    return "translate(" + d.y + "," + d.x + ")"; });
+    
+
+    //vertical layout:
+    // var nodeEnter = node.enter().append("g")
+    //     .attr("class", "node")
+    //     .attr("transform", function(d) { 
+    //         return "translate(" + d.x + "," + d.y + ")"; });
+
+  nodeEnter.append("circle")
+   .attr("r", 8)
+   .style("fill", "rgb(66, 134, 244)")
+
+
+//text position for horizontal layout
+  nodeEnter.append("text")
+   .attr("x", function(d) { 
+    return d.children || d._children ? -13 : 13; })
+   .attr("dy", ".35em")
+   .attr("text-anchor", function(d) { 
+    return d.children || d._children ? "end" : "start"; })
+   .text(function(d) { return d.name; })
+   .style("fill-opacity", 1);
+
+   //text position for vertical layout:
+//    nodeEnter.append("text")
+//    .attr("y", function(d) { 
+//     return d.children || d._children ? -18 : 18; })
+//    .attr("dy", ".35em")
+//    .attr("text-anchor", "middle")
+//    .text(function(d) { return d.name; })
+//    .style("fill-opacity", 1);
+
+  // Declare the linksâ€¦
+  var link = svg.selectAll("path.link")
+   .data(links, function(d) { return d.target.id; });
+
+  // Enter the links.
+  link.enter().insert("path", "g")
+   .attr("class", "link")
+   .attr("d", diagonal);
+
+//    node.enter().append("svg:circle")
+
+}
+
+//mouse-click to open/close child nodes
+function click(d) {
+    console.log(d.id)
+//   if (d.children) {
+//  d._children = d.children;
+//  d.children = null;
+//   } else {
+//  d.children = d._children;
+//  d._children = null;
+//   }
+//   update(d);
+}
+
+//when we click on a node, get its name/mangled_name, then place its code inside a codemirror card and display that card
+
+
+function showCard(x, y, card, name){
+    ast = ""
+    var instance = count ++;
+    frameId = name;
+
+    cardId = ("cardID_" + name);
+    cardIdArray.push(cardId)
+    value = ("//new card")
+            
+    // create a frame place it at the mouse position, and insert the code card within
+    // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+        // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+    var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + name + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+            // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+
+
+    // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+    $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+        //difficult to get accordion working with codemirror, comes out weird
+        // $item.accordion({collapsible: true, heightStyle: "content"});   
+    $item.tabs({ collapsible: true, event: "mouseover"})
+    // add it to the deck
+    $item.appendTo('.deck');
+
+    initUI(card, (ast + '_' + name), cardId);   
+    $( function() {
+        $( cardId )
+    });  
+
+} 
 </script>
 
 
