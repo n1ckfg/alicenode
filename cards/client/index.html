@@ -5,7 +5,7 @@
 
 <head>
 <!-- //TEMPORARY: just to aid in development workflow -->
-<meta http-equiv="refresh" content="5; URL=http://localhost:8080">
+<!-- <meta http-equiv="refresh" content="5; URL=http://localhost:8080"> -->
 <!--        SOURCES         -->
 <!-- Codemirror -->
     <!-- styles -->
@@ -465,7 +465,7 @@ function openSocket() {
                     function visit(node, parentnode, ctx) {
                         //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
 
-                        //ctx.card.push(node.ast);
+                        ctx.card.push(node.ast);
                         // if (node.comment.text){
                         //   //  ctx.card.push(node.comment.text)
                        
