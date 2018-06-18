@@ -25,6 +25,7 @@
 
 table, th, td {
     border: 1px solid black;
+    table-layout: fixed
  }
 
 h3 { text-decoration: none }

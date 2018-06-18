@@ -33,6 +33,8 @@
       <script src="cm/addons/buttons/buttons.js"></script>
   <script src="cm/addons/panel.js"></script>
   <script src="cm/addons/fullscreen/fullscreen.js"></script>
+  <script src="cm/cm-resize.js"></script>
+
 
 
 
@@ -113,7 +115,12 @@
         <th style="width: 5%;">Filename</th><th style="width: 30%;">Full Source Code</th><th style="width: 65%;">AST Graph</th>
         </tr>
         <tr>
-            <td class="left" id="deckOneName"></td><td id="deckOneSource">cell</td><td class="right" id="deckOneASTGraph"></td>
+            <td class="left" id="deckOneName"></td>
+            <td id="deckOneSource" style="float:left">
+
+            </td>
+            <td class="right" id="deckOneASTGraph">
+            </td>
         </tr>
         <!-- <tr>
                 <td class="left">cell</td><td>cell</td><td class="right">cell</td>
@@ -270,6 +277,53 @@ function sortDeck(x, y, ast, card, name){
 } */
 
 
+//get and set code in the new card
+function sourceCard(code) {
+   // isRightDirty = false;
+    if (value == null) return;
+    var target = document.getElementById("deckOneSource");
+
+    target.innerHTML = "";
+    dv = CodeMirror(target, {
+        position: "relative",
+        value: code,
+        // origLeft: panes == 3 ? orig1 : null,
+        // origRight: orig1,
+        lineNumbers: true,
+        mode: "clike",
+        //highlightDifferences: "highlight",
+        
+        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
+        viewportMargin: 10,
+        revertButtons: true,
+        allowEditingOriginals: true,
+        // autoRefresh: true,
+        // showDifferences: true,
+        linewrapping: true,
+        // addPanel: cardId
+        // connect: "connect",
+        // theme: "icecode",
+        // collapseIdentical: true,
+        // collapse: collapse
+        
+        // fullscreen: true,
+        /* init: */
+        //place cursor in left editor at client init
+        autofocus: 1,
+        
+
+        //editing
+        undoDepth: 200,
+
+
+        //cursor settings:
+        cursorBlinkRate: 300,
+        cursorScrollMargin: 0,
+        
+    });
+    dv.setSize(427, 500);
+
+}
 
 
 //get and set code in the new card
@@ -516,6 +570,7 @@ function openSocket() {
                     case "src":
 
                     //regen(arg);
+                    sourceCard(arg)
                     
                     case "deck":
                     deck = (JSON.parse(arg))
