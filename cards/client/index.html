@@ -13,10 +13,12 @@
     <link rel=stylesheet href="cm/docs.css">
     <link rel=stylesheet href="cm/codemirror.css">
     <link rel=stylesheet href="cm/addons/fullscreen/fullscreen.css">
+    <link rel=stylesheet href="cm/one-dark.css">
+
+]
 
     <!-- <link rel=stylesheet href="cm/merge.css">
     <link rel=stylesheet href="cm/icecoder.css"> -->
-    <link rel=stylesheet href="css/cards.css">
 
     <!-- scripts -->
     <script src="cm/codemirror.js"></script>
@@ -49,7 +51,8 @@
     <link rel=stylesheet href="css/alicenode.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-    
+    <link rel=stylesheet href="css/cards.css">
+
 
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -111,27 +114,20 @@
 
 
 <table id="decks" width="100%" border="0" cellpadding="0" cellspacing="0" >
-    <tbody><tr>
-        <th style="width: 5%;">Filename</th><th style="width: 30%;">Full Source Code</th><th style="width: 65%;">AST Graph</th>
+    <tbody>
+        <tr>
+            <th style="width: 5%;">Filename</th>
+            <th style="width: 30%;">Full Source Code</th>
+            <th style="width: 65%;">AST Graph</th>
         </tr>
         <tr>
             <td class="left" id="deckOneName"></td>
-            <td id="deckOneSource" style="float:left">
-
-            </td>
-            <td class="right" id="deckOneASTGraph">
-            </td>
-        </tr>
-        <!-- <tr>
-                <td class="left">cell</td><td>cell</td><td class="right">cell</td>
-        </tr>
-        <tr>
-            <td class="left bottom">cell</td><td class="bottom">cell</td><td class="bottom right">cell</td>
-        </tr>				 -->
-        
+            <td id="deckOneSource" style="float:left"></td>
+            <td class="right" id="deckOneASTGraph"></td>
+        </tr>        
     </tbody>
 </table>
-<!-- resizable columns for the table above -->
+<!-- script for the resizable columns for the table above -->
 <script>
     $("#decks").colResizable({
     liveDrag:true,
@@ -292,7 +288,8 @@ function sourceCard(code) {
         lineNumbers: true,
         mode: "clike",
         //highlightDifferences: "highlight",
-        
+        theme: 'one-dark',
+
         //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
         viewportMargin: 10,
         revertButtons: true,
@@ -806,7 +803,7 @@ let lext = 400;
 //currently opened card:
 let currentCardID;
 // ************** Generate the tree diagram  *****************
-var margin = {top: 20, right: 120, bottom: 20, left: 100},
+var margin = {top: 20, right: 120, bottom: 20, left: 50},
  width = 960 - margin.right - margin.left,
  height = 500 - margin.top - margin.bottom;
  
