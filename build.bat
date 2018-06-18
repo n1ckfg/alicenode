@@ -7,6 +7,8 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\%VCVARS6
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\%VCVARS64%"
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%"
 
+rem /WHOLEARCHIVE:lib/win64/freenect2static.lib ^
+
 rem compile & link:
 cl /W3 /EHsc /O2  ^
 /I include ^
@@ -17,7 +19,10 @@ src/alice.cpp ^
 /MACHINE:X64 ^
 /WHOLEARCHIVE:lib/win64/lib-vc2017/glfw3.lib ^
 /WHOLEARCHIVE:lib\win64\lib-vc2017\libuv.lib ^
+lib/win64/libusb-1.0.lib ^
+lib/win64/freenect2static.lib ^
  /DYNAMICBASE ^
+lib/win64/turbojpeg.lib ^
 lib/win64/Leap.lib lib/win64/LeapC.lib ^
 lib/win64/SpoutLibrary.lib "%KINECTSDK20_DIR%\lib\x64\kinect20.lib" lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib shlwapi.lib gdi32.lib advapi32.lib iphlpapi.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib psapi.lib userenv.lib uuid.lib winspool.lib comdlg32.lib ws2_32.lib opengl32.lib
 rem echo Exit Code is %errorlevel% 
@@ -27,9 +32,8 @@ if %errorlevel% neq 0 (
     echo Exit Code is %errorlevel%
 ) else (
     alice.exe
+    echo Exit Code is %errorlevel%
 )
-
-rem /DELAYLOAD:support/win64/openvr_api.dll
 
 @del alice.obj alice.exp
 

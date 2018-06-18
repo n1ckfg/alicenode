@@ -1,8 +1,15 @@
 
+namespace jim {
+	struct Foo {
+
+	};
+}
+
 /*
 	Fooey foofoo
 */
 struct Foo {
+
 	int x = 0;
 
 	// methy meth
@@ -20,4 +27,4 @@ int zap(float f) {
 
 
 	return 99 * f;
-}
+}7
