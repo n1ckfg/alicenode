@@ -35,9 +35,9 @@ var escope = require('escope')
 
 //SETUP
 //load js file
-var source = fs.readFileSync("./aserver.js", "utf8")
+//var source = fs.readFileSync("./aserver.js", "utf8")
 //create the abstract syntax tree
-var ast = esprima.parse(source, {loc: true, range: true})
+//var ast = esprima.parse(source, {loc: true, range: true})
 
 // console.log(json);
 
@@ -75,12 +75,14 @@ var functionList = {}
 
 var opts
 var nodes
-
-
+let deck;
+let src;
 
 //objects:
-let deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
-console.log(JSON.parse(deck))
+//
+
+//let src = fs.readFileSync(deck.filename, "utf-8");
+//console.log(src)
 let cards = {}; //json object containing all card data: function, code data, attribute(s)
 let globals = {} // contains any variable declared at file's root
 let locals = {} // contains any variables declared within a function's scope
@@ -89,22 +91,47 @@ var requireStatements = {} //containing all of the require statements
 
 //get the updated json of test.h (see ./cards/cpp2json)
 getCpp2json();
-console.log( __dirname + "/cpp2json/")
+//console.log( __dirname + "/cpp2json/")
 function getCpp2json(){
-    exec('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
-        console.log("deck folded")
-        if (stderr !== null){
+    deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
+    //console.log(deck)
+    //not working for the time being...
+    // execSync('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
+    //     console.log("deck folded")
+    //     if (stderr !== null){
             
-            deck = (stderr)
-        } else if (err !== null){
-            
-            deck = (err)
-        } else if (stdout !== null){
-            
-            deck = (stdout)
-        }
+    //         deck = (stderr)
+    //     } else if (err !== null){
 
-    })
+    //         deck = (err)
+    //     } else if (stdout !== null){
+
+    //         deck = (stdout)
+    //     }
+    //     console.log(JSON.parse(deck))
+    // })
+
+
+    //this is commented out for now, as the regen can't deal with StructDecl yet...(?)
+    // execSync('node regen.js test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
+    //     //console.log("deck folded")
+    //     if (stderr !== null){
+            
+    //         src = (stderr)
+    //     } else if (err !== null){
+            
+    //         src = (err)
+    //     } else if (stdout !== null){
+            
+    //         src = (stdout)
+    //     }
+    //     console.log(JSON.parse(src))
+    // })
+
+    //so this is being run in the above code's place, for now (its a bootstrap):
+    src = fs.readFileSync(__dirname + "/cpp2json/test.h").toString();
+   // console.log(src)
+
      
 }
 
@@ -145,8 +172,9 @@ wss.on('connection', function(ws, req) {
 
 
 	};
-    
+    //console.log(deck)
     ws.send("deck?" + deck);
+    ws.send("src?" + src)
 
 	sessions[per_session_data.id] = per_session_data;
 

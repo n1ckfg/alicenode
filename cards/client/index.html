@@ -16,6 +16,7 @@
 
     <!-- <link rel=stylesheet href="cm/merge.css">
     <link rel=stylesheet href="cm/icecoder.css"> -->
+    <link rel=stylesheet href="css/cards.css">
 
     <!-- scripts -->
     <script src="cm/codemirror.js"></script>
@@ -37,15 +38,26 @@
 
 
 
+
+
+
 <!-- General Sources -->
     <!-- style -->
     <link rel=stylesheet href="css/jquery-ui.css">
     <link rel=stylesheet href="css/alicenode.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+    
+
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- resizeable columns -->
+    <link rel=stylesheet href="css/colresizeable.css">
+
+    <script src="js/colResizable-1.5.min.js"></script>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
     <script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
@@ -83,9 +95,6 @@
 <!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
 
-
-
-
     <table width="100%">
         <tr height="30px" bgcolor="#daeef4">
             <th style="text-decoration: none">Deck of Cards ide</th>
@@ -98,6 +107,32 @@
     <!--container for all cards  -->
     <div class="deck">
 
+
+<table id="decks" width="100%" border="0" cellpadding="0" cellspacing="0" >
+    <tbody><tr>
+        <th style="width: 5%;">Filename</th><th style="width: 30%;">Full Source Code</th><th style="width: 65%;">AST Graph</th>
+        </tr>
+        <tr>
+            <td class="left" id="deckOneName"></td><td id="deckOneSource">cell</td><td class="right" id="deckOneASTGraph"></td>
+        </tr>
+        <!-- <tr>
+                <td class="left">cell</td><td>cell</td><td class="right">cell</td>
+        </tr>
+        <tr>
+            <td class="left bottom">cell</td><td class="bottom">cell</td><td class="bottom right">cell</td>
+        </tr>				 -->
+        
+    </tbody>
+</table>
+<!-- resizable columns for the table above -->
+<script>
+    $("#decks").colResizable({
+    liveDrag:true,
+    gripInnerHtml:"<div class='grip'></div>", 
+    draggingClass:"dragging" });
+
+
+</script>
 
 </body>
 
@@ -478,10 +513,20 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
-                    case "deck":
+                    case "src":
+
+                    //regen(arg);
                     
+                    case "deck":
                     deck = (JSON.parse(arg))
                     //var newCard = [];
+                    console.log(deck)
+
+                    //send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)
+                    
+
+                    
+                    
                     let name;
                     newDeckArray = []
 
@@ -492,6 +537,10 @@ function openSocket() {
                         
                         if (node.ast == "TranslationUnit"){
                             ctx.name = node.filename;
+
+                            //put this ast's filename into the filename column of the IDE table
+                            $('#deckOneName').text(node.filename)
+
                         
                             //ctx.children.push(node.ast);
 
@@ -698,11 +747,11 @@ setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
 
-
+let lext = 400;
 //currently opened card:
 let currentCardID;
 // ************** Generate the tree diagram  *****************
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
+var margin = {top: 20, right: 120, bottom: 20, left: 100},
  width = 960 - margin.right - margin.left,
  height = 500 - margin.top - margin.bottom;
  
@@ -719,7 +768,7 @@ var diagonal = d3.svg.diagonal()
 //  var diagonal = d3.svg.diagonal()
 //  .projection(function(d) { return [d.x, d.y]; });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#deckOneASTGraph").append("svg")
  .attr("width", width + margin.right + margin.left)
  .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -757,6 +806,7 @@ function update(source) {
 //   .call(drag)
    .attr("class", "node")
    .on('click', function(data,index){
+       console.log(index)
        //goal for now is to click a node, have it's code pop up in a CM instance, make changes which directly edits its ast
        //goal 2 is to place ALL of the cpp code of the original file into the cm instance for the head (test.h) node. editing this head node can result in dynamic changes to the ast graph!
         if (currentCardID){
@@ -764,19 +814,25 @@ function update(source) {
 
         }
 
-        console.log(data.name, data.x, data.y)
-        thisX = data.x;
-        thisY = data.y;
-        //for now: (TODO: put the ast into the newTree array)
-        ast = data.name; 
-        name = data.name;
-        currentCardID = data.name;
-        console.log(data)
-        //for now: (TODO: generate the code from var data)
-        card = "//here is some bogus code\nyep pretty lame";
-        showCard(thisX, thisY, card, name)
+        if (data.filename) {
 
-         d3.event; // => Original DOM Event
+            console.log("clicked the head " + data.filename)
+
+        } else {
+            console.log(data.name, data.x, data.y)
+            thisX = data.x;
+            thisY = data.y;
+            //for now: (TODO: put the ast into the newTree array)
+            ast = data.name; 
+            name = data.name;
+            currentCardID = data.name;
+            console.log(data)
+            //for now: (TODO: generate the code from var data)
+            card = "//here is some bogus code\nyep pretty lame";
+            showCard(thisX, thisY, card, name)
+
+            d3.event; // => Original DOM Event
+        }
      })
    .attr("transform", function(d) { 
     return "translate(" + d.y + "," + d.x + ")"; });
@@ -871,6 +927,34 @@ function showCard(x, y, card, name){
     });  
 
 } 
+
+
+
+// // 
+// function regen(ast){
+//     let res = [];
+
+//     for (let d of ast.nodes) {
+//         //console.log(d);
+//         if (d.ast == "FunctionDecl") {
+//             if (d.comment) {
+//                 res.push(d.comment.text, "\n");
+//             }
+//             let params = d.nodes.slice(0, -1).map(node => `${node.type} ${node.name}`);
+//             let body = d.nodes[d.nodes.length-1];
+            
+//             res.push(
+//                 `${d.type_ret} ${d.name}(${params.join(", ")}) `,
+//                 src.substr(body.loc.begin.char, body.loc.end.char - body.loc.begin.char), 
+//                 "\n\n");
+//         } else {
+//             console.error("unexpected ast type" + d.ast);
+//         }
+//     }
+
+//     console.log(res.join(""));
+
+// }
 </script>
 
 
