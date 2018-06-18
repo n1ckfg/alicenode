@@ -129,7 +129,7 @@ function getCpp2json(){
     // })
 
     //so this is being run in the above code's place, for now (its a bootstrap):
-    src = fs.readFileSync(__dirname + "/cpp2json/test.h").toString();
+
    // console.log(src)
 
      
@@ -165,7 +165,12 @@ function send_all_clients(msg) {
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
-		
+
+    //get stateH
+    stateH = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
+    stateHa = JSON.stringify(stateH)
+
+    console.log(stateH)
 	let per_session_data = {
 		id: sessionId++,
 		socket: ws,
@@ -179,6 +184,8 @@ wss.on('connection', function(ws, req) {
     ws.send("deck?" + deck);
     ws.send("src?" + src)
     ws.send("state?" + JSON.stringify(state))
+    ws.send("state.h?" + stateHa)
+    
 
 	sessions[per_session_data.id] = per_session_data;
 

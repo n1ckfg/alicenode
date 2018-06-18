@@ -1,5 +1,5 @@
 <!doctype html>
-
+<html>
 <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
 <title>Deck of Cards ide</title>
 
@@ -7,7 +7,35 @@
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://localhost:8080"> -->
 <!--        SOURCES         -->
+<!-- Codemirror -->
+    <!-- styles -->
 
+    <link rel=stylesheet href="cm/docs.css">
+    <link rel=stylesheet href="cm/codemirror.css">
+    <link rel=stylesheet href="cm/addons/fullscreen/fullscreen.css">
+    <link rel=stylesheet href="cm/one-dark.css">
+
+
+
+    <!-- <link rel=stylesheet href="cm/merge.css">
+    <link rel=stylesheet href="cm/icecoder.css"> -->
+
+    <!-- scripts -->
+    <script src="cm/codemirror.js"></script>
+    <script src="cm/css.js"></script>
+    <!-- load local server version if cdn unavailable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
+
+    <!-- <script src="cm/htmlmixed.js"></script> -->
+    <!-- <script src="cm/xml.js"></script> -->
+    <!-- <script src="cm/merge.js"></script> -->
+    <!-- <script src="cm/modes/javascript.js"></script> -->
+    <script src="cm/modes/clike.js"></script>
+    <script src="cm/modes/glsl.js"></script>
+      <script src="cm/addons/buttons/buttons.js"></script>
+  <script src="cm/addons/panel.js"></script>
+  <script src="cm/addons/fullscreen/fullscreen.js"></script>
+  <script src="cm/cm-resize.js"></script>
 
 
 <!-- General Sources -->
@@ -33,80 +61,72 @@
 
 <style>
 
-input[type=number]::-webkit-outer-spin-button {
-    display: none; 
-}
-input[type=number]::-webkit-inner-spin-button {
-    display: none;
+    body {
+    /* background-color: rgb(43, 40, 44); */
 }
 
- .node circle {
-   fill: #fff;
-   stroke: rgb(7, 10, 192);
-   stroke-width: 3px;
- }
+/* <!-- rgb(39, 174, 96)
+rgb(142, 68, 173)
+rgb(218, 247, 166)
+rgb(255, 195, 0)
+rgb(255, 87, 51)
+rgb(199, 0, 57) --> */
+/* .cm {
+    width:200px;
+   	margin:auto;
+    font-size:14px;
+    border:1px solid #000;
+    border-collapse:collapse; }
 
- .node text { font: 12px sans-serif; }
+.cm td {
+    color:#000099;
+    vertical-align:middle;
+    text-align:left;
+    border:1px solid #000;
+    height: 100% } */
 
- .link {
-   fill: none;
-   stroke: #ccc;
-   stroke-width: 4px;
-   cursor: crosshair;
- }
+/* .stateParams {
 
-  .node {
-      /* allow for mouse interaction on the nodes */
-  cursor: pointer; 
- }
-
+} */
 </style>
 
-<!-- Important: must have a body section so that the 'double click = new card' UI works -->
-<body ondblclick="doubleClick(event);">
+<!-- containing table -->
+<table width="100%" height="100%">
+    <tr  height="5%" >
+        <th style="text-decoration: none">Alicenode State Editor</th>
+        <th><input id="server" type="text" value="ws://localhost:8080" size="40">
+            <button onclick="openSocket()">Open</button>
+            <button onclick="closeSocket()">Close</button></th>
+    </tr>
+    <tr>
+        <td valign="top" height="90%">     
+            <!-- table for the state.h code editor -->
+            <table name="cm" display="inline-block" id="state.h" width="100%" border="0" cellpadding="0" cellspacing="0" >
+                    <tr >
+                        <th >state.h</th>
+                    </tr>
+                    <tr>
+                        <td > 
+                            <div id="stateh_source"></div>
+                        </td>
+                    </tr>
+                
+            </table>
+        </td>
+        <td valign="top">
+            <!-- table for the state.h parameters and values -->
+            <table name="stateParams" overflow="scroll" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+                <tbody>
+                    <tr >
+                        <th style="width: 60%;">Parameter</th>
+                        <th style="width: 40%;">Value</th>          
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
 
-    <table width="100%">
-        <tr height="30px" bgcolor="#daeef4">
-            <th style="text-decoration: none">Alicenode State Editor</th>
-            <th><input id="server" type="text" value="ws://localhost:8080" size="40">
-                <button onclick="openSocket()">Open</button>
-                <button onclick="closeSocket()">Close</button></th>
-        </tr>
-        
-    </table>
-    <!--container for all cards  -->
-    <div class="deck">
-
-<button onclick="updateState()">test </button>
-<table id="stateValues" width="50%" border="0" cellpadding="0" cellspacing="0" >
-    <tbody>
-        <tr>
-            <th style="width: 30%;">Parameter</th>
-            <th style="width: 30%;">Value</th>
-
-        </tr>
-        <!-- <tr>
-            <td class="left" id="deckOneName"></td>
-            <td id="deckOneSource" style="float:left"></td>
-            <td class="right" id="deckOneASTGraph"></td>
-        </tr>         -->
-    </tbody>
 </table>
-<!-- script for the resizable columns for the table above -->
-<script>
-    $("#decks").colResizable({
-    liveDrag:true,
-    gripInnerHtml:"<div class='grip'></div>", 
-    draggingClass:"dragging" });
-
-function addValue(){
-$('#stateValues tr:last').after('<tr><td>param</td><td><input id=\"spinner\"></input></td></tr>');
-}
-
-
-</script>
-
-</body>
 
 <script>
     
@@ -195,6 +215,49 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
+                    case "state.h":
+                    
+
+                    stateCode = JSON.parse(arg)
+                    //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
+                    console.log(stateCode)
+                    sourceCard(stateCode)
+                    //get and set code in the new card
+                    function sourceCard(stateCode) {
+                    // isRightDirty = false;
+                        if (value == null) return;
+                        var target = document.getElementById("stateh_source");
+
+                        target.innerHTML = "";
+                        dv = CodeMirror(target, {
+                            //position: "relative",
+                            value: stateCode,
+                            // origLeft: panes == 3 ? orig1 : null,
+                            // origRight: orig1,
+                            lineNumbers: true,
+                            mode: "clike",
+                            //highlightDifferences: "highlight",
+                            theme: 'one-dark',
+                            //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
+                            viewportMargin: 10,
+                            revertButtons: true,
+                            allowEditingOriginals: true,
+                            // autoRefresh: true,
+                            // showDifferences: true,
+                            linewrapping: true,
+                            //editing
+                            undoDepth: 200,
+                            //cursor settings:
+                            cursorBlinkRate: 300,
+                            cursorScrollMargin: 0,
+                            
+                        });
+                        dv.setSize("100%", 750);
+
+                    }
+
+
+                    break;
                     
                     case "state":
                     state = (JSON.parse(arg))
@@ -378,3 +441,5 @@ setInterval(function(){
 </script>
 
 
+</body>
+</html>
