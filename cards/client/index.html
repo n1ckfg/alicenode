@@ -757,6 +757,8 @@ function update(source) {
 //   .call(drag)
    .attr("class", "node")
    .on('click', function(data,index){
+       //goal for now is to click a node, have it's code pop up in a CM instance, make changes which directly edits its ast
+       //goal 2 is to place ALL of the cpp code of the original file into the cm instance for the head (test.h) node. editing this head node can result in dynamic changes to the ast graph!
         if (currentCardID){
             $(currentCardID).remove();
 
@@ -769,6 +771,7 @@ function update(source) {
         ast = data.name; 
         name = data.name;
         currentCardID = data.name;
+        console.log(data)
         //for now: (TODO: generate the code from var data)
         card = "//here is some bogus code\nyep pretty lame";
         showCard(thisX, thisY, card, name)
