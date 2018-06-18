@@ -91,25 +91,25 @@ var requireStatements = {} //containing all of the require statements
 
 //get the updated json of test.h (see ./cards/cpp2json)
 getCpp2json();
-console.log( __dirname + "/cpp2json/")
+//console.log( __dirname + "/cpp2json/")
 function getCpp2json(){
-    // deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
-    // console.log(deck)
-    // not working for the time being...
-    execSync('./cpp2json test.h', {cwd: __dirname + "/cpp2json"}, (stderr, err, stdout) => {
-        console.log("deck folded")
-        if (stderr !== null){
+    deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
+    //console.log(deck)
+    //not working for the time being...
+    // execSync('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
+    //     console.log("deck folded")
+    //     if (stderr !== null){
             
-            deck = (stderr)
-        } else if (err !== null){
+    //         deck = (stderr)
+    //     } else if (err !== null){
 
-            deck = (err)
-        } else if (stdout !== null){
+    //         deck = (err)
+    //     } else if (stdout !== null){
 
-            deck = (stdout)
-        }
-        console.log("test" + JSON.parse(deck))
-    })
+    //         deck = (stdout)
+    //     }
+    //     console.log(JSON.parse(deck))
+    // })
 
 
     //this is commented out for now, as the regen can't deal with StructDecl yet...(?)
@@ -171,10 +171,14 @@ wss.on('connection', function(ws, req) {
 		socket: ws,
 
 
-	};
+    };
+    let state = {};
+    state["numcritters"] = 45;
+    state["foodAvailability"] = 0.02
     //console.log(deck)
     ws.send("deck?" + deck);
     ws.send("src?" + src)
+    ws.send("state?" + JSON.stringify(state))
 
 	sessions[per_session_data.id] = per_session_data;
 

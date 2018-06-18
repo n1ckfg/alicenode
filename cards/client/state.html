@@ -7,54 +7,16 @@
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://localhost:8080"> -->
 <!--        SOURCES         -->
-<!-- Codemirror -->
-    <!-- styles -->
-
-    <link rel=stylesheet href="cm/docs.css">
-    <link rel=stylesheet href="cm/codemirror.css">
-    <link rel=stylesheet href="cm/addons/fullscreen/fullscreen.css">
-    <link rel=stylesheet href="cm/one-dark.css">
-
-]
-
-    <!-- <link rel=stylesheet href="cm/merge.css">
-    <link rel=stylesheet href="cm/icecoder.css"> -->
-
-    <!-- scripts -->
-    <script src="cm/codemirror.js"></script>
-    <script src="cm/css.js"></script>
-    <!-- load local server version if cdn unavailable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
-
-    <!-- <script src="cm/htmlmixed.js"></script> -->
-    <!-- <script src="cm/xml.js"></script> -->
-    <!-- <script src="cm/merge.js"></script> -->
-    <!-- <script src="cm/modes/javascript.js"></script> -->
-    <script src="cm/modes/clike.js"></script>
-    <script src="cm/modes/glsl.js"></script>
-      <script src="cm/addons/buttons/buttons.js"></script>
-  <script src="cm/addons/panel.js"></script>
-  <script src="cm/addons/fullscreen/fullscreen.js"></script>
-  <script src="cm/cm-resize.js"></script>
-
-
-
-
-
-
 
 
 
 <!-- General Sources -->
     <!-- style -->
     <link rel=stylesheet href="css/jquery-ui.css">
-    <link rel=stylesheet href="css/alicenode.css">
+
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
     <link rel=stylesheet href="css/cards.css">
-
-
-
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
@@ -63,17 +25,20 @@
 
     <script src="js/colResizable-1.5.min.js"></script>
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
-    <script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
-
-    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/jquery.mousewheel.js"></script>
 
     <!-- server address & open/close -->
 
 </head>
 
 <style>
+
+input[type=number]::-webkit-outer-spin-button {
+    display: none; 
+}
+input[type=number]::-webkit-inner-spin-button {
+    display: none;
+}
 
  .node circle {
    fill: #fff;
@@ -112,13 +77,12 @@
     <!--container for all cards  -->
     <div class="deck">
 
-
-<table id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" >
+<button onclick="updateState()">test </button>
+<table id="stateValues" width="50%" border="0" cellpadding="0" cellspacing="0" >
     <tbody>
         <tr>
             <th style="width: 30%;">Parameter</th>
-            <th style="width: 20%;">Value</th>
-            <th style="width: 20%;">Value</th>
+            <th style="width: 30%;">Value</th>
 
         </tr>
         <!-- <tr>
@@ -135,8 +99,10 @@
     gripInnerHtml:"<div class='grip'></div>", 
     draggingClass:"dragging" });
 
+function addValue(){
+$('#stateValues tr:last').after('<tr><td>param</td><td><input id=\"spinner\"></input></td></tr>');
+}
 
-$('#stateValues tr:last').after('<tr><td></tr>');
 
 </script>
 
@@ -156,14 +122,30 @@ var worktreeList;
 var history;
 var ws;
 var ws_url = "ws://" + window.location.host;
+//the alicenode state:
+var state;
 
 function log(msg){
   console.log(msg)
 }
 
+function updateState(paramName, paramValue){
+    state[paramName] = paramValue
+    console.log(state)
+}
 
+// $('.param').click(function() {
+//   console.log($(this).attr('value'));
+// });
+// <!-- 
+// $(document).click(function(event) {
+//     var text = $(event.target).text();
+//     console.log(text)
+// });
 
-
+// $(document).click(function(event) {
+//     console.log($(event.target).text());
+// }); -->
 document.getElementById('server').value = ws_url;
 
 function openSocket() {
@@ -213,16 +195,42 @@ function openSocket() {
                 let arg = message.substring(q+1);
                 switch(cmd) {
                     
-                    case "src":
-
-                    //regen(arg);
-                    sourceCard(arg)
                     
-                    case "deck":
-                    deck = (JSON.parse(arg))
+                    case "state":
+                    state = (JSON.parse(arg))
                     //var newCard = [];
-                    console.log(deck)
 
+                    //console.log(state)
+                    //note: we'll use a visitor function like the one below, but its not for the purpose of building a tree; rather we just need the parameter name and its value. we'll then pass it to this function below:
+                    let paramName;
+                    let paramValue;
+                    Object.keys(state).forEach(function(key, value) {
+                        console.log(key, state[key])
+                        paramName = key;
+                        paramValue = state[key];
+                        $('#stateValues tr:last').after('<tr><td>' + paramName + '</td><td>' + '<input id=\"' + paramName + '\" class="param" onchange="updateState(this)" value=\"' + paramValue + '\"></input>' + '</td></tr>');
+                        //turn the input element into a jquery spinner
+                        $("#" + paramName).spinner();
+                        //have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                        $( "#" + paramName ).spinner({spin: function( event, ui, id ) {
+                            updateState(this.id, ui.value);
+                            }
+                        });
+                        // $("#" + paramName).on("change paste keyup", function() {
+                        //     console.log($("#" + paramName).val()); 
+                        // });
+
+
+                    })
+                    // function addParameter(){
+                    //     $('#stateValues tr:last').after('<tr><td>' + paramName + '</td><td>' + '<input id=\"' + paramName + '\" value=\"' + paramValue + '\"></input>' + '</td></tr>');
+
+
+
+                    // }
+
+                    
+                    /*
                     //send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)
                     
 
@@ -338,7 +346,7 @@ function openSocket() {
                     newTree = new Array();
                     //...and then add ctx to the array as its only object
 
-                    
+                    */
 
                     break;
                     default:
