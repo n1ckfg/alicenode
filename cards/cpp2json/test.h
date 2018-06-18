@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 // namespace jim {
 // 	struct Foo {
@@ -27,3 +28,11 @@ int zap(float f) {
 
 	return 99 * f;
 }
+=======
+struct Foo {
+	//float x = 1.f;
+	//double y = 2.0;
+	//char z = 'c';
+	int w = 4;
+};
+>>>>>>> cpp2json collects offsetof and sizeof
