@@ -7,11 +7,26 @@
 #include "al_platform.h"
 
 #include <vector>
+#include <algorithm>
+#include <signal.h>
+
+#define KINECT_FRAME_BUFFERS 4
+#define KINECT_MAX_DEVICES 2
+
+#define AL_USE_FREENECT2_SDK 1
+
+#include <libfreenect2/libfreenect2.hpp>
+#include <libfreenect2/frame_listener_impl.h>
+#include <libfreenect2/registration.h>
+#include <libfreenect2/packet_pipeline.h>
+#include <libfreenect2/logger.h>
 
 #ifdef AL_WIN
+#ifdef AL_USE_FREENECT2_SDK
+
+#else 
 #include <Ole2.h>
 typedef OLECHAR* WinStr;
-
 #define AL_USE_KINECT2_SDK 1
 #include "kinect.h"
 
@@ -25,6 +40,8 @@ inline void SafeRelease(Interface *& pInterfaceToRelease)
 		pInterfaceToRelease = NULL;
 	}
 }
+
+#endif
 #endif
 
 /*
@@ -42,7 +59,7 @@ struct CloudPoint {
 };
 
 struct ColorPoint {
-	uint8_t r, g, b;
+	uint8_t b, g, r;
 };
 
 typedef uint16_t DepthPoint;
@@ -81,6 +98,8 @@ struct CloudFrame {
 	glm::vec3 xyz[cDepthWidth*cDepthHeight];
 	// uv texture coordinates for each depth point to pick from the color image 
 	glm::vec2 uv[cDepthWidth*cDepthHeight]; 
+	// color for this point
+	glm::vec3 rgb[cDepthWidth*cDepthHeight];
 
 	//uint64_t pointCount; 
 	int64_t timeStamp;
@@ -91,23 +110,186 @@ struct CloudDevice {
 	int use_uv = 1;
     int capturing = 0;
 
-	FILE * recordFD;
+	std::string serial;
+	int id = 0;
 
-	int64_t currentDepthFrameTime = 0;
-	int64_t currentColorFrameTime = 0;
-	int64_t timestampDiff = 0;
+	glm::mat4 cloudTransform;
 
 	std::thread kinect_thread;
-	std::vector<CloudFrame> cloudFrames = std::vector<CloudFrame>(32);
-	std::vector<ColourFrame> colourFrames = std::vector<ColourFrame>(32);
+	std::vector<CloudFrame> cloudFrames = std::vector<CloudFrame>(KINECT_FRAME_BUFFERS);
+	std::vector<ColourFrame> colourFrames = std::vector<ColourFrame>(KINECT_FRAME_BUFFERS);
 	int lastCloudFrame = 0;
 	int lastColourFrame = 0;
 
+	FILE * recordFD;
+	
+	// the most recently completed frame:
+	const CloudFrame& cloudFrame() const {
+		return cloudFrames[lastCloudFrame];
+	}
+	// the most recently completed frame:
+	const ColourFrame& colourFrame() const {
+		return colourFrames[lastColourFrame];
+	}
+
+#ifdef AL_USE_FREENECT2_SDK
+
+	struct ColourPacket {
+		uint8_t r, g, b, x;
+	};
+
+	libfreenect2::Freenect2Device * dev = 0;
+	libfreenect2::PacketPipeline *pipeline = 0;
+
+	FPS fps;
+
+ 	int kinect_thread_fun() {
+
+		console.log("hello from freenect thread for device %s", dev->getSerialNumber().c_str());
+		libfreenect2::Freenect2Device::Config config;
+		config.MinDepth = 0.5f;
+		config.MaxDepth = 6.f;
+		// Remove pixels on edges because ToF cameras produce noisy edges.
+		config.EnableEdgeAwareFilter = true;
+		///< Remove some "flying pixels".
+		config.EnableBilateralFilter = true;
+		dev->setConfiguration(config);
+
+		int types = libfreenect2::Frame::Ir 
+				  | libfreenect2::Frame::Depth;
+		if (use_colour) types |= libfreenect2::Frame::Color;
+		libfreenect2::SyncMultiFrameListener listener(types);
+		libfreenect2::FrameMap frames;
+		dev->setColorFrameListener(&listener);
+		dev->setIrAndDepthFrameListener(&listener);
+
+		if (use_colour) {
+			if (!dev->start()) return -1;
+		} else {
+			if (!dev->startStreams(use_colour, true)) return -1;
+		}
+
+		libfreenect2::Registration* registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
+		libfreenect2::Frame undistorted(cDepthWidth, cDepthHeight, 4);
+		libfreenect2::Frame  registered(cDepthWidth, cDepthHeight, 4);
+
+		console.log("freenect ready");
+
+		size_t framecount = 0;
+		while(capturing) {
+		
+			if (!listener.waitForNewFrame(frames, 10*1000)) { // 10 sconds
+				std::cout << "timeout!" << std::endl;
+				break;
+			}
+			
+			libfreenect2::Frame *rgb = frames[libfreenect2::Frame::Color];
+			libfreenect2::Frame *ir = frames[libfreenect2::Frame::Ir];
+			libfreenect2::Frame *depth = frames[libfreenect2::Frame::Depth];
+
+			// do the registration to rectify the depth (and map to colour, if used):
+			if (use_colour) {
+				registration->apply(rgb, depth, &undistorted, &registered);
+
+				// copy colur image
+				int nextColourFrame = (lastColourFrame + 1) % colourFrames.size();
+				ColourFrame& colourFrame = colourFrames[nextColourFrame];
+				ColorPoint * dst = colourFrame.color;
+				ColourPacket * src = (ColourPacket *)rgb->data;
+
+				static const int nCells = cColorWidth * cColorHeight;
+				for (int i = 0; i < nCells; ++i) {
+					dst[i].r = src[i].r;
+					dst[i].g = src[i].g;
+					dst[i].b = src[i].b;
+				}
+
+				// we finished writing, we can now share this as the next frame to read:
+				//colourFrame.timeStamp = currentColorFrameTime;
+				lastColourFrame = nextColourFrame;
+
+			} else {
+				registration->undistortDepth(depth, &undistorted);
+			}
+
+			// get the next frame to write into:
+			int nextCloudFrame = (lastCloudFrame + 1) % cloudFrames.size();
+			CloudFrame& cloudFrame = cloudFrames[nextCloudFrame];
+
+			// undistorted frame contains depth in mm, as float
+			const float * mmptr = (float *)undistorted.data;
+			uint16_t * dptr = cloudFrame.depth;
+			glm::vec3 * xyzptr = cloudFrame.xyz;
+			glm::vec3 * rgbptr = cloudFrame.xyz;
+			glm::vec2 * uvptr = cloudFrame.uv;
+			int i = 0;
+
+			// TODO dim or dim-1? 
+			//glm::vec2 uvscale = glm::vec2(1.f / cDepthWidth, 1.f / cDepthHeight);
+			glm::vec2 uvscale = glm::vec2(1.f / cColorWidth, 1.f / cColorHeight);
+
+			// copy to captureFrame:
+			for (int r=0; r<cDepthHeight; r++) {
+
+				for (int c=0; c<cDepthWidth; c++) {
+					float mm = mmptr[i];
+					dptr[i] = mm;
+
+					glm::vec3 pt;
+					float rgb = 0.f;
+					registration->getPointXYZ(&undistorted, r, c, pt.x, pt.y, pt.z);
+					//registration->getPointXYZRGB (&undistorted, &registered, r, c, pt.x, pt.y, pt.z, rgb);
+					pt = al_fixnan(pt);
+					pt.y = -pt.y;
+					xyzptr[i] = transform(cloudTransform, pt);
+
+					const uint8_t *cp = reinterpret_cast<uint8_t*>(&rgb);
+					rgbptr[i] = glm::vec3(cp[2]/255.f, cp[1]/255.f, cp[0]/255.f);
+
+					// this is probably wrong, as it doesn't take into account the registration?
+
+					//
+					// depth_to_color()
+					glm::vec2 uv;
+					registration->apply(c, r, mm, uv.x, uv.y);
+					uv *= uvscale;
+					//uv = glm::vec2(c, r) * uvscale;
+					uvptr[i] = uv;
+
+					i++;
+					
+					//if (r == 211 && c == 253) console.log("depth mm %f point %f %f %f uv %f %f", mmptr[i], pt.x, pt.y, pt.z, uv.x, uv.y);
+				}
+			}
+
+			// we finished writing, we can now share this as the next frame to read:
+			//cloudFrame.timeStamp = currentDepthFrameTime;
+			//console.log("at %d depth", currentDepthFrameTime);
+			lastCloudFrame = nextCloudFrame;
+
+			listener.release(frames);
+
+			if (fps.measure()) {
+				console.log("freenect %d fps %f", id, fps.fps);
+			}
+		
+		}
+
+		console.log("bye from freenect thread for device %s", dev->getSerialNumber().c_str());
+		dev->stop();
+		dev->close();
+		return 0;
+	}
+
+#endif
 #ifdef AL_USE_KINECT2_SDK
     IKinectSensor * device;
 	IMultiSourceFrameReader* m_reader;   // Kinect data source
 	IDepthFrameReader* m_pDepthFrameReader;
     IColorFrameReader* m_pColorFrameReader;
+	int64_t currentDepthFrameTime = 0;
+	int64_t currentColorFrameTime = 0;
+	int64_t timestampDiff = 0;
 
 	ICoordinateMapper* m_mapper;         // Converts between depth, color, and 3d coordinates
 	WAITABLE_HANDLE m_coordinateMappingChangedEvent;
@@ -125,14 +307,6 @@ struct CloudDevice {
     }*/
 #endif
 
-	// the most recently completed frame:
-	const CloudFrame& cloudFrame() {
-		return cloudFrames[lastCloudFrame];
-	}
-	// the most recently completed frame:
-	const ColourFrame& colourFrame() {
-		return colourFrames[lastColourFrame];
-	}
 
 	bool isRecording() {
 		return recordFD;
@@ -157,7 +331,22 @@ struct CloudDevice {
 		}
 	}
 
-    bool open() {
+
+    bool start() {
+		console.log("opening cloud device %s", serial.c_str());
+#ifdef AL_USE_FREENECT2_SDK
+
+		
+		
+		if (dev == 0) {
+			console.error("couldn't acquire cloud device");
+			return false;
+		} else {
+			capturing = 1;
+			kinect_thread = std::thread(&CloudDevice::kinect_thread_fun, this);
+			return true;
+		}
+#endif
 #ifdef AL_USE_KINECT2_SDK
         HRESULT result = 0;
 
@@ -348,6 +537,14 @@ struct CloudDevice {
 #endif
 
     void close() {
+#ifdef AL_USE_FREENECT2_SDK
+
+		if (capturing) {
+			capturing = 0;
+			kinect_thread.join();
+		}
+		
+#endif
 #ifdef AL_USE_KINECT2_SDK
         if (capturing) {
             capturing = 0;
@@ -359,6 +556,85 @@ struct CloudDevice {
 		}
 #endif
     }
+};
+
+
+
+struct CloudDeviceManager {
+	CloudDevice devices[KINECT_MAX_DEVICES];
+	int numDevices = 0; 
+
+#ifdef AL_USE_FREENECT2_SDK
+
+	libfreenect2::Freenect2 freenect2;
+	
+	void reset() {
+		for (int i=0; i<KINECT_MAX_DEVICES; i++) {
+			devices[i].close();
+		}
+
+		
+
+		numDevices = freenect2.enumerateDevices();
+		console.log("found %d freenect devices", numDevices);
+		
+		// sort by serial number, to make it deterministic
+		std::vector<std::string> serialList;
+		for (int i=0; i<numDevices; i++) {
+			serialList.push_back(freenect2.getDeviceSerialNumber(i));
+		}
+		std::sort(std::begin(serialList), std::end(serialList));
+		for (int i=0; i<numDevices; i++) {
+			devices[i].id = i;
+			devices[i].serial = serialList[i].c_str();
+			console.log("device %d serial %s", devices[i].id, serialList[i].c_str());
+		}
+	}
+
+	bool open(int i=0) {
+		if (i >= numDevices) {
+			console.error("cannot open device %d, not found", i);
+			return false;
+		}
+		
+		libfreenect2::Freenect2Device * dev;
+		CloudDevice& device = devices[i];
+
+		if (!device.pipeline) {
+			//pipeline = new libfreenect2::CpuPacketPipeline();
+			device.pipeline = new libfreenect2::OpenGLPacketPipeline();
+		}
+		if (device.pipeline) {
+			device.dev = freenect2.openDevice(device.serial, device.pipeline);
+		} else {
+			device.dev = freenect2.openDevice(device.serial);
+		}
+
+		device.start();
+	}
+
+	
+
+#else 
+	void reset() {}
+	bool open(int i=0) { return false; }
+#endif
+
+	void open_all() {
+		for (int i=0; i<KINECT_MAX_DEVICES; i++) {
+			open (i);
+		}
+	}
+
+	void close(int i=0) {
+		devices[i].close();
+	}
+
+	void close_all() {
+		for (int i=0; i<KINECT_MAX_DEVICES; i++) {
+			close (i);
+		}
+	}
 };
 
 #endif // AL_KINECT2_H

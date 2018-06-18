@@ -25,8 +25,10 @@ struct AL_ALICE_EXPORT Alice {
 	int isRendering = true;
 
 	// services:
+	CloudDeviceManager cloudDeviceManager;
+
+
 	Window window;
-	CloudDevice * cloudDevice;
 	Hmd * hmd;
 	LeapMotion * leap;
 

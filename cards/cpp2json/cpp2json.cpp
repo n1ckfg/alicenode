@@ -26,6 +26,8 @@ https://github.com/nlohmann/json/tree/master
 // for convenience
 using json = nlohmann::json;
 
+CXFile cfile;
+
 struct VisitorData {
 	int indent = 0;
 	json * container = 0;
@@ -38,6 +40,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 	
 	auto kind = clang_getCursorKind(c);
 	
+	//printf("visit %d\n", (int)kind);
 
 	if (clang_isUnexposed(kind)) {
 
@@ -62,9 +65,12 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		clang_getSpellingLocation(start, &file, &line, &column, &offset);
 		clang_getSpellingLocation(end, &file, &line1, &column1, &offset1);
 
-		//CXString clang_getFileName(file);
+		if (file != cfile) {
+			doVisitChildren = 0;
+			return CXChildVisit_Continue;
+		}
 
-
+		//printf("filename %s\n", clang_getCString(clang_getFileName(file)));
 
 		auto str = clang_getCursorKindSpelling(kind);
 		//printf("%s%s at line %d:%d to line %d:%d: %s <%s>\n", std::string(vd.indent,'-').c_str(), clang_getCString(str), line, column, line1, column1, clang_getCString(clang_getCursorSpelling(c)), clang_getCString(clang_getTypeSpelling(ctype)));
@@ -129,8 +135,14 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			jnode["type"] = clang_getCString(clang_getTypeSpelling(ctype));
 		}
 
+		// clang_Type_getOffsetOf
+		// clang_Type_getSizeOf
+		// figure out how to get value of Literals
 
 		switch(kind) {
+		case CXCursor_IntegerLiteral: {
+			clang_Cursor_getArgument
+		} break;
 		case CXCursor_FunctionDecl:
 		case CXCursor_CXXMethod: {
 			// for a functiondecl 
@@ -154,6 +166,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		
 		} break;
 		case CXCursor_CompoundStmt: {
+			if (file == cfile)
 			jnode["text"] = filetext.substr(offset, offset1-offset);
 			doVisitChildren = false;
 		} break;
@@ -189,7 +202,7 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments" };
+	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments", "-I../../include" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
@@ -214,6 +227,8 @@ int main(int argc, const char ** argv) {
 		//exit(-1);
 	}
 
+	//printf("parse complete\n");
+
 	// the parse may have produced errors:
 	unsigned int numDiagnostics = clang_getNumDiagnostics(unit);
 	if (numDiagnostics) {
@@ -230,14 +245,16 @@ int main(int argc, const char ** argv) {
 			clang_disposeDiagnostic(diag);
 		}
 	}
+	//printf("diagnostics complete\n");
 
 	// To traverse the AST of the TU, we need a Cursor:
 	CXCursor cursor = clang_getTranslationUnitCursor(unit);
-	CXFile cfile = clang_getFile(unit, filename);
+	cfile = clang_getFile(unit, filename);
 
 	size_t filesize;
 	filetext = clang_getFileContents(unit, cfile, &filesize);
 	//printf("%s\n", filetext);
+	//printf("file read complete\n");
 
 	/*
 	CINDEX_LINKAGE CXFile clang_getIncludedFile(CXCursor cursor);
@@ -249,15 +266,19 @@ int main(int argc, const char ** argv) {
 		{ "filename", clang_getCString(clang_getTranslationUnitSpelling(unit)) },
 		{ "nodes", json::array() }
 	};
+	//printf("json started\n");
 
 	// visit all the tree starting from the unit root:
 	VisitorData vd;
 	vd.container = &jdoc["nodes"];
+	//printf("begin visit\n");
 	clang_visitChildren(cursor, visit, &vd);
+	//printf("json complete\n");
+	printf("%s\n\n", jdoc.dump(3).c_str());
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);
 	
-	printf("%s\n\n", jdoc.dump(3).c_str());
+	//printf("bye\n");
 	return 0;
 }

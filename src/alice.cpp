@@ -442,9 +442,7 @@ int main(int argc, char ** argv) {
     uv_fs_event_start(&fs_event_req, file_changed_event, project_path.c_str(), UV_FS_EVENT_RECURSIVE);
 
 	alice.hmd = new Hmd;
-	alice.cloudDevice = new CloudDevice;
 	alice.leap = new LeapMotion;
-
 	// TODO: remove
 	alice.leap->connect();
 
@@ -494,8 +492,10 @@ int main(int argc, char ** argv) {
 
 	setup();
 
-	//alice.cloudDevice->record(1);
-	alice.cloudDevice->open();
+	alice.cloudDeviceManager.reset();
+	alice.cloudDeviceManager.open_all();
+	//alice.cloudDeviceManager.open();
+
 	if (!project_lib_path.empty()) {
 		openlib(project_lib_path.c_str());
 	}
@@ -517,7 +517,7 @@ int main(int argc, char ** argv) {
 		closelib(project_lib_path.c_str());
 	}
 
-	alice.cloudDevice->close();
+	alice.cloudDeviceManager.close_all();
 
 	uv_read_stop((uv_stream_t *)&stdin_pipe);
 	uv_close((uv_handle_t *)&stdin_pipe, NULL);

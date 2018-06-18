@@ -11,10 +11,12 @@ REM compile & link:
 cl /nologo /W3 /EHsc /O2 ^
 /I ../../include ^
 ktest.cpp flextGL.cpp ^
-../../lib/win64/lib-vc2017/glfw3.lib ^
+/link /WHOLEARCHIVE:../../lib/win64/lib-vc2017/glfw3.lib ^
 ../../lib/win64/freenect2.lib ^
 user32.lib kernel32.lib shell32.lib gdi32.lib ^
 opengl32.lib 
+
+
 
 @del ktest.obj ktest.exp
 
