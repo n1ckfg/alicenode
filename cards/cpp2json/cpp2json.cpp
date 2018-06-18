@@ -91,11 +91,11 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		json& jsiblings = (*vd.container);
 		json jnode = {
 			{"ast", clang_getCString(clang_getCursorKindSpelling(kind)) },
-			/*
+			
 			{"loc", { 
 				{"begin", { {"line", line}, {"col", column}, {"char", offset} } }, 
 				{"end", { {"line", line1}, {"col", column1}, {"char", offset1} } }
-			} }*/
+			} }
 		};
 
 		// check for names:
@@ -202,7 +202,11 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
+<<<<<<< HEAD
 	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments", "-I../../include" };
+=======
+	char const * args[] = { "-x", "c++", "-fparse-all-comments" };
+>>>>>>> fd0c98e0cc0fcfb0e5fcd150f9cce32f4e47a784
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang

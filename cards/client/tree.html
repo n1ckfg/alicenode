@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Deck of Cards</title>
+
+    <!-- load the d3.js library --> 
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+ 
+
+    <style>
+
+ .node circle {
+   fill: #fff;
+   stroke: rgb(7, 10, 192);
+   stroke-width: 3px;
+ }
+
+ .node text { font: 12px sans-serif; }
+
+ .link {
+   fill: none;
+   stroke: #ccc;
+   stroke-width: 4px;
+   cursor: crosshair;
+ }
+
+  .node {
+      /* allow for mouse interaction on the nodes */
+  cursor: pointer; 
+ }
+ 
+    </style>
+
+  </head>
+
+  <body>
+
+        <table width="100%">
+                <tr height="30px" bgcolor="#daeef4">
+                    <th style="text-decoration: none">Deck of Cards ide</th>
+                    <th><input id="server" type="text" value="ws://localhost:8080" size="40">
+                        <button onclick="openSocket()">Open</button>
+                        <button onclick="closeSocket()">Close</button></th>
+                </tr>
+                <tr>
+                </tr>
+                
+            </table>  
+
+
+<script>
+
+var cardIdArray = []; //store the list of card ID names
+var value = "//new card" //default contents of a new card. can be replaced by a code fragment from the server
+
+var count = 1; //count the number of cards generated, start at 1
+var cardId = 1; //id for each new card div created
+
+var bodySize = [document.body.clientWidth, document.body.clientHeight]
+var ws_url;
+var worktreeList;
+var history;
+var ws;
+var ws_url = "ws://" + window.location.host;
+
+function log(msg){
+  console.log(msg)
+}
+
+document.getElementById('server').value = ws_url;
+
+function openSocket() {
+    log('opening');
+    var url = document.getElementById('server').value;
+    ws = new WebSocket(ws_url);
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = function() {
+        // log('open');  
+        // ws.send("client_SVG?")
+
+        // ws.send("getCurrentBranch")
+        
+        // //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
+        // ws.send("selectUser?" + "Guest");
+        
+        sessionStorage.echoServer = url;
+    };
+    ws.onclose = function() {
+        // log('close');
+    };
+    ws.onmessage = function(e) {
+        /*if (e.data instanceof Blob) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
+            };
+            reader.readAsArrayBuffer(e.data);
+        } else */
+        if (e.data instanceof ArrayBuffer) {
+            //log(encodeHexString(new Uint8Array(e.data)));
+            //log("received arraybuffer size: " + e.data.byteLength + " bytes");
+            
+            let s = "";
+            let fv = new Float32Array(e.data);
+            for (var i = 0; i < fv.length; i+=3) {
+                s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
+            }
+            
+            // document.getElementById('state').innerHTML = s;     
+            
+        } else {
+            let message = e.data;
+            let q = message.indexOf("?");
+            if (q > 0) {
+                let cmd = message.substring(0, q);
+                let arg = message.substring(q+1);
+                switch(cmd) {
+                    
+                    case "deck":
+                    deck = (JSON.parse(arg))
+                    //var newCard = [];
+                    let name;
+                    newDeckArray = []
+
+                    visit(arg)
+
+                    function visit(node, parentnode, ctx) {
+                        //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
+                        
+                        if (node.ast == "TranslationUnit"){
+                            ctx.name = node.filename;
+                        
+                            //ctx.children.push(node.ast);
+
+                            let ctx1 = {
+                                name: name,
+                                children: [],
+                            }  
+
+
+                                    // add more props depending on the node type
+
+                            //first check if a node has children, if not, ignore. 
+                            if (node.nodes){
+                                
+                                // do this for structs, tranlation units, 
+                                // but not for functions
+                                for (c of node.nodes) {
+                                    visit(c, node, ctx1);
+                                }
+                            // console.log("exit", node.ast);
+
+                                ctx.children.push(ctx1);
+
+                                //ctx.children.push("</div>")
+                            }
+                        } else if (node.name) {
+
+                        ctx.children.push(node.name);
+                        ctx.name = node.name;
+
+                        let ctx1 = {
+                            name: name,
+                            children: [],
+                        }
+                        
+                            // add more props depending on the node type
+
+                        //first check if a node has children, if not, ignore. 
+                        if (node.nodes){
+                            
+                            // do this for structs, tranlation units, 
+                            // but not for functions
+                            for (c of node.nodes) {
+                                visit(c, node, ctx1);
+                            }
+
+                            ctx.children.push(ctx1);
+
+                        }
+
+                    }
+
+                    else if (node.mangled_name){
+
+                        ctx.children.push(node.name);
+                        ctx.name = node.name;
+
+                        let ctx1 = {
+                            name: name,
+                            children: [],
+                        }
+                        
+                            // add more props depending on the node type
+
+                        //first check if a node has children, if not, ignore. 
+                        if (node.nodes){
+                            
+                            // do this for structs, tranlation units, 
+                            // but not for functions
+                            for (c of node.nodes) {
+                                visit(c, node, ctx1);
+                            }
+                        // console.log("exit", node.ast);
+
+                            ctx.children.push(ctx1);
+
+                        }
+
+                    }
+
+                    }
+
+                    let ctx = {
+                        name: name,
+
+                        children: [],
+                    }
+                    //recurse through the rest of the JSON
+                    visit(deck, null, ctx);
+                    //build the new tree
+                    //newDeck = JSON.stringify(ctx, null, 3);
+                    //the tree builder expects an array but the visitor function outputs an object, so:
+                    //create a new array...
+                    newTree = new Array();
+                    //...and then add ctx to the array as its only object
+                    newTree[0] = ctx;
+
+                    root = newTree[0];
+
+                    
+                    update(root);
+
+                    break;
+                    default:
+                        log("cmd: " + cmd + ", " + arg);
+                    }
+        
+                } else {
+            
+                log('received: ' + e.data);
+                }
+            }
+        };
+    ws.onerror = function() {
+        log('error');
+    };
+}
+
+function closeSocket() {
+    log('closing');
+    ws.close();
+}
+
+// keep checking socket status, re-open if closed:
+setInterval(function(){
+        if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
+}, 2000);
+
+// ************** Generate the tree diagram  *****************
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+ width = 960 - margin.right - margin.left,
+ height = 500 - margin.top - margin.bottom;
+ 
+var i = 0;
+
+var tree = d3.layout.tree()
+ .size([height, width]);
+
+//horizontal layout
+var diagonal = d3.svg.diagonal()
+ .projection(function(d) { return [d.y, d.x]; });
+
+ //vertical laout:
+//  var diagonal = d3.svg.diagonal()
+//  .projection(function(d) { return [d.x, d.y]; });
+
+var svg = d3.select("body").append("svg")
+ .attr("width", width + margin.right + margin.left)
+ .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+ .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+updateDepth = 180;
+
+
+function update(source) {
+    var drag = d3.behavior.drag()
+        .on("drag", function(d,i) {
+            d.x += d3.event.dx
+            d.y += d3.event.dy
+            d3.select(this).attr("transform", function(d,i){
+                return "translate(" + [ d.x,d.y ] + ")"
+            })
+        });
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+   links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * updateDepth; });
+
+  // Declare the nodesâ€¦
+  var node = svg.selectAll("g.node")
+   .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter the nodes. horizontal layout:
+  var nodeEnter = node.enter().append("g")
+  .call(drag)
+   .attr("class", "node")
+   .on('click', function(data,index){
+        console.log(data.name)
+         d3.event; // => Original DOM Event
+     })
+   .attr("transform", function(d) { 
+    return "translate(" + d.y + "," + d.x + ")"; });
+    
+
+    //vertical layout:
+    // var nodeEnter = node.enter().append("g")
+    //     .attr("class", "node")
+    //     .attr("transform", function(d) { 
+    //         return "translate(" + d.x + "," + d.y + ")"; });
+
+  nodeEnter.append("circle")
+   .attr("r", 8)
+   .style("fill", "rgb(66, 134, 244)")
+
+
+//text position for horizontal layout
+  nodeEnter.append("text")
+   .attr("x", function(d) { 
+    return d.children || d._children ? -13 : 13; })
+   .attr("dy", ".35em")
+   .attr("text-anchor", function(d) { 
+    return d.children || d._children ? "end" : "start"; })
+   .text(function(d) { return d.name; })
+   .style("fill-opacity", 1);
+
+   //text position for vertical layout:
+//    nodeEnter.append("text")
+//    .attr("y", function(d) { 
+//     return d.children || d._children ? -18 : 18; })
+//    .attr("dy", ".35em")
+//    .attr("text-anchor", "middle")
+//    .text(function(d) { return d.name; })
+//    .style("fill-opacity", 1);
+
+  // Declare the linksâ€¦
+  var link = svg.selectAll("path.link")
+   .data(links, function(d) { return d.target.id; });
+
+  // Enter the links.
+  link.enter().insert("path", "g")
+   .attr("class", "link")
+   .attr("d", diagonal);
+
+//    node.enter().append("svg:circle")
+
+}
+
+//mouse-click to open/close child nodes
+function click(d) {
+    console.log(d.id)
+//   if (d.children) {
+//  d._children = d.children;
+//  d.children = null;
+//   } else {
+//  d.children = d._children;
+//  d._children = null;
+//   }
+//   update(d);
+}
+
+
+</script>
+ 
+  </body>
+</html>

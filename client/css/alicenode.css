@@ -54,7 +54,7 @@ th {
 /* } */
 
 .chatFooter{
-    height: 32%;
+    height: 29%;
     bottom: 0px;
     width: 100%;
 }
@@ -162,4 +162,14 @@ th {
     top: 0%;
     width: 34.3%
 
+}
+#search1, #search2, #search3 {
+    float: right;
+}
+
+#fileInCommit{
+    max-width: 70%;
+    float: left;
+    padding: 0;
+    margin: 0;
 }

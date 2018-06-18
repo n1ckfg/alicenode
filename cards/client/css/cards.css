@@ -25,6 +25,7 @@
 
 table, th, td {
     border: 1px solid black;
+    table-layout: fixed
  }
 
 h3 { text-decoration: none }
@@ -46,3 +47,4 @@ h3 { text-decoration: none }
 #112b36	(17,43,54)
 #eec239	(238,194,57)
 #b3d7df	(179,215,223) */
+
