@@ -130,10 +130,11 @@
 <table style="background-color: blue" width=100% id="gitSelector">  
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
-            <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
+            <input type="text" id="search1" onkeyup='hideAndSeek("chooseBranch","search1");' placeholder="Search..."></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b>
+            <input type="text" id="search2" onkeyup='hideAndSeek("openFileName", "search2");' placeholder="Search..."></th>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
-            
+            <input type="text" id="search3" onkeyup='hideAndSeek("selectCommit", "search3");' placeholder="Search...">
         </th>
 
     </tr>
@@ -969,11 +970,11 @@ function mouseLeaveCommit(evt) {
 
 
 
-function hideAndSeek() {
+function hideAndSeek(mainTag, search) {
   var input, filter, a, i;
-  input = document.getElementById("search");
+  input = document.getElementById(search);
   filter = input.value.toUpperCase();
-  div = document.getElementById("chooseBranch");
+  div = document.getElementById(mainTag);
   a = div.getElementsByTagName("option");
   for (i = 0; i < a.length; i++) {
     if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
