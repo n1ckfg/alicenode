@@ -13,16 +13,17 @@
 #define KINECT_FRAME_BUFFERS 4
 #define KINECT_MAX_DEVICES 2
 
+
+
+#ifdef AL_WIN
 #define AL_USE_FREENECT2_SDK 1
+#ifdef AL_USE_FREENECT2_SDK
 
 #include <libfreenect2/libfreenect2.hpp>
 #include <libfreenect2/frame_listener_impl.h>
 #include <libfreenect2/registration.h>
 #include <libfreenect2/packet_pipeline.h>
 #include <libfreenect2/logger.h>
-
-#ifdef AL_WIN
-#ifdef AL_USE_FREENECT2_SDK
 
 #else 
 #include <Ole2.h>
