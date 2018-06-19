@@ -91,6 +91,7 @@ function getCpp2json(){
 
 let stateSource;
 let stateAST;
+let state = []; //we'll send this to the client
 getState();
 
 function getState(){
@@ -98,7 +99,7 @@ function getState(){
     stateSource = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
     stateSource = JSON.stringify(stateSource)
 
-        exec('./cpp2json ' + path.join(project_path + '/state.h > stateAST.json'), {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
+        exec('./cpp2json ' + path.join(project_path + '/state.h'), {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
         console.log("state.h traversed")
         if (stderr !== null){
             
@@ -115,12 +116,54 @@ function getState(){
        //console.log(stateAST)
 
     //    stateAST = JSON.stringify(stateAST)
-    console.log(stateAST)
+   // console.log(stateAST)
 
+    //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
+       //if no errors, the 0th element of deck will be "{", so if it isnt...
+        if (stateAST.charAt[0] !== "{"){
+            //console.log('error')
+            //get the index of the start of the ast-json
+            let q = stateAST.indexOf("{")
+            console.log(q)
+            if (q > 0) {
+                //put the errors into a variable
+                stateASTErrors = stateAST.substring(0, q);
+                //slice the errors off the original deck
+                stateAST = JSON.parse(stateAST.substring(q));
+                // console.log(deck)
+            }
+
+            
+        }
+        //console.log(stateAST)
+        // let q = stateAST.indexOf("?");
+        // if (q > 0) {
+        //     let cmd = stateAST.substring(0, q);
+        //     let arg = stateAST.substring(q+1);
+        //         console.log(arg)
+        // }
+        Object.keys(stateAST.nodes).forEach(function(key) {
+            if (stateAST.nodes[key].name == "State") {
+               // console.log(arg.nodes[key].nodes)
+        
+                Object.keys(stateAST.nodes[key].nodes).map(function(objectKey, index) {
+                    var value = stateAST.nodes[key].nodes[objectKey];
+                    paramName = value.name;
+                    //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
+                    paramValue = Math.floor(Math.random() * 20)
+                    
+                    
+                    //console.log(value.name, value.offsetof, value.sizeof);
+                    state.push({paramName,paramValue})
+                });
+            }
+        //console.log(arg.nodes[key].name)
+        })
+
+        console.log(state)
 
     })
 }
-
 ////////////////////////HTTP SERVER////////////////////////
 
 
@@ -150,7 +193,6 @@ function send_all_clients(msg) {
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
-    getState();
 
 
 
@@ -172,7 +214,7 @@ wss.on('connection', function(ws, req) {
     // state["numcritters"] = 45;
     // state["foodAvailability"] = 0.02
 
-    //ws.send("state?" + JSON.stringify(stateAST))
+    ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)
     
 
