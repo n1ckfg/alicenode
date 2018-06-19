@@ -268,13 +268,13 @@ function openSocket() {
                     let paramValue;
                     Object.keys(state).forEach(function(key, value) {
                         //console.log(state[key].paramName)
-                        paramName = state[key].paramName;
-                        paramValue = state[key].paramValue;
-                        $('#stateValues tr:last').after('<tr><td>' + paramName + '</td><td>' + '<input id=\"' + paramName + '\" class="param" onchange="updateState(this)" value=\"' + paramValue + '\"></input>' + '</td></tr>');
+                        pName = state[key].paramName;
+                        pValue = state[key].paramValue;
+                        $('#stateValues tr:last').after('<tr><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
                         //turn the input element into a jquery spinner
-                        $("#" + paramName).spinner();
+                        $("#" + pName).spinner();
                         //have the spinner report its value whenever it gets changed by mouse or keyboard events.
-                        $( "#" + paramName ).spinner({spin: function( event, ui, id ) {
+                        $( "#" + pName ).spinner({spin: function( event, ui, id ) {
                             updateState(this.id, ui.value);
                             }
                         });

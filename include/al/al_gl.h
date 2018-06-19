@@ -826,18 +826,19 @@ struct SimpleFBO {
 		
 	}
 	
-	void draw() {
+	void draw(glm::vec2 scale=glm::vec2(1.f), glm::vec2 offset=glm::vec2(0.f)) {
 		
 		if (!texDrawShader) {
 			const char * vp = R"(
 				#version 330 core
+				uniform vec2 uScale, uOffset;
 				layout (location = 0) in vec2 aPos;
 				layout (location = 1) in vec2 aTexCoord;
 				
 				out vec2 texCoord;
 				
 				void main() {
-					gl_Position = vec4(aPos, 0., 1.0);
+					gl_Position = vec4(aPos*uScale+uOffset, 0., 1.0);
 					texCoord = aTexCoord;
 				}
 			)";
@@ -856,6 +857,8 @@ struct SimpleFBO {
 		}
 	
 		texDrawShader->use();
+		texDrawShader->uniform("uScale", scale);
+		texDrawShader->uniform("uOffset", offset);
 		draw_no_shader();
 		texDrawShader->unuse();
 	}

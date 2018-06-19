@@ -124,7 +124,7 @@ function getState(){
             //console.log('error')
             //get the index of the start of the ast-json
             let q = stateAST.indexOf("{")
-            console.log(q)
+            //console.log(q)
             if (q > 0) {
                 //put the errors into a variable
                 stateASTErrors = stateAST.substring(0, q);
@@ -151,7 +151,7 @@ function getState(){
                     paramName = value.name;
                     //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
                     paramValue = Math.floor(Math.random() * 20)
-                    
+                    console.log(value.offsetof, value.sizeof)
                     
                     //console.log(value.name, value.offsetof, value.sizeof);
                     state.push({paramName,paramValue})
