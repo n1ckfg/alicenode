@@ -9,10 +9,17 @@ let res = [];
 let getRaw = function(d) {
 	return src.substr(d.loc.begin.char, d.loc.end.char - d.loc.begin.char);
 }
+let getComment = function(node) {
+	if (node.comment) {
+		return node.comment.text + "\n";
+	} else {
+		return "";
+	}
+}
 
 for (let d of ast.nodes) {
 	if (d.comment) {
-		res.push(d.comment.text, "\n");
+		res.push(getComment(d));
 	}
 	//console.log(d);
 	if (d.ast == "FunctionDecl") {
@@ -25,7 +32,7 @@ for (let d of ast.nodes) {
 			"\n\n");
 	} else if (d.ast == "StructDecl") {
 		//let raw = src.substr(d.loc.begin.char, d.loc.end.char - d.loc.begin.char);
-		let fields = d.nodes.slice(0, -1).map(node => `\t${getRaw(node)};\n`);
+		let fields = d.nodes.map(node => `${getComment(node)}\t${getRaw(node)};\n`);
 		res.push(
 			`struct ${d.name} {\n`,
 			fields.join(""),

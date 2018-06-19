@@ -136,9 +136,6 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		}
 
 		switch(kind) {
-		case CXCursor_IntegerLiteral: {
-			clang_Cursor_getArgument
-		} break;
 		case CXCursor_FunctionDecl:
 		case CXCursor_CXXMethod: {
 			// for a functiondecl 
@@ -171,7 +168,41 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			//	clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
 		} break;
-		
+		case CXCursor_FloatingLiteral:
+		case CXCursor_IntegerLiteral: 
+		case CXCursor_StringLiteral: 
+		case CXCursor_CharacterLiteral: {
+
+			CXEvalResult res = clang_Cursor_Evaluate(c);
+			CXEvalResultKind ekind = clang_EvalResult_getKind(res);
+			switch (ekind) {
+				case CXEval_Int:
+					if (clang_Type_getSizeOf(ctype) > sizeof(int)) {
+						unsigned u = clang_EvalResult_isUnsignedInt(res);
+						jnode["value"] = u ? u : clang_EvalResult_getAsLongLong(res);
+					} else {
+						unsigned long long u = clang_EvalResult_getAsUnsigned(res);
+						jnode["value"] = u ? u : clang_EvalResult_getAsLongLong(res);
+					}
+					break;				
+				case CXEval_Float:
+					jnode["value"] = clang_EvalResult_getAsDouble(res);
+					break;
+				case CXEval_ObjCStrLiteral:
+				case CXEval_StrLiteral:
+				case CXEval_CFStr: 
+				case CXEval_Other:
+				default: {
+					const char * val = clang_EvalResult_getAsStr(res);
+					
+					if (val) {
+						printf("val %s\n", val);
+						jnode["value"] = clang_EvalResult_getAsStr(res);
+					}
+				} break;
+			}
+			clang_EvalResult_dispose(res);
+		} break;
 		default:
 		break;
 
