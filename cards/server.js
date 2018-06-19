@@ -12,8 +12,9 @@ var getFunction = require("function-from-file");
 var LineByLineReader = require('line-by-line');
 
 // derive project to launch from first argument:
-process.chdir(process.argv[2] ||  path.join("..", "cards"));
+process.chdir(process.argv[2] ||  path.join("../..", "alicenode_inhabitat"));
 const project_path = process.cwd();
+console.log(project_path)
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
 
@@ -88,6 +89,37 @@ function getCpp2json(){
   
 }
 
+let stateSource;
+let stateAST;
+getState();
+
+function getState(){
+    //get sourcecode
+    stateSource = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
+    stateSource = JSON.stringify(stateSource)
+
+        exec('./cpp2json ' + path.join(project_path + '/state.h > stateAST.json'), {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
+        console.log("state.h traversed")
+        if (stderr !== null){
+            
+            stateAST = (stderr)
+        } else if (err !== null){
+
+            stateAST = (err)
+        } else if (stdout !== null){
+
+            stateAST = (stdout)
+        }
+       // console.log(deck.split("{"))
+
+       //console.log(stateAST)
+
+    //    stateAST = JSON.stringify(stateAST)
+    console.log(stateAST)
+
+
+    })
+}
 
 ////////////////////////HTTP SERVER////////////////////////
 
@@ -118,10 +150,9 @@ function send_all_clients(msg) {
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
+    getState();
 
-    //get stateH
-    stateH = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
-    stateHa = JSON.stringify(stateH)
+
 
 	let per_session_data = {
 		id: sessionId++,
@@ -132,18 +163,17 @@ wss.on('connection', function(ws, req) {
 
     //console.log(deck)
     ws.send("deck?" + deck);
-    console.log(deck)
     ws.send("src?" + src)
     //if the ast parser produced any warnings/errors:
     ws.send("ast_messages?" + errors)
 
     //temporary
-    let state = {};
-    state["numcritters"] = 45;
-    state["foodAvailability"] = 0.02
+//    let state = {};
+    // state["numcritters"] = 45;
+    // state["foodAvailability"] = 0.02
 
-    ws.send("state?" + JSON.stringify(state))
-    ws.send("state.h?" + stateHa)
+    //ws.send("state?" + JSON.stringify(stateAST))
+    ws.send("state.h?" + stateSource)
     
 
 	sessions[per_session_data.id] = per_session_data;

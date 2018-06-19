@@ -36,6 +36,8 @@
   <script src="cm/addons/panel.js"></script>
   <script src="cm/addons/fullscreen/fullscreen.js"></script>
   <script src="cm/cm-resize.js"></script>
+  <script src="cm/autorefresh.js"></script>
+
 
 
 
@@ -132,7 +134,13 @@
     $("#decks").colResizable({
     liveDrag:true,
     gripInnerHtml:"<div class='grip'></div>", 
-    draggingClass:"dragging" });
+    draggingClass:"dragging",
+    onResize:refreshSourceCM});
+
+    function refreshSourceCM(){
+        console.log('yep')
+        cmRefresh()    
+        }
 
 
 </script>
@@ -272,6 +280,7 @@ function sortDeck(x, y, ast, card, name){
    
 } */
 
+let dv;
 
 //get and set code in the new card
 function sourceCard(code) {
@@ -319,6 +328,9 @@ function sourceCard(code) {
         
     });
     dv.setSize(427, 500);
+    function cmRefresh(){
+        dv.refresh();
+    }
 
 }
 
@@ -563,7 +575,15 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
-                    
+
+                    //////////////
+                    //filter out known messages bound for the other pages:
+                    case "state":
+                    case "state.h":
+                    break;
+                    //////////////
+
+
                     case "src":
 
                     //regen(arg);

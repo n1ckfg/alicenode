@@ -212,6 +212,14 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+
+                                        //////////////
+                    //filter out known messages bound for the other pages:
+                    case "src":
+                    case "deck":
+                    case "ast_messages":
+                    break;
+                    //////////////
                     
                     case "state.h":
                     
