@@ -4,17 +4,6 @@
 think about nested scopes of code, and think about different kinds of event sources
 
 
-
-
-
-
-
-
-
-
-
-
-
 1. a data structure to represent a "patcher". Probably json, or dot. A list (or dictionary) of nodes, a list of arcs between them, and maybe some other metadata global to the patcher. 
 
 2. a way of visually representing the patcher in a browser window.
@@ -27,7 +16,7 @@ think about nested scopes of code, and think about different kinds of event sour
     https://gojs.net/latest/samples/customContextMenu.html
     https://gojs.net/latest/samples/linksToLinks.html
     https://gojs.net/latest/samples/localView.html
-    https://gojs.net/latest/samples/dataFlow.html <<this one might be of interest to graham as its similar to the blueprints' exec cords
+    https://gojs.net/latest/samples/dataFlow.html --- this one might be of interest to graham as its similar to the blueprints' exec cords
 
 3. serving the patcher from a node.js server to the browser.
 

@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "ast-flow-graph": "^1.0.14",
+    "buffer-read": "0.0.2",
     "code-context": "^0.5.3",
     "dependency-tree": "^6.1.0",
     "detective": "^5.1.0",
@@ -34,7 +35,8 @@
     "ref-array": "^1.2.0",
     "ref-struct": "^1.1.0",
     "styx": "0.0.8",
-    "styx-cli": "0.0.10"
+    "styx-cli": "0.0.10",
+    "to-arraybuffer": "^1.0.1"
   },
   "devDependencies": {
     "function-from-file": "^1.0.2"

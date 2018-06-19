@@ -165,10 +165,10 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		} break;
 		case CXCursor_FieldDecl:  {
 			jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
-			printf("offset %lld \n", clang_Cursor_getOffsetOfField(c));
+			//printf("offset %lld \n", clang_Cursor_getOffsetOfField(c));
 			// jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
-			printf("sizeof %lld \n", clang_Type_getSizeOf(ctype));
+			//printf("sizeof %lld \n", clang_Type_getSizeOf(ctype));
 		} break;
 		case CXCursor_FloatingLiteral:
 		case CXCursor_IntegerLiteral: 
@@ -311,7 +311,7 @@ int main(int argc, const char ** argv) {
 	//printf("begin visit\n");
 	clang_visitChildren(cursor, visit, &vd);
 	//printf("json complete\n");
-	//printf("%s\n\n", jdoc.dump(3).c_str());
+	printf("%s\n\n", jdoc.dump(3).c_str());
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);

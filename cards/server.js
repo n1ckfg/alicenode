@@ -1,6 +1,10 @@
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 const fs = require("fs");
 const path = require("path");
+const mmapfile = require('mmapfile');
+const Reader = require('buffer-read');
+const { StringDecoder }= require('string_decoder');
+var toArrayBuffer = require('to-arraybuffer')
 
 const express = require('express');
 const http = require('http');
@@ -92,6 +96,38 @@ function getCpp2json(){
 let stateSource;
 let stateAST;
 let state = []; //we'll send this to the client
+
+function randomInt (low, high) {
+    return Math.floor(Math.random() * (high - low) + low);
+}
+
+let statebuf 
+try {
+    buffSize = fs.statSync("state.bin").size
+	statebuf = mmapfile.openSync("state.bin", buffSize);
+    console.log("mapped state.bin, size "+statebuf.byteLength);
+    
+
+
+		// range = statebuf.slice(11534336, 11534336 + 2304)
+        // reader = new Reader(statebuf)
+        // reader.offset = 78408704;
+        // console.log(reader.slice(4))
+        // console.log(parseInt(range).toString(2))
+	// slow version:
+	// setInterval(function() {
+	// 	let idx = randomInt(0, 10) * (4*3);
+	// 	let v = statebuf.readFloatLE(idx);
+	// 	v = v + 0.01;
+	// 	if (v > 1.) v -= 2.;
+	// 	if (v < -1.) v += 2.;
+	// 	//statebuf.writeFloatLE(v, idx);
+	// }, 1000/120);
+} catch(e) {
+	console.error("failed to map the state.bin:", e.message);
+}
+
+
 getState();
 
 function getState(){
@@ -116,7 +152,7 @@ function getState(){
        //console.log(stateAST)
 
     //    stateAST = JSON.stringify(stateAST)
-   // console.log(stateAST)
+   //console.log(stateAST)
 
     //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
        //if no errors, the 0th element of deck will be "{", so if it isnt...
@@ -152,7 +188,16 @@ function getState(){
                     //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
                     paramValue = Math.floor(Math.random() * 20)
                     console.log(value.offsetof, value.sizeof)
+
+                    // range = statebuf.slice(11534336, 11534336 + 2304)
+                    reader = new Reader(statebuf)
+                    // reader.toString(4); 
+                    reader.readInt8()
+                    reader.offset = value.offsetof;
+                    fieldDecl = reader.slice(value.sizeof)
                     
+
+                    console.log(fieldDecl)
                     //console.log(value.name, value.offsetof, value.sizeof);
                     state.push({paramName,paramValue})
                 });
