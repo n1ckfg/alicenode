@@ -568,7 +568,8 @@ function openSocket() {
 
                     //regen(arg);
                     sourceCard(arg)
-                    
+                    break;
+
                     case "deck":
                     deck = (JSON.parse(arg))
                     //var newCard = [];
@@ -775,7 +776,8 @@ function openSocket() {
                     //})
                     break;
                     default:
-                        log("cmd: " + cmd + ", " + arg);
+                    //we don't want this, at least not for now, since the server is sending messages to the other pages as well
+                        //log("cmd: " + cmd + ", " + arg);
                     }
         
                 } else {
