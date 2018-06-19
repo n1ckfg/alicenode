@@ -1,27 +1,116 @@
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
 const fs = require("fs");
+const esgraph = require("esgraph");
 const path = require("path");
-
+const esprima = require("esprima");
+const Styx = require("styx");
+const functionExtractor = require("function-extractor");
+const estraverse = require("estraverse");
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const chokidar = require('chokidar');
 const url = require('url');
 
+
+const parseContext = require('code-context');
+var detective = require('detective');
+var getScope = require('get-scope')
+
 var getFunction = require("function-from-file");
 var LineByLineReader = require('line-by-line');
+
+
+const findGlobals = require('find-globals');
+const functionsPath = path.join(__dirname, 'extracts/functions/')
+const globalsPath = path.join(__dirname, 'extracts/globals/')
+const extractsPath  = path.join(__dirname, 'extracts/')
 
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  path.join("..", "cards"));
 const project_path = process.cwd();
 const server_path = __dirname;
 const client_path = path.join(server_path, "client");
+var escope = require('escope')
 
+//SETUP
+//load js file
+//var source = fs.readFileSync("./aserver.js", "utf8")
+//create the abstract syntax tree
+//var ast = esprima.parse(source, {loc: true, range: true})
+
+// console.log(json);
+
+// var source;
+// // First I want to read the file
+// fs.readFileSync('./aserver.js', 'utf8', function read(err, data) {
+//     if (err) {
+//         throw err;
+//     }
+//     //load the js file, remove the #! node entry on first line (if there is one)
+//     source = data.replace(/^#!(.*\n)/, '');
+
+//     // Invoke the next step here however you like
+//     //console.log(content);   // Put all of the code here (not the best solution)
+//     processFile(source);          // Or put the next step in a function and invoke it
+//     console.log(functionExtractor.parse(source))
+
+// });
+
+    
+//     // var tree = esprima.parseScript(source, { range: true, loc: true, comment: true }, function (node, metadata) {
+//     //    // console.log(node.type, metadata);
+//     // } ) 
+    
+//     // fs.writeFileSync('./ast.json', JSON.stringify(tree, null, 2), 'utf8');
+//     // //console.log(node.type);
+
+
+var functionList = {}
+
+// // var functions = functionExtractor.parse(source);
+
+// // console.log(functions)
+// }
+
+var opts
+var nodes
 let deck;
 let src;
-let errors;
 
-//get the source code of test.h:
+//objects:
+//
+
+//let src = fs.readFileSync(deck.filename, "utf-8");
+//console.log(src)
+let cards = {}; //json object containing all card data: function, code data, attribute(s)
+let globals = {} // contains any variable declared at file's root
+let locals = {} // contains any variables declared within a function's scope
+var requireStatements = {} //containing all of the require statements
+
+
+//get the updated json of test.h (see ./cards/cpp2json)
+getCpp2json();
+//console.log( __dirname + "/cpp2json/")
+function getCpp2json(){
+    deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
+    //console.log(deck)
+    //not working for the time being...
+    // execSync('./cpp2json test.h > test.json && cat test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
+    //     console.log("deck folded")
+    //     if (stderr !== null){
+            
+    //         deck = (stderr)
+    //     } else if (err !== null){
+
+    //         deck = (err)
+    //     } else if (stdout !== null){
+
+    //         deck = (stdout)
+    //     }
+    //     console.log(JSON.parse(deck))
+    // })
+
 
     //this is commented out for now, as the regen can't deal with StructDecl yet...(?)
     // execSync('node regen.js test.json', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
@@ -40,50 +129,10 @@ let errors;
     // })
 
     //so this is being run in the above code's place, for now (its a bootstrap):
-    src = fs.readFileSync(__dirname + "/cpp2json/test.h")
+    src = fs.readFileSync(__dirname + "/cpp2json/test.h").toString();
    // console.log(src)
-   
-//get the updated json of test.h (see ./cards/cpp2json)
-getCpp2json();
-//console.log( __dirname + "/cpp2json/")
-function getCpp2json(){
-    //deck = fs.readFileSync(__dirname + "/cpp2json/test.json") //the temp name for the overall datastructure we will add to throughout this document
-    //console.log(deck)
-    //not working for the time being...
-    exec('./cpp2json test.h', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
-        console.log("deck folded")
-        if (stderr !== null){
-            
-            deck = (stderr)
-        } else if (err !== null){
 
-            deck = (err)
-        } else if (stdout !== null){
-
-            deck = (stdout)
-        }
-       // console.log(deck.split("{"))
-       //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
-       //if no errors, the 0th element of deck will be "{", so if it isnt...
-        if (deck.charAt[0] !== "{"){
-            //get the index of the start of the ast-json
-            let q = deck.indexOf("{")
-            if (q > 0) {
-                //put the errors into a variable
-                errors = deck.substring(0, q);
-                //slice the errors off the original deck
-                deck = deck.substring(q);
-                // console.log(deck)
-            }
-            
-        }
-        // let q = deck.indexOf("?");
-        // if (q > 0) {
-        //     let cmd = message.substring(0, q);
-        //     let arg = message.substring(q+1);
-
-    })
-  
+     
 }
 
 
@@ -116,33 +165,16 @@ function send_all_clients(msg) {
 
 // whenever a client connects to this websocket:
 wss.on('connection', function(ws, req) {
-
-    //get stateH
-    stateH = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
-    stateHa = JSON.stringify(stateH)
-
+		
 	let per_session_data = {
 		id: sessionId++,
 		socket: ws,
 
 
-    };
-
+	};
     //console.log(deck)
-    ws.send("deck?" + JSON.stringify(deck));
-    console.log(deck)
+    ws.send("deck?" + deck);
     ws.send("src?" + src)
-    //if the ast parser produced any warnings/errors:
-    ws.send("ast_messages?" + errors)
-
-    //temporary
-    let state = {};
-    state["numcritters"] = 45;
-    state["foodAvailability"] = 0.02
-
-    ws.send("state?" + JSON.stringify(state))
-    ws.send("state.h?" + stateHa)
-    
 
 	sessions[per_session_data.id] = per_session_data;
 
