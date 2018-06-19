@@ -168,6 +168,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			printf("offset %lld \n", clang_Cursor_getOffsetOfField(c));
 			// jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
+			printf("sizeof %lld \n", clang_Type_getSizeOf(ctype));
 		} break;
 		case CXCursor_FloatingLiteral:
 		case CXCursor_IntegerLiteral: 
