@@ -124,15 +124,9 @@
             <td class="left" id="deckOneName"></td>
             <td id="deckOneSource" style="float:left"></td>
             <td class="right" id="deckOneASTGraph"></td>
-        </tr> 
-               
+        </tr>        
     </tbody>
 </table>
-<div>
-<ul height="15%" overflow="scroll" id="ast_messages">
-
-</ul>
-</div>
 <!-- script for the resizable columns for the table above -->
 <script>
     $("#decks").colResizable({
@@ -177,6 +171,44 @@ function doubleClick(e) {
 }
 $( "div, p" ).disableSelection();
 
+
+
+
+
+
+
+// code cards:
+//this card holds the file name, and info about the file
+// function deckMeta(filename, ast){
+
+//     // var instance = count ++;
+//     frameId = ("frame_" + filename);
+
+//     cardId = ("card_" + filename);
+//     cardIdArray.push(cardId)
+//     value = (ast + "\n" + filename)
+            
+//     // create a frame place it at the mouse position, and insert the code card within
+//     // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+//         // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+//     var $item = $('<table width=300px style="position: absolute; margin-left:' + 40 + 'px; margin-top:' + 40 + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + filename + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+//                // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+ 
+ 
+//     // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+//     $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+//         //difficult to get accordion working with codemirror, comes out weird
+//         // $item.accordion({collapsible: true, heightStyle: "content"});   
+
+//     // add it to the deck
+//     $item.appendTo('.deck');
+
+//     initUI();   
+//     $( function() {
+//         $( cardId )
+//     });  
+
+// }
 //create a blank new card, add to the deck
 function newCard(x, y){
     var instance = count ++;
@@ -208,6 +240,37 @@ function newCard(x, y){
    
 }
 
+/*
+//create a deck of cards received from server:
+function sortDeck(x, y, ast, card, name){
+    var instance = count ++;
+    frameId = ("frame_" + instance);
+
+    cardId = ("card_" + instance);
+    cardIdArray.push(cardId)
+    value = ("//new card")
+            
+    // create a frame place it at the mouse position, and insert the code card within
+    // var $item = $('<div class="actve" width=300px height=340px style="position: absolute; left: ' + x + '; top: ' + y + ' id="' + frameId + '"<h2>' + cardId + '</h2>').append('<div class="card" id="' + cardId + '"/>')
+        // var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" > <th> <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></th></tr> <tr><td><div class="card" id="' + cardId + '"</td></tr></table>')
+    var $item = $('<table width=300px style="position: absolute; margin-left:' + x + 'px; margin-top:' + y + 'px; id="' + frameId + '"> <tr bgcolor="#eec239" height=10px> <th></th></tr><tr ><td><form class="card"> <input  type="text" name="' + cardId + '_title" value="' + ast + ' ' + name + '"></form></th></tr> <tr><td><div class="card" id="' + cardId + '"</div></td></tr></table>')
+               // <h3 style="color:#112b36;" text-decoration="none">' + cardId + '</h3></
+ 
+ 
+    // make it draggable, prevent the code from being dragged(need to select text) and auto-reorder the cards based on last-clicked (stack)
+    $item.draggable({ cancel: "div.card", cancel: "form.card", stack: cardId + " div" }); 
+        //difficult to get accordion working with codemirror, comes out weird
+        // $item.accordion({collapsible: true, heightStyle: "content"});   
+    $item.tabs({ collapsible: true, event: "mouseover"})
+    // add it to the deck
+    $item.appendTo('.deck');
+
+    initUI(card, (ast + '_' + name), cardId);   
+    $( function() {
+        $( cardId )
+    });  
+   
+} */
 
 
 //get and set code in the new card
@@ -218,7 +281,7 @@ function sourceCard(code) {
 
     target.innerHTML = "";
     dv = CodeMirror(target, {
-        // position: "relative",
+        position: "relative",
         value: code,
         // origLeft: panes == 3 ? orig1 : null,
         // origRight: orig1,
@@ -243,7 +306,7 @@ function sourceCard(code) {
         // fullscreen: true,
         /* init: */
         //place cursor in left editor at client init
-        // autofocus: 1,
+        autofocus: 1,
         
 
         //editing
@@ -255,7 +318,7 @@ function sourceCard(code) {
         cursorScrollMargin: 0,
         
     });
-    dv.setSize("100%", 500);
+    dv.setSize(427, 500);
 
 }
 
@@ -328,11 +391,128 @@ function initUI(comment, name, cardId) {
 
 
         },
-   
+        // {
+        //     hotkey: 'Ctrl-B',
+        //     class: 'bold',
+        //     label: '<strong>B</strong>',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection('**' + selection + '**');
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 2);
+        //         }
+        //     }
+        // },
+        // {
+        //     hotkey: 'Ctrl-I',
+        //     class: 'italic',
+        //     label: '<i>I</i>',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection('*' + selection + '*');
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'inline-code',
+        //     label: 'code',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("`" + selection + "`");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'block-php',
+        //     label: '&lt;php&gt;',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("```php\n<?php\n" + selection + "\n```\n");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line - 2, 0);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'block-code',
+        //     label: '&lt;-&gt;',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         cm.replaceSelection("```\n" + selection + "\n```\n");
+        //         if (!selection) {
+        //             var cursorPos = cm.getCursor();
+        //             cm.setCursor(cursorPos.line - 2, 0);
+        //         }
+        //     }
+        // },
+        // {
+        //     class: 'quote',
+        //     label: '>',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("> " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'ul',
+        //     label: 'ul',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("- " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'ol',
+        //     label: 'ol',
+        //     callback: function (cm) {
+        //         cm.replaceSelection("1. " + cm.getSelection());
+        //     }
+        // },
+        // {
+        //     class: 'a',
+        //     label: 'a',
+        //     callback: function (cm) {
+        //         var selection = cm.getSelection();
+        //         var text = '';
+        //         var link = '';
+
+        //         if (selection.match(/^https?:\/\//)) {
+        //             link = selection;
+        //         } else {
+        //             text = selection;
+        //         }
+        //         cm.replaceSelection('[' + text + '](' + link + ')');
+
+        //         var cursorPos = cm.getCursor();
+        //         if (!selection) {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 3);
+        //         } else if (link) {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - (3 + link.length));
+        //         } else {
+        //             cm.setCursor(cursorPos.line, cursorPos.ch - 1);
+        //         }
+        //     }
+        // }
     ],
 
     });
 }
+
+//codemirror interaction:
+
+// $(document).keyup(function(e) {
+//      if (e.keyCode == 27) { // escape key maps to keycode `27`
+//         // <DO YOUR WORK HERE>
+//         cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+//         document.title = "Deck of Cards ide";
+//     }
+// });
 
 
 document.getElementById('server').value = ws_url;
@@ -383,45 +563,32 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
-
-                    case "ast_messages":
-
-                    //messages from the server
                     
-                    var li = document.createElement('li');
-                    li.innerHTML = ("system: " + arg);
-                    var list = document.getElementById('ast_messages');
-                    list.appendChild(li);
-                    
-                    break;
-
                     case "src":
+
                     //regen(arg);
                     sourceCard(arg)
-                    break;
-
+                    
                     case "deck":
-
-                    //console.log(arg)
-                    //deck = (JSON.parse(arg))
+                    deck = (JSON.parse(arg))
                     //var newCard = [];
-                    //console.log(arg)
-                    deck = arg
+                    console.log(deck)
 
-                    console.log("test" + deck)
+                    //send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)
+                    
 
+                    
+                    
                     let name;
                     newDeckArray = []
 
-                    visit(deck)
+                    visit(arg)
 
                     function visit(node, parentnode, ctx) {
-                        console.log("function called " + node)
                         //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
                         
                         if (node.ast == "TranslationUnit"){
                             ctx.name = node.filename;
-                            console.log(node.filename)
 
                             //put this ast's filename into the filename column of the IDE table
                             $('#deckOneName').text(node.filename)
@@ -608,8 +775,7 @@ function openSocket() {
                     //})
                     break;
                     default:
-                    //no need to receive messages meant for other pages i.e. state.html, the other index.html...
-                        // log("cmd: " + cmd + ", " + arg);
+                        log("cmd: " + cmd + ", " + arg);
                     }
         
                 } else {
@@ -842,5 +1008,4 @@ function showCard(x, y, card, name){
 
 // }
 </script>
-
 
