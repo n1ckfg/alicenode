@@ -238,7 +238,7 @@ int main(int argc, const char ** argv) {
 		char const * args[] = { "-x", "c++", "-std=c++11", " -stdlib=libc++", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
 	
 	*/
-	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
+	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-I../../clang/6.0.0/include", "-I../../include" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
