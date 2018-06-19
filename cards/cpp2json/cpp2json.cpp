@@ -164,8 +164,8 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			doVisitChildren = false;
 		} break;
 		case CXCursor_FieldDecl:  {
-			jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
-			//	clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
+			//jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
+			jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
 		} break;
 		case CXCursor_FloatingLiteral:

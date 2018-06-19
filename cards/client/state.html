@@ -150,6 +150,7 @@ function log(msg){
 function updateState(paramName, paramValue){
     state[paramName] = paramValue
     console.log(state)
+    ws.send("stateUpdate?" + state)
 }
 
 // $('.param').click(function() {
@@ -212,20 +213,24 @@ function openSocket() {
                 let cmd = message.substring(0, q);
                 let arg = message.substring(q+1);
                 switch(cmd) {
+
+                                        //////////////
+                    //filter out known messages bound for the other pages:
+                    case "src":
+                    case "deck":
+                    case "ast_messages":
+                    break;
+                    //////////////
                     
                     case "state.h":
-                    
-
                     stateCode = JSON.parse(arg)
                     //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
-                    console.log(stateCode)
                     sourceCard(stateCode)
                     //get and set code in the new card
                     function sourceCard(stateCode) {
                     // isRightDirty = false;
                         if (value == null) return;
                         var target = document.getElementById("stateh_source");
-
                         target.innerHTML = "";
                         dv = CodeMirror(target, {
                             //position: "relative",
@@ -236,6 +241,7 @@ function openSocket() {
                             mode: "clike",
                             //highlightDifferences: "highlight",
                             theme: 'one-dark',
+                            readOnly: true,
                             //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
                             viewportMargin: 10,
                             revertButtons: true,
@@ -247,28 +253,23 @@ function openSocket() {
                             undoDepth: 200,
                             //cursor settings:
                             cursorBlinkRate: 300,
-                            cursorScrollMargin: 0,
-                            
+                            cursorScrollMargin: 0,                   
                         });
                         dv.setSize("100%", 750);
-
                     }
-
-
                     break;
                     
                     case "state":
+                    //we need to clear the table rows (except for the first, since [1]in order to add after last we need something there already, annnnd the 0th table row is our table header!)
+                    $("#stateValues").find("tr:gt(0)").remove(); 
+                    
                     state = (JSON.parse(arg))
-                    //var newCard = [];
-
-                    //console.log(state)
-                    //note: we'll use a visitor function like the one below, but its not for the purpose of building a tree; rather we just need the parameter name and its value. we'll then pass it to this function below:
                     let paramName;
                     let paramValue;
                     Object.keys(state).forEach(function(key, value) {
-                        console.log(key, state[key])
-                        paramName = key;
-                        paramValue = state[key];
+                        //console.log(state[key].paramName)
+                        paramName = state[key].paramName;
+                        paramValue = state[key].paramValue;
                         $('#stateValues tr:last').after('<tr><td>' + paramName + '</td><td>' + '<input id=\"' + paramName + '\" class="param" onchange="updateState(this)" value=\"' + paramValue + '\"></input>' + '</td></tr>');
                         //turn the input element into a jquery spinner
                         $("#" + paramName).spinner();
@@ -277,142 +278,14 @@ function openSocket() {
                             updateState(this.id, ui.value);
                             }
                         });
-                        // $("#" + paramName).on("change paste keyup", function() {
-                        //     console.log($("#" + paramName).val()); 
-                        // });
 
 
                     })
-                    // function addParameter(){
-                    //     $('#stateValues tr:last').after('<tr><td>' + paramName + '</td><td>' + '<input id=\"' + paramName + '\" value=\"' + paramValue + '\"></input>' + '</td></tr>');
-
-
-
-                    // }
-
-                    
-                    /*
-                    //send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)
-                    
-
-                    
-                    
-                    let name;
-                    newDeckArray = []
-
-                    visit(arg)
-
-                    function visit(node, parentnode, ctx) {
-                        //console.log("enter", node.ast, "of", parentnode ? parentnode.ast : node.filename);
-                        
-                        if (node.ast == "TranslationUnit"){
-                            ctx.name = node.filename;
-
-                            //put this ast's filename into the filename column of the IDE table
-                            $('#deckOneName').text(node.filename)
-
-                        
-                            //ctx.children.push(node.ast);
-
-                            let ctx1 = {
-                                name: name,
-                                children: [],
-                            }  
-
-
-                                    // add more props depending on the node type
-
-                            //first check if a node has children, if not, ignore. 
-                            if (node.nodes){
-                                
-                                // do this for structs, tranlation units, 
-                                // but not for functions
-                                for (c of node.nodes) {
-                                    visit(c, node, ctx1);
-                                }
-                            // console.log("exit", node.ast);
-
-                                ctx.children.push(ctx1);
-
-                                //ctx.children.push("</div>")
-                            }
-                        } else if (node.name) {
-
-                        ctx.children.push(node.name);
-                        ctx.name = node.name;
-
-                        let ctx1 = {
-                            name: name,
-                            children: [],
-                        }
-                        
-                            // add more props depending on the node type
-
-                        //first check if a node has children, if not, ignore. 
-                        if (node.nodes){
-                            
-                            // do this for structs, tranlation units, 
-                            // but not for functions
-                            for (c of node.nodes) {
-                                visit(c, node, ctx1);
-                            }
-
-                            ctx.children.push(ctx1);
-
-                        }
-
-                    }
-
-                    else if (node.mangled_name){
-
-                        ctx.children.push(node.name);
-                        ctx.name = node.name;
-
-                        let ctx1 = {
-                            name: name,
-                            children: [],
-                        }
-                        
-                            // add more props depending on the node type
-
-                        //first check if a node has children, if not, ignore. 
-                        if (node.nodes){
-                            
-                            // do this for structs, tranlation units, 
-                            // but not for functions
-                            for (c of node.nodes) {
-                                visit(c, node, ctx1);
-                            }
-                        // console.log("exit", node.ast);
-
-                            ctx.children.push(ctx1);
-
-                        }
-
-                    }
-
-                    }
-
-                    let ctx = {
-                        name: name,
-
-                        children: [],
-                    }
-                    //recurse through the rest of the JSON
-                    visit(deck, null, ctx);
-                    //build the new tree
-                    //newDeck = JSON.stringify(ctx, null, 3);
-                    //the tree builder expects an array but the visitor function outputs an object, so:
-                    //create a new array...
-                    newTree = new Array();
-                    //...and then add ctx to the array as its only object
-
-                    */
-
                     break;
+
                     default:
-                        //no need to receive messages meant for other pages i.e. index.html
-                        //log("cmd: " + cmd + ", " + arg);
+                    break;
+
                     }
         
                 } else {

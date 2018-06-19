@@ -4,32 +4,35 @@
    "nodes": [
       {
          "ast": "StructDecl",
+         "comment": {
+            "text": "/*\n\tFooey foofoo\n*/"
+         },
          "loc": {
             "begin": {
-               "char": 1,
+               "char": 21,
                "col": 1,
-               "line": 2
+               "line": 5
             },
             "end": {
-               "char": 28,
+               "char": 165,
                "col": 2,
-               "line": 4
+               "line": 17
             }
          },
-         "name": "Test",
+         "name": "Foo",
          "nodes": [
             {
                "ast": "FieldDecl",
                "loc": {
                   "begin": {
-                     "char": 16,
+                     "char": 35,
                      "col": 2,
-                     "line": 3
+                     "line": 6
                   },
                   "end": {
-                     "char": 25,
+                     "char": 44,
                      "col": 11,
-                     "line": 3
+                     "line": 6
                   }
                },
                "name": "x",
@@ -38,26 +41,63 @@
                      "ast": "IntegerLiteral",
                      "loc": {
                         "begin": {
-                           "char": 24,
+                           "char": 43,
                            "col": 10,
-                           "line": 3
+                           "line": 6
                         },
                         "end": {
-                           "char": 25,
+                           "char": 44,
                            "col": 11,
-                           "line": 3
+                           "line": 6
                         }
                      },
                      "type": "int",
-                     "value": 1
+                     "value": 0
                   }
                ],
                "offsetof": 0,
                "sizeof": 4,
                "type": "int"
+            },
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+                     "char": 48,
+                     "col": 2,
+                     "line": 8
+                  },
+                  "end": {
+                     "char": 59,
+                     "col": 13,
+                     "line": 8
+                  }
+               },
+               "name": "y",
+               "nodes": [
+                  {
+                     "ast": "IntegerLiteral",
+                     "loc": {
+                        "begin": {
+                           "char": 58,
+                           "col": 12,
+                           "line": 8
+                        },
+                        "end": {
+                           "char": 59,
+                           "col": 13,
+                           "line": 8
+                        }
+                     },
+                     "type": "int"
+                  }
+               ],
+               "offsetof": 4,
+               "sizeof": 4,
+               "type": "float"
             }
          ],
-         "type": "Test"
+         "type": "Foo"
       }
    ]
 }
