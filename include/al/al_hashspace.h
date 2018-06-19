@@ -408,8 +408,7 @@ struct Hashspace2D {
 		
 		// define the transforms:
 		voxels2world = glm::translate(glm::mat3(), world_min) 
-					 * glm::scale(glm::mat3(), world_max - world_min);
-		
+					 * (glm::scale(glm::mat3(), world_max - world_min) / float(mDim));
 		
 		//glm::translate(glm::mat3(), world_min) * glm::scale(glm::mat3(), world_max - world_min);
 		// world to normalized:
