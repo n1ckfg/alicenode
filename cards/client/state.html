@@ -61,9 +61,7 @@
 
 <style>
 
-    body {
-    /* background-color: rgb(43, 40, 44); */
-}
+
 
 /* <!-- rgb(39, 174, 96)
 rgb(142, 68, 173)
@@ -413,7 +411,8 @@ function openSocket() {
 
                     break;
                     default:
-                        log("cmd: " + cmd + ", " + arg);
+                        //no need to receive messages meant for other pages i.e. index.html
+                        //log("cmd: " + cmd + ", " + arg);
                     }
         
                 } else {

@@ -1,9 +1,9 @@
 
-namespace jim {
-	struct Foo {
+// namespace jim {
+// 	struct Foo {
 
-	};
-}
+// 	};
+// }
 
 /*
 	Fooey foofoo
