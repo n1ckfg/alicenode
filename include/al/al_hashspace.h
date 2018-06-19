@@ -34,6 +34,7 @@
 	}
 */
 
+
 // RESOLUTION 5 means 2^5 = 32 voxels in each axis.
 template<int MAX_OBJECTS = 1024, int RESOLUTION = 5>
 struct Hashspace3D {
@@ -551,6 +552,52 @@ struct Hashspace2D {
 		return *this;
 	}
 
+};
+
+
+/*
+	Would be nice to support different resolutions in each axis, to better fit data
+	
+	There are two scale implications: 	
+		1. relative axis scales of the voxels (aspect ratios)
+		2. relative axis scales of the world space (volume shape)
+
+	When performing a neighbour query, we use pre-based spheroid shells, 
+		but really these should these be spheres in world-space
+	I.e. a query() radius is a world-space radius.
+	Which means the baked shells need to take into account the warping due to non-uniform volume & voxel sizes
+	i.e. the calculation of a voxel distance from origin depends on these non-uniform factors.
+
+	
+*/	
+// RESOLUTION 5 means 2^5 = 32 voxels in each axis.
+template<int MAX_OBJECTS=1024, int RESX=5, int RESY=5, int RESZ=5>
+struct Hashspace3D3 {
+
+	struct Voxel {
+		/// the linked list of objects in this voxel
+		int32_t first;
+	};
+
+	struct Shell {
+		uint32_t start;
+		uint32_t end;
+	};
+
+	struct Object {
+		int32_t id;		///< which object ID this is
+		int32_t next, prev;
+		uint32_t hash;	///< which voxel ID it belongs to (or invalidHash())
+		glm::vec3 pos;
+	};
+
+	// the actual voxel grid:
+	Voxel mVoxels[(1<<RESX) * (1<<RESY) * (1<<RESZ)];
+	// mVoxels indices into mVoxelsByDistance
+	// what is the longest distance?
+	Shell mShells[glm::max(glm::max(RESX, RESY), RESZ)];
+	// the book-keeping of unique objects in the space
+	Object mObjects[MAX_OBJECTS];
 };
 
 #endif // AL_HASHSPACE_H
