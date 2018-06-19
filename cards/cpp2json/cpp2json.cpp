@@ -164,8 +164,9 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			doVisitChildren = false;
 		} break;
 		case CXCursor_FieldDecl:  {
-			//jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
-			jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
+			jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
+			printf("offset %lld \n", clang_Cursor_getOffsetOfField(c));
+			// jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
 		} break;
 		case CXCursor_FloatingLiteral:
@@ -231,7 +232,13 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-	char const * args[] = { "-x", "c++", "-fparse-all-comments", "-I../../include" };
+	/*
+	-std=c++11  -DNDEBUG -fno-exceptions -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -stdlib=libc++
+	
+		char const * args[] = { "-x", "c++", "-std=c++11", " -stdlib=libc++", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
+	
+	*/
+	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
@@ -303,7 +310,7 @@ int main(int argc, const char ** argv) {
 	//printf("begin visit\n");
 	clang_visitChildren(cursor, visit, &vd);
 	//printf("json complete\n");
-	printf("%s\n\n", jdoc.dump(3).c_str());
+	//printf("%s\n\n", jdoc.dump(3).c_str());
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);
