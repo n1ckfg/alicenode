@@ -231,7 +231,7 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments", "-I../../include" };
+	char const * args[] = { "-x", "c++", "-fparse-all-comments", "-I../../include" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
@@ -307,9 +307,5 @@ int main(int argc, const char ** argv) {
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);
-	
-	//printf("bye\n");
-	printf("%s\n\n", jdoc.dump(3).c_str());
-	
 	return 0;
 }

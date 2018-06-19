@@ -1,14 +1,12 @@
-<<<<<<< HEAD
 
-// namespace jim {
-// 	struct Foo {
+struct Test {
+	int x = 1;
+};
 
-// 	};
-// }
 
 /*
 	Fooey foofoo
-*/
+
 struct Foo {
 
 	int x = 0;
@@ -25,14 +23,6 @@ struct Foo {
 
 // zappy zapzap
 int zap(float f) {
-
 	return 99 * f;
 }
-=======
-struct Foo {
-	//float x = 1.f;
-	//double y = 2.0;
-	//char z = 'c';
-	int w = 4;
-};
->>>>>>> cpp2json collects offsetof and sizeof
+*/
