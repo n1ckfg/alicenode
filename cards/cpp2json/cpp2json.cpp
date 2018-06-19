@@ -135,10 +135,6 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			jnode["type"] = clang_getCString(clang_getTypeSpelling(ctype));
 		}
 
-		// clang_Type_getOffsetOf
-		// clang_Type_getSizeOf
-		// figure out how to get value of Literals
-
 		switch(kind) {
 		case CXCursor_IntegerLiteral: {
 			clang_Cursor_getArgument
@@ -170,14 +166,16 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 			jnode["text"] = filetext.substr(offset, offset1-offset);
 			doVisitChildren = false;
 		} break;
+		case CXCursor_FieldDecl:  {
+			jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
+			//	clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
+			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
+		} break;
+		
 		default:
 		break;
 
 		}
-		
-		
-
-		
 
 	
 		if (doVisitChildren) {
@@ -202,11 +200,7 @@ int main(int argc, const char ** argv) {
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
-<<<<<<< HEAD
 	char const * args[] = { "-x", "c++", "-E", "-fparse-all-comments", "-I../../include" };
-=======
-	char const * args[] = { "-x", "c++", "-fparse-all-comments" };
->>>>>>> fd0c98e0cc0fcfb0e5fcd150f9cce32f4e47a784
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
@@ -284,5 +278,7 @@ int main(int argc, const char ** argv) {
 	clang_disposeIndex(index);
 	
 	//printf("bye\n");
+	printf("%s\n\n", jdoc.dump(3).c_str());
+	
 	return 0;
 }

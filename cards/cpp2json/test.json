@@ -4,19 +4,21 @@
    "nodes": [
       {
          "ast": "StructDecl",
+<<<<<<< HEAD
+=======
          "comment": {
-            "text": "/*\n\tFooey foofoo\n*/"
+            "text": "//#include <math.h>"
          },
          "loc": {
             "begin": {
-               "char": 21,
+               "char": 22,
                "col": 1,
-               "line": 5
+               "line": 4
             },
             "end": {
-               "char": 133,
+               "char": 74,
                "col": 2,
-               "line": 16
+               "line": 9
             }
          },
          "name": "Foo",
@@ -25,6 +27,117 @@
                "ast": "FieldDecl",
                "loc": {
                   "begin": {
+                     "char": 36,
+                     "col": 2,
+                     "line": 5
+                  },
+                  "end": {
+                     "char": 43,
+                     "col": 9,
+                     "line": 5
+                  }
+               },
+               "name": "x",
+               "offsetof": 0,
+               "sizeof": 4,
+               "type": "float"
+            },
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+                     "char": 46,
+                     "col": 2,
+                     "line": 6
+                  },
+                  "end": {
+                     "char": 54,
+                     "col": 10,
+                     "line": 6
+                  }
+               },
+               "name": "y",
+               "offsetof": 8,
+               "sizeof": 8,
+               "type": "double"
+            },
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+                     "char": 57,
+                     "col": 2,
+                     "line": 7
+                  },
+                  "end": {
+                     "char": 63,
+                     "col": 8,
+                     "line": 7
+                  }
+               },
+               "name": "z",
+               "offsetof": 16,
+               "sizeof": 1,
+               "type": "char"
+            },
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+                     "char": 66,
+                     "col": 2,
+                     "line": 8
+                  },
+                  "end": {
+                     "char": 71,
+                     "col": 7,
+                     "line": 8
+                  }
+               },
+               "name": "w",
+               "offsetof": 20,
+               "sizeof": 4,
+               "type": "int"
+            }
+         ],
+         "type": "Foo"
+      },
+      {
+         "ast": "FunctionDecl",
+>>>>>>> cpp2json collects offsetof and sizeof
+         "comment": {
+            "text": "/*\n\tFooey foofoo\n*/"
+         },
+         "loc": {
+            "begin": {
+<<<<<<< HEAD
+               "char": 21,
+               "col": 1,
+               "line": 5
+            },
+            "end": {
+               "char": 133,
+               "col": 2,
+               "line": 16
+=======
+               "char": 128,
+               "col": 1,
+               "line": 13
+            },
+            "end": {
+               "char": 159,
+               "col": 2,
+               "line": 15
+>>>>>>> cpp2json collects offsetof and sizeof
+            }
+         },
+         "name": "Foo",
+         "nodes": [
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+<<<<<<< HEAD
                      "char": 35,
                      "col": 2,
                      "line": 6
@@ -33,6 +146,16 @@
                      "char": 44,
                      "col": 11,
                      "line": 6
+=======
+                     "char": 136,
+                     "col": 9,
+                     "line": 13
+                  },
+                  "end": {
+                     "char": 143,
+                     "col": 16,
+                     "line": 13
+>>>>>>> cpp2json collects offsetof and sizeof
                   }
                },
                "name": "x",
@@ -63,6 +186,7 @@
                },
                "loc": {
                   "begin": {
+<<<<<<< HEAD
                      "char": 63,
                      "col": 2,
                      "line": 9
@@ -71,6 +195,16 @@
                      "char": 97,
                      "col": 3,
                      "line": 11
+=======
+                     "char": 145,
+                     "col": 18,
+                     "line": 13
+                  },
+                  "end": {
+                     "char": 159,
+                     "col": 2,
+                     "line": 15
+>>>>>>> cpp2json collects offsetof and sizeof
                   }
                },
                "mangled_name": "__ZN3Foo4methEi",
@@ -80,6 +214,7 @@
                      "ast": "ParmDecl",
                      "loc": {
                         "begin": {
+<<<<<<< HEAD
                            "char": 72,
                            "col": 11,
                            "line": 9
@@ -105,6 +240,35 @@
                            "char": 97,
                            "col": 3,
                            "line": 11
+=======
+                           "char": 148,
+                           "col": 2,
+                           "line": 14
+                        },
+                        "end": {
+                           "char": 156,
+                           "col": 10,
+                           "line": 14
+                        }
+                     },
+                     "nodes": [
+                        {
+                           "ast": "DeclRefExpr",
+                           "loc": {
+                              "begin": {
+                                 "char": 155,
+                                 "col": 9,
+                                 "line": 14
+                              },
+                              "end": {
+                                 "char": 156,
+                                 "col": 10,
+                                 "line": 14
+                              }
+                           },
+                           "name": "x",
+                           "type": "float"
+>>>>>>> cpp2json collects offsetof and sizeof
                         }
                      },
                      "text": "{\n\t\treturn x*y;\n\t}"
@@ -164,6 +328,7 @@
          },
          "loc": {
             "begin": {
+<<<<<<< HEAD
                "char": 152,
                "col": 1,
                "line": 19
@@ -172,6 +337,16 @@
                "char": 190,
                "col": 2,
                "line": 23
+=======
+               "char": 192,
+               "col": 1,
+               "line": 18
+            },
+            "end": {
+               "char": 223,
+               "col": 2,
+               "line": 20
+>>>>>>> cpp2json collects offsetof and sizeof
             }
          },
          "mangled_name": "__Z3zapf",
@@ -181,6 +356,7 @@
                "ast": "ParmDecl",
                "loc": {
                   "begin": {
+<<<<<<< HEAD
                      "char": 160,
                      "col": 9,
                      "line": 19
@@ -189,6 +365,16 @@
                      "char": 167,
                      "col": 16,
                      "line": 19
+=======
+                     "char": 200,
+                     "col": 9,
+                     "line": 18
+                  },
+                  "end": {
+                     "char": 207,
+                     "col": 16,
+                     "line": 18
+>>>>>>> cpp2json collects offsetof and sizeof
                   }
                },
                "name": "f",
@@ -198,6 +384,7 @@
                "ast": "CompoundStmt",
                "loc": {
                   "begin": {
+<<<<<<< HEAD
                      "char": 169,
                      "col": 18,
                      "line": 19
@@ -209,6 +396,54 @@
                   }
                },
                "text": "{\n\n\n\treturn 99 * f;\n}"
+=======
+                     "char": 209,
+                     "col": 18,
+                     "line": 18
+                  },
+                  "end": {
+                     "char": 223,
+                     "col": 2,
+                     "line": 20
+                  }
+               },
+               "nodes": [
+                  {
+                     "ast": "ReturnStmt",
+                     "loc": {
+                        "begin": {
+                           "char": 212,
+                           "col": 2,
+                           "line": 19
+                        },
+                        "end": {
+                           "char": 220,
+                           "col": 10,
+                           "line": 19
+                        }
+                     },
+                     "nodes": [
+                        {
+                           "ast": "DeclRefExpr",
+                           "loc": {
+                              "begin": {
+                                 "char": 219,
+                                 "col": 9,
+                                 "line": 19
+                              },
+                              "end": {
+                                 "char": 220,
+                                 "col": 10,
+                                 "line": 19
+                              }
+                           },
+                           "name": "x",
+                           "type": "float"
+                        }
+                     ]
+                  }
+               ]
+>>>>>>> cpp2json collects offsetof and sizeof
             }
          ],
          "type": "int (float)",

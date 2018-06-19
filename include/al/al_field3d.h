@@ -45,6 +45,11 @@ inline void al_field3d_read(const glm::ivec3 dim, const T * data, int x, int y, 
 }
 
 template<typename T>
+inline T al_field3d_read(const glm::ivec3 dim, const T * data, int x, int y, int z) {
+	return data[al_field3d_index(dim, x, y, z)];
+}
+
+template<typename T>
 inline void al_field3d_read(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
 	al_field3d_read<T>(dim, data, pos.x, pos.y, pos.z, val); 
 }
@@ -62,21 +67,21 @@ inline void al_field3d_read_interp(const glm::ivec3 dim, const T * data, double 
 	unsigned yb = ya+1;	if (yb == dim.y) yb = 0;
 	unsigned zb = za+1;	if (zb == dim.z) zb = 0;
 	// get the normalized 0..1 interp factors, of x,y,z:
-	const double xbf = al_fract(x);
-	const double xaf = 1. - xbf;
-	const double ybf = al_fract(y);
-	const double yaf = 1. - ybf;
-	const double zbf = al_fract(z);
-	const double zaf = 1. - zbf;
+	const float xbf = al_fract(x);
+	const float xaf = 1. - xbf;
+	const float ybf = al_fract(y);
+	const float yaf = 1. - ybf;
+	const float zbf = al_fract(z);
+	const float zaf = 1. - zbf;
 	// get the interpolation corner weights:
-	const double faaa = xaf * yaf * zaf;
-	const double faab = xaf * yaf * zbf;
-	const double faba = xaf * ybf * zaf;
-	const double fabb = xaf * ybf * zbf;
-	const double fbaa = xbf * yaf * zaf;
-	const double fbab = xbf * yaf * zbf;
-	const double fbba = xbf * ybf * zaf;
-	const double fbbb = xbf * ybf * zbf;
+	const float faaa = xaf * yaf * zaf;
+	const float faab = xaf * yaf * zbf;
+	const float faba = xaf * ybf * zaf;
+	const float fabb = xaf * ybf * zbf;
+	const float fbaa = xbf * yaf * zaf;
+	const float fbab = xbf * yaf * zbf;
+	const float fbba = xbf * ybf * zaf;
+	const float fbbb = xbf * ybf * zbf;
 	// get the cell addresses for each neighbor:
 	const T& vaaa = data[al_field3d_index(dim, xa, ya, za)];
 	const T& vaab = data[al_field3d_index(dim, xa, ya, zb)];
@@ -104,6 +109,13 @@ inline void al_field3d_read_interp(const glm::ivec3 dim, T * data, glm::vec3 pos
 }
 
 template<typename T>
+inline T al_field3d_read_interp(const glm::ivec3 dim, T * data, glm::vec3 pos) {
+	T val;
+	al_field3d_read_interp<T>(dim, data, pos.x, pos.y, pos.z, &val); 
+	return val;
+}
+
+template<typename T>
 inline void al_field3d_readnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 pos, T * val) {
 	al_field3d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, pos.z * dim.z, val); 
 }
@@ -113,6 +125,11 @@ inline T al_field3d_readnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 po
 	T val = T(0);
 	al_field3d_read_interp<T>(dim, data, pos.x * dim.x, pos.y * dim.y, pos.z * dim.z, &val); 
 	return val;
+}
+
+template<typename T>
+inline void al_field3D_add(const glm::ivec3 dim, T * data, int x, int y, int z, T grad) {
+	data[al_field3d_index(dim, x, y, z)] += grad;
 }
 
 template<typename T>
@@ -172,21 +189,107 @@ inline void al_field3d_addnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 
 // Gauss-Seidel relaxation scheme:
 template<typename T>
 inline void al_field3d_diffuse(const glm::ivec3 dim, const T * iptr, T * optr, double diffusion=0.5, unsigned passes=10) {
-	double div = 1.0/((1.+6.*diffusion));
+	T div = T(1.0/((1.+6.*diffusion)));
+	T diffuse = T(diffusion);
 	for (unsigned n=0 ; n<passes ; n++) {
 		for (size_t z=0;z<dim.z;z++) {
 			for (size_t y=0;y<dim.y;y++) {
 				for (size_t x=0;x<dim.x;x++) {
-					const T& prev = iptr[al_field3d_index(dim, x,  y,  z  )];
-					T&		next = optr[al_field3d_index(dim, x,  y,  z  )];
-					const T& va00 = optr[al_field3d_index(dim, x-1,y,  z  )];
-					const T& vb00 = optr[al_field3d_index(dim, x+1,y,  z  )];
-					const T& v0a0 = optr[al_field3d_index(dim, x,  y-1,z  )];
-					const T& v0b0 = optr[al_field3d_index(dim, x,  y+1,z  )];
-					const T& v00a = optr[al_field3d_index(dim, x,  y,  z-1)];
-					const T& v00b = optr[al_field3d_index(dim, x,  y,  z+1)];			
-					next = T(div)*(prev + T(diffusion)*(va00 + vb00 + v0a0 + v0b0 + v00a + v00b));
+					size_t here = al_field3d_index(dim, x, y, z);
+
+					const T prev = iptr[here];
+					const T va00 = optr[al_field3d_index(dim, x-1,y,  z  )];
+					const T vb00 = optr[al_field3d_index(dim, x+1,y,  z  )];
+					const T v0a0 = optr[al_field3d_index(dim, x,  y-1,z  )];
+					const T v0b0 = optr[al_field3d_index(dim, x,  y+1,z  )];
+					const T v00a = optr[al_field3d_index(dim, x,  y,  z-1)];
+					const T v00b = optr[al_field3d_index(dim, x,  y,  z+1)];
+
+					optr[here]   = div*(prev + diffuse*(va00 + vb00 + v0a0 + v0b0 + v00a + v00b));
 				}
+
+			}
+		}
+	}
+}
+
+
+// velptr represents a field of velocities, used to advect content
+// inptr is the content to be advected
+// outptr is the resulting content after advection
+// all fields must have the same dim
+// vptr and iptr could be the same field (self-advection of velocity field)
+template<typename T, typename TV>
+inline void al_field3d_advect(const glm::ivec3 dim, const TV * velptr, T * inptr, T * outptr, float rate=0.5) {
+
+	for (size_t z=0;z<dim.z;z++) {
+		for (size_t y=0;y<dim.y;y++) {
+			for (size_t x=0;x<dim.x;x++) {
+				size_t i = al_field3d_index(dim, x, y, z);
+
+				// back trace: (current cell offset by vector at cell)
+				const TV vel = velptr[i];
+				const TV pos = TV(x, y, z) - vel*TV(rate);
+				const T backvel = al_field3d_read_interp(dim, inptr, pos);
+
+				// read interpolated input field value from back-traced location:
+				// TODO: this should be outptr[i] = ...
+				outptr[i] = backvel;
+					//al_field3d_read_interp(dim, inptr, )
+
+			}
+		}
+	}
+}
+
+inline void al_field3d_derive_gradient(const glm::ivec3 dim, const glm::vec3 * iptr, float * gptr) {
+	// calculate gradient.
+	// previous instantaneous magnitude of velocity gradient
+	//		= average of velocity gradients per axis:
+	const float hx = -0.5f/dim.x; 
+	const float hy = -0.5f/dim.y; 
+	const float hz = -0.5f/dim.z; 
+	for (size_t z=0;z<dim.z;z++) {
+		for (size_t y=0;y<dim.y;y++) {
+			for (size_t x=0;x<dim.x;x++) {
+				// gradients per axis:
+				// TODO: is doing it plane-by-plane correct? 
+				// or should I get the magnitude of the actual gradient vec3?
+				const float dx = al_field3d_read(dim, iptr, x+1,y,z).x 
+							   - al_field3d_read(dim, iptr, x-1,y,z).x;
+				const float dy = al_field3d_read(dim, iptr, x,y+1,z).y 
+							   - al_field3d_read(dim, iptr, x,y-1,z).y;
+				const float dz = al_field3d_read(dim, iptr, x,y,z+1).z 
+							   - al_field3d_read(dim, iptr, x,y,z-1).z;
+
+				// gradient at current cell:
+				const float grad = hx*dx + hy*dy + hz*dz;
+				// add to output:
+				al_field3D_add(dim, gptr, x, y, z, grad);
+			}
+		}
+	}
+}
+
+inline void al_field3d_subtract_gradient(const glm::ivec3 dim, const float * gptr, glm::vec3 * optr) {
+
+	const float hx = -0.5f*dim.x; 
+	const float hy = -0.5f*dim.y; 
+	const float hz = -0.5f*dim.z; 
+	for (size_t z=0;z<dim.z;z++) {
+		for (size_t y=0;y<dim.y;y++) {
+			for (size_t x=0;x<dim.x;x++) {
+				// gradients per axis:
+				const float dx = al_field3d_read(dim, gptr, x+1,y,z) 
+							   - al_field3d_read(dim, gptr, x-1,y,z);
+				const float dy = al_field3d_read(dim, gptr, x,y+1,z) 
+							   - al_field3d_read(dim, gptr, x,y-1,z);
+				const float dz = al_field3d_read(dim, gptr, x,y,z+1) 
+							   - al_field3d_read(dim, gptr, x,y,z-1);
+				// gradient at current cell:
+				const glm::vec3 grad = glm::vec3(hx*dx, hy*dy, hz*dz);
+				// add to output:
+				al_field3D_add(dim, optr, x, y, z, grad);
 			}
 		}
 	}

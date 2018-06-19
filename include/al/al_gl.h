@@ -93,6 +93,11 @@ size_t gl_type_size(GLenum t) {
 	}
 }
 
+struct Viewport {
+	glm::ivec2 pos; // "pixel" coordinate of bottom-left corner
+	glm::ivec2 dim; // "pixel" width & height of viewport
+};
+
 
 /*
 	Typical usage:

@@ -66,8 +66,9 @@ struct FPS {
 	// fraction of available time that was actually used
 	double performance = 1.;
 	
-	FPS(double fpsIdeal=30.) : fpsIdeal(fpsIdeal), fpsActual(fpsIdeal), fps(fpsIdeal) {
-		dtIdeal = 1./fpsIdeal;
+	FPS(double fpsIdeal=30.) : fpsIdeal(fpsIdeal) {
+		fps = fpsActual = fpsIdeal;
+		dt = dtActual = dtIdeal = 1./fpsIdeal;
 		reset();
 	}
 
