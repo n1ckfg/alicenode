@@ -22,6 +22,8 @@ https://github.com/nlohmann/json/tree/master
 #include <stdio.h>
 #include <stdlib.h>
 #include <string> 
+#include <fstream>
+#include <iostream>
 
 // for convenience
 using json = nlohmann::json;
@@ -230,6 +232,7 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 int main(int argc, const char ** argv) {
 
 	const char * filename = argv[1] ? argv[1] : "test.h";
+	const char * outfilename = argv[2] ? argv[2] : "test.json";
 
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
@@ -311,7 +314,11 @@ int main(int argc, const char ** argv) {
 	//printf("begin visit\n");
 	clang_visitChildren(cursor, visit, &vd);
 	//printf("json complete\n");
-	printf("%s\n\n", jdoc.dump(3).c_str());
+	//printf("%s\n\n", jdoc.dump(3).c_str());
+	std::ofstream ofile(outfilename);
+	ofile << std::setw(4) << jdoc << std::endl;
+	ofile.close();
+
 
 	clang_disposeTranslationUnit(unit);
 	clang_disposeIndex(index);

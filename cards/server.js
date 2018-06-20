@@ -102,7 +102,7 @@ function randomInt (low, high) {
 let statebuf 
 try {
     buffSize = fs.statSync("state.bin").size
-	statebuf = mmapfile.openSync("state.bin", buffSize, "r");
+	statebuf = mmapfile.openSync("state.bin", buffSize, "r+");
     console.log("mapped state.bin, size "+statebuf.byteLength);
 
     
@@ -134,8 +134,9 @@ function getState(){
     stateSource = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
     stateSource = JSON.stringify(stateSource)
 
-        exec('./cpp2json ' + path.join(project_path + '/state.h'), {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
+    exec('./cpp2json ' + path.join(project_path + '/state.h') + ' state.json', {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
         console.log("state.h traversed")
+        /*
         if (stderr !== null){
             
             stateAST = (stderr)
@@ -145,16 +146,18 @@ function getState(){
         } else if (stdout !== null){
 
             stateAST = (stdout)
-        }
-       // console.log(deck.split("{"))
+        }*/
+        stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, "/cpp2json", "state.json"), "utf-8"));
+        // console.log(deck.split("{"))
 
-       //console.log(stateAST)
+        //console.log(stateAST)
 
-    //    stateAST = JSON.stringify(stateAST)
-   //console.log(stateAST)
+        //    stateAST = JSON.stringify(stateAST)
+        //console.log(stateAST)
 
-    //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
+        //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
        //if no errors, the 0th element of deck will be "{", so if it isnt...
+       /*
         if (stateAST.charAt[0] !== "{"){
             //console.log('error')
             //get the index of the start of the ast-json
@@ -167,9 +170,7 @@ function getState(){
                 stateAST = JSON.parse(stateAST.substring(q));
                 // console.log(deck)
             }
-
-            
-        }
+        }*/
         //console.log(stateAST)
         // let q = stateAST.indexOf("?");
         // if (q > 0) {
@@ -182,16 +183,41 @@ function getState(){
                // console.log(arg.nodes[key].nodes)
         
                 Object.keys(stateAST.nodes[key].nodes).map(function(objectKey, index) {
-                    var value = stateAST.nodes[key].nodes[objectKey];
+                    let value = stateAST.nodes[key].nodes[objectKey];
                     paramName = value.name;
                     //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
-                    paramValue = Math.floor(Math.random() * 20)
-                    //console.log(value.offsetof, value.sizeof)
+                    // paramValue = Math.floor(Math.random() * 20)
+                    // console.log(value.offsetof, value.sizeof)
 
+                    // console.log("arrrr", paramName, value.type, value.offsetof, value.sizeof);
+                    //need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+                    let paramValue;
+                    let type = value.type;
+                    let offset = value.offsetof
+                    switch (type) {
 
-                    let paramArray = new Float32Array(statebuf, value.offsetof, 1);
+                        case "float":
+                        // let obj = new Object;
+                        let paramValue = statebuf.readFloatLE(offset);
 
-                    console.log(paramArray[0]);
+                        // let objArray = [paramValue, type, offset]
+                        // obj[paramName] = objArray
+
+                        //console.log(obj);
+                        state.push({paramName, paramValue, type, offset})
+                        console.log(paramName, paramValue, type, offset)
+
+                        //console.log("float detected " + paramName, paramValue)
+                        break;
+                    }
+                    if (paramName == "dummy") {
+                        //paramArray[0] = 3.12;
+                        let v = statebuf.readFloatLE(offset);
+                        //console.log('read ', v);
+
+                        //****** */this is what we need to write to state.bin:
+                       // statebuf.writeFloatLE(4.5, offset);
+                    }
 /*                  
                     // range = statebuf.slice(11534336, 11534336 + 2304)
                     reader = new Reader(statebuf)
@@ -206,15 +232,14 @@ function getState(){
                     console.log(fieldDecl)
                     */
                     //console.log(value.name, value.offsetof, value.sizeof);
-                    state.push({paramName,paramValue})
                 });
             }
         //console.log(arg.nodes[key].name)
         })
 
-        console.log(state)
 
     })
+
 }
 ////////////////////////HTTP SERVER////////////////////////
 
@@ -265,6 +290,7 @@ wss.on('connection', function(ws, req) {
 //    let state = {};
     // state["numcritters"] = 45;
     // state["foodAvailability"] = 0.02
+    console.log(state)
 
     ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)
@@ -303,7 +329,66 @@ wss.on('connection', function(ws, req) {
 
 //CLIENT: ///////////////////////////////////////////////////////
 	//Add user
+            case "stateUpdate":
+                //stateUpdate = JSON.stringify(arg)
+                //console.log(arg)
+                //console.log(state)
+                let theName = arg.substr(0,arg.indexOf(' '));
+                let theValue = arg.substr(arg.indexOf(' ')+1);
+                console.log(theName + " update to " + theValue)
+                //console.log(theName, theValue)
 
+                function findObj(result) { 
+                    return result.paramName === theName;
+                }
+                
+                let thisObj = state.find(findObj); 
+                //console.log(thisObj.offset)
+
+                statebuf.writeFloatLE(theValue, thisObj.offset);
+
+                // { name: 'cherries', quantity: 5 }
+
+                //console.log(index)
+                // state.find(function(element) {
+                //     console.log(element)
+                //     // return element["paramName"] = theName;
+                //   });
+                // console.log(found)
+
+                // let obj = state.find(theValue => theValue);
+                // let theOffset = Object.values(obj)
+
+                // console.log(theName, theOffset, (theOffset[0])[2])
+
+                // state = (JSON.parse(arg))
+                //     console.log(state)
+                //     let offset;
+                //     let type;
+                //     let pName;
+                //     let pValue;
+                //     Object.keys(state).forEach(function(key, value) {
+                //         //console.log(state[key].paramName)
+                //         pName;
+                        
+                //         for ( property in state[key] ) {
+                //             //console.log( property ); // Outputs: foo, fiz or fiz, foo
+                //             pName = property
+                //             //console.log(property[0], property[1], property[2])
+                //         }
+                //         //console.log(pValue)
+                //         let array = Object.values(state[key])[0]
+                        
+                //         // offset = array[2];
+                //         type = array[1];
+                        
+                //         pValue = array[0];
+
+                //         //console.log(array)
+
+                //     })
+
+            break;
             case "newUser":
             
         break;

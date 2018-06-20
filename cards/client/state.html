@@ -146,11 +146,13 @@ var state;
 function log(msg){
   console.log(msg)
 }
-
 function updateState(paramName, paramValue){
-    state[paramName] = paramValue
-    console.log(state)
-    ws.send("stateUpdate?" + state)
+    let stateUpdate = [];
+    // console.log(paramName)
+    //console.log(state)
+    //stateUpdate.push({paramName, paramValue})
+    
+    ws.send("stateUpdate?" + paramName + " " + paramValue)
 }
 
 // $('.param').click(function() {
@@ -264,12 +266,40 @@ function openSocket() {
                     $("#stateValues").find("tr:gt(0)").remove(); 
                     
                     state = (JSON.parse(arg))
-                    let paramName;
-                    let paramValue;
+                    console.log(state)
+                    let offset;
+                    let type;
+                    let pName;
+                    let pValue;
                     Object.keys(state).forEach(function(key, value) {
                         //console.log(state[key].paramName)
-                        pName = state[key].paramName;
-                        pValue = state[key].paramValue;
+                        pName;
+
+                         type = state[key].type;
+                         pName = state[key].paramName;
+                         pValue = state[key].paramValue;
+                        
+                        // for ( property in state[key] ) {
+                        //     //console.log( property ); // Outputs: foo, fiz or fiz, foo
+                        //     pName = property
+                        //     //console.log(property[0], property[1], property[2])
+                        // }
+                        // //console.log(pValue)
+                        // let array = Object.values(state[key])[0]
+                        
+                        // offset = array[2];
+                        // type = array[1];
+                        
+                        // pValue = array[0];
+
+                        //console.log(array)
+
+                        //different types will require different ui elements.
+                        switch (type) {
+                            
+                            // a float or an int will use the jquery spinner
+                            case "float":
+
                         $('#stateValues tr:last').after('<tr><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
                         //turn the input element into a jquery spinner
                         $("#" + pName).spinner();
@@ -278,6 +308,12 @@ function openSocket() {
                             updateState(this.id, ui.value);
                             }
                         });
+                        $("#" + pName).data('mmapData', { offset: offset })
+
+                        break;
+                        }
+
+
 
 
                     })
