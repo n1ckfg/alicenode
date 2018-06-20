@@ -12,9 +12,6 @@ const WebSocket = require('ws');
 const chokidar = require('chokidar');
 const url = require('url');
 
-var getFunction = require("function-from-file");
-var LineByLineReader = require('line-by-line');
-
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  path.join("../..", "alicenode_inhabitat"));
 const project_path = process.cwd();
@@ -52,6 +49,7 @@ let errors;
 getCpp2json();
 //console.log( __dirname + "/cpp2json/")
 function getCpp2json(){
+    
     deck = fs.readFileSync(__dirname + "/cpp2json/test.json", "utf8") //the temp name for the overall datastructure we will add to throughout this document
     //console.log(deck)
     //not working for the time being... it breaks the client's ast graph
@@ -104,8 +102,9 @@ function randomInt (low, high) {
 let statebuf 
 try {
     buffSize = fs.statSync("state.bin").size
-	statebuf = mmapfile.openSync("state.bin", buffSize);
+	statebuf = mmapfile.openSync("state.bin", buffSize, "r");
     console.log("mapped state.bin, size "+statebuf.byteLength);
+
     
 
 
@@ -187,17 +186,25 @@ function getState(){
                     paramName = value.name;
                     //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
                     paramValue = Math.floor(Math.random() * 20)
-                    console.log(value.offsetof, value.sizeof)
+                    //console.log(value.offsetof, value.sizeof)
 
+
+                    let paramArray = new Float32Array(statebuf, value.offsetof, 1);
+
+                    console.log(paramArray[0]);
+/*                  
                     // range = statebuf.slice(11534336, 11534336 + 2304)
                     reader = new Reader(statebuf)
                     // reader.toString(4); 
                     reader.readInt8()
                     reader.offset = value.offsetof;
                     fieldDecl = reader.slice(value.sizeof)
-                    
+                    // if (paramName == "objects") {
+                    //    console.log( fieldDecl.toString('ascii'), (fieldDecl.toString('latin1')))
+                    // }
 
                     console.log(fieldDecl)
+                    */
                     //console.log(value.name, value.offsetof, value.sizeof);
                     state.push({paramName,paramValue})
                 });
