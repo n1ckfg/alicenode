@@ -8,12 +8,13 @@ if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\%VCVARS64%"
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%" call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\%VCVARS64%"
 
 rem /WHOLEARCHIVE:lib/win64/freenect2static.lib ^
+rem lib/win64/SpoutLibrary.lib "%KINECTSDK20_DIR%\lib\x64\kinect20.lib" 
+rem /I "%KINECTSDK20_DIR%\inc"
 
 rem compile & link:
 cl /W3 /EHsc /O2  ^
 /I include ^
 /I include/uv ^
-/I "%KINECTSDK20_DIR%\inc" ^
 src/alice.cpp ^
 /link ^
 /MACHINE:X64 ^
@@ -24,7 +25,7 @@ lib/win64/freenect2static.lib ^
  /DYNAMICBASE ^
 lib/win64/turbojpeg.lib ^
 lib/win64/Leap.lib lib/win64/LeapC.lib ^
-lib/win64/SpoutLibrary.lib "%KINECTSDK20_DIR%\lib\x64\kinect20.lib" lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib shlwapi.lib gdi32.lib advapi32.lib iphlpapi.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib psapi.lib userenv.lib uuid.lib winspool.lib comdlg32.lib ws2_32.lib opengl32.lib
+lib\win64\openvr_api.lib user32.lib kernel32.lib shell32.lib shlwapi.lib gdi32.lib advapi32.lib iphlpapi.lib ole32.lib oleaut32.lib odbc32.lib odbccp32.lib psapi.lib userenv.lib uuid.lib winspool.lib comdlg32.lib ws2_32.lib opengl32.lib
 rem echo Exit Code is %errorlevel% 
 
 rem if compiled OK, run it:
