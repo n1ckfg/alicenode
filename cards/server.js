@@ -191,7 +191,6 @@ function getState(){
 
                     // console.log("arrrr", paramName, value.type, value.offsetof, value.sizeof);
                     //need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-                    let paramValue;
                     let type = value.type;
                     let offset = value.offsetof
                     switch (type) {
@@ -210,28 +209,7 @@ function getState(){
                         //console.log("float detected " + paramName, paramValue)
                         break;
                     }
-                    if (paramName == "dummy") {
-                        //paramArray[0] = 3.12;
-                        let v = statebuf.readFloatLE(offset);
-                        //console.log('read ', v);
 
-                        //****** */this is what we need to write to state.bin:
-                       // statebuf.writeFloatLE(4.5, offset);
-                    }
-/*                  
-                    // range = statebuf.slice(11534336, 11534336 + 2304)
-                    reader = new Reader(statebuf)
-                    // reader.toString(4); 
-                    reader.readInt8()
-                    reader.offset = value.offsetof;
-                    fieldDecl = reader.slice(value.sizeof)
-                    // if (paramName == "objects") {
-                    //    console.log( fieldDecl.toString('ascii'), (fieldDecl.toString('latin1')))
-                    // }
-
-                    console.log(fieldDecl)
-                    */
-                    //console.log(value.name, value.offsetof, value.sizeof);
                 });
             }
         //console.log(arg.nodes[key].name)
@@ -346,47 +324,6 @@ wss.on('connection', function(ws, req) {
                 //console.log(thisObj.offset)
 
                 statebuf.writeFloatLE(theValue, thisObj.offset);
-
-                // { name: 'cherries', quantity: 5 }
-
-                //console.log(index)
-                // state.find(function(element) {
-                //     console.log(element)
-                //     // return element["paramName"] = theName;
-                //   });
-                // console.log(found)
-
-                // let obj = state.find(theValue => theValue);
-                // let theOffset = Object.values(obj)
-
-                // console.log(theName, theOffset, (theOffset[0])[2])
-
-                // state = (JSON.parse(arg))
-                //     console.log(state)
-                //     let offset;
-                //     let type;
-                //     let pName;
-                //     let pValue;
-                //     Object.keys(state).forEach(function(key, value) {
-                //         //console.log(state[key].paramName)
-                //         pName;
-                        
-                //         for ( property in state[key] ) {
-                //             //console.log( property ); // Outputs: foo, fiz or fiz, foo
-                //             pName = property
-                //             //console.log(property[0], property[1], property[2])
-                //         }
-                //         //console.log(pValue)
-                //         let array = Object.values(state[key])[0]
-                        
-                //         // offset = array[2];
-                //         type = array[1];
-                        
-                //         pValue = array[0];
-
-                //         //console.log(array)
-
-                //     })
 
             break;
             case "newUser":
