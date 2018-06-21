@@ -12,9 +12,6 @@ const WebSocket = require('ws');
 const chokidar = require('chokidar');
 const url = require('url');
 
-var getFunction = require("function-from-file");
-var LineByLineReader = require('line-by-line');
-
 // derive project to launch from first argument:
 process.chdir(process.argv[2] ||  path.join("../..", "alicenode_inhabitat"));
 const project_path = process.cwd();
@@ -52,6 +49,7 @@ let errors;
 getCpp2json();
 //console.log( __dirname + "/cpp2json/")
 function getCpp2json(){
+    
     deck = fs.readFileSync(__dirname + "/cpp2json/test.json", "utf8") //the temp name for the overall datastructure we will add to throughout this document
     //console.log(deck)
     //not working for the time being... it breaks the client's ast graph
@@ -104,8 +102,9 @@ function randomInt (low, high) {
 let statebuf 
 try {
     buffSize = fs.statSync("state.bin").size
-	statebuf = mmapfile.openSync("state.bin", buffSize);
+	statebuf = mmapfile.openSync("state.bin", buffSize, "r+");
     console.log("mapped state.bin, size "+statebuf.byteLength);
+
     
 
 
@@ -135,8 +134,9 @@ function getState(){
     stateSource = fs.readFileSync(__dirname + "/cpp2json/state.h").toString();
     stateSource = JSON.stringify(stateSource)
 
-        exec('./cpp2json ' + path.join(project_path + '/state.h'), {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
+    exec('./cpp2json ' + path.join(project_path + '/state.h') + ' state.json', {cwd: __dirname + "/cpp2json" }, (stderr, err, stdout) => {
         console.log("state.h traversed")
+        /*
         if (stderr !== null){
             
             stateAST = (stderr)
@@ -146,16 +146,18 @@ function getState(){
         } else if (stdout !== null){
 
             stateAST = (stdout)
-        }
-       // console.log(deck.split("{"))
+        }*/
+        stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, "/cpp2json", "state.json"), "utf-8"));
+        // console.log(deck.split("{"))
 
-       //console.log(stateAST)
+        //console.log(stateAST)
 
-    //    stateAST = JSON.stringify(stateAST)
-   //console.log(stateAST)
+        //    stateAST = JSON.stringify(stateAST)
+        //console.log(stateAST)
 
-    //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
+        //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
        //if no errors, the 0th element of deck will be "{", so if it isnt...
+       /*
         if (stateAST.charAt[0] !== "{"){
             //console.log('error')
             //get the index of the start of the ast-json
@@ -168,9 +170,7 @@ function getState(){
                 stateAST = JSON.parse(stateAST.substring(q));
                 // console.log(deck)
             }
-
-            
-        }
+        }*/
         //console.log(stateAST)
         // let q = stateAST.indexOf("?");
         // if (q > 0) {
@@ -183,31 +183,44 @@ function getState(){
                // console.log(arg.nodes[key].nodes)
         
                 Object.keys(stateAST.nodes[key].nodes).map(function(objectKey, index) {
-                    var value = stateAST.nodes[key].nodes[objectKey];
+                    let value = stateAST.nodes[key].nodes[objectKey];
                     paramName = value.name;
                     //IMPORTANT: we'll actually get the param value by referencing the offset and sizeof in the stateAST per fieldDecl, but the offset is not working at the moment... so for now, enjoy some bogus data!
-                    paramValue = Math.floor(Math.random() * 20)
-                    console.log(value.offsetof, value.sizeof)
+                    // paramValue = Math.floor(Math.random() * 20)
+                    // console.log(value.offsetof, value.sizeof)
 
-                    // range = statebuf.slice(11534336, 11534336 + 2304)
-                    reader = new Reader(statebuf)
-                    // reader.toString(4); 
-                    reader.readInt8()
-                    reader.offset = value.offsetof;
-                    fieldDecl = reader.slice(value.sizeof)
-                    
+                    // console.log("arrrr", paramName, value.type, value.offsetof, value.sizeof);
+                    //need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+                    let type = value.type;
+                    let offset = value.offsetof
+                    switch (type) {
 
-                    console.log(fieldDecl)
-                    //console.log(value.name, value.offsetof, value.sizeof);
-                    state.push({paramName,paramValue})
+                        case "float":
+                        // let obj = new Object;
+                        let paramValue = statebuf.readFloatLE(offset);
+
+                        // let objArray = [paramValue, type, offset]
+                        // obj[paramName] = objArray
+
+                        //console.log(obj);
+                        state.push({paramName, paramValue, type, offset})
+
+                        //console.log("float detected " + paramName, paramValue)
+                        break;
+
+                        default:
+                        state.push({paramName, type})
+
+                    }
+
                 });
             }
         //console.log(arg.nodes[key].name)
         })
 
-        console.log(state)
 
     })
+
 }
 ////////////////////////HTTP SERVER////////////////////////
 
@@ -252,12 +265,9 @@ wss.on('connection', function(ws, req) {
     ws.send("deck?" + deck);
     ws.send("src?" + src)
     //if the ast parser produced any warnings/errors:
-    ws.send("ast_messages?" + errors)
-
-    //temporary
-//    let state = {};
-    // state["numcritters"] = 45;
-    // state["foodAvailability"] = 0.02
+    if (errors !== undefined) {
+        ws.send("serverWarnings?" + errors)
+    } 
 
     ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)
@@ -268,21 +278,13 @@ wss.on('connection', function(ws, req) {
 	console.log("server received a connection, new session " + per_session_data.id);
 	console.log("server has "+wss.clients.size+" connected clients");
 	
-	const location = url.parse(req.url, true);
+    const location = url.parse(req.url, true);
+    //TODO:
 	// You might use location.query.access_token to authenticate or share sessions
 	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
-
-        // if (message.includes("git return to master")){
-		// 	console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
-		// 	 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
-		// 	 ws.send("edit?" + err)
-
-        //     })
-		// }
-
 
 		let q = message.indexOf("?");
 		if (q > 0) {
@@ -296,7 +298,24 @@ wss.on('connection', function(ws, req) {
 
 //CLIENT: ///////////////////////////////////////////////////////
 	//Add user
+            case "stateUpdate":
+                //stateUpdate = JSON.stringify(arg)
+                //console.log(arg)
+                //console.log(state)
+                let theName = arg.substr(0,arg.indexOf(' '));
+                let theValue = arg.substr(arg.indexOf(' ')+1);
+                //console.log(theName, theValue)
 
+                function findObj(result) { 
+                    return result.paramName === theName;
+                }
+                
+                let thisObj = state.find(findObj); 
+                //console.log(thisObj.offset)
+
+                statebuf.writeFloatLE(theValue, thisObj.offset);
+
+            break;
             case "newUser":
             
         break;

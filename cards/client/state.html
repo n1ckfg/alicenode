@@ -123,6 +123,28 @@ rgb(199, 0, 57) --> */
             </table>
         </td>
     </tr>
+    <tr>
+        <td>
+            Errors/Warnings from Server
+        </td>
+        <td>
+            Parameters Available but not yet Mapped in Server
+        </td>
+    <tr height="20%">
+        <td>
+            <div id="serverWarnings" overflow="auto">
+
+        </td>
+        <td>
+            <div id="otherParams" overflow="auto">
+                    </div>
+            <!-- <li id="state"></li> -->
+        </td>
+    </tr>
+
+            </div>
+        </td>
+    </tr>
 
 </table>
 
@@ -146,11 +168,13 @@ var state;
 function log(msg){
   console.log(msg)
 }
-
 function updateState(paramName, paramValue){
-    state[paramName] = paramValue
-    console.log(state)
-    ws.send("stateUpdate?" + state)
+    let stateUpdate = [];
+    // console.log(paramName)
+    //console.log(state)
+    //stateUpdate.push({paramName, paramValue})
+    
+    ws.send("stateUpdate?" + paramName + " " + paramValue)
 }
 
 // $('.param').click(function() {
@@ -168,7 +192,7 @@ function updateState(paramName, paramValue){
 document.getElementById('server').value = ws_url;
 
 function openSocket() {
-    log('opening');
+    
     var url = document.getElementById('server').value;
     ws = new WebSocket(ws_url);
     ws.binaryType = 'arraybuffer';
@@ -218,10 +242,21 @@ function openSocket() {
                     //filter out known messages bound for the other pages:
                     case "src":
                     case "deck":
-                    case "ast_messages":
                     break;
                     //////////////
                     
+                    //if the ast parser or mmap retrieval reports errors or warnings:
+                    case "serverWarnings": 
+                    var li = document.createElement('li');
+                    var list = document.getElementById('serverWarnings');
+
+                    li.innerHTML = (arg);
+                    list.appendChild(li);
+
+                    var serverWarnings = document.querySelector('#serverWarnings');
+                    break;
+
+
                     case "state.h":
                     stateCode = JSON.parse(arg)
                     //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
@@ -255,7 +290,7 @@ function openSocket() {
                             cursorBlinkRate: 300,
                             cursorScrollMargin: 0,                   
                         });
-                        dv.setSize("100%", 750);
+                        dv.setSize("100%", 550);
                     }
                     break;
                     
@@ -264,24 +299,67 @@ function openSocket() {
                     $("#stateValues").find("tr:gt(0)").remove(); 
                     
                     state = (JSON.parse(arg))
-                    let paramName;
-                    let paramValue;
+                    let offset;
+                    let type;
+                    let pName;
+                    let pValue;
                     Object.keys(state).forEach(function(key, value) {
                         //console.log(state[key].paramName)
-                        pName = state[key].paramName;
-                        pValue = state[key].paramValue;
-                        $('#stateValues tr:last').after('<tr><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
-                        //turn the input element into a jquery spinner
-                        $("#" + pName).spinner();
-                        //have the spinner report its value whenever it gets changed by mouse or keyboard events.
-                        $( "#" + pName ).spinner({spin: function( event, ui, id ) {
-                            updateState(this.id, ui.value);
-                            }
-                        });
+                        pName;
 
+                         type = state[key].type;
+                         pName = state[key].paramName;
+                         pValue = state[key].paramValue;
+                        
+                        // for ( property in state[key] ) {
+                        //     //console.log( property ); // Outputs: foo, fiz or fiz, foo
+                        //     pName = property
+                        //     //console.log(property[0], property[1], property[2])
+                        // }
+                        // //console.log(pValue)
+                        // let array = Object.values(state[key])[0]
+                        
+                        // offset = array[2];
+                        // type = array[1];
+                        
+                        // pValue = array[0];
 
+                        //console.log(array)
+
+                        //different types will require different ui elements.
+                        switch (type) {
+                            
+                            // a float or an int will use the jquery spinner
+                            case "float":
+
+                            $('#stateValues tr:last').after('<tr><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                            //turn the input element into a jquery spinner
+                            $("#" + pName).spinner();
+                            //have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                            $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                updateState(this.id, ui.value);
+                                }
+                            });
+                            $("#" + pName).data('mmapData', { offset: offset })
+                            break;
+                            
+                            //for params whose type we haven't yet figure out how to retrieve (if they are vec3, for example)
+                            default:
+
+                            var li = document.createElement('li');
+                            var list = document.getElementById('otherParams');
+
+                            li.innerHTML = ("Parameter: " + pName + " Type: " + type);
+                            list.appendChild(li);
+
+                            var chatMessages = document.querySelector('#otherParams');
+                            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+                            break;
+                        }
                     })
-                    break;
+
+
+
 
                     default:
                     break;

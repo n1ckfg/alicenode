@@ -64,10 +64,8 @@
     <tr style="float: left">
         <th style="text-decoration: none">
             <form name="usernames">
-                <select id="chooseUser" onchange="userSelect(this.value);">
+                <select id="chooseUser" onchange="userSelect();">
                         <!-- <option selected disabled>Please Select User</option>  -->
-                        <option value="emptyIgnore"></option>
-
                         <option value="Add User...">Add User...</option>
                         
             
@@ -83,6 +81,8 @@
 
         <th>
                 <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+                <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
+                <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
                 <input id="server" type="text" value="ws://localhost:8080" size="40">
                 <button onclick="openSocket()">Open</button>
                 <button onclick="closeSocket()">Close</button>
@@ -130,11 +130,10 @@
 <table style="background-color: blue" width=100% id="gitSelector">  
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
-            <input type="text" id="search1" onkeyup='hideAndSeek("chooseBranch","search1");' placeholder="Search..."></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b>
-            <input type="text" id="search2" onkeyup='hideAndSeek("openFileName", "search2");' placeholder="Search..."></th>
+            <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
-            <input type="text" id="search3" onkeyup='hideAndSeek("selectCommit", "search3");' placeholder="Search...">
+            
         </th>
 
     </tr>
@@ -170,7 +169,7 @@
             <h1 style="font-size: 130%; margin-bottom: 0;">Master Version</h1>
         </th>
         <th style="text-align:center">
-            <h1 id="improvisor" style="font-size: 130%; margin-bottom: 0;">Improvisor!</h1>
+            <h1 style="font-size: 130%; margin-bottom: 0;">Improvisor!</h1>
         </th>
     </tr>
 </table>
@@ -235,25 +234,20 @@ stretches of text.</p> -->
 <script>
 
 //globals
-
-var clientState = []; /*TODO: right now the client state is ready, but nothing server-side is set up to receive or do anything with it. the goal: prevent server from resending data on startup if a client had previously been connected (and its window is still open)
-
-    clientState.json: stored in the client so that if the server stops/resets, it doesn't re-initialize all of the settings or content in the client's codemirror instances. 
-    
-    instead, on.connection: client sends clientState to server to set the related variables. */
+var currentBranch;
 var thisHash;
 var selectedCommit;
-
+var currentWorktree
 var ws_url;
-
+var worktreeList;
 var history;
 var ws;
-var currentUser;
+var currentUser = "FullName";
 
 var filename; //the currently selected filename
 //var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
-var ws_url = "ws://" + location.href.replace(/https?:\/\//i, "");
-
+var ws_url = "ws://localhost:8080";
+console.log(ws_url);
 
 //var col;
 // codemirror/mergeview globals:
@@ -273,65 +267,69 @@ var isRightDirty = false;
 var currentBranch;
 var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
 var currentUserList = []; //this is a temporary storage location for all available users
-var authorName; //git will make commits under this provided name, will change if client user selects different name
+var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
 var authorEmail;
 
 
 //username selection (for git commits)
 function userSelect(selection)  { 
-
-    if(selection == "emptyIgnore"){
-        //we don't want to add this to local storage!
-    } else {
-
-
-        localStorage.setItem(currentUser, selection);
-        switch (selection) {
-
-            case "Add User...":
-            
-            authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
-            localStorage.setItem(currentUser, authorName);
-
-            
-            authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
-            
-            ws.send("newUser?" + authorName + "$?$" + authorEmail)
-                //console.log(userName, userEmail)
-
-            //add new user to select in HTML, make sure its checked. 
-            var select = document.getElementById('chooseUser');
-            var length = select.length;
-            var opt = document.createElement('option');
-            opt.value = authorName;
-            opt.innerHTML = authorName;
-            select.appendChild(opt);
-            document.getElementById('chooseUser').selectedIndex = (length);
-
-            localStorage.setItem(currentUser, authorName);
-            log("Working as git author " + authorName + " via " + authorEmail);
-            
-            clientState.push({"authorName": authorName, "authorEmail":authorEmail})
-            
-            break;
-
-            default: 
-            log("Working as git author " + selection + " via " + userlist[selection]);
-            authorName = selection;
-            authorEmail = userlist[selection];
-            ws.send("selectUser?" + selection);
-            clientState.push({"authorName": authorName, "authorEmail":authorEmail})
-            
-            break;
-        }
+    if(selection == null){
+    selection = document.usernames.chooseUser.value;
     }
+    localStorage.setItem(currentUser, selection);
+    switch (selection) {
+
+        case "Add User...":
+        
+        authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
+        localStorage.setItem(currentUser, authorName);
+
+        
+        authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+
+
+        
+           
+            //TODO: create a worktree for user with their username. replace all spaces with underscores. 
+            ws.send("newUser?" + authorName + "$?$" + authorEmail)
+            //console.log(userName, userEmail)
+
+        //add new user to select in HTML, make sure its checked. 
+        var select = document.getElementById('chooseUser');
+        var length = select.length;
+        var opt = document.createElement('option');
+        opt.value = authorName;
+        opt.innerHTML = authorName;
+        select.appendChild(opt);
+        document.getElementById('chooseUser').selectedIndex = (length);
+
+        localStorage.setItem(currentUser, authorName);
+        log("Working as git author " + authorName + " via " + authorEmail);
+            
+        break;
+
+        default: log("Working as git author " + selection + " via " + userlist[selection]);
+        authorName = selection;
+        authorEmail = userlist[selection];
+        ws.send("selectUser?" + selection);
+        break;
+    }
+
 }
 
 // open new editor tab in browser
 function newEditor(){
-    window.open(document.URL)
-    
+    window.open(document.URL)    
 }
+//open the cards AST editor in new tab
+function openCardsEditor(){
+    window.open(document.URL + "cards.html")   
+}
+//open the state editor in new tab
+function openStateEditor(){
+    window.open(document.URL + "state.html")  
+}
+
 function initUI() {
 
     if (value == null) return;
@@ -442,30 +440,21 @@ function sendRightCode(val){
 
 }
 
-
+//TODO: make sure that when branch is selected, the server switches to that branch in the user's worktree. 
 //branch selection:
 function selectBranch() {
     //selection = document.Branch.chooseBranch.value;
     e = document.getElementById('chooseBranch')
-    var currentBranch = e.options[e.selectedIndex].value;
-    currentBranch = currentBranch.split(" ")[2];
-    console.log(currentBranch[2])
-    if (currentBranch == "*"){
-        //we don't want to ask the server to checkout the branch that is already checked out...
-    }
-    else {
-    
-    ws.send("currentBranch?" + currentBranch)
-    clientState.push({"currentBranch":currentBranch})
-    }   
-
+    var selectedBranch = e.options[e.selectedIndex].value;
+    //console.log(selectedBranch)
+    ws.send("selectedBranch?" + selectedBranch)
 }
 //file selection
 function chooseFileName(){
     var e = document.getElementById("openFileName");
     var selection = e.options[e.selectedIndex].value
     fileName = selection;
-    clientState.push({"fileName":fileName})
+    console.log(fileName)
     //clear the commits list in the select element each time a file is opened
     function removeOptions(selectbox){
         var i;
@@ -481,9 +470,9 @@ function chooseFileName(){
         if (selection == "New File..."){
             alert("Client not set up to create new file yet, work-in-progress")
         } else {
-            ws.send("fileRequest" + fileName)
+            ws.send("fileRequest" + selection)
             //change page title to filename!
-            document.title = fileName;
+            document.title = selection;
 
         }
     }
@@ -582,7 +571,7 @@ function openSocket() {
                     })
                     //update userlist globally so that the next incoming userlist is compared against it
                     userlist = currentUserList;
-
+                    
 
                     if(localStorage.getItem(currentUser) != null){
                         // log("test" + sel.value);
@@ -591,15 +580,9 @@ function openSocket() {
                             sel.selectedIndex = i;
                             if(sel.value == localStorage.getItem(currentUser)){
                                 sel.selectedIndex = i;
-
-                                userSelect(sel.value)
-                                console.log("sel.value " + sel.selectedIndex)
-                               // ws.send("selectUser?" + sel.value)
-                               // log("Signed into Alicenode Editor as " + sel.value);
-                            
-
-                                
-                               
+                                ws.send("selectUser?" + sel.value)
+                                log("Signed into Alicenode Editor as " + sel.value);
+                                break;
                             } else {
                                 //sel.selectedIndex = 0;
                             }
@@ -647,7 +630,7 @@ function openSocket() {
                     break;
                     //Files List
                     case "setFileList":
-                    document.querySelectorAll('#openFileName option').forEach(option => option.remove())
+                    
                     fileList = JSON.parse(arg);
                         var sel = document.getElementById('openFileName');
                         //var length = select;
@@ -690,8 +673,15 @@ function openSocket() {
                           
                         })
 
-                    break;
+                        break;
+                        
 
+                    // name="CommitList" size="5" id="ChooseCommit
+
+                    //populate the worktree drop-down with current list of worktrees
+                    // case "fps":
+                    //     //document.getElementById('fps').innerHTML = arg;
+                    //     break;
                         
                     case "branchname":  
                         // var steve = message.replace("currentBranch?", "")
@@ -760,7 +750,83 @@ function openSocket() {
                         $( "#gitgraph" ).resizable();
                     });
                     break;
+                        
+                    //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
+                    case "worktreeList":
+                        console.log(arg)
+                        //var names = arg
+                        //html select element
+                        var sel = document.getElementById('userWorktree');
+                        //var length = select;
+                        
+                        //first clear the worktree items from select (so we don't add duplicates)
+                        for (i = 1; i < sel.length; i++) {
+                            sel.options[i] = null;
+                            }
+                        // console.log(arg.length)
+                        // for (var i = 0, len = arg.length; i < len; i++) {
+                        // console.log(arg.[i])
+                        // }
+                                            //PLO
+                        // arg.forEach(function(element) {
+                        // console.log("test " + element)
+                        // })
+                        // console.log(names)
+                        
+                        // var iterator = arg.values();
+                        // for (let letter of iterator) {
+                        //     console.log(letter)
+                        // }
+                        
 
+
+
+
+                            //TODO: got to figure out how to populate the select menu with the 'options' variable:
+                            
+                        // for (var i = 0; i < sel.options.length; i++) {
+                        //     var opt = document.createElement('option');
+                        //     opt.innerHTML = options[i];
+                        //     opt.value = options[i];
+                        //     sel.appendChild(opt);
+                        // }
+
+
+                        // var err = arg.split("\n");
+                        // var select = document.getElementById('userWorktree')
+                        // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+                    
+
+                        //     err.foreach(function(element) {
+                        //     var x = document.getElementById("userWorktree");
+                        //     var option = document.createElement("option")
+                        //     option.text = (err);
+                        //     option.value = (err);
+                        //     x.add(option);
+                    // for (let i = 0; i < err.split("\s").length; i++) {
+                    // // let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+                    // //if (err !== undefined) {	
+                    //     console.log(err)
+                    //     // for(var i = 0; i < options.length; i++) {
+                    //     // options.foreach(function(element) {
+                    //         var x = document.getElementById("userWorktree");
+                    //         var option = document.createElement("option")
+                    //         option.text = (err);
+                    //         option.value = (err);
+                    //         x.add(option);
+
+                    //     // })
+
+
+                    //  //   }  
+                    // }
+                        //populate the userWorkTree drop-down menu
+                        // populateWorktreeMenu(arg)   
+                        
+                        
+                        // var options = JSON.parse(arg);
+
+                        break;
                     default:
                    // log("cmd: " + cmd + ", " + arg);
                 }
@@ -798,12 +864,10 @@ function chooseCommit(){
 
     console.log(selectedCommit)
     ws.send("git show " + selectedCommit);
-    clientState.push({"selectedCommit":selectedCommit})
 
     //make sure that the right editor will now watch for changes
     isRightDirty = false;
 
-    improvisor.innerHTML = ("Improvising within " + currentBranch + " at " + selectedCommit)
 
 // <!-- 
 //                 <div id="CommitList">
@@ -970,18 +1034,24 @@ function mouseLeaveCommit(evt) {
 
 
 
-function hideAndSeek(mainTag, search) {
-  var input, filter, a, i;
-  input = document.getElementById(search);
+function hideAndSeek() {
+  // Declare variables 
+  var input, filter, table, tr, td, i;
+  input = document.getElementById("search");
   filter = input.value.toUpperCase();
-  div = document.getElementById(mainTag);
-  a = div.getElementsByTagName("option");
-  for (i = 0; i < a.length; i++) {
-    if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
-      a[i].style.display = "";
-    } else {
-      a[i].style.display = "none";
-    }
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    } 
   }
 }
 
