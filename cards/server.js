@@ -208,6 +208,10 @@ function getState(){
 
                         //console.log("float detected " + paramName, paramValue)
                         break;
+
+                        default:
+                        state.push({paramName, type})
+
                     }
 
                 });
