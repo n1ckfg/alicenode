@@ -51,7 +51,7 @@ let port = 8080
 let gitHash
 let projectCPPVersion // when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 
-let commitMsg = 'client updated project' // default commit message if nothing given? 
+let commitMsg = 'client updated project' // default commit message if nothing given?
 
 // if alice is already running from a previous crash, then terminate it
 var terminate = require('terminate')
@@ -59,32 +59,18 @@ var terminate = require('terminate')
 const find = require('find-process')
 
 let fileList = [] // list of files in the project_path
-
-// maybe temporary: ensure that when the server starts up the simulation launches from the master branch. Actually, so Graham said not to have this, instead we'll use the Branch HEADs Selectlist in the client to inform the client user(edits) which branch the main code editor is currently pointed to.
-// exec('git rev-parse --abbrev-ref HEAD', {cwd: project_path}, (stdout, err, stderr) => {
-
-// 	if (err.replace("\n", "") !== "master") {
-// 		exec('git checkout master', {cwd: project_path}, (stdout, stderr, err) => {
-// 			console.log("---\n" + project_path + " git branch state:\n" + err + stderr + "\n---")
-// 		});
-// 	}
-// 	console.log("\n\n\n\n" + err.replace("\n", ""))
-// 	})
-
 // check if the userlist exists on the server machine, if not, create an empty json file:
 
 if (fs.existsSync(path.join(project_path, 'userlist.json'))) {
   console.log('found userlist.json')
 } else {
   fs.writeFileSync(path.join(project_path, 'userlist.json'), '{}', 'utf8')
-	console.log('created userlist.json on ' + os.hostname())
+  console.log('created userlist.json on ' + os.hostname())
 }
 
 pruneWorktree()
+// update the worktree list, if any worktrees had been removed by user, make sure they aren't still tracked by git
 function pruneWorktree () {
-  // TO DO: where in the code are the worktrees counted or checked
-  // update the worktree list, if any worktrees had been removed by user, make sure they aren't
-  // still tracked by git
   exec('git worktree prune', {cwd: project_path})
 }
 /// //////////////////////////////////////////////////////////////////////////////
@@ -92,11 +78,11 @@ function pruneWorktree () {
 // BUILD PROJECT
 function project_build () {
   let out = ''
-	if (process.platform == 'win32') {
+  if (process.platform == 'win32') {
     out = execSync('build.bat "' + server_path + '"', { stdio: 'inherit'})
-	} else {
+  } else {
     out = execSync('sh build.sh "' + server_path + '"', { stdio: 'inherit'})
-	}
+  }
   console.log('built project', out.toString())
 }
 
@@ -107,12 +93,12 @@ function project_build () {
 // should we build now?
 if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
   console.warn('project lib is out of date, rebuilding')
-	try {
+  try {
     project_build()
-	} catch (e) {
+  } catch (e) {
     console.error('ERROR', e.message)
-		// do a git commit with a note about it being a failed build. 
-	}
+    // do a git commit with a note about it being a failed build.
+  }
 }
 
 /// //////////////////////////////////////////////////////////////////////////////
@@ -122,19 +108,11 @@ if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync
 function git_add_and_commit () {
   try {
     execSync('git add .', {cwd: project_path }, () => { console.log('git added') })
-		execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
-		execSync('git status', {cwd: project_path }, (stdout) => { console.log('\n\n\n\n\n\n\n' + stdout) })
-
-		// execSync("git log --pretty=format:'{%n “%H”: \"%aN <%aE>\", \"%ad\", \"%f\"%n},' $@ | perl -pe 'BEGIN{print \"[\"}; END{print \"]\n\"}' | perl -pe \'s/},]/}]/\' > " + path.join(client_path, "gitlog.json"), {cwd: server_path}, () => {
-		// 	console.log("updated ../client/gitlog.json")
-		// })
-
-		// send_all_clients("updateRepo?");
-
-		// exec('git rev-list --all --parents --timestamp -- test/sim.cpp > times.txt')
-	} catch (e) {
+    execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
+    execSync('git status', {cwd: project_path }, (stdout) => { console.log('\n\n\n\n\n\n\n' + stdout) })
+  } catch (e) {
     console.error(e.toString())
-	}
+  }
 }
 
 //
@@ -154,44 +132,36 @@ alice.on('message', function (data) { console.log('msg', data.toString())})
 alice.stdout.pipe(process.stdout)
 alice.stderr.pipe(process.stderr)
 
-
 // when it's done, load the new dll back in:
 alice.on('exit', function (code) {
   console.log('alice exit code', code)
-	// let node exit when it can:
-	process.exitCode = 1 // wasn't working on Windows :-(
-	process.exit(code)
+  // let node exit when it can:
+  process.exitCode = 1 // wasn't working on Windows :-(
+  process.exit(code)
 })
 
 function alice_command (command, arg) {
   let msg = command + '?' + arg + '\0'
-	console.log('sending alice', msg)
-	alice.stdin.write(command + '?' + arg + '\0')
+  console.log('sending alice', msg)
+  alice.stdin.write(command + '?' + arg + '\0')
 }
-
-/*
-setInterval(function() {
-	unloadsim();
-	loadsim();
-}, 3000);
-*/
 
 // MMAP THE STATE
 
 let statebuf
 try {
   statebuf = mmapfile.openSync('state.bin', fs.statSync('state.bin').size, 'r+')
-	console.log('mapped state.bin, size ' + statebuf.byteLength)
-		
-	// slow version:
-	setInterval(function () {
+  console.log('mapped state.bin, size ' + statebuf.byteLength)
+
+  // slow version:
+  setInterval(function () {
     let idx = randomInt(0, 10) * (4 * 3)
-		let v = statebuf.readFloatLE(idx)
-		v = v + 0.01
-		if (v > 1.0) v -= 2.
-		if (v < -1.0) v += 2.
-		// statebuf.writeFloatLE(v, idx);
-	}, 1000 / 120)
+    let v = statebuf.readFloatLE(idx)
+    v = v + 0.01
+    if (v > 1.0) v -= 2.0
+    if (v < -1.0) v += 2.0
+    // statebuf.writeFloatLE(v, idx);
+  }, 1000 / 120)
 } catch (e) {
   console.error('failed to map the state.bin:', e.message)
 }
@@ -207,7 +177,6 @@ const app = express()
 app.use(express.static(client_path))
 app.get('/', function (req, res) {
   res.sendFile(path.join(client_path, 'index.html'))
-
 })
 // app.get('*', function(req, res) { console.log(req); });
 const server = http.createServer(app)
@@ -219,24 +188,8 @@ const wss = new WebSocket.Server({ server })
 function send_all_clients (msg) {
   wss.clients.forEach(function each (client) {
     client.send(msg)
-    })
+  })
 }
-
-// chat app:
-// var chatHTTP = require('http').Server(app);
-// var io = require('socket.io')(http);
-// var chatPort = process.env.PORT || 3000;
-
-// io.on('connection', function(socket){
-// 	socket.on('chat message', function(msg){
-// 		console.log(msg)
-// 	  io.emit('chat message', msg);
-// 	});
-//   });
-
-//   chatHTTP.listen(port, function(){
-// 	console.log('listening on *:' + port);
-//   });
 
 // whenever a client connects to this websocket:
 wss.on('connection', function (ws, req) {
@@ -245,15 +198,15 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
-	// get the current list of authors involved in the alicenode_inhabitat project
-	let userlist = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
+  // get the current list of authors involved in the alicenode_inhabitat project
+  let userlist = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
 
   ws.send('setUserList?' + JSON.stringify(userlist))
-	let currentBranch
-	// get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
-	fileList = fs.readdirSync(project_path).filter(function (file) {
-    if (file.charAt(0) == '+');
-    else if (file.charAt(0) == '.');
+  let currentBranch
+  // get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
+  fileList = fs.readdirSync(project_path).filter(function (file) {
+    if (file.charAt(0) === '+');
+    else if (file.charAt(0) === '.');
     else if (file.includes('userlist.json'));
     else if (file.includes('userWorktree'));
     else if (file.includes('.code-workspace'));
@@ -263,88 +216,41 @@ wss.on('connection', function (ws, req) {
     else if (file.includes('.lib'));
     // to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp.
     else {
-		  return file
+	  return file
     }
-	  })
+  })
   let userWorktree // the directory that a client's right editor will work in
 
-	  ws.send('setFileList?' + JSON.stringify(fileList))
-  // exec('git branch', {cwd: project_path}, (stdout,err,stderr) => {
-  // 	console.log(err)
-  // })
+  ws.send('setFileList?' + JSON.stringify(fileList))
+
   let fileName // user-selected fileName
 
-	// send a handshake?
-	// ws.send("state?"+fs.readFileSync("state.h", "utf8"));
-	// if (statebuf) ws.send(statebuf);
-	
-	// ws.send("currentVersion?"+fs.readFileSync("project.cpp", "utf8"));
-
-	exec('git branch -v', {cwd: project_path}, (stdout, err, stderr) => {
-    // console.log(err.split("\n"))
+  // get list of branches within repo
+  exec('git branch -v', {cwd: project_path}, (stdout, err, stderr) => {
     ws.send('setBranchList?' + err)
   })
-  // //get the names of current worktrees
-  // exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {
-
-  // 	//send updated list to client
-  // 	err = err.split(/\n/g).filter(String)
-  // 	// worktrees = [];
-  // 	        // err.forEach(function(element) {
-  // 			// console.log("test " + element)
-  // 			// worktrees.push(element)
-  // 			// })
-  // 			//console.log(element)
-  // 			// console.log(Array.isArray(err))
-  // 			// console.log(typeof err[1])
-  // 	ws.send("worktreeList?" + JSON.stringify(err))
-
-  // })
 
   sessions[per_session_data.id] = per_session_data
 
-	console.log('server received a connection, new session ' + per_session_data.id)
-	console.log('server has ' + wss.clients.size + ' connected clients')
-	
-	const location = url.parse(req.url, true)
-	// You might use location.query.access_token to authenticate or share sessions
-	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-	
-	// respond to any messages from the client:
-	ws.on('message', function (message) {
+  console.log('server received a connection, new session ' + per_session_data.id)
+  console.log('server has ' + wss.clients.size + ' connected clients')
+
+  const location = url.parse(req.url, true)
+  // You might use location.query.access_token to authenticate or share sessions
+  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+  // respond to any messages from the client:
+  ws.on('message', function (message) {
     // console.log(message)
     var userName // this is what the client has signed in as
-		
-		
-		
-		// probably not in use
-		// //create and set worktree
-		// if (message.includes("addWorktree")){
-		// 	newWorkTree = message.replace("addWorktree ", "+")
-		// 	console.log(newWorkTree)
-		// 	exec("git worktree add --no-checkout " + message.replace("addWorktree ", "+"), (stdout, err, stderr) => {
 
-		// 		getWorktreeList();
-				
-
-		
-		// 	});
-		// }
-		// probably not in use anymore
-		// if (message.includes("switchWorktree")){
-		// 	//console.log("worktree is " + arg)
-		// 	clientOrigRightWorktree = message.replace("switchWorktree ", "")
-		// 	exec("cd " + clientOrigRightWorktree) 
-		// 	console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree") 
-		// }
-
-		if (message.includes('fileRequest')) {
+    if (message.includes('fileRequest')) {
       fileName = message.replace('fileRequest', '')
       // send the content of the file to the client editor
       ws.send('currentVersion?' + fs.readFileSync(fileName, 'utf8'))
-			
-			// get all of the commits which contain the file
-			exec('git log --all --source --abbrev-commit --pretty="%h | %cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
+
+      // get all of the commits which contain the file
+      exec('git log --all --source --abbrev-commit --pretty="%h | %cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
         // console.log(JSON.stringify(stderr))
         let commitList = stderr.split('refs/heads').join('')
         ws.send('branchCommits?' + commitList)
@@ -362,23 +268,23 @@ wss.on('connection', function (ws, req) {
     if (message.includes('editedRightCode')) {
       console.log(message)
       let gitCommand = message.replace('editedRightCode', '')
-			console.log(gitCommand)
+      console.log(gitCommand)
       let onHash
-				let numBranches	
-				
-				wss.clients.forEach(function each (client) {
+      let numBranches
+
+      wss.clients.forEach(function each (client) {
         client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
 				 })
-			// send_all_clients(userName + " changed " + fileName + " on branch ")
-			// get number of branches in alicenode_inhabitat
+      // send_all_clients(userName + " changed " + fileName + " on branch ")
+      // get number of branches in alicenode_inhabitat
 
-			if (libext == 'dylib') {
+      if (libext == 'dylib') {
         // if on unix, do this:
         exec('git branch | wc -l', {cwd: userWorktree}, (stdout, stderr, err) => {
           onHash = message.replace('createNewBranch ', '')
           numBranches = Number(stderr.replace(/\s+/g, ''))
-				})
-			} else {
+        })
+      } else {
         // if on windows, use the "Measure-Object" in place of 'wc' i.e. 'git branch | Measure-Object -line'
         // console.log(userName);
 
@@ -397,13 +303,9 @@ wss.on('connection', function (ws, req) {
 			*/
       }
 
-
-
-
 		 		// +1 to branch count, name the branch
 		 		// if (numBranches > 0) {
       //	 numBranches = (Number(numBranches) + 1)
-
 
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 
@@ -413,7 +315,6 @@ wss.on('connection', function (ws, req) {
 
       // })
     }
-
 
     // create a new branch under a new worktree. worktree saved at ../alicenode_inhabitat/<onHash>
     // 			exec("git worktree add --checkout -b " + newBranchName + " " + onHash , (stdout, stderr, err) => {
@@ -429,7 +330,6 @@ wss.on('connection', function (ws, req) {
 
     // 					})
     // 			})
-
 
     // 		}
     // 		else {
@@ -466,16 +366,15 @@ wss.on('connection', function (ws, req) {
           ws.send('show?' + stdout)
 
           console.log('sending show ' + stdout)
-					// console.log(stdout);
-					// console.log(projectCPPVersion); 
+          // console.log(stdout);
+          // console.log(projectCPPVersion);
 
-
-			})
-			} 	// this is run when a client connects. its a bit of a lgeacy feature left over from the earliest version of the client-server.
+        })
+      } 	// this is run when a client connects. its a bit of a lgeacy feature left over from the earliest version of the client-server.
       else {
         var gitCommand = (gitHash + ':' + 'project.cpp')
-				// var gitHash = message.replace("git show ", "")
-				console.log('githash = ' + gitHash)
+        // var gitHash = message.replace("git show ", "")
+        console.log('githash = ' + gitHash)
 
         // exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
         // 	console.log(stderr, err, stdout);
@@ -486,20 +385,13 @@ wss.on('connection', function (ws, req) {
           ws.send('show?' + stdout)
 
           console.log('sending show')
-						// console.log(stdout);
-						// console.log(projectCPPVersion); 
+          // console.log(stdout);
+          // console.log(projectCPPVersion);
 
-			
-			
-
-					
-						// console.log(gitCommand);
-					})
+          // console.log(gitCommand);
+        })
       }
     }
-
-
-
 
     // if (message.includes("git return to master")){
     // 	console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
@@ -510,10 +402,10 @@ wss.on('connection', function (ws, req) {
     // }
 
     let q = message.indexOf('?')
-		if (q > 0) {
+    if (q > 0) {
       let cmd = message.substring(0, q)
-			let arg = message.substring(q + 1)
-			switch (cmd) {
+      let arg = message.substring(q + 1)
+      switch (cmd) {
         // case "newUser":
         // 	console.log(arg)
         // break;
@@ -525,10 +417,9 @@ wss.on('connection', function (ws, req) {
           wss.clients.forEach(function each (client) {
             let dateStamp = (new Date().getHours()) + ':' + (new Date().getMinutes()) + ':' + (new Date().getSeconds())
             client.send('chatMsg? ' + dateStamp + ' ' + userName + ': ' + arg)
-			})
+          })
 
-
-			break;
+          break;
 
           // git checkout Michael_Palumbo_ac107e5_1527003819750
 
@@ -537,48 +428,47 @@ wss.on('connection', function (ws, req) {
         case 'newUser':
           // var userlist = [];
           userName = arg.substr(0, arg.indexOf('$?$'))
-				useremail = arg.split('$?$')[1]
-				userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'));
+          useremail = arg.split('$?$')[1]
+          userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'));
           // whenever a worktree is created, a branch is named after it too. we won't use this branch, but we do need to delete it before we can add a new worktree.
           execSync('git branch -d +' + userName.split(' ').join('_'))
           let userlist = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
           userlist[userName] = useremail
-				
-				var jsonstring = (JSON.stringify(userlist))
+
+          var jsonstring = (JSON.stringify(userlist))
           console.log('user:' + jsonstring)
 
           fs.writeFileSync(path.join(project_path, 'userlist.json'), jsonstring, 'utf8')
 
-				
-				// get current branch:
-				// exec("git rev-parse ")
-				// create a worktree under this user?
-				// first replace all spaces with underscores:
+          // get current branch:
+          // exec("git rev-parse ")
+          // create a worktree under this user?
+          // first replace all spaces with underscores:
 
-				// add a new worktree to alicenode_inhabitat
-				// the '+' symbol at the beginning will help us remember
-				// that dir is a worktree, and gitignore will catch it
-				exec('git worktree add --checkout +' + userName.split(' ').join('_'), (stdout, err, stderr) => {
+          // add a new worktree to alicenode_inhabitat
+          // the '+' symbol at the beginning will help us remember
+          // that dir is a worktree, and gitignore will catch it
+          exec('git worktree add --checkout +' + userName.split(' ').join('_'), (stdout, err, stderr) => {
           })
-					
-				// 	getWorktreeList();
 
-				// TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
-				
-				break;
+          // 	getWorktreeList();
+
+          // TODO: make sure that whenever a username is either added or chosen, that all commits from sendLeftCode are committed with this username and email
+
+          break;
 
           // Select user
         case 'selectUser':
           console.log(arg)
           // have userlist ready
           userEntry = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
-				// client's git username
-				userName = arg	
-				// client's git email					
-				userEmail = userEntry[arg]
-				userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'))
+          // client's git username
+          userName = arg
+          // client's git email
+          userEmail = userEntry[arg]
+          userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'))
 
-					console.log(userWorktree)
+          console.log(userWorktree)
 
           ws.send("chatMsg?'Right Editor' set to work within worktree: " + userWorktree)
 
@@ -587,7 +477,7 @@ wss.on('connection', function (ws, req) {
           }
           break
 
-				case 'currentBranch':
+        case 'currentBranch':
           // console.log("\n\n\n\n\n" + userWorktree)
           exec('git checkout ' + arg, {cwd: userWorktree}, (stdout, stderr, err) => {
             console.log(err)
@@ -613,13 +503,13 @@ wss.on('connection', function (ws, req) {
           })
           break
 
-				// currentBranch = arg
-				// console.log(currentBranch)
-				// ws.send(currentBranch)
+          // currentBranch = arg
+          // console.log(currentBranch)
+          // ws.send(currentBranch)
 
-				// break;
-	// Build gitgraph and send to client
-			case 'client_SVG':
+          // break;
+          // Build gitgraph and send to client
+        case 'client_SVG':
 
           /// // PLO //// Could be useful to see what commands are most used, maybe for
           // future features https://github.com/jvns/git-workflow
@@ -635,32 +525,32 @@ wss.on('connection', function (ws, req) {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
             fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function (err, data) {
               if (err) throw err
-							let gitlog = data
+              let gitlog = data
 
-							// on the server
-							// given the text of a gitlog output, it will produce a JSON-friendly object representation of it
-							// which can be used to render on a client
-							function make_graph_from_gitlog (gitlog) {
+              // on the server
+              // given the text of a gitlog output, it will produce a JSON-friendly object representation of it
+              // which can be used to render on a client
+              function make_graph_from_gitlog (gitlog) {
                 // this will collect an object for each commit:
                 let commits = []
-							// this will collect the names of commits with no parent:
-							let roots = []
-							// the biggest column used so far
-							// this is used to compute a commit's column position  
-							let maxcolumn = 1
-							// build a lookup-table from hash name to commit object:
-							let commit_map = {}
-							// keep a cache of what child names have been mentioned so far
-							// (this will identify any "root" commits)
-							let forward_refs = {}							
-							// pull out each line of the source log:
-							let lines = gitlog.split(')\n')
-							for (let i = 0; i < lines.length; i++) {
+                // this will collect the names of commits with no parent:
+                let roots = []
+                // the biggest column used so far
+                // this is used to compute a commit's column position
+                let maxcolumn = 1
+                // build a lookup-table from hash name to commit object:
+                let commit_map = {}
+                // keep a cache of what child names have been mentioned so far
+                // (this will identify any "root" commits)
+                let forward_refs = {}
+                // pull out each line of the source log:
+                let lines = gitlog.split(')\n')
+                for (let i = 0; i < lines.length; i++) {
                   // get each bar-separated term of the line in an array
                   let line = lines[i].split('|')
-							// the first item is the hash commit
-							let hash = line[0]
-							if (hash.length) { // skip empty lines
+                  // the first item is the hash commit
+                  let hash = line[0]
+                  if (hash.length) { // skip empty lines
                     // create an object representation of the commit
                     let commit = {
                       hash: hash,
@@ -672,7 +562,6 @@ wss.on('connection', function (ws, req) {
                       row: i + 1,
                       // the column is initially undetermined (it will be changed later)
                       col: 0,
-
 
                       // TODO: add these in. for now they are causing half the commits in the
                       // log to be ignored
@@ -686,25 +575,25 @@ wss.on('connection', function (ws, req) {
                       // list the files and change stats associated with each commit
                       commit_files: line[6] ? line.slice(6) : []
                     }
-								// if this commit hasn't been encountered as a child yet,
-								// it must have no parent in the graph:
-								if (!forward_refs[hash]) {
+                    // if this commit hasn't been encountered as a child yet,
+                    // it must have no parent in the graph:
+                    if (!forward_refs[hash]) {
                       roots.push(hash)
-									// mark this commit as parent-less
-									// not sure if this is really needed
-									commit.root = true 
-								}
+                      // mark this commit as parent-less
+                      // not sure if this is really needed
+                      commit.root = true
+                    }
 
                     // add to the list of commits
                     commits.push(commit)
-								// add to the reverse-lookup by name
-								commit_map[hash] = commit
-								
-								// also note the forward-referencing of each child
-								// (so we can know if a future commit has a parent or not)
-								for (let c of commit.children) {
+                    // add to the reverse-lookup by name
+                    commit_map[hash] = commit
+
+                    // also note the forward-referencing of each child
+                    // (so we can know if a future commit has a parent or not)
+                    for (let c of commit.children) {
                       forward_refs[c] = true
-									}
+                    }
                   }
                 }
 
@@ -715,48 +604,48 @@ wss.on('connection', function (ws, req) {
                 // we'll start with a list of all the commits without parents:
                 // (using a map() to convert hash names into the full object references)
                 let stack = roots.map(function (hash) { return commit_map[hash] }).reverse()
-							// we need a cache to remember which items we have visited
-							let visited = {}
-							
-							// the result will populate a list of objects representing the paths between commits:
-							let paths = []
-						
-							// consume each item on our "todo" stack, until there are none left:
-							while (stack.length > 0) {
+                // we need a cache to remember which items we have visited
+                let visited = {}
+
+                // the result will populate a list of objects representing the paths between commits:
+                let paths = []
+
+                // consume each item on our "todo" stack, until there are none left:
+                while (stack.length > 0) {
                   // remove top item from stack
                   let commit = stack.pop()
-							// note that we have now visited this
-							// (so we don't process a commit twice by mistake)
-							visited[commit.hash] = true
-						
-							// if the commit doesn't have a column assigned yet, it must be a root
-							if (!commit.col) {
+                  // note that we have now visited this
+                  // (so we don't process a commit twice by mistake)
+                  visited[commit.hash] = true
+
+                  // if the commit doesn't have a column assigned yet, it must be a root
+                  if (!commit.col) {
                     // create a new empty column for it:
                     commit.col = maxcolumn++
-							} else {
+                  } else {
                     // make sure we have widened our maxcolumn to accommodate this commit
                     maxcolumn = Math.max(maxcolumn, commit.col)
-							}
+                  }
 
                   // for each child:
                   for (let i = commit.children.length - 1; i >= 0; i--) {
                     let child_hash = commit.children[i]
-								// get the actual child object this hash refers to
-								let child = commit_map[commit.children[i]]
-								if (child) { // skip if the child commit is not in our source
+                    // get the actual child object this hash refers to
+                    let child = commit_map[commit.children[i]]
+                    if (child) { // skip if the child commit is not in our source
                       // if we haven't visited this child yet,
                       if (!visited[child_hash]) {
                         // assign it a new column, relative to parent
                         child.col = commit.col + i
-									// and add it to our "todo" stack:
-									stack.push(child)
-								}
+                        // and add it to our "todo" stack:
+                        stack.push(child)
+                      }
                       // add an object representation of this path:
                       paths.push({
                         from: commit.hash,
                         to: child.hash
                       })
-								}
+                    }
                   }
                 }
                 // return a full representation of the graph:
@@ -766,27 +655,27 @@ wss.on('connection', function (ws, req) {
                   commits: commits,
                   paths: paths
                 }
-						}
+              }
 
               let graph = make_graph_from_gitlog(gitlog)
-						let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
-						// commenting this out for now because gitignore is not working...?
-						// fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
-						// send graph as json to client
-						ws.send('gitLog?' + graphjson)
+              let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
+              // commenting this out for now because gitignore is not working...?
+              // fs.writeFileSync(path.join(client_path, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
+              // send graph as json to client
+              ws.send('gitLog?' + graphjson)
             })
           })
           break
 
-	// Client sent code from the left editor. write changes and commit using the name and email provided by the client. 
-			case 'edit':
+          // Client sent code from the left editor. write changes and commit using the name and email provided by the client.
+        case 'edit':
           // console.log(arg)
           // get the commit message provided by the client
           let commitMsg = arg.substring(arg.lastIndexOf('?commit') + 1, arg.lastIndexOf('?code')).replace('commit', '')
-				// get the code 
-				let newCode = arg.split('?code')[1]
+          // get the code
+          let newCode = arg.split('?code')[1]
 
-				let thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
+          let thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
 
           // console.log(thisAuthor)
           // console.log(arg)
@@ -795,41 +684,41 @@ wss.on('connection', function (ws, req) {
           // console.log(thisAuthor)
 
           fs.writeFileSync(project_path + '/' + fileName, newCode, 'utf8')
-				// git add and commit the new changes, including commitMsg
-				execSync('git add .', {cwd: project_path }, () => { console.log('git added') })
-				execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
-				execSync('git status', {cwd: project_path }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+          // git add and commit the new changes, including commitMsg
+          execSync('git add .', {cwd: project_path }, () => { console.log('git added') })
+          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
+          execSync('git status', {cwd: project_path }, (stdout) => { console.log('\ngit status: \n' + stdout) })
 
-				exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: project_path}, (stdout, stderr, err) => {
+          exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: project_path}, (stdout, stderr, err) => {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
             fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function (err, data) {
               if (err) throw err
-					let gitlog = data
+              let gitlog = data
 
-					// on the server
-					// given the text of a gitlog output, it will produce a JSON-friendly object representation of it
-					// which can be used to render on a client
-					function make_graph_from_gitlog (gitlog) {
+              // on the server
+              // given the text of a gitlog output, it will produce a JSON-friendly object representation of it
+              // which can be used to render on a client
+              function make_graph_from_gitlog (gitlog) {
                 // this will collect an object for each commit:
                 let commits = []
-					// this will collect the names of commits with no parent:
-					let roots = []
-					// the biggest column used so far
-					// this is used to compute a commit's column position  
-					let maxcolumn = 1
-					// build a lookup-table from hash name to commit object:
-					let commit_map = {}
-					// keep a cache of what child names have been mentioned so far
-					// (this will identify any "root" commits)
-					let forward_refs = {}							
-					// pull out each line of the source log:
-					let lines = gitlog.split(')\n')
-					for (let i = 0; i < lines.length; i++) {
+                // this will collect the names of commits with no parent:
+                let roots = []
+                // the biggest column used so far
+                // this is used to compute a commit's column position
+                let maxcolumn = 1
+                // build a lookup-table from hash name to commit object:
+                let commit_map = {}
+                // keep a cache of what child names have been mentioned so far
+                // (this will identify any "root" commits)
+                let forward_refs = {}
+                // pull out each line of the source log:
+                let lines = gitlog.split(')\n')
+                for (let i = 0; i < lines.length; i++) {
                   // get each bar-separated term of the line in an array
                   let line = lines[i].split('|')
-					// the first item is the hash commit
-					let hash = line[0]
-					if (hash.length) { // skip empty lines
+                  // the first item is the hash commit
+                  let hash = line[0]
+                  if (hash.length) { // skip empty lines
                     // create an object representation of the commit
                     let commit = {
                       hash: hash,
@@ -841,7 +730,6 @@ wss.on('connection', function (ws, req) {
                       row: i + 1,
                       // the column is initially undetermined (it will be changed later)
                       col: 0,
-
 
                       // TODO: add these in. for now they are causing half the commits in the
                       // log to be ignored
@@ -855,25 +743,25 @@ wss.on('connection', function (ws, req) {
                       // list the files and change stats associated with each commit
                       commit_files: line[6] ? line.slice(6) : []
                     }
-						// if this commit hasn't been encountered as a child yet,
-						// it must have no parent in the graph:
-						if (!forward_refs[hash]) {
+                    // if this commit hasn't been encountered as a child yet,
+                    // it must have no parent in the graph:
+                    if (!forward_refs[hash]) {
                       roots.push(hash)
-							// mark this commit as parent-less
-							// not sure if this is really needed
-							commit.root = true 
-						}
+                      // mark this commit as parent-less
+                      // not sure if this is really needed
+                      commit.root = true
+                    }
 
                     // add to the list of commits
                     commits.push(commit)
-						// add to the reverse-lookup by name
-						commit_map[hash] = commit
-						
-						// also note the forward-referencing of each child
-						// (so we can know if a future commit has a parent or not)
-						for (let c of commit.children) {
+                    // add to the reverse-lookup by name
+                    commit_map[hash] = commit
+
+                    // also note the forward-referencing of each child
+                    // (so we can know if a future commit has a parent or not)
+                    for (let c of commit.children) {
                       forward_refs[c] = true
-							}
+                    }
                   }
                 }
 
@@ -884,48 +772,48 @@ wss.on('connection', function (ws, req) {
                 // we'll start with a list of all the commits without parents:
                 // (using a map() to convert hash names into the full object references)
                 let stack = roots.map(function (hash) { return commit_map[hash] }).reverse()
-					// we need a cache to remember which items we have visited
-					let visited = {}
-					
-					// the result will populate a list of objects representing the paths between commits:
-					let paths = []
-				
-					// consume each item on our "todo" stack, until there are none left:
-					while (stack.length > 0) {
+                // we need a cache to remember which items we have visited
+                let visited = {}
+
+                // the result will populate a list of objects representing the paths between commits:
+                let paths = []
+
+                // consume each item on our "todo" stack, until there are none left:
+                while (stack.length > 0) {
                   // remove top item from stack
                   let commit = stack.pop()
-					// note that we have now visited this
-					// (so we don't process a commit twice by mistake)
-					visited[commit.hash] = true
-				
-					// if the commit doesn't have a column assigned yet, it must be a root
-					if (!commit.col) {
+                  // note that we have now visited this
+                  // (so we don't process a commit twice by mistake)
+                  visited[commit.hash] = true
+
+                  // if the commit doesn't have a column assigned yet, it must be a root
+                  if (!commit.col) {
                     // create a new empty column for it:
                     commit.col = maxcolumn++
-					} else {
+                  } else {
                     // make sure we have widened our maxcolumn to accommodate this commit
                     maxcolumn = Math.max(maxcolumn, commit.col)
-					}
+                  }
 
                   // for each child:
                   for (let i = commit.children.length - 1; i >= 0; i--) {
                     let child_hash = commit.children[i]
-						// get the actual child object this hash refers to
-						let child = commit_map[commit.children[i]]
-						if (child) { // skip if the child commit is not in our source
+                    // get the actual child object this hash refers to
+                    let child = commit_map[commit.children[i]]
+                    if (child) { // skip if the child commit is not in our source
                       // if we haven't visited this child yet,
                       if (!visited[child_hash]) {
                         // assign it a new column, relative to parent
                         child.col = commit.col + i
-								// and add it to our "todo" stack:
-								stack.push(child)
-							}
+                        // and add it to our "todo" stack:
+                        stack.push(child)
+                      }
                       // add an object representation of this path:
                       paths.push({
                         from: commit.hash,
                         to: child.hash
                       })
-					}
+                    }
                   }
                 }
                 // return a full representation of the graph:
@@ -935,44 +823,42 @@ wss.on('connection', function (ws, req) {
                   commits: commits,
                   paths: paths
                 }
-				}
+              }
 
               let graph = make_graph_from_gitlog(gitlog)
-				let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
-				
-				// send graph as json to client
-				ws.send('gitLog?' + graphjson)
+              let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
+
+              // send graph as json to client
+              ws.send('gitLog?' + graphjson)
             })
           })
 
           break
 
-			default:
+        default:
           console.log('unknown cmd', cmd, 'arg', arg)
-			}
+      }
     } else {
       // console.log("message", message, typeof message);
     }
-  }) 
-	
-	ws.on('error', function (e) {
+  })
+
+  ws.on('error', function (e) {
     if (e.message === 'read ECONNRESET') {
       // ignore this, client will still emit close event
     } else {
       console.error('websocket error: ', e.message)
-		}
+    }
   })
 
-	// what to do if client disconnects?
-	ws.on('close', function (connection) {
+  // what to do if client disconnects?
+  ws.on('close', function (connection) {
     console.log('client connection closed')
 
-		delete sessions[per_session_data.id]
+    delete sessions[per_session_data.id]
 
-		// tell git-in-vr to push the atomic commits?
-	})
-	
-
+    // tell git-in-vr to push the atomic commits?
+  })
 
 })
 
@@ -992,7 +878,7 @@ setInterval(function () {
 function loadsim () {
   // TODO: find a better way to IPC commands:
   alice_command('openlib', projectlib)
-	
+
 }
 
 function unloadsim () {
@@ -1023,20 +909,18 @@ watcher
           try {
             // let clients know the sources have changed
             send_all_clients('edit?' + fs.readFileSync('project.cpp', 'utf8'))
-			
-				// git_add_and_commit();
 
-				
+            // git_add_and_commit();
 
-			} catch (e) {
+          } catch (e) {
             console.error(e.message)
-				
-			}
+
+          }
 
           // then, commit to git:
           // git_add_and_commit();
         } break
-		default: {
+      default: {
         // console.log(`File ${filepath} has been changed`);
       }
     }
@@ -1044,11 +928,10 @@ watcher
 
 /// ////////////////////////////////////////////////////////////
 
-
-// Run the code-forensics webserver: 
+// Run the code-forensics webserver:
 // TODO: something that pulls through cli args without needing the specific arg's location
 function codeForensics () {
   if (process.argv[3] == '--forensics') {
     exec('gulp webserver', {cwd: __dirname})
-    }
+  }
 }
