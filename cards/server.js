@@ -14,62 +14,44 @@ const url = require('url')
 
 // derive project to launch from first argument:
 process.chdir(process.argv[2] || path.join('../..', 'alicenode_inhabitat'))
-const project_path = process.cwd()
-console.log(project_path)
+const projectPath = process.cwd()
+console.log(projectPath)
 const server_path = __dirname
 const client_path = path.join(server_path, 'client')
 
 let deck
 let src
 let errors
+let filename
 
 // 
-src = fs.readFileSync(__dirname + '/cpp2json/test.h', 'utf8')
+// cards functions:
+listFiles();
+function listFiles () {
+  fileList = fs.readdirSync(projectPath).filter(function (file) {
+    if (file.charAt(0) === '+');
+    else if (file.charAt(0) === '.');
+    else if (file.includes('.dylib'));
+    else if (file.includes('userlist.json'));
+    else if (file.includes('userWorktree'));
+    else if (file.includes('.code-workspace'));
+    else if (file.includes('tmp'));
+    else if (file.includes('.bin'));
+    else if (file.includes('.dll'));
+    else if (file.includes('.lib'));
+    // to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp.
+    else {
+      return file
+    }
+  })
+}
+
+
 // console.log(src)
 
 // get the updated json of test.h (see ./cards/cpp2json)
-getCpp2json()
 //console.log( __dirname + "/cpp2json/")
-function getCpp2json () {
-  deck = fs.readFileSync(__dirname + '/cpp2json/test.json', 'utf8') // the temp name for the overall datastructure we will add to throughout this document
-  // console.log(deck)
-  // not working for the time being... it breaks the client's ast graph
-  // exec('./cpp2json test.h', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
-  //     console.log("deck folded")
-  //     if (stderr !== null){
 
-  //         deck = (stderr)
-  //     } else if (err !== null){
-
-  //         deck = (err)
-  //     } else if (stdout !== null){
-
-  //         deck = (stdout)
-  //     }
-  //    // console.log(deck.split("{"))
-
-  // IMPORTANT: when you end up using the above commented out code (you will), you need to include the code at the bottom in order to separate out any parser errors from the ast!
-  //    //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
-  //    //if no errors, the 0th element of deck will be "{", so if it isnt...
-  //     if (deck.charAt[0] !== "{"){
-  //         //get the index of the start of the ast-json
-  //         let q = deck.indexOf("{")
-  //         if (q > 0) {
-  //             //put the errors into a variable
-  //             errors = deck.substring(0, q);
-  //             //slice the errors off the original deck
-  //             deck = deck.substring(q);
-  //             // console.log(deck)
-  //         }
-
-  //     }
-  //     // let q = deck.indexOf("?");
-  //     // if (q > 0) {
-  //     //     let cmd = message.substring(0, q);
-  //     //     let arg = message.substring(q+1);
-
-  // })
-}
 
 let stateSource
 let stateAST
@@ -84,24 +66,6 @@ try {
   buffSize = fs.statSync('state.bin').size
   statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
   console.log('mapped state.bin, size ' + statebuf.byteLength)
-
-    
-
-
-  // range = statebuf.slice(11534336, 11534336 + 2304)
-  // reader = new Reader(statebuf)
-  // reader.offset = 78408704;
-  // console.log(reader.slice(4))
-  // console.log(parseInt(range).toString(2))
-  // slow version:
-  // setInterval(function() {
-  // 	let idx = randomInt(0, 10) * (4*3);
-  // 	let v = statebuf.readFloatLE(idx);
-  // 	v = v + 0.01;
-  // 	if (v > 1.) v -= 2.;
-  // 	if (v < -1.) v += 2.;
-  // 	//statebuf.writeFloatLE(v, idx);
-  // }, 1000/120);
 } catch (e) {
   console.error('failed to map the state.bin:', e.message)
 }
@@ -113,7 +77,7 @@ function getState () {
   stateSource = fs.readFileSync(__dirname + '/cpp2json/state.h').toString()
   stateSource = JSON.stringify(stateSource)
 
-  exec('./cpp2json ' + path.join(project_path + '/state.h') + ' state.json', {cwd: __dirname + '/cpp2json' }, (stderr, err, stdout) => {
+  exec('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json', {cwd: __dirname + '/cpp2json' }, (stderr, err, stdout) => {
     console.log('state.h traversed')
     /*
         if (stderr !== null){
@@ -226,10 +190,9 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
-
+  ws.send("fileList?" + fileList)
   //console.log(deck)
-  ws.send('deck?' + deck)
-  ws.send('src?' + src)
+
   // if the ast parser produced any warnings/errors:
   if (errors !== undefined) {
     ws.send('serverWarnings?' + errors)
@@ -279,7 +242,77 @@ wss.on('connection', function (ws, req) {
 
           statebuf.writeFloatLE(theValue, thisObj.offset)
 
-          break;
+          break
+
+          case "cardsFileRequest":
+
+          //getCpp2json(arg)
+          console.log(arg)
+        filename = arg
+        filepath = path.join(projectPath, '/', filename)
+        console.log(filepath)
+
+            src = fs.readFileSync(filepath), 'utf8'
+            exec('./cpp2json ' + filepath + ' ' + filename + '.json', { cwd: __dirname + '/cpp2json' }, (stderr, err, stdout) => {
+                console.log(filename + ' traversed')
+                /*
+                    if (stderr !== null){
+            
+                        stateAST = (stderr)
+                    } else if (err !== null){
+            
+                        stateAST = (err)
+                    } else if (stdout !== null){
+            
+                        stateAST = (stdout)
+                    } */
+                deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
+                console.log(deck)
+                    
+                ws.send('deck?' + deck)
+                ws.send('src?' + src)
+                })
+            // the temp name for the overall datastructure we will add to throughout this document
+            // console.log(deck)
+            // not working for the time being... it breaks the client's ast graph
+            // exec('./cpp2json test.h', {cwd: __dirname + "/cpp2json/"}, (stderr, err, stdout) => {
+            //     console.log("deck folded")
+            //     if (stderr !== null){
+          
+            //         deck = (stderr)
+            //     } else if (err !== null){
+          
+            //         deck = (err)
+            //     } else if (stdout !== null){
+          
+            //         deck = (stdout)
+            //     }
+            //    // console.log(deck.split("{"))
+          
+            // IMPORTANT: when you end up using the above commented out code (you will), you need to include the code at the bottom in order to separate out any parser errors from the ast!
+            //    //if the child process results in any errors, lets isolate those serrors and report them to the cards editor!
+            //    //if no errors, the 0th element of deck will be "{", so if it isnt...
+            //     if (deck.charAt[0] !== "{"){
+            //         //get the index of the start of the ast-json
+            //         let q = deck.indexOf("{")
+            //         if (q > 0) {
+            //             //put the errors into a variable
+            //             errors = deck.substring(0, q);
+            //             //slice the errors off the original deck
+            //             deck = deck.substring(q);
+            //             // console.log(deck)
+            //         }
+          
+            //     }
+            //     // let q = deck.indexOf("?");
+            //     // if (q > 0) {
+            //     //     let cmd = message.substring(0, q);
+            //     //     let arg = message.substring(q+1);
+          
+            // })
+          
+
+          break
         case 'newUser':
 
           break
@@ -534,7 +567,7 @@ fs.writeFileSync(extractsPath + 'ast.json', JSON.stringify(ast, null, 1), 'utf8'
 // let gitHash;
 // let projectCPPVersion; //when a version of the project.cpp is requested by a client and placed in the right pane, store it here
 // let worktreepath = path.join(client_path, "worktreeList.txt");
-// let worktreeJSON = []; //list of worktrees in project_path
+// let worktreeJSON = []; //list of worktrees in projectPath
 
 // let commitMsg = "client updated project"; //default commit message if nothing given?
 
@@ -579,7 +612,7 @@ fs.writeFileSync(extractsPath + 'ast.json', JSON.stringify(ast, null, 1), 'utf8'
 // 	};
 
 // 	// //get the names of current worktrees
-// 	// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: project_path}, (stderr, err) => {
+// 	// exec("git worktree list --porcelain | grep -e 'worktree' | cut -d ' ' -f 2 | grep -o \"+.*\"", {cwd: projectPath}, (stderr, err) => {
 
 // 	// 	//send updated list to client
 // 	// 	err = err.split(/\n/g).filter(String)
@@ -610,7 +643,7 @@ fs.writeFileSync(extractsPath + 'ast.json', JSON.stringify(ast, null, 1), 'utf8'
 
 //     //        example:
 // 		// if (message.includes("getCurrentBranch")){
-// 		// 	exec("git rev-parse --abbrev-ref HEAD", { cwd: project_path }, (stdout, stderr, err) => {
+// 		// 	exec("git rev-parse --abbrev-ref HEAD", { cwd: projectPath }, (stdout, stderr, err) => {
 // 		// 		//console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
 // 		// 		ws.send("branchname?" + stderr.replace("\n", ""))
 // 		// 		//console.log("branchname?" + stderr.replace("\n", ""))

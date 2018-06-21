@@ -109,6 +109,13 @@
                 <button onclick="openSocket()">Open</button>
                 <button onclick="closeSocket()">Close</button></th>
         </tr>
+        <tr>
+            <td>
+                <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="openFileName();">
+                    <option selected disabled>Please Select File</option> 
+                    <option value="New File...">New File...</option>    
+            </td>
+        </tr>
         
     </table>
     <!--container for all cards  -->
@@ -585,12 +592,41 @@ function openSocket() {
                     break;
                     //////////////
 
+                    case "fileList":
+                    var names = {}
+                    var fileList = arg.replace( /,$/, "" ).split(",").map(function(name) {
+                            return {name: name};
+                        })
+                    
+                    // {
+                    //     names: arg.replace( /,$/, "" ).split(",").map(function(name) {
+                    //         return {name: name};
+                    //     })
+                    // };
 
+                    //fileList = JSON.parse(arg)
+                    console.log(fileList)
+
+                    var sel = document.getElementById('openFileName')
+                    // var length = select;
+
+                    // for (i = 3; i < sel.length; i++) {
+                    //     sel.options[i] = null;
+                    //     }
+                    Object.values(fileList).forEach(function (key, value) {
+
+                    var opt = document.createElement('option')
+                    opt.appendChild(document.createTextNode(fileList[value].name))
+                    opt.value = fileList[value].name
+                    sel.appendChild(opt)
+                    })
+                    //                        sel.selectedIndex = 2;
+                    break
                     case "src":
 
                     //regen(arg);
                     sourceCard(arg)
-                    break;
+                    break
 
                     case "deck":
                     deck = (JSON.parse(arg))
@@ -1004,7 +1040,19 @@ function showCard(x, y, card, name){
 
 } 
 
-
+// file selection
+function openFileName () {
+  var e = document.getElementById('openFileName')
+  var selection = e.options[e.selectedIndex].value
+    console.log(selection)
+  if (selection === 'New File...') {
+    alert('Client not set up to create new file yet, work-in-progress')
+  } else {
+    ws.send('cardsFileRequest?' + selection)
+    // change page title to filename!
+    document.title = selection
+  }
+}
 
 // // 
 // function regen(ast){
