@@ -15,8 +15,6 @@
     <link rel=stylesheet href="cm/addons/fullscreen/fullscreen.css">
     <link rel=stylesheet href="cm/one-dark.css">
 
-]
-
     <!-- <link rel=stylesheet href="cm/merge.css">
     <link rel=stylesheet href="cm/icecoder.css"> -->
 
@@ -111,7 +109,7 @@
         </tr>
         <tr>
             <td>
-                <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="openFileName();">
+                <select style="width:30%; overflow: scroll;" id="openFileName" onchange="openFileName();">
                     <option selected disabled>Please Select File</option> 
                     <option value="New File...">New File...</option>    
             </td>
@@ -122,15 +120,15 @@
     <div class="deck">
 
 
-<table id="decks" width="100%" border="0" cellpadding="0" cellspacing="0" >
+<table id="decks" height="100%" width="100%" cellpadding="0" cellspacing="0" >
     <tbody>
         <tr>
-            <th style="width: 5%;">Filename</th>
-            <th style="width: 30%;">Full Source Code</th>
+            <!-- <th style="width: 5%;">Filename</th> -->
+            <th style="width: 27%;">Full Source Code</th>
             <th style="width: 65%;">AST Graph</th>
         </tr>
-        <tr>
-            <td class="left" id="deckOneName"></td>
+        <tr >
+            <!-- <td class="left" id="deckOneName"></td> -->
             <td id="deckOneSource" style="float:left"></td>
             <td class="right" id="deckOneASTGraph"></td>
         </tr>        
@@ -335,7 +333,7 @@ function sourceCard(code) {
         cursorScrollMargin: 0,
         
     });
-    dv.setSize(427, 500);
+    dv.setSize(427, window.innerHeight - 120);
     //not yet working
     // function cmRefresh(){
     //     dv.refresh();
@@ -631,7 +629,6 @@ function openSocket() {
                     case "deck":
                     deck = (JSON.parse(arg))
                     //var newCard = [];
-                    console.log(deck)
 
                     //send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)
                     
@@ -880,16 +877,19 @@ var diagonal = d3.svg.diagonal()
 //  var diagonal = d3.svg.diagonal()
 //  .projection(function(d) { return [d.x, d.y]; });
 
-var svg = d3.select("#deckOneASTGraph").append("svg")
- .attr("width", width + margin.right + margin.left)
- .attr("height", height + margin.top + margin.bottom)
-  .append("g")
- .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 updateDepth = 180;
 
 
 function update(source) {
+
+d3.select("svg").remove();
+var svg = d3.select("#deckOneASTGraph").append("svg")
+ .attr("width", width + margin.right + margin.left)
+ .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+ .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     //note, likely for a better version of drag, see this: https://github.com/d3/d3-drag
     //for now, a weak drag version (links won't move with a dragged node...)
