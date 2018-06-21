@@ -2,14 +2,10 @@ const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const mmapfile = require('mmapfile')
-const Reader = require('buffer-read')
-const { StringDecoder } = require('string_decoder')
-var toArrayBuffer = require('to-arraybuffer')
 
 const express = require('express')
 const http = require('http')
 const WebSocket = require('ws')
-const chokidar = require('chokidar')
 const url = require('url')
 
 // derive project to launch from first argument:
