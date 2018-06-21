@@ -51,7 +51,6 @@
         <th style="text-decoration: none">
             <form name="usernames">
                 <select id="chooseUser" onchange="userSelect();">
-                    <!-- <option selected disabled>Please Select User</option>  -->
                     <option value="Add User...">Add User...</option>           
                 </select> -Current User
             </form>
@@ -73,72 +72,61 @@
         <th>
             <b>Editor Settings: </b>
         </th>
-
         <th>
             <div class="onoffswitch">
                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleLiveDiffing" onclick="toggleDifferences()" checked>
                 <label class="onoffswitch-label" for="toggleLiveDiffing"></label>
             </div>Diffing
         </th>
-
         <th>
             <div class="onoffswitch">
                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; initUI()">
                 <label class="onoffswitch-label" for="toggleCollapse"></label>
             </div>Collapse Changes
         </th>
-
         <th>
             <div class="onoffswitch">
                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="connect = connect ? null : 'align'; initUI()">
                 <label class="onoffswitch-label" for="toggleAlign"></label>
             </div>Align Changes
-
         </th>
-    </tr>
-    
+    </tr>    
 </table>
-
-
+<!-- git repo navigation -->
 <table style="background-color: blue" width=100% id="gitSelector">  
     <tr>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+            <b>Branches</b>
             <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search...">
             <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
         </th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+            <b>Files within Selected Branch</b>
         </th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
-            
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+            <p id="fileInCommit"><p>          
         </th>
-
     </tr>
     <tr> 
         <td style="width:33%; height:100%">
             <div id="Branch">
                 <select style="width:100%; height:100%" name="branches" size="5" id="chooseBranch" onchange="selectBranch();"> 
                 </select> 
-            </div>
-            
+            </div>          
         </td>
         <td style="width:33%; height:100%; text-align:center;">
-
             <select size="5" style="width:100%; overflow: scroll;" id="openFileName" onchange="chooseFileName();">
-                    <option selected disabled>Please Select File</option> 
-                    <option value="New File...">New File...</option>
-                          
+                <option selected disabled>Please Select File</option> 
+                <option value="New File...">New File...</option>        
             </select> 
         </td>
-
         <td style="width:33%; height:100%; text-align:center;">
-            <!-- <div id="CommitList"> -->
-                <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
-                </select> 
+            <select style="width:100%; height:100%" name="Commitslist" size="5" id="selectCommit" onchange="chooseCommit();"> 
+            </select> 
         </td>
     </tr>
 </table>
-
-
+<!-- codemirror editor Labels -->
 <table width="80%">
     <tr>
         <th style="text-align:center">
@@ -159,53 +147,29 @@
 <table width="80%">
         <tr>
             <th style="text-align:left">
-                    <button onclick="sendLeftCode()">Send Left Code</button>
-
-
+                <button onclick="sendLeftCode()">Send Left Code</button>
             </th>
             <th style="text-align:right">
-                    <button onclick="sendCodeRelay()">Send Right Code</button>
-
-
-
+                <button onclick="sendCodeRelay()">Send Right Code</button>
             </th>
         </tr>
 </table>
 
 <!-- Chat and System Logs -->
-
     <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
-             <div id="chat_messages">
-            </div>
+            <div id="chat_messages"></div>
             <form id="chat_form" onSubmit="return false;">
-                    <input id="m"/>
-                    <button id="chatSendMsg" type="button" name="">Send</button>
-                </form>  
+                <input id="m"/>
+                <button id="chatSendMsg" type="button" name="">Send</button>
+            </form>  
         </div> 
         <div id="chatHeader" style="float: right;">Integrated Terminal
             <div id="terminal">
-                jhbhjghujhyu
+                >.
             </div>
-            <li id="state"></li>
         </div>
     </div>
-
-<!-- <p>The <a href="../doc/manual.html#addon_merge"><code>merge</code></a>
-addon provides an interface for displaying and merging diffs,
-either <span class=clicky onclick="panes = 2; initUI()">two-way</span>
-or <span class=clicky onclick="panes = 3; initUI()">three-way</span>.
-The left (or center) pane is editable, and the differences with the
-other pane(s) are <span class=clicky
-onclick="toggleDifferences()">optionally</span> shown live as you edit
-it. In the two-way configuration, there are also options to pad changed
-sections to <span class=clicky onclick="connect = connect ? null :
-'align'; initUI()">align</span> them, and to <span class=clicky
-onclick="collapse = !collapse; initUI()">collapse</span> unchanged
-stretches of text.</p> -->
-
-<!-- Manually Start and Stop Client -->
-
 
 <script>
 
@@ -698,9 +662,7 @@ function openSocket() {
                         initUI();
                         //make sure that the right code editor dirty flag is reset
 
-                        break;    
-                    case "state":
-                        //document.getElementById('state').innerHTML = arg;
+                        
                         break;
                     case "updateRepo":
                         log('Update Repo Graph')
