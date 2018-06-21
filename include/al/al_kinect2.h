@@ -114,7 +114,7 @@ struct CloudDevice {
 	std::string serial;
 	int id = 0;
 
-	glm::mat4 cloudTransform;
+	glm::mat4 cloudTransform = glm::mat4(1.);
 
 	std::thread kinect_thread;
 	std::vector<CloudFrame> cloudFrames = std::vector<CloudFrame>(KINECT_FRAME_BUFFERS);
@@ -221,7 +221,7 @@ struct CloudDevice {
 			const float * mmptr = (float *)undistorted.data;
 			uint16_t * dptr = cloudFrame.depth;
 			glm::vec3 * xyzptr = cloudFrame.xyz;
-			glm::vec3 * rgbptr = cloudFrame.xyz;
+			glm::vec3 * rgbptr = cloudFrame.rgb;
 			glm::vec2 * uvptr = cloudFrame.uv;
 			int i = 0;
 
@@ -238,8 +238,8 @@ struct CloudDevice {
 
 					glm::vec3 pt;
 					float rgb = 0.f;
-					registration->getPointXYZ(&undistorted, r, c, pt.x, pt.y, pt.z);
-					//registration->getPointXYZRGB (&undistorted, &registered, r, c, pt.x, pt.y, pt.z, rgb);
+					//registration->getPointXYZ(&undistorted, r, c, pt.x, pt.y, pt.z);
+					registration->getPointXYZRGB (&undistorted, &registered, r, c, pt.x, pt.y, pt.z, rgb);
 					pt = al_fixnan(pt);
 					pt.y = -pt.y;
 					xyzptr[i] = transform(cloudTransform, pt);
@@ -248,8 +248,6 @@ struct CloudDevice {
 					rgbptr[i] = glm::vec3(cp[2]/255.f, cp[1]/255.f, cp[0]/255.f);
 
 					// this is probably wrong, as it doesn't take into account the registration?
-
-					//
 					// depth_to_color()
 					glm::vec2 uv;
 					registration->apply(c, r, mm, uv.x, uv.y);
