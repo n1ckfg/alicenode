@@ -10,13 +10,29 @@
 	- a glfw window has a context (inseparably linked)
 	- a new window can share context with an earlier one (last arg of glfwCreateWindow)
 	- shared contexts allow use of same texture, shader etc. in both windows
+		- BUT apparently VAOs and FBOs are not shared?? CHeck this!
+
+	- BUT different threads MUST have different contexts
+	- a thread can ony have one GL context bound at a time
+	- a context should only be 'current' on one window & one thread at a time
+
+	-  a possible benefit of seconardy contexts is parallel data upload
+	
+	- so: each windows has a context, which could be shared with other windows, so long as they are on the same thread.
+	
+	- some GLFW calls can only be made on the primary thread, incl. pollevents
+
 	- the context of a window must be made 'current' to use GL commands, via glfwMakeContextCurrent(window). glfwGetCurrentContext() returns the current window
+	- in this single-thread, multi-window case:
+		- make contex current for win1, draw, make context current for win2, draw, swapbufs on win1, swapbufs on win2, then pollevents
+	- can multithread this a little, but context can only be active on one thread at a time, so there's not much point.
 
 	Fullscreen
 	- going fullscreen means creating a new window, and destroying the old
 	- OR, use  glfwSetWindowMonitor to convert a window FS/noFS	
 		- but most of the code I see online doesn't do this
 	- see "Windowed full screen" for how to do this without changing video modes (http://www.glfw.org/docs/latest/window_guide.html#window_full_screen)
+	- but there's a bug in current glfw that is fixed on master, would need a rebuild of the libs.
 */
 
 #define _GLFW_USE_DWM_SWAP_INTERVAL 1
