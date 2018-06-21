@@ -521,7 +521,7 @@ wss.on('connection', function (ws, req) {
                 // this is used to compute a commit's column position
                 let maxcolumn = 1
                 // build a lookup-table from hash name to commit object:
-                let commitMap = {}
+                let commit_map = {}
                 // keep a cache of what child names have been mentioned so far
                 // (this will identify any "root" commits)
                 let forward_refs = {}
@@ -569,7 +569,7 @@ wss.on('connection', function (ws, req) {
                     // add to the list of commits
                     commits.push(commit)
                     // add to the reverse-lookup by name
-                    commitMap[hash] = commit
+                    commit_map[hash] = commit
 
                     // also note the forward-referencing of each child
                     // (so we can know if a future commit has a parent or not)
@@ -585,7 +585,7 @@ wss.on('connection', function (ws, req) {
 
                 // we'll start with a list of all the commits without parents:
                 // (using a map() to convert hash names into the full object references)
-                let stack = roots.map(function (hash) { return commitMap[hash] }).reverse()
+                let stack = roots.map(function (hash) { return commit_map[hash] }).reverse()
                 // we need a cache to remember which items we have visited
                 let visited = {}
 
@@ -613,7 +613,7 @@ wss.on('connection', function (ws, req) {
                   for (let i = commit.children.length - 1; i >= 0; i--) {
                     let child_hash = commit.children[i]
                     // get the actual child object this hash refers to
-                    let child = commitMap[commit.children[i]]
+                    let child = commit_map[commit.children[i]]
                     if (child) { // skip if the child commit is not in our source
                       // if we haven't visited this child yet,
                       if (!visited[child_hash]) {
@@ -689,7 +689,7 @@ wss.on('connection', function (ws, req) {
                 // this is used to compute a commit's column position
                 let maxcolumn = 1
                 // build a lookup-table from hash name to commit object:
-                let commitMap = {}
+                let commit_map = {}
                 // keep a cache of what child names have been mentioned so far
                 // (this will identify any "root" commits)
                 let forward_refs = {}
@@ -737,7 +737,7 @@ wss.on('connection', function (ws, req) {
                     // add to the list of commits
                     commits.push(commit)
                     // add to the reverse-lookup by name
-                    commitMap[hash] = commit
+                    commit_map[hash] = commit
 
                     // also note the forward-referencing of each child
                     // (so we can know if a future commit has a parent or not)
@@ -753,7 +753,7 @@ wss.on('connection', function (ws, req) {
 
                 // we'll start with a list of all the commits without parents:
                 // (using a map() to convert hash names into the full object references)
-                let stack = roots.map(function (hash) { return commitMap[hash] }).reverse()
+                let stack = roots.map(function (hash) { return commit_map[hash] }).reverse()
                 // we need a cache to remember which items we have visited
                 let visited = {}
 
@@ -781,7 +781,7 @@ wss.on('connection', function (ws, req) {
                   for (let i = commit.children.length - 1; i >= 0; i--) {
                     let child_hash = commit.children[i]
                     // get the actual child object this hash refers to
-                    let child = commitMap[commit.children[i]]
+                    let child = commit_map[commit.children[i]]
                     if (child) { // skip if the child commit is not in our source
                       // if we haven't visited this child yet,
                       if (!visited[child_hash]) {

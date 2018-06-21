@@ -59,7 +59,7 @@
   </style>
 <body>
 
-     <!-- Client 'logs in' to server using the full name and email associated with their github account -->
+<!-- Client 'logs in' to server using the full name and email associated with their github account -->
 <table style="width: 100%; float: left; background-color: rgba(19, 119, 32, 0.74)"> 
     <tr style="float: left">
         <th style="text-decoration: none">
@@ -737,7 +737,7 @@ function openSocket() {
                     case "gitLog":
                     //let graph = arg;
 
-                  
+                    
                     let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
                     
                     let svg = make_svg_from_commits(graph);
