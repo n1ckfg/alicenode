@@ -53,27 +53,27 @@
 
 <!-- Important: must have a body section so that the 'double click = new card' UI works -->
 <body ondblclick="doubleClick(event);">
-
-    <table width="100%">
-        <tr height="30px" bgcolor="#daeef4">
-            <th style="text-decoration: none">Deck of Cards ide</th>
-            <th><input id="server" type="text" value="ws://localhost:8080" size="40">
-                <button onclick="openSocket()">Open</button>
-                <button onclick="closeSocket()">Close</button></th>
-        </tr>
-        <tr>
-            <td>
-                <select style="width:30%; overflow: scroll;" id="openFileName" onchange="openFileName();">
-                    <option selected disabled>Please Select File</option> 
-                    <option value="New File...">New File...</option>    
-            </td>
-        </tr>
-        
-    </table>
-    <!--container for all cards  -->
-    <div class="deck">
-
-
+<table width="100%">
+    <tr height="30px" bgcolor="#daeef4">
+        <th style="text-decoration: none">Deck of Cards ide</th>
+        <th>
+            <input id="server" type="text" value="ws://localhost:8080" size="40">
+            <button onclick="openSocket()">Open</button>
+            <button onclick="closeSocket()">Close</button>
+        </th>
+    </tr>
+    <tr>
+        <td>
+            <select style="width:30%; overflow: scroll;" id="openFileName" onchange="openFileName();">
+                <option selected disabled>Please Select File</option> 
+                <option value="New File...">New File...</option>  
+            </select>  
+        </td>
+    </tr>   
+</table>
+<!--container for all cards  -->
+<div class="deck">
+<!-- the source code and editable AST Graph -->
 <table id="decks" height="100%" width="100%" cellpadding="0" cellspacing="0" >
     <tbody>
         <tr>
@@ -95,17 +95,12 @@
     gripInnerHtml:"<div class='grip'></div>", 
     draggingClass:"dragging",
     onResize:refreshSourceCM});
-
 //not yet working:
     function refreshSourceCM(){
         console.log('codemirror refresh not yet working for resize')
         //cmRefresh()    
-        }
-
-
+    }
 </script>
-
-</body>
 
 <script>
     
@@ -1034,4 +1029,6 @@ function openFileName () {
 
 // }
 </script>
+</body>
+</html>
 
