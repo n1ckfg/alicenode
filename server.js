@@ -1,16 +1,11 @@
 #!/usr/bin/env node
-
 // const fastcall = require("fastcall")
 const express = require('express')
 const WebSocket = require('ws')
 const mmapfile = require('mmapfile')
 const chokidar = require('chokidar')
-
-// zlib compression:
-const pako = require('pako')
-
+const pako = require('pako') // zlib compression
 const http = require('http')
-// const url = require('url')
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
@@ -24,11 +19,9 @@ function randomInt (low, high) {
   return Math.floor(Math.random() * (high - low) + low)
 }
 
-/// //////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
-
-console.log(process.argv)
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
 
