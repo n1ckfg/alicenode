@@ -124,14 +124,19 @@ rgb(199, 0, 57) --> */
         </td>
     </tr>
     <tr>
-        <td></td>
+        <td>
+            Errors/Warnings from Server
+        </td>
         <td>
             Parameters Available but not yet Mapped in Server
         </td>
-    <tr>
-        <td></td>
+    <tr height="20%">
         <td>
-            <div id="otherParams" overflow="scroll">
+            <div id="serverWarnings" overflow="auto">
+
+        </td>
+        <td>
+            <div id="otherParams" overflow="auto">
                     </div>
             <!-- <li id="state"></li> -->
         </td>
@@ -341,11 +346,21 @@ function openSocket() {
                             chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
                             break;
                         }
-
-                        
-
-
                     })
+
+                    case "serverWarnings":   
+                    var li = document.createElement('li');
+                    var list = document.getElementById('serverWarnings');
+
+                    li.innerHTML = (arg);
+                    list.appendChild(li);
+
+                    var chatMessages = document.querySelector('#serverWarnings');
+                    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+
+
+
+
                     break;
 
 

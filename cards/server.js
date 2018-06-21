@@ -265,12 +265,7 @@ wss.on('connection', function(ws, req) {
     ws.send("deck?" + deck);
     ws.send("src?" + src)
     //if the ast parser produced any warnings/errors:
-    ws.send("ast_messages?" + errors)
-
-    //temporary
-//    let state = {};
-    // state["numcritters"] = 45;
-    // state["foodAvailability"] = 0.02
+    ws.send("serverWarnings?" + errors)
 
     ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)
@@ -281,21 +276,13 @@ wss.on('connection', function(ws, req) {
 	console.log("server received a connection, new session " + per_session_data.id);
 	console.log("server has "+wss.clients.size+" connected clients");
 	
-	const location = url.parse(req.url, true);
+    const location = url.parse(req.url, true);
+    //TODO:
 	// You might use location.query.access_token to authenticate or share sessions
 	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 	
 	// respond to any messages from the client:
 	ws.on('message', function(message) {
-
-        // if (message.includes("git return to master")){
-		// 	console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
-		// 	 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
-		// 	 ws.send("edit?" + err)
-
-        //     })
-		// }
-
 
 		let q = message.indexOf("?");
 		if (q > 0) {
