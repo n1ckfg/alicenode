@@ -37,11 +37,11 @@ const libext = process.platform == 'win32' ? 'dll' : 'dylib'
 
 // derive project to launch from first argument:
 process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
-const project_path = process.cwd()
-const server_path = __dirname
-const client_path = path.join(server_path, 'client')
-console.log('project_path', project_path)
-console.log('server_path', server_path)
+const projectPath = process.cwd()
+const serverPath = __dirname
+const client_path = path.join(serverPath, 'client')
+console.log('projectPath', projectPath)
+console.log('serverPath', serverPath)
 console.log('client_path', client_path)
 
 const projectlib = 'project.' + libext
@@ -54,34 +54,34 @@ let projectCPPVersion // when a version of the project.cpp is requested by a cli
 let commitMsg = 'client updated project' // default commit message if nothing given?
 
 // if alice is already running from a previous crash, then terminate it
-var terminate = require('terminate')
+// var terminate = require('terminate')
 
-const find = require('find-process')
+// const find = require('find-process')
 
-let fileList = [] // list of files in the project_path
+let fileList = [] // list of files in the projectPath
 // check if the userlist exists on the server machine, if not, create an empty json file:
 
-if (fs.existsSync(path.join(project_path, 'userlist.json'))) {
+if (fs.existsSync(path.join(projectPath, 'userlist.json'))) {
   console.log('found userlist.json')
 } else {
-  fs.writeFileSync(path.join(project_path, 'userlist.json'), '{}', 'utf8')
+  fs.writeFileSync(path.join(projectPath, 'userlist.json'), '{}', 'utf8')
   console.log('created userlist.json on ' + os.hostname())
 }
 
 pruneWorktree()
 // update the worktree list, if any worktrees had been removed by user, make sure they aren't still tracked by git
 function pruneWorktree () {
-  exec('git worktree prune', {cwd: project_path})
+  exec('git worktree prune', {cwd: projectPath})
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
 // BUILD PROJECT
-function project_build () {
+function projectBuild () {
   let out = ''
   if (process.platform == 'win32') {
-    out = execSync('build.bat "' + server_path + '"', { stdio: 'inherit'})
+    out = execSync('build.bat "' + serverPath + '"', {stdio: 'inherit'})
   } else {
-    out = execSync('sh build.sh "' + server_path + '"', { stdio: 'inherit'})
+    out = execSync('sh build.sh "' + serverPath + '"', {stdio: 'inherit'})
   }
   console.log('built project', out.toString())
 }
@@ -94,7 +94,7 @@ function project_build () {
 if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
   console.warn('project lib is out of date, rebuilding')
   try {
-    project_build()
+    projectBuild()
   } catch (e) {
     console.error('ERROR', e.message)
     // do a git commit with a note about it being a failed build.
@@ -107,9 +107,9 @@ if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync
 
 function git_add_and_commit () {
   try {
-    execSync('git add .', {cwd: project_path }, () => { console.log('git added') })
-    execSync('git commit -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
-    execSync('git status', {cwd: project_path }, (stdout) => { console.log('\n\n\n\n\n\n\n' + stdout) })
+    execSync('git add .', {cwd: projectPath}, () => { console.log('git added') })
+    execSync('git commit -m \"' + commitMsg + '\"', {cwd: projectPath}, () => { console.log('git committed') })
+    execSync('git status', {cwd: projectPath}, (stdout) => { console.log('\n\n\n\n\n\n\n' + stdout) })
   } catch (e) {
     console.error(e.toString())
   }
@@ -123,7 +123,7 @@ function git_add_and_commit () {
 
 // start up the alice executable:
 let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
-  cwd: project_path
+  cwd: projectPath
 })
 
 // alice.stdout.on("data", function(data) { console.log(data.toString());});
@@ -140,7 +140,7 @@ alice.on('exit', function (code) {
   process.exit(code)
 })
 
-function alice_command (command, arg) {
+function aliceCommand (command, arg) {
   let msg = command + '?' + arg + '\0'
   console.log('sending alice', msg)
   alice.stdin.write(command + '?' + arg + '\0')
@@ -199,12 +199,12 @@ wss.on('connection', function (ws, req) {
 
   }
   // get the current list of authors involved in the alicenode_inhabitat project
-  let userlist = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
+  let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
 
   ws.send('setUserList?' + JSON.stringify(userlist))
   let currentBranch
-  // get the current list of files in the project_path (less the git meta dirs, worktrees, and tmp)
-  fileList = fs.readdirSync(project_path).filter(function (file) {
+  // get the current list of files in the projectPath (less the git meta dirs, worktrees, and tmp)
+  fileList = fs.readdirSync(projectPath).filter(function (file) {
     if (file.charAt(0) === '+');
     else if (file.charAt(0) === '.');
     else if (file.includes('userlist.json'));
@@ -226,7 +226,7 @@ wss.on('connection', function (ws, req) {
   let fileName // user-selected fileName
 
   // get list of branches within repo
-  exec('git branch -v', {cwd: project_path}, (stdout, err, stderr) => {
+  exec('git branch -v', {cwd: projectPath}, (stdout, err, stderr) => {
     ws.send('setBranchList?' + err)
   })
 
@@ -250,7 +250,7 @@ wss.on('connection', function (ws, req) {
       ws.send('currentVersion?' + fs.readFileSync(fileName, 'utf8'))
 
       // get all of the commits which contain the file
-      exec('git log --all --source --abbrev-commit --pretty="%h | %cr | %cn | %B" -- ' + fileName, {cwd: project_path}, (stdout, stderr, err) => {
+      exec('git log --all --source --abbrev-commit --pretty="%h | %cr | %cn | %B" -- ' + fileName, {cwd: projectPath}, (stdout, stderr, err) => {
         // console.log(JSON.stringify(stderr))
         let commitList = stderr.split('refs/heads').join('')
         ws.send('branchCommits?' + commitList)
@@ -258,7 +258,7 @@ wss.on('connection', function (ws, req) {
     }
 
     if (message.includes('getCurrentBranch')) {
-      exec('git rev-parse --abbrev-ref HEAD', { cwd: project_path }, (stdout, stderr, err) => {
+      exec('git rev-parse --abbrev-ref HEAD', { cwd: projectPath }, (stdout, stderr, err) => {
         // console.log("this it sshshs kjdlfj;ldkslfj" + stderr.replace(" string", ""));
         ws.send('branchname?' + stderr.replace('\n', ''))
         // console.log("branchname?" + stderr.replace("\n", ""))
@@ -274,11 +274,12 @@ wss.on('connection', function (ws, req) {
 
       wss.clients.forEach(function each (client) {
         client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
-				 })
+      })
+
       // send_all_clients(userName + " changed " + fileName + " on branch ")
       // get number of branches in alicenode_inhabitat
 
-      if (libext == 'dylib') {
+      if (libext === 'dylib') {
         // if on unix, do this:
         exec('git branch | wc -l', {cwd: userWorktree}, (stdout, stderr, err) => {
           onHash = message.replace('createNewBranch ', '')
@@ -296,7 +297,7 @@ wss.on('connection', function (ws, req) {
 
         // TODO: need to figure this out next.
         /*
-							//console.log("worktree is " + arg)
+			//console.log("worktree is " + arg)
 			//clientOrigRightWorktree = message.replace("switchWorktree ", "")
 			exec("cd " + clientOrigRightWorktree)
 			console.log("Right editor working within " + clientOrigRightWorktree + "'s worktree")
@@ -309,7 +310,7 @@ wss.on('connection', function (ws, req) {
 
 		 		//	newBranchName = (numBranches + "_" + clientOrigRightWorktree)
 
-      // exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(project_path, clientOrigRightWorktree)}, (stdout) => {
+      // exec("git checkout -b " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + onHash, {cwd: path.join(projectPath, clientOrigRightWorktree)}, (stdout) => {
 
       // 	ws.send("Switched to branch " + ((Number(numBranches) + 1) + "_" + clientOrigRightWorktree) + " starting from commit " + onHash)
 
@@ -357,31 +358,23 @@ wss.on('connection', function (ws, req) {
     if (message.includes('git show')) {
       // if a fileName has been selected
       if (fileName) {
-        // exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
-        // 	console.log(stderr, err, stdout);
-        // })
-
         // path.join("..", "alicenode_inhabitat/project.cpp")
-        exec(message + ':' + fileName, { cwd: project_path }, (err, stdout) => {
+        exec(message + ':' + fileName, { cwd: projectPath }, (stdout) => {
           ws.send('show?' + stdout)
 
           console.log('sending show ' + stdout)
           // console.log(stdout);
           // console.log(projectCPPVersion);
-
         })
-      } 	// this is run when a client connects. its a bit of a lgeacy feature left over from the earliest version of the client-server.
+      }
+      // this is run when a client connects. its a bit of a lgeacy feature left over from the earliest version of the client-server.
       else {
         var gitCommand = (gitHash + ':' + 'project.cpp')
         // var gitHash = message.replace("git show ", "")
         console.log('githash = ' + gitHash)
 
-        // exec("node git.js distance " + gitHash, { cwd: __dirname }, (stdout, stderr, err) => {
-        // 	console.log(stderr, err, stdout);
-        // })
-
         // path.join("..", "alicenode_inhabitat/project.cpp")
-        exec(gitCommand, { cwd: project_path }, (err, stdout) => {
+        exec(gitCommand, { cwd: projectPath }, (stdout) => {
           ws.send('show?' + stdout)
 
           console.log('sending show')
@@ -393,21 +386,13 @@ wss.on('connection', function (ws, req) {
       }
     }
 
-    // if (message.includes("git return to master")){
-    // 	console.log("\n\n\n\n git return to master triggered \n\n\n\n\n\n")
-    // 	 exec("git show master:" + path.join(project_path, "project.cpp"), (stderr, err, stdout) => {
-    // 	 ws.send("edit?" + err)
-
-    //     })
-    // }
-
     let q = message.indexOf('?')
     if (q > 0) {
       let cmd = message.substring(0, q)
       let arg = message.substring(q + 1)
       switch (cmd) {
         // case "newUser":
-        // 	console.log(arg)
+        // console.log(arg)
         // break;
 
         // CLIENT: ///////////////////////////////////////////////////////
@@ -419,7 +404,7 @@ wss.on('connection', function (ws, req) {
             client.send('chatMsg? ' + dateStamp + ' ' + userName + ': ' + arg)
           })
 
-          break;
+          break
 
           // git checkout Michael_Palumbo_ac107e5_1527003819750
 
@@ -428,17 +413,17 @@ wss.on('connection', function (ws, req) {
         case 'newUser':
           // var userlist = [];
           userName = arg.substr(0, arg.indexOf('$?$'))
-          useremail = arg.split('$?$')[1]
-          userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'));
+          let useremail = arg.split('$?$')[1]
+          userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'));
           // whenever a worktree is created, a branch is named after it too. we won't use this branch, but we do need to delete it before we can add a new worktree.
           execSync('git branch -d +' + userName.split(' ').join('_'))
-          let userlist = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
+          let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           userlist[userName] = useremail
 
           var jsonstring = (JSON.stringify(userlist))
           console.log('user:' + jsonstring)
 
-          fs.writeFileSync(path.join(project_path, 'userlist.json'), jsonstring, 'utf8')
+          fs.writeFileSync(path.join(projectPath, 'userlist.json'), jsonstring, 'utf8')
 
           // get current branch:
           // exec("git rev-parse ")
@@ -461,12 +446,12 @@ wss.on('connection', function (ws, req) {
         case 'selectUser':
           console.log(arg)
           // have userlist ready
-          userEntry = JSON.parse(fs.readFileSync(path.join(project_path, 'userlist.json'), 'utf8'))
+          userEntry = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           // client's git username
           userName = arg
           // client's git email
           userEmail = userEntry[arg]
-          userWorktree = project_path + path.join('/+' + userName.split(' ').join('_'))
+          userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
 
           console.log(userWorktree)
 
@@ -517,11 +502,11 @@ wss.on('connection', function (ws, req) {
           // problem in the client script when using the "--follow project.cpp" flag, so its
           // been removed for now, but will make using the browser version difficult, unless you can expose the filenames
           // into the svg. so mouseover tells you which filenames are affected?
-          // let alice = spawn('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat'), { cwd: project_path }, (stderr) => {
+          // let alice = spawn('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat'), { cwd: projectPath }, (stderr) => {
 
           // });
 
-          exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%aN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: project_path}, (stdout, stderr, err) => {
+          exec('git log --all --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%aN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: projectPath}, (stdout, stderr, err) => {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
             fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function (err, data) {
               if (err) throw err
@@ -683,13 +668,13 @@ wss.on('connection', function (ws, req) {
           // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
           // console.log(thisAuthor)
 
-          fs.writeFileSync(project_path + '/' + fileName, newCode, 'utf8')
+          fs.writeFileSync(projectPath + '/' + fileName, newCode, 'utf8')
           // git add and commit the new changes, including commitMsg
-          execSync('git add .', {cwd: project_path }, () => { console.log('git added') })
-          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: project_path }, () => { console.log('git committed') })
-          execSync('git status', {cwd: project_path }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+          execSync('git add .', {cwd: projectPath }, () => { console.log('git added') })
+          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
+          execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
 
-          exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: project_path}, (stdout, stderr, err) => {
+          exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: projectPath}, (stdout, stderr, err) => {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
             fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function (err, data) {
               if (err) throw err
@@ -877,13 +862,13 @@ setInterval(function () {
 
 function loadsim () {
   // TODO: find a better way to IPC commands:
-  alice_command('openlib', projectlib)
+  aliceCommand('openlib', projectlib)
 
 }
 
 function unloadsim () {
   // TODO: find a better way to IPC commands:
-  alice_command('closelib', projectlib)
+  aliceCommand('closelib', projectlib)
 }
 
 // loadsim();
@@ -895,7 +880,7 @@ function unloadsim () {
 // would be better to be able to use a dependency tracer,
 // so that any file that sim.cpp depends on also triggers.
 
-let watcher = chokidar.watch(project_path, {ignored: project_path + '/.git' || project_path + '+\*' })
+let watcher = chokidar.watch(projectPath, {ignored: projectPath + '/.git' || projectPath + '+\*' })
 
 watcher
   .on('error', error => console.log(`Watcher error: ${error}`))
