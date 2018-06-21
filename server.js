@@ -138,23 +138,23 @@ function aliceCommand (command, arg) {
 
 // MMAP THE STATE
 
-let statebuf
-try {
-  statebuf = mmapfile.openSync('state.bin', fs.statSync('state.bin').size, 'r+')
-  console.log('mapped state.bin, size ' + statebuf.byteLength)
+// let statebuf
+// try {
+//   statebuf = mmapfile.openSync('state.bin', fs.statSync('state.bin').size, 'r+')
+//   console.log('mapped state.bin, size ' + statebuf.byteLength)
 
-  // slow version:
-  setInterval(function () {
-    let idx = randomInt(0, 10) * (4 * 3)
-    let v = statebuf.readFloatLE(idx)
-    v = v + 0.01
-    if (v > 1.0) v -= 2.0
-    if (v < -1.0) v += 2.0
-    // statebuf.writeFloatLE(v, idx);
-  }, 1000 / 120)
-} catch (e) {
-  console.error('failed to map the state.bin:', e.message)
-}
+//   // slow version:
+//   setInterval(function () {
+//     let idx = randomInt(0, 10) * (4 * 3)
+//     let v = statebuf.readFloatLE(idx)
+//     v = v + 0.01
+//     if (v > 1.0) v -= 2.0
+//     if (v < -1.0) v += 2.0
+//     // statebuf.writeFloatLE(v, idx);
+//   }, 1000 / 120)
+// } catch (e) {
+//   console.error('failed to map the state.bin:', e.message)
+// }
 
 /// //////////////////////////////////////////////////////////////////////////////
 
@@ -230,6 +230,11 @@ wss.on('connection', function (ws, req) {
   // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
   // respond to any messages from the client:
+
+
+
+
+  
   ws.on('message', function (message) {
     let onHash
     let numBranches
@@ -810,6 +815,85 @@ wss.on('connection', function (ws, req) {
 
           break
 
+          // state editor receives:
+
+          case "stateEditorConnect":
+
+          //////// MAJOR BUG: the cpp2json is unable to find the clang includes... even though the paths seem to be correct. need to figure this out!
+          
+            //on connection with state editor, do this:
+            getState()
+              function getState () {
+                // get sourcecode
+                stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
+                stateSource = JSON.stringify(stateSource)
+              
+                execSync('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json', {cwd: path.join(__dirname, '/cpp2json/')}, () => {
+                  console.log('\n\n\n\nstate.h traversed')
+              
+                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/', 'state.json'), 'utf-8'))
+              
+                  Object.keys(stateAST.nodes).forEach(function (key) {
+                    if (stateAST.nodes[key].name === 'State') {
+                      // console.log(arg.nodes[key].nodes)
+              
+                      Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
+                        let value = stateAST.nodes[key].nodes[objectKey]
+                        paramName = value.name
+              
+                        let type = value.type
+                        let offset = value.offsetof
+              
+                        // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+                        switch (type) {
+                          case 'float':
+                            // let obj = new Object;
+                            let paramValue = statebuf.readFloatLE(offset)
+              
+                            // let objArray = [paramValue, type, offset]
+                            // obj[paramName] = objArray
+              
+                            // console.log(obj);
+                            state.push({paramName, paramValue, type, offset})
+              
+                            // console.log("float detected " + paramName, paramValue)
+                            break
+              
+                          default:
+                            state.push({paramName, type})
+                        }
+                      })
+                    }
+                    // console.log(arg.nodes[key].name)
+                  })
+                })
+
+   
+              }
+            
+              ws.send('state?' + JSON.stringify(state))
+              ws.send('state.h?' + stateSource) 
+
+            break
+          case 'stateUpdate':
+            // stateUpdate = JSON.stringify(arg)
+            // console.log(arg)
+            // console.log(state)
+            let theName = arg.substr(0, arg.indexOf(' '))
+            let theValue = arg.substr(arg.indexOf(' ') + 1)
+            // console.log(theName, theValue)
+
+            function findObj (result) {
+              return result.paramName === theName
+            }
+
+            let thisObj = state.find(findObj)
+            // console.log(thisObj.offset)
+
+            statebuf.writeFloatLE(theValue, thisObj.offset)
+
+            break
+
         default:
           console.log('unknown cmd', cmd, 'arg', arg)
       }
@@ -897,3 +981,20 @@ watcher
   })
 
 /// ////////////////////////////////////////////////////////////
+// State Editor:
+let stateSource
+let stateAST
+let state = [] // we'll send this to the client
+
+// mmap the state
+let statebuf
+try {
+  buffSize = fs.statSync('state.bin').size
+  statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
+  console.log('mapped state.bin, size ' + statebuf.byteLength)
+} catch (e) {
+  console.error('failed to map the state.bin:', e.message)
+}
+
+
+
