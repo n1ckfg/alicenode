@@ -265,7 +265,9 @@ wss.on('connection', function(ws, req) {
     ws.send("deck?" + deck);
     ws.send("src?" + src)
     //if the ast parser produced any warnings/errors:
-    ws.send("serverWarnings?" + errors)
+    if (errors !== undefined) {
+        ws.send("serverWarnings?" + errors)
+    } 
 
     ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)

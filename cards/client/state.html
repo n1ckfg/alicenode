@@ -192,7 +192,7 @@ function updateState(paramName, paramValue){
 document.getElementById('server').value = ws_url;
 
 function openSocket() {
-    log('opening');
+    
     var url = document.getElementById('server').value;
     ws = new WebSocket(ws_url);
     ws.binaryType = 'arraybuffer';
@@ -242,10 +242,21 @@ function openSocket() {
                     //filter out known messages bound for the other pages:
                     case "src":
                     case "deck":
-                    case "ast_messages":
                     break;
                     //////////////
                     
+                    //if the ast parser or mmap retrieval reports errors or warnings:
+                    case "serverWarnings": 
+                    var li = document.createElement('li');
+                    var list = document.getElementById('serverWarnings');
+
+                    li.innerHTML = (arg);
+                    list.appendChild(li);
+
+                    var serverWarnings = document.querySelector('#serverWarnings');
+                    break;
+
+
                     case "state.h":
                     stateCode = JSON.parse(arg)
                     //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
@@ -288,7 +299,6 @@ function openSocket() {
                     $("#stateValues").find("tr:gt(0)").remove(); 
                     
                     state = (JSON.parse(arg))
-                    console.log(state)
                     let offset;
                     let type;
                     let pName;
@@ -348,20 +358,7 @@ function openSocket() {
                         }
                     })
 
-                    case "serverWarnings":   
-                    var li = document.createElement('li');
-                    var list = document.getElementById('serverWarnings');
 
-                    li.innerHTML = (arg);
-                    list.appendChild(li);
-
-                    var chatMessages = document.querySelector('#serverWarnings');
-                    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
-
-
-
-
-                    break;
 
 
                     default:
