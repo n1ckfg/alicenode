@@ -1,32 +1,24 @@
 <!doctype html>
-
 <title>Alicenode Editor</title>
 <meta charset="utf-8"/>
-
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
-<!-- Codemirror -->
-    <!-- styles -->
-    <link rel=stylesheet href="cm/docs.css">
-    <link rel=stylesheet href="cm/codemirror.css">
-    <link rel=stylesheet href="cm/merge.css">
-    
-
+<!-- CSS -->
+<link rel=stylesheet href="css/alicenode.css">
+<link rel=stylesheet href="cm/docs.css">
 <link rel=stylesheet href="cm/codemirror.css">
 <link rel=stylesheet href="cm/merge.css">
-<link rel=stylesheet href="css/alicenode.css">
+<link rel=stylesheet href="cm/codemirror.css">
+<link rel=stylesheet href="cm/merge.css">
+
+<!-- JS -->
 <script src="cm/codemirror.js"></script>
 <script src="cm/xml.js"></script>
 <script src="cm/css.js"></script>
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
-
-<!-- temp fix for the 'cannot find 'favicon.ico' error -->
-    <link rel="shortcut icon">
-
-<!-- scripts -->
 <script type="text/javascript" src="js/pako.js"></script>
 <script src="js/jquery-3.3.1.js"></script>
 <script src="js/jquery-ui.js"></script>
@@ -34,6 +26,7 @@
 <script src="js/jquery.color.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jquery.graphviz.svg.js"></script>
+<!-- misc -->
 <link rel="shortcut icon"><!-- fix the 'cannot find 'favicon.ico' error -->
 
 <style>
@@ -58,40 +51,27 @@
         <th style="text-decoration: none">
             <form name="usernames">
                 <select id="chooseUser" onchange="userSelect();">
-                        <!-- <option selected disabled>Please Select User</option>  -->
-                        <option value="Add User...">Add User...</option>
-                        
-            
+                    <!-- <option selected disabled>Please Select User</option>  -->
+                    <option value="Add User...">Add User...</option>           
                 </select> -Current User
-                    <!-- emailmichaelpalumbo@gmail.com -->
             </form>
         </th>
-
-
         <th>
+            <!-- Open other editors in new tabs -->
             <button onclick="newEditor()" id="myButton">New Editor</button>
+            <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
+            <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
+            <input id="server" type="text" value="ws://localhost:8080" size="40">
         </th>
-
         <th>
-                <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
-                <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
-                <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
-                <input id="server" type="text" value="ws://localhost:8080" size="40">
-                <button onclick="openSocket()">Open</button>
-                <button onclick="closeSocket()">Close</button>
-
-        </th>
-    
-    </tr>
-        
-    
-    
+            <button onclick="openSocket()">Open</button>
+            <button onclick="closeSocket()">Close</button>
+        </th>   
+    </tr> 
     <!-- Customize the Codemirror Instance -->
-
-    <tr style="float: right">
-        
+    <tr style="float: right">     
         <th>
-            <p><b>Editor Settings: </b></p> 
+            <b>Editor Settings: </b>
         </th>
 
         <th>
@@ -123,8 +103,11 @@
 <table style="background-color: blue" width=100% id="gitSelector">  
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Branches</b>
-            <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search..."></th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b></th>
+            <input type="text" id="search" onkeyup="hideAndSeek();" placeholder="Search...">
+            <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
+        </th>
+        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><b>Files within Selected Branch</b>
+        </th>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;"><p id="fileInCommit"><p>
             
         </th>
