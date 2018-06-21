@@ -25,8 +25,8 @@ struct AL_ALICE_EXPORT Alice {
 	int isRendering = true;
 
 	// services:
+	Window::Manager windowManager;
 	CloudDeviceManager cloudDeviceManager;
-
 
 	Window window;
 	Hmd * hmd;

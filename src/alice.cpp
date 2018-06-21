@@ -35,7 +35,6 @@ uv_pipe_t stdin_pipe;
 
 uv_fs_event_t fs_event_req;
 
-bool isFullScreen = 0;
 bool isThreadsDone = 0;
 
 #ifdef AL_WIN
@@ -80,6 +79,17 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 			//alice.onReloadGPU.emit();
 		}
 	} break;
+	case GLFW_KEY_F11: {
+		if (downup) {
+			alice.window.toggleFullScreen();
+		}
+	} break;
+	case GLFW_KEY_F: {
+		if (cmd && downup) {
+			alice.window.toggleFullScreen();
+		}
+	} break;
+
 	case GLFW_KEY_ESCAPE: {
 		isThreadsDone = 1;
         glfwSetWindowShouldClose(window_pointer, GL_TRUE);
@@ -178,7 +188,7 @@ extern "C" AL_ALICE_EXPORT int setup() {
 	console.log("setup");
 	console.log("alice alice %p", &alice);
 
-	if (!alice.window.open(isFullScreen)) return -1;
+	if (!alice.window.open()) return -1;
 	
 	glfwSetKeyCallback(alice.window.pointer, glfw_key_callback);
 	
