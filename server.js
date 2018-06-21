@@ -640,7 +640,7 @@ wss.on('connection', function (ws, req) {
               }
 
               let graph = makeGraphFromGitlog(gitlog)
-              let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
+              let graphjson = pako.deflate(JSON.stringify(graph), {to: 'string'})
               // commenting this out for now because gitignore is not working...?
               // fs.writeFileSync(path.join(clientPath, "gitgraph.json"), JSON.stringify(graph, null, 2), 'utf8');
               // send graph as json to client
@@ -671,9 +671,9 @@ wss.on('connection', function (ws, req) {
           execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
           execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
 
-          exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + __dirname + '/tmp/gitlog.txt', {cwd: projectPath}, (stdout, stderr, err) => {
+          exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + path.join(__dirname, '/tmp/gitlog.txt'), {cwd: projectPath}, (stdout, stderr, err) => {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
-            fs.readFile(__dirname + '/tmp/gitlog.txt', 'utf8', function (err, data) {
+            fs.readFile(path.join(__dirname, '/tmp/gitlog.txt'), 'utf8', function (err, data) {
               if (err) throw err
               let gitlog = data
 
@@ -808,7 +808,7 @@ wss.on('connection', function (ws, req) {
               }
 
               let graph = makeGraphFromGitlog(gitlog)
-              let graphjson = pako.deflate(JSON.stringify(graph), { to: 'string'})
+              let graphjson = pako.deflate(JSON.stringify(graph), {to: 'string'})
 
               // send graph as json to client
               ws.send('gitLog?' + graphjson)
@@ -908,7 +908,5 @@ watcher
 // Run the code-forensics webserver:
 // TODO: something that pulls through cli args without needing the specific arg's location
 function codeForensics () {
-  if (process.argv[3] == '--forensics') {
-    exec('gulp webserver', {cwd: __dirname})
-  }
+  exec('gulp webserver', {cwd: __dirname})
 }
