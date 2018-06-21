@@ -173,825 +173,755 @@
 
 <script>
 
-//globals
-var currentBranch;
-var thisHash;
-var selectedCommit;
+
+// globals
+var currentBranch
+var thisHash
+var selectedCommit
 var currentWorktree
-var ws_url;
-var worktreeList;
-var history;
-var ws;
-var currentUser = "FullName";
+var ws_url
+var worktreeList
+var history
+var ws
+var currentUser = 'FullName'
 
-var filename; //the currently selected filename
-//var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
-var ws_url = "ws://localhost:8080";
-console.log(ws_url);
+var filename // the currently selected filename
+// var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
+var ws_url = 'ws://localhost:8080'
+console.log(ws_url)
 
-//var col;
+// var col;
 // codemirror/mergeview globals:
-var value = "This editor affects the simulation";
+var value = 'This editor affects the simulation'
 
-var orig1 = "This editor pulls code in from other commits/branches";
-//   orig2 = 
-var dv;
-panes = 2;
-highlight = true;
+var orig1 = 'This editor pulls code in from other commits/branches'
+var dv
+let panes = 2
+let highlight = true
 // connect = "align";
-var target;
-var collapse = false;
-var requested;
-var current;
-var isRightDirty = false;
-var currentBranch;
-var userlist = []; //list of git authors associated with alicenode_inhabitat (from server)
-var currentUserList = []; //this is a temporary storage location for all available users
-var authorName = "Guest"; //git will make commits under this provided name, will change if client user selects different name
-var authorEmail;
+var target
+var collapse = false
+var requested
+var current
+var isRightDirty = false
+var currentBranch
+var userlist = [] // list of git authors associated with alicenode_inhabitat (from server)
+var currentUserList = [] // this is a temporary storage location for all available users
+var authorName = 'Guest' // git will make commits under this provided name, will change if client user selects different name
+var authorEmail
 
+// username selection (for git commits)
+function userSelect (selection) {
+  if (selection == null) {
+    selection = document.usernames.chooseUser.value
+  }
+  localStorage.setItem(currentUser, selection)
+  switch (selection) {
+    case 'Add User...':
+      authorName = prompt('Enter your Full Name, as found in your github.com account', 'Full Name')
+      localStorage.setItem(currentUser, authorName)
+      authorEmail = prompt('Enter the email address associated with your github account', 'art@vandelay.com')
 
-//username selection (for git commits)
-function userSelect(selection)  { 
-    if(selection == null){
-    selection = document.usernames.chooseUser.value;
-    }
-    localStorage.setItem(currentUser, selection);
-    switch (selection) {
+      // TODO: create a worktree for user with their username. replace all spaces with underscores.
+      ws.send('newUser?' + authorName + '$?$' + authorEmail)
+      // console.log(userName, userEmail)
 
-        case "Add User...":
-        
-        authorName = prompt("Enter your Full Name, as found in your github.com account", "Full Name");
-        localStorage.setItem(currentUser, authorName);
+      // add new user to select in HTML, make sure its checked.
+      var select = document.getElementById('chooseUser')
+      var length = select.length
+      var opt = document.createElement('option')
+      opt.value = authorName
+      opt.innerHTML = authorName
+      select.appendChild(opt)
+      document.getElementById('chooseUser').selectedIndex = (length)
 
-        
-        authorEmail = prompt("Enter the email address associated with your github account", "art@vandelay.com")
+      localStorage.setItem(currentUser, authorName)
+      log('Working as git author ' + authorName + ' via ' + authorEmail)
 
+      break
 
-        
-           
-            //TODO: create a worktree for user with their username. replace all spaces with underscores. 
-            ws.send("newUser?" + authorName + "$?$" + authorEmail)
-            //console.log(userName, userEmail)
-
-        //add new user to select in HTML, make sure its checked. 
-        var select = document.getElementById('chooseUser');
-        var length = select.length;
-        var opt = document.createElement('option');
-        opt.value = authorName;
-        opt.innerHTML = authorName;
-        select.appendChild(opt);
-        document.getElementById('chooseUser').selectedIndex = (length);
-
-        localStorage.setItem(currentUser, authorName);
-        log("Working as git author " + authorName + " via " + authorEmail);
-            
-        break;
-
-        default: log("Working as git author " + selection + " via " + userlist[selection]);
-        authorName = selection;
-        authorEmail = userlist[selection];
-        ws.send("selectUser?" + selection);
-        break;
-    }
-
+    default: log('Working as git author ' + selection + ' via ' + userlist[selection])
+      authorName = selection
+      authorEmail = userlist[selection]
+      ws.send('selectUser?' + selection)
+      break
+  }
 }
 
 // open new editor tab in browser
-function newEditor(){
-    window.open(document.URL)    
+function newEditor () {
+  window.open(document.URL)
 }
-//open the cards AST editor in new tab
-function openCardsEditor(){
-    window.open(document.URL + "cards.html")   
+// open the cards AST editor in new tab
+function openCardsEditor () {
+  window.open(document.URL + 'cards.html')
 }
-//open the state editor in new tab
-function openStateEditor(){
-    window.open(document.URL + "state.html")  
+// open the state editor in new tab
+function openStateEditor () {
+  window.open(document.URL + 'state.html')
 }
 
-function initUI() {
+function initUI () {
+  if (value == null) return
+  var target = document.getElementById('view')
+  target.innerHTML = ''
+  dv = CodeMirror.MergeView(target, {
+    // content of the left editor
+    value: value,
+    // content of the right editor
+    origRight: orig1,
+    // make 3 editor windows possible (only 2 will load on start by default)
+    origLeft: panes == 3 ? orig1 : null,
+    // include line numbers in the left margin
+    lineNumbers: true,
+    // keep this at 10 or less. if infinite it slows the page down a LOT. this is essentially the size of the buffer beyond what is displayed, and if set to infinite or larger number, enables text searching, but again, page loading is an issue.
+    viewportMargin: 10,
+    // keep this. we're primarily concerned with being able to edit cpp code
+    mode: 'clike',
+    // show where there two versions differ
+    highlightDifferences: highlight,
+    // we do want to be able to edit code in the right editor, because that's where the whole 'branching-as-playfulness' comes in
+    allowEditingOriginals: true,
+    // not yet sure what difference this makes... check the codemirror manual?
+    // connect: "connect",
+    // option to collapse code in either editor that doesn't differ from its left or right counterpart. this is switchable.
+    collapseIdentical: collapse
+  })
 
-    if (value == null) return;
-    var target = document.getElementById("view");
-    target.innerHTML = "";
-    dv = CodeMirror.MergeView(target, {
-        //content of the left editor
-        value: value, 
-        //content of the right editor
-        origRight: orig1,
-        //make 3 editor windows possible (only 2 will load on start by default)
-        origLeft: panes == 3 ? orig1 : null,
-        //include line numbers in the left margin
-        lineNumbers: true,
-        //keep this at 10 or less. if infinite it slows the page down a LOT. this is essentially the size of the buffer beyond what is displayed, and if set to infinite or larger number, enables text searching, but again, page loading is an issue. 
-        viewportMargin: 10,
-        //keep this. we're primarily concerned with being able to edit cpp code
-        mode: "clike",
-        //show where there two versions differ
-        highlightDifferences: highlight,
-        //we do want to be able to edit code in the right editor, because that's where the whole 'branching-as-playfulness' comes in
-        allowEditingOriginals: true,
-        //not yet sure what difference this makes... check the codemirror manual?
-        //connect: "connect",
-        //option to collapse code in either editor that doesn't differ from its left or right counterpart. this is switchable. 
-        collapseIdentical: collapse
-    });
-
-    //Detect when user first makes a change to the code in the right editor view
-    dv.rightOriginal().on("changes", function(dv, changeObj){
+  // Detect when user first makes a change to the code in the right editor view
+  dv.rightOriginal().on('changes', function (dv, changeObj) {
     // && currentBranch == "master"
-        if (isRightDirty == false) {
-                ws.send("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
-                isRightDirty = true;
-                console.log("editedRightCode" + authorName.split(' ').join('_') + '_' + selectedCommit + "_" + new Date().getTime() + " " + selectedCommit)
-                ws.send("chatMsg?Edited file " + fileName + " from commit " + selectedCommit + ". <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>")
-
-
-        }
-    });
+    if (isRightDirty === false) {
+      ws.send('editedRightCode' + authorName.split(' ').join('_') + '_' + selectedCommit + '_' + new Date().getTime() + ' ' + selectedCommit)
+      isRightDirty = true
+      console.log('editedRightCode' + authorName.split(' ').join('_') + '_' + selectedCommit + '_' + new Date().getTime() + ' ' + selectedCommit)
+      ws.send('chatMsg?Edited file ' + fileName + ' from commit ' + selectedCommit + '. <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>')
+    }
+  })
 }
 
-function toggleDifferences() {
-  dv.setShowDifferences(highlight = !highlight);
+function toggleDifferences () {
+  dv.setShowDifferences(highlight = !highlight)
 }
-//value = "script";
-window.onload = function() {
-  value = "This editor affects the simulation";
-  orig1 = "This editor pulls code in from other commits/branches";
-  initUI();
-  let d = document.createElement("div"); d.style.cssText = "width: 50px; margin: 7px; height: 14px"; dv.editor().addLineWidget(57, d)
-};
+// value = "script";
+window.onload = function () {
+  value = 'This editor affects the simulation'
+  orig1 = 'This editor pulls code in from other commits/branches'
+  initUI()
+  let d = document.createElement('div'); d.style.cssText = 'width: 50px; margin: 7px; height: 14px'; dv.editor().addLineWidget(57, d)
+}
 
-function mergeViewHeight(mergeView) {
-  function editorHeight(editor) {
-    if (!editor) return 0;
-    return editor.getScrollInfo().height;
+function mergeViewHeight (mergeView) {
+  function editorHeight (editor) {
+    if (!editor) return 0
+    return editor.getScrollInfo().height
   }
   return Math.max(editorHeight(mergeView.leftOriginal()),
-                  editorHeight(mergeView.editor()),
-                  editorHeight(mergeView.rightOriginal()));
+    editorHeight(mergeView.editor()),
+    editorHeight(mergeView.rightOriginal()))
 }
 
-function resize(mergeView) {
-  var height = mergeViewHeight(mergeView);
-  for(;;) {
-    if (mergeView.leftOriginal())
-      mergeView.leftOriginal().setSize(null, height);
-    mergeView.editor().setSize(null, height);
-    if (mergeView.rightOriginal())
-      mergeView.rightOriginal().setSize(null, height);
-
-    var newHeight = mergeViewHeight(mergeView);
-    if (newHeight >= height) break;
-    else height = newHeight;
+function resize (mergeView) {
+  var height = mergeViewHeight(mergeView)
+  for (;;) {
+    if (mergeView.leftOriginal()) {
+      mergeView.leftOriginal().setSize(null, height)
+      mergeView.editor().setSize(null, height)
+    }
+    if (mergeView.rightOriginal()) {
+      mergeView.rightOriginal().setSize(null, height)
+    }
+    var newHeight = mergeViewHeight(mergeView)
+    if (newHeight >= height) break
+    else height = newHeight
   }
-  mergeView.wrap.style.height = height + "px";
+  mergeView.wrap.style.height = height + 'px'
 }
 
-
-//Send current content within CodeMirror's Left editor to the server (will restart simulation)
-function sendLeftCode() {
-    //TODO: figure out how to include the var 'authorName' in this
-    //message, so that git will commit under this client's git username
-    //i.e.  git commit --author="John Doe john@doe.org" -m "message"
-    //also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
-    //and email
-    var commitMsg = prompt("Please provide a comment about your changes", "reticulating splines");
-    //   var message = "edit?" + editorCM.getValue();   
-    var changes = "edit?" + '?author' + authorName + " <" + authorEmail + ">?commit" + commitMsg + "?code" + dv.editor().getValue()
-    log("Sent LeftEditor Contents to server: " + commitMsg);
-    //log('sending: ' + message);
-    ws.send(changes);
+// Send current content within CodeMirror's Left editor to the server (will restart simulation)
+function sendLeftCode () {
+  // TODO: figure out how to include the var 'authorName' in this
+  // message, so that git will commit under this client's git username
+  // i.e.  git commit --author="John Doe john@doe.org" -m "message"
+  // also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
+  // and email
+  var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+  //   var message = "edit?" + editorCM.getValue();
+  var changes = 'edit?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.editor().getValue()
+  log('Sent LeftEditor Contents to server: ' + commitMsg)
+  // log('sending: ' + message);
+  ws.send(changes)
 }
-//Send current content within CodeMirror's Right editor to the server on the branch it is assigned to.
-function sendRightCode(val){
-    if (val.includes("hash?")){
-
-        thisHash = (val.replace("hash?", ""))
-        console.log("Hash " + thisHash + " chosen")
-    } 
-    else {
-    var message = "newbranch?" + dv.rightOriginal().getValue();
-    console.log("SENDING TO SERVER: \n" + message)
-    ws.send(message);
+// Send current content within CodeMirror's Right editor to the server on the branch it is assigned to.
+function sendRightCode (val) {
+  if (val.includes('hash?')) {
+    thisHash = (val.replace('hash?', ''))
+    console.log('Hash ' + thisHash + ' chosen')
+  } else {
+    var message = 'newbranch?' + dv.rightOriginal().getValue()
+    console.log('SENDING TO SERVER: \n' + message)
+    ws.send(message)
     // selectedHash("this hash");
-    }
-
+  }
 }
 
-//TODO: make sure that when branch is selected, the server switches to that branch in the user's worktree. 
-//branch selection:
-function selectBranch() {
-    //selection = document.Branch.chooseBranch.value;
-    e = document.getElementById('chooseBranch')
-    var selectedBranch = e.options[e.selectedIndex].value;
-    //console.log(selectedBranch)
-    ws.send("selectedBranch?" + selectedBranch)
+// TODO: make sure that when branch is selected, the server switches to that branch in the user's worktree.
+// branch selection:
+function selectBranch () {
+  // selection = document.Branch.chooseBranch.value;
+  e = document.getElementById('chooseBranch')
+  var selectedBranch = e.options[e.selectedIndex].value
+  // console.log(selectedBranch)
+  ws.send('selectedBranch?' + selectedBranch)
 }
-//file selection
-function chooseFileName(){
-    var e = document.getElementById("openFileName");
-    var selection = e.options[e.selectedIndex].value
-    fileName = selection;
-    console.log(fileName)
-    //clear the commits list in the select element each time a file is opened
-    function removeOptions(selectbox){
-        var i;
-        for(i = selectCommit.options.length - 1 ; i>= 0 ; i--)
-        {
-            selectCommit.remove(i)
-        }
+// file selection
+function chooseFileName () {
+  var e = document.getElementById('openFileName')
+  var selection = e.options[e.selectedIndex].value
+  fileName = selection
+  console.log(fileName)
+  // clear the commits list in the select element each time a file is opened
+  function removeOptions (selectbox) {
+    var i
+    for (i = selectCommit.options.length - 1; i >= 0; i--) {
+      selectCommit.remove(i)
     }
-    removeOptions(document.getElementById("selectCommit"))
-    fileInCommit.innerHTML = (selection + " found in following commits")
+  }
+  removeOptions(document.getElementById('selectCommit'))
+  fileInCommit.innerHTML = (selection + ' found in following commits')
 
-
-        if (selection == "New File..."){
-            alert("Client not set up to create new file yet, work-in-progress")
-        } else {
-            ws.send("fileRequest" + selection)
-            //change page title to filename!
-            document.title = selection;
-
-        }
-    }
-
-
+  if (selection === 'New File...') {
+    alert('Client not set up to create new file yet, work-in-progress')
+  } else {
+    ws.send('fileRequest' + selection)
+    // change page title to filename!
+    document.title = selection
+  }
+}
 
 /**
  * Web Socket Client
  **/
+document.getElementById('server').value = ws_url
 
-document.getElementById('server').value = ws_url;
+function openSocket () {
+  log('opening')
+  var url = document.getElementById('server').value
+  ws = new WebSocket(ws_url)
+  ws.binaryType = 'arraybuffer'
+  ws.onopen = function () {
+    // log('open');
+    ws.send('client_SVG?')
+    ws.send('getCurrentBranch')
 
-function openSocket() {
-    log('opening');
-    var url = document.getElementById('server').value;
-    ws = new WebSocket(ws_url);
-    ws.binaryType = 'arraybuffer';
-    ws.onopen = function() {
-        // log('open');  
-        ws.send("client_SVG?")
+    sessionStorage.echoServer = url
+  }
+  ws.onclose = function () {
+    // log('close');
+  }
+  ws.onmessage = function (e) {
+    if (e.data instanceof ArrayBuffer) {
+      let s = ''
+      let fv = new Float32Array(e.data)
+      for (var i = 0; i < fv.length; i+=3) {
+        s += '<li>' + (i/3 + ': { ' + fv[i] + ', ' + fv[i+1] + ', ' + fv[i+2] + ' }</li>')
+      }
+      // document.getElementById('state').innerHTML = s;
+    } else {
+      let message = e.data
+      let q = message.indexOf('?')
+      if (q > 0) {
+        let cmd = message.substring(0, q)
+        let arg = message.substring(q + 1)
+        switch(cmd) {
+          // receive chat message from chat server (can include one's own)
+          case 'chatMsg':
 
-        ws.send("getCurrentBranch")
-        
+            // if (arg.contains("newCommit")) {
+            // var li = document.createElement('li');
+            // var list = document.getElementById('chat_messages');
 
+            // li.innerHTML = arg.replace("newCommit", '');
+            // list.appendChild(li);
 
-        sessionStorage.echoServer = url;
-    };
-    ws.onclose = function() {
-        // log('close');
-    };
+            // var chatMessages = document.querySelector('#chat_messages');
+            // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+            // }
 
-    ws.onmessage = function(e) {
-        if (e.data instanceof ArrayBuffer) {
-            
-            let s = "";
-            let fv = new Float32Array(e.data);
-            for (var i = 0; i < fv.length; i+=3) {
-                s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
-            }
-            
-            // document.getElementById('state').innerHTML = s;     
-            
-        } else {
-            let message = e.data;
-            let q = message.indexOf("?");
-            if (q > 0) {
-                let cmd = message.substring(0, q);
-                let arg = message.substring(q+1);
-                switch(cmd) {
-                    
-                    //receive chat message from chat server (can include one's own)
-                    case "chatMsg":
+            // else {
+            // console.log(arg)
+            var li = document.createElement('li')
+            var list = document.getElementById('chat_messages')
 
-                    // if (arg.contains("newCommit")) {
-                    // var li = document.createElement('li');
-                    // var list = document.getElementById('chat_messages');
+            li.innerHTML = arg
+            list.appendChild(li)
 
-                    // li.innerHTML = arg.replace("newCommit", '');
-                    // list.appendChild(li);
+            var chatMessages = document.querySelector('#chat_messages')
+            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight
+            // }
+            break
 
-                    // var chatMessages = document.querySelector('#chat_messages');
-                    // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
-                    // }
+            // set available users list
+          case 'setUserList':
+            // get the username <select> element
+            var sel = document.getElementById('chooseUser')
+            // store the incoming userlist in a global
+            currentUserList = JSON.parse(arg)
+            // compare the previous userlist with the incoming list
+            // append any new names
+            Object.keys(currentUserList).forEach(function (key) {
+              if (userlist.hasOwnProperty(key)) {
+                // if found, don't add them again
+              } else {
+                // add the new names to the <select> element
+                var opt = document.createElement('option')
+                opt.appendChild(document.createTextNode(key))
+                opt.value = key
+                sel.appendChild(opt)
+              }
+            })
+            // update userlist globally so that the next incoming userlist is compared against it
+            userlist = currentUserList
 
-                    // else {
-                    // console.log(arg)
-                    var li = document.createElement('li');
-                    var list = document.getElementById('chat_messages');
-
-                    li.innerHTML = arg;
-                    list.appendChild(li);
-
-                    var chatMessages = document.querySelector('#chat_messages');
-                    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
-                    // }
-                    break;
-
-                    //set available users list
-                    case "setUserList":
-                    //get the username <select> element
-                    var sel = document.getElementById('chooseUser');
-                    //store the incoming userlist in a global
-                    currentUserList = JSON.parse(arg);
-                    //compare the previous userlist with the incoming list
-                    //append any new names
-                    Object.keys(currentUserList).forEach(function(key) {
-                        if(userlist.hasOwnProperty(key)){
-                            //if found, don't add them again
-                        } else {
-                            //add the new names to the <select> element
-                            var opt = document.createElement('option');
-                            opt.appendChild(document.createTextNode(key) );
-                            opt.value = key;
-                            sel.appendChild(opt);
-                        }
-                    })
-                    //update userlist globally so that the next incoming userlist is compared against it
-                    userlist = currentUserList;
-                    
-
-                    if(localStorage.getItem(currentUser) != null){
-                        // log("test" + sel.value);
-                        // log("length" + sel.length);
-                        for(i =0; i < sel.length; i++){
-                            sel.selectedIndex = i;
-                            if(sel.value == localStorage.getItem(currentUser)){
-                                sel.selectedIndex = i;
-                                ws.send("selectUser?" + sel.value)
-                                log("Signed into Alicenode Editor as " + sel.value);
-                                break;
-                            } else {
-                                //sel.selectedIndex = 0;
-                            }
-                        }
-                       
-                    } else {
-                        //Prompt
-                        //sel.selectedIndex = 2; 
-
-                    }
-                    break;
-
-                    //////List all Branches, Files, Commits:
-                    
-                    //Branches List
-                    case "setBranchList":
-                    //  console.log(arg)
-                    // <form name="branches"> 
-                    //  <select id="chooseBranch" onchange="chooseBranch();"> 
-
-                        //console.log(arg)
-                        var branchesList = arg.split("\n")
-                        //console.log(branchesList)
-
-                        
-                        // usebranchList = JSON.parse(arg);
-                        var sel = document.getElementById('chooseBranch');
-                        //var length = select;
-                            
-                        // for (i = 3; i < sel.length; i++) {
-                        //     sel.options[i] = null;
-                        //     }
-                        Object.values(branchesList).forEach(function (value, key) {
-                            var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(value) );
-                            opt.value = value;
-                            sel.appendChild(opt);
-                            //find out the current branch, and highlight it in the select.
-                            if (value.includes("*")) {
-                                sel.selectedIndex = key
-                            }
-                        })
-                        //sel.selectedIndex = 0;
-
-                    break;
-                    //Files List
-                    case "setFileList":
-                    
-                    fileList = JSON.parse(arg);
-                        var sel = document.getElementById('openFileName');
-                        //var length = select;
-                            
-                        // for (i = 3; i < sel.length; i++) {
-                        //     sel.options[i] = null;
-                        //     }
-                        Object.values(fileList).forEach(function (key, value) {
-                            var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(key) );
-                            opt.value = key;
-                            sel.appendChild(opt);
-                        })
-//                        sel.selectedIndex = 2; 
-
-                    break;
-
-
-                    case "branchCommits":
-                    var branchesList = arg.split("\n")
-
-                                        // name="CommitList" size="5" id="ChooseCommit
-
-                        // usebranchList = JSON.parse(arg);
-                        var sel = document.getElementById('selectCommit');
-                        //var length = select;
-                            
-                        // for (i = 3; i < sel.length; i++) {
-                        //     sel.options[i] = null;
-                        //     }
-                        Object.values(branchesList).forEach(function (value, key) {
-                            var opt = document.createElement('option');
-                            opt.appendChild( document.createTextNode(value) );
-                            opt.value = value;
-                            sel.appendChild(opt);
-                            //find out the current branch, and highlight it in the select.
-
-                                //default set right editor at most-recent commit
-                                sel.selectedIndex = 0;
-                          
-                        })
-
-                        break;
-                        
-
-                    // name="CommitList" size="5" id="ChooseCommit
-
-                    //populate the worktree drop-down with current list of worktrees
-                    // case "fps":
-                    //     //document.getElementById('fps').innerHTML = arg;
-                    //     break;
-                        
-                    case "branchname":  
-                        // var steve = message.replace("currentBranch?", "")
-                        
-                        log("on branch " + arg);
-                        currentBranch = arg;
-                        break;
-                    
-                    case "Switched to Branch":
-                        log(arg)
-                        break;
-
-                    case "currentVersion":
-                        // editorCM.setValue(arg);
-                        // fillEditor("a" + arg);
-
-                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                        
-                        //load current state into leftMergeview
-                        value = arg
-                        //orig1 = arg
-                        initUI();   
-                        $( function() {
-                            $( "#view" )
-                        });                       
-                        break;
-
-                    case "show":
-                        // fillEditor("b" + arg);
-                        //TODO: alert ask to continue (will lose work if they continue without committing)
-                        // if (isRightDirty){
-                            //alert(whatever, but essentially an ok and cancel button)
-                        //}
-                        // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-                        orig1 = arg;
-                        isRightDirty == false;
-
-                        initUI();
-                        //make sure that the right code editor dirty flag is reset
-
-                        
-                        break;
-                    case "updateRepo":
-                        log('Update Repo Graph')
-                        break;
-                        
-                        
-                        
-                        
-                    //svg from server:
-                    case "gitLog":
-                    //let graph = arg;
-
-                    
-                    let graph = JSON.parse(pako.inflate(arg, {to : 'string'}));
-                    
-                    let svg = make_svg_from_commits(graph);
-
-                    //push the svg content to the gitgraph div
-                    $("#gitgraph").html(svg)
-                    //make the gitgraph resizeable
-                    //see more at https://jqueryui.com/resizable
-                    $( function() {
-                        $( "#gitgraph" ).resizable();
-                    });
-                    break;
-                        
-                    //TODO: unable to iterate through an array's values. for some reason the values get split into separate characters. 
-                    case "worktreeList":
-                        console.log(arg)
-                        //var names = arg
-                        //html select element
-                        var sel = document.getElementById('userWorktree');
-                        //var length = select;
-                        
-                        //first clear the worktree items from select (so we don't add duplicates)
-                        for (i = 1; i < sel.length; i++) {
-                            sel.options[i] = null;
-                            }
-                        // console.log(arg.length)
-                        // for (var i = 0, len = arg.length; i < len; i++) {
-                        // console.log(arg.[i])
-                        // }
-                                            //PLO
-                        // arg.forEach(function(element) {
-                        // console.log("test " + element)
-                        // })
-                        // console.log(names)
-                        
-                        // var iterator = arg.values();
-                        // for (let letter of iterator) {
-                        //     console.log(letter)
-                        // }
-                        
-
-
-
-
-                            //TODO: got to figure out how to populate the select menu with the 'options' variable:
-                            
-                        // for (var i = 0; i < sel.options.length; i++) {
-                        //     var opt = document.createElement('option');
-                        //     opt.innerHTML = options[i];
-                        //     opt.value = options[i];
-                        //     sel.appendChild(opt);
-                        // }
-
-
-                        // var err = arg.split("\n");
-                        // var select = document.getElementById('userWorktree')
-                        // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
-                    
-
-                        //     err.foreach(function(element) {
-                        //     var x = document.getElementById("userWorktree");
-                        //     var option = document.createElement("option")
-                        //     option.text = (err);
-                        //     option.value = (err);
-                        //     x.add(option);
-                    // for (let i = 0; i < err.split("\s").length; i++) {
-                    // // let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
-                    // //if (err !== undefined) {	
-                    //     console.log(err)
-                    //     // for(var i = 0; i < options.length; i++) {
-                    //     // options.foreach(function(element) {
-                    //         var x = document.getElementById("userWorktree");
-                    //         var option = document.createElement("option")
-                    //         option.text = (err);
-                    //         option.value = (err);
-                    //         x.add(option);
-
-                    //     // })
-
-
-                    //  //   }  
-                    // }
-                        //populate the userWorkTree drop-down menu
-                        // populateWorktreeMenu(arg)   
-                        
-                        
-                        // var options = JSON.parse(arg);
-
-                        break;
-                    default:
-                   // log("cmd: " + cmd + ", " + arg);
+            if (localStorage.getItem(currentUser) != null) {
+              // log("test" + sel.value);
+              // log("length" + sel.length);
+              for (i =0; i < sel.length; i++) {
+                sel.selectedIndex = i
+                if (sel.value === localStorage.getItem(currentUser)) {
+                  sel.selectedIndex = i
+                  ws.send('selectUser?' + sel.value)
+                  log('Signed into Alicenode Editor as ' + sel.value)
+                  break
+                } else {
+                  // sel.selectedIndex = 0;
                 }
-    
-            } /*else if (message.includes("chatMsg")){
-
-            } */ else {
-            log('received: ' + e.data);
+              }
+            } else {
+              // Prompt
+              // sel.selectedIndex = 2;
             }
+            break
+
+            /// ///List all Branches, Files, Commits:
+            // Branches List
+          case 'setBranchList':
+            //  console.log(arg)
+            // <form name="branches">
+            //  <select id="chooseBranch" onchange="chooseBranch();">
+
+            // console.log(arg)
+            var branchesList = arg.split('\n')
+            // console.log(branchesList)
+            // usebranchList = JSON.parse(arg);
+            var sel = document.getElementById('chooseBranch')
+            // var length = select;
+
+            // for (i = 3; i < sel.length; i++) {
+            //     sel.options[i] = null;
+            //     }
+            Object.values(branchesList).forEach(function (value, key) {
+              var opt = document.createElement('option')
+              opt.appendChild( document.createTextNode(value))
+              opt.value = value
+              sel.appendChild(opt)
+              // find out the current branch, and highlight it in the select.
+              if (value.includes('*')) {
+                sel.selectedIndex = key
+              }
+            })
+            // sel.selectedIndex = 0;
+
+            break
+            // Files List
+          case 'setFileList':
+
+            fileList = JSON.parse(arg)
+            var sel = document.getElementById('openFileName')
+            // var length = select;
+
+            // for (i = 3; i < sel.length; i++) {
+            //     sel.options[i] = null;
+            //     }
+            Object.values(fileList).forEach(function (key, value) {
+              var opt = document.createElement('option')
+              opt.appendChild(document.createTextNode(key))
+              opt.value = key
+              sel.appendChild(opt)
+            })
+            //                        sel.selectedIndex = 2;
+
+            break
+
+          case 'branchCommits':
+            var branchesList = arg.split('\n')
+
+            // name="CommitList" size="5" id="ChooseCommit
+
+            // usebranchList = JSON.parse(arg);
+            var sel = document.getElementById('selectCommit')
+            // var length = select;
+
+            // for (i = 3; i < sel.length; i++) {
+            //     sel.options[i] = null;
+            //     }
+            Object.values(branchesList).forEach(function (value, key) {
+              var opt = document.createElement('option')
+              opt.appendChild( document.createTextNode(value))
+              opt.value = value
+              sel.appendChild(opt)
+              // find out the current branch, and highlight it in the select.
+
+              // default set right editor at most-recent commit
+              sel.selectedIndex = 0
+            })
+
+            break
+            // name="CommitList" size="5" id="ChooseCommit
+
+            // populate the worktree drop-down with current list of worktrees
+            // case "fps":
+            //     //document.getElementById('fps').innerHTML = arg;
+            //     break;
+
+          case 'branchname':
+            // var steve = message.replace("currentBranch?", "")
+
+            log('on branch ' + arg)
+            currentBranch = arg
+            break
+
+          case 'Switched to Branch':
+            log(arg)
+            break
+
+          case 'currentVersion':
+            // editorCM.setValue(arg);
+            // fillEditor("a" + arg);
+
+            // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+
+            // load current state into leftMergeview
+            value = arg
+            // orig1 = arg
+            initUI()
+            $(function () {
+              $('#view')
+            })
+            break
+
+          case 'show':
+            // fillEditor("b" + arg);
+            // TODO: alert ask to continue (will lose work if they continue without committing)
+            // if (isRightDirty){
+            // alert(whatever, but essentially an ok and cancel button)
+            // }
+            // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
+            orig1 = arg
+            isRightDirty == false
+
+            initUI()
+            // make sure that the right code editor dirty flag is reset
+
+            break
+          case 'updateRepo':
+            log('Update Repo Graph')
+            break
+
+            // svg from server:
+          case 'gitLog':
+            // let graph = arg;
+
+            let graph = JSON.parse(pako.inflate(arg, {to: 'string'}))
+
+            let svg = make_svg_from_commits(graph)
+
+            // push the svg content to the gitgraph div
+            $('#gitgraph').html(svg)
+            // make the gitgraph resizeable
+            // see more at https://jqueryui.com/resizable
+            $( function () {
+              $('#gitgraph').resizable()
+            })
+            break;
+
+            // TODO: unable to iterate through an array's values. for some reason the values get split into separate characters.
+          case 'worktreeList':
+            console.log(arg)
+            // var names = arg
+            // html select element
+            var sel = document.getElementById('userWorktree')
+            // var length = select;
+
+            // first clear the worktree items from select (so we don't add duplicates)
+            for (i = 1; i < sel.length; i++) {
+              sel.options[i] = null
+            }
+            // console.log(arg.length)
+            // for (var i = 0, len = arg.length; i < len; i++) {
+            // console.log(arg.[i])
+            // }
+            // PLO
+            // arg.forEach(function(element) {
+            // console.log("test " + element)
+            // })
+            // console.log(names)
+
+            // var iterator = arg.values();
+            // for (let letter of iterator) {
+            //     console.log(letter)
+            // }
+
+            // TODO: got to figure out how to populate the select menu with the 'options' variable:
+
+            // for (var i = 0; i < sel.options.length; i++) {
+            //     var opt = document.createElement('option');
+            //     opt.innerHTML = options[i];
+            //     opt.value = options[i];
+            //     sel.appendChild(opt);
+            // }
+
+            // var err = arg.split("\n");
+            // var select = document.getElementById('userWorktree')
+            // select.options[select.options.length] = new  Option('Please Select...', 'Please Select...');
+
+            //     err.foreach(function(element) {
+            //     var x = document.getElementById("userWorktree");
+            //     var option = document.createElement("option")
+            //     option.text = (err);
+            //     option.value = (err);
+            //     x.add(option);
+            // for (let i = 0; i < err.split("\s").length; i++) {
+            // // let worktreeName = ((err.toString().split('\n'))[i].split("alicenode_inhabitat/")[1]);
+            // //if (err !== undefined) {
+            //     console.log(err)
+            //     // for(var i = 0; i < options.length; i++) {
+            //     // options.foreach(function(element) {
+            //         var x = document.getElementById("userWorktree");
+            //         var option = document.createElement("option")
+            //         option.text = (err);
+            //         option.value = (err);
+            //         x.add(option);
+
+            //     // })
+
+            //  //   }
+            // }
+            // populate the userWorkTree drop-down menu
+            // populateWorktreeMenu(arg)
+
+            // var options = JSON.parse(arg);
+
+            break
+          default:
+                   // log("cmd: " + cmd + ", " + arg);
         }
-    };
-        ws.onerror = function() {
-        log('error');
-    };
+      } else {
+        log('received: ' + e.data)
+      }
+    }
+  }
+  ws.onerror = function () {
+    log('error')
+  }
 }
 
-function closeSocket() {
-    log('closing');
-    ws.close();
+function closeSocket () {
+  log('closing')
+  ws.close()
 }
 
 // keep checking socket status, re-open if closed:
-setInterval(function(){
-        if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
-}, 2000);
+setInterval(function () {
+  if (!ws || ws.readyState === WebSocket.CLOSED) openSocket()
+}, 2000)
 
+// git commit list
+function chooseCommit () {
+  // selection = document.selectCommit.value;
+  //    var
+  var e = document.getElementById('selectCommit')
+  selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
 
-//git commit list
-function chooseCommit(){
-    // selection = document.selectCommit.value;
-    //    var
-    var e = document.getElementById("selectCommit");
-    selectedCommit = (e.options[e.selectedIndex].value).substring(0, 7)
+  console.log(selectedCommit)
+  ws.send('git show ' + selectedCommit)
 
+  // make sure that the right editor will now watch for changes
+  isRightDirty = false
 
-    console.log(selectedCommit)
-    ws.send("git show " + selectedCommit);
-
-    //make sure that the right editor will now watch for changes
-    isRightDirty = false;
-
-
-// <!-- 
+// <!--
 //                 <div id="CommitList">
 //                 <select style="width:100%; height:100%" name="CommitList" size="5" id="ChooseCommit" onchange="chooseCommit();">  -->
 }
 
-//Client log
-function log(message) {
-    var li = document.createElement('li');
-    li.innerHTML = ("system: " + message);
-     var list = document.getElementById('chat_messages');
-     list.appendChild(li);
+// Client log
+function log (message) {
+  var li = document.createElement('li')
+  li.innerHTML = ('system: ' + message)
+  var list = document.getElementById('chat_messages')
+  list.appendChild(li)
 }
 
 // //chat client:
 
-//if user click's the 'send' button
-$(document).ready(function() {
-  $('#chatSendMsg').click(function() {
-    var outMessage = ($('#m').val());
-    ws.send("chatMsg?" + outMessage)
+// if user click's the 'send' button
+$(document).ready(function () {
+  $('#chatSendMsg').click(function () {
+    var outMessage = ($('#m').val())
+    ws.send('chatMsg?' + outMessage)
     console.log(outMessage)
-  });
-});
-//if user hits 'enter' in the chat form:
-//this prevents the chat form from refreshing the page when you hit Enter, and reroutes the enter command to the chatSendMsg button. 
+  })
+})
+// if user hits 'enter' in the chat form:
+// this prevents the chat form from refreshing the page when you hit Enter, and reroutes the enter command to the chatSendMsg button.
 // Get the input field
-var input = document.getElementById("m");
+var input = document.getElementById('m')
 
 // Execute a function when the user releases a key on the keyboard
-input.addEventListener("keyup", function(event) {
+input.addEventListener('keyup', function (event) {
   // Cancel the default action, if needed
-  event.preventDefault();
+  event.preventDefault()
   // Number 13 is the "Enter" key on the keyboard
   if (event.keyCode === 13) {
     // Trigger the button element with a click
-    document.getElementById("chatSendMsg").click();
+    document.getElementById('chatSendMsg').click()
   }
-});
-
-
+})
 
 if (sessionStorage.echoServer) {
-    document.getElementById('server').value = sessionStorage.echoServer;
+  document.getElementById('server').value = sessionStorage.echoServer
 }
 
-
-
-
-
-
-
-
-///////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
+/// ////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
 
 // spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)
-var rowsize = 20;
-var colsize = 10;
+var rowsize = 20
+var colsize = 10
 
 // a way of mapping column to colour
-function col_hue(col) {
-    return col * 30;
+function colHue (col) {
+  return col * 30
 }
 // the main function, expects to receive a graph, of the form
 // { roots:["hash", "hash", ...], commits:[obj, obj, ...], paths:[obj, obj, ...], maxcolumn: integer }
 // returns the HTML code for an SVG representation of it
-function make_svg_from_commits(graph) {
+function make_svg_from_commits (graph) {
+  var commits = graph.commits
+  var paths = graph.paths
+  var maxcolumn = graph.maxcolumn
 
-    var commits = graph.commits;
-    var paths = graph.paths;
-    var maxcolumn = graph.maxcolumn;
-    
+  // build a lookup-table from hash name to commit object:
+  var commit_map = {}
+
+  // build an array of svg elements:
+  var svg = []
+
+  // compute required size of the svg canvas:
+  var height = (commits.length + 2) * rowsize
+  var width = (maxcolumn + 1) * colsize
+
+  for (var i in commits) {
+    let commit = commits[i]
     // build a lookup-table from hash name to commit object:
-    var commit_map = {};
-    
-    // build an array of svg elements:
-    var svg = [];
-    
-    // compute required size of the svg canvas:
-    var height = (commits.length + 2) * rowsize;
-    var width = (maxcolumn + 1) * colsize;
-    
-    for (var i in commits) {
-        let commit = commits[i];
-        // build a lookup-table from hash name to commit object:
-        commit_map[commit.hash] = commit;
-        // annotate the commits with x, y positions:
-        commit.x = commit.col * colsize;
-        commit.y = commit.row * rowsize;
-    }
-    
-    for (var i in paths) {
-        var path = paths[i];
-        // get the relevant commit objects:
-        var from = commit_map[path.from];
-        var to = commit_map[path.to];
-        
-        // start an SVG line segment
-        var d = `M${from.x},${from.y}`;
-        var hue = col_hue(from.col);
-        // how we render the line depends on the relative columns of the two commits:
-        if (to.col > from.col) {
-            // new branch
-            hue = col_hue(to.col);
-            // append to SVG line segment command
-            d += `L${to.x},${from.y + rowsize / 2}`;
-        } else if (to.col < from.col) {
-            // merge branch
-            // append to SVG line segment command
-            d += `L${from.x},${to.y - rowsize / 2}`;
-        }
-        // regular commit
-        // append to SVG line segment command
-        d += `L${to.x},${to.y}`;
+    commit_map[commit.hash] = commit
+    // annotate the commits with x, y positions:
+    commit.x = commit.col * colsize
+    commit.y = commit.row * rowsize
+  }
 
-        // store in our list of svg elements:
-        svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`);
-    }
-    
-    for (var i in commits) {
-        let commit = commits[i];
-        // add a svg element for each commit:
-        svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${col_hue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)" onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(", ")}\n${commit.committer_name.join(", ")}\n${commit.commit_files.join(", ")}\n${commit.commit_msg.join(", ")}\n${commit.ref.join(", ")}</title></circle>`);
-    }
+  for (var i in paths) {
+    var path = paths[i]
+    // get the relevant commit objects:
+    var from = commit_map[path.from]
+    var to = commit_map[path.to]
 
-    // wrap the svg commands in an svg element, and return:
-    return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join("\n")}<g id="nodes"></svg>`;
+    // start an SVG line segment
+    var d = `M${from.x},${from.y}`
+    var hue = colHue(from.col)
+    // how we render the line depends on the relative columns of the two commits:
+    if (to.col > from.col) {
+      // new branch
+      hue = colHue(to.col)
+      // append to SVG line segment command
+      d += `L${to.x},${from.y + rowsize / 2}`
+    } else if (to.col < from.col) {
+      // merge branch
+      // append to SVG line segment command
+      d += `L${from.x},${to.y - rowsize / 2}`
+    }
+    // regular commit
+    // append to SVG line segment command
+    d += `L${to.x},${to.y}`
 
+    // store in our list of svg elements:
+    svg.push(`<path id="path_${i}" d="${d}" stroke-width="1" fill="transparent"  style="stroke:hsl(${hue}, 100%, 30%);" />`)
+  }
+
+  for (var i in commits) {
+    let commit = commits[i]
+    // add a svg element for each commit:
+    svg.push(`<circle id="${commit.hash}" cx="${commit.x}" cy="${commit.y}" r="4" style="fill:hsl(${colHue(commit.col)}, 100%, 30%);" onmouseover="mouseEnterCommit(evt)" onmouseout="mouseLeaveCommit(evt)" onmousedown="getCommitDetail(evt)"><title>${commit.commit_date.join(', ')}\n${commit.committer_name.join(', ')}\n${commit.commit_files.join(', ')}\n${commit.commit_msg.join(', ')}\n${commit.ref.join(', ')}</title></circle>`)
+  }
+
+  // wrap the svg commands in an svg element, and return:
+  return `<svg width=100% style="width:${width}; height:${height};" version="1.1" xmlns="http://www.w3.org/2000/svg">${svg.join('\n')}<g id="nodes"></svg>`
 }
 
-//Git Graph
-//clicking on a commit node sends the commit's hash to server
-function getCommitDetail(evt) {
-    selectedCommit = evt.target.id
-    //console.log(evt.target.id)
-    
-    ws.send("git show " + selectedCommit);
-    ws.send("getCurrentBranch");
-    evt.target.setAttributeNS(null,"opacity","0.5");
-}
-//mouseover a commit node: change node's opacity
-function mouseEnterCommit(evt) {
-var details = document.getElementsByTagNameNS(evt.target, "title")[0]  
+// Git Graph
+// clicking on a commit node sends the commit's hash to server
+function getCommitDetail (evt) {
+  selectedCommit = evt.target.id
+  // console.log(evt.target.id)
 
-//place hovered commit details in a list onscreen
-//console.log(details)
+  ws.send('git show ' + selectedCommit)
+  ws.send('getCurrentBranch')
+  evt.target.setAttributeNS(null,'opacity','0.5')
+}
+// mouseover a commit node: change node's opacity
+function mouseEnterCommit (evt) {
+  var details = document.getElementsByTagNameNS(evt.target, 'title')[0]
+
+// place hovered commit details in a list onscreen
+// console.log(details)
 // evt.target.setAttributeNS(null,"opacity","0.5");
 // var li = document.createElement('li');
 // li.innerHTML = evt;
 // var list = document.getElementById('commit_detail');
 // list.insertBefore(li, list.childNodes[0]);
 
-//console.log(evt.target.ref)
+// console.log(evt.target.ref)
 }
 
-//get all commit nodes that contain the filename chosen by client, and highlight them in the svg
-function highlightFileName(evt){
-//TODO
+// get all commit nodes that contain the filename chosen by client, and highlight them in the svg
+function highlightFileName (evt) {
+// TODO
 }
-//change commit node's colour opacity back to normal after mouseLeave
-function mouseLeaveCommit(evt) {
-    evt.target.setAttributeNS(null,"opacity","1");
+// change commit node's colour opacity back to normal after mouseLeave
+function mouseLeaveCommit (evt) {
+  evt.target.setAttributeNS(null, 'opacity', '1')
 }
 
-
-
-function hideAndSeek() {
-  // Declare variables 
-  var input, filter, table, tr, td, i;
-  input = document.getElementById("search");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("myTable");
-  tr = table.getElementsByTagName("tr");
+function hideAndSeek () {
+  // Declare variables
+  var input, filter, table, tr, td, i
+  input = document.getElementById('search')
+  filter = input.value.toUpperCase()
+  table = document.getElementById('myTable')
+  tr = table.getElementsByTagName('tr')
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
+    td = tr[i].getElementsByTagName('td')[0]
     if (td) {
       if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
+        tr[i].style.display = ''
       } else {
-        tr[i].style.display = "none";
+        tr[i].style.display = 'none'
       }
-    } 
+    }
   }
 }
+
 
 </script>
 
