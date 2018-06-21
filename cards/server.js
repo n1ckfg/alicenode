@@ -204,7 +204,6 @@ function getState(){
 
                         //console.log(obj);
                         state.push({paramName, paramValue, type, offset})
-                        console.log(paramName, paramValue, type, offset)
 
                         //console.log("float detected " + paramName, paramValue)
                         break;
@@ -272,7 +271,6 @@ wss.on('connection', function(ws, req) {
 //    let state = {};
     // state["numcritters"] = 45;
     // state["foodAvailability"] = 0.02
-    console.log(state)
 
     ws.send("state?" + JSON.stringify(state))
     ws.send("state.h?" + stateSource)
@@ -317,7 +315,6 @@ wss.on('connection', function(ws, req) {
                 //console.log(state)
                 let theName = arg.substr(0,arg.indexOf(' '));
                 let theValue = arg.substr(arg.indexOf(' ')+1);
-                console.log(theName + " update to " + theValue)
                 //console.log(theName, theValue)
 
                 function findObj(result) { 
