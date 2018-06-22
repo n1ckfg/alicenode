@@ -16,6 +16,6 @@
 #clang++ `./clang+llvm-6/bin/llvm-config --cxxflags` -stdlib=libc++ cpp2json.cpp `./clang+llvm-6/bin/llvm-config --ldflags` `./clang+llvm-6/bin/llvm-config --libs` `./clang+llvm-6/bin/llvm-config --system-libs` -lclangIndex -lclangAST -lclangAnalysis -lclangBasic -lclangCodeGen -lclangDriver -lclangFrontend -lclangFrontendTool -lclangIndex -lclangLex -lclangParse -lclangRewrite -lclangSema -lclangSerialization -lclangFrontend -lclangDriver -lclangCodeGen -lclangSema -lclangAnalysis  -lclangRewrite -lclangAST -lclangParse -lclangLex -lclangBasic -lclangTooling -lclangEdit -lclang -o cpp2json && ./cpp2json  test.h
 
 
-clang++ -std=c++11 -O3 -DNDEBUG -fno-exceptions -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -stdlib=libc++ -Iinclude cpp2json.cpp -Wl,-rpath,"." libclang.dylib  -o cpp2json && ./cpp2json test.h test.json 
+clang++ -std=c++11 -O3 -DNDEBUG -fno-exceptions -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -stdlib=libc++ -Iinclude cpp2json.cpp -Wl,-rpath,"." libclang.dylib  -o cpp2json && ./cpp2json state.h state.json
 #&& cat test.json 
 #&& node regen.js test.json
