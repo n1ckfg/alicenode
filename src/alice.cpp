@@ -111,7 +111,7 @@ extern "C" AL_ALICE_EXPORT int frame() {
 
     glfwPollEvents();
     glfwMakeContextCurrent(alice.window.pointer); // maybe we want to have a onSim() event before doing this?
-     
+
 	if (alice.isRendering) 
     	alice.onFrame.emit(alice.window.width, alice.window.height);
 		

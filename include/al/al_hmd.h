@@ -71,6 +71,7 @@ struct Hmd {
     glm::mat4 mHMDPose = glm::mat4(1.f);
     // the view matrix for each eye:
 	glm::mat4 m_mat4viewEye[2];
+	glm::mat4 mProjMatEye[2];
     glm::vec3 mTrackedPosition;
 	glm::vec3 mTrackedVelocity, mTrackedAngularVelocity;
 	glm::vec3 mWorldPosition;
@@ -147,28 +148,7 @@ struct Hmd {
 		// trash any existing resources:
 		dest_closing();
 		
-        // setup cameras:
-		for (int i = 0; i < 2; i++) {
-
-			vr::HmdMatrix34_t matEyeRight = mHMD->GetEyeToHeadTransform((vr::Hmd_Eye)i);
-			glm::mat4 matrixObj(
-				matEyeRight.m[0][0], matEyeRight.m[1][0], matEyeRight.m[2][0], 0.0,
-				matEyeRight.m[0][1], matEyeRight.m[1][1], matEyeRight.m[2][1], 0.0,
-				matEyeRight.m[0][2], matEyeRight.m[1][2], matEyeRight.m[2][2], 0.0,
-				matEyeRight.m[0][3], matEyeRight.m[1][3], matEyeRight.m[2][3], 1.0f
-			);
-
-			m_mat4viewEye[i] = matrixObj;
-
-			float l, r, t, b;
-			mHMD->GetProjectionRaw((vr::Hmd_Eye)i, &l, &r, &t, &b);
-			frustum[i].l = l*near_clip;
-			frustum[i].r = r*near_clip;
-			frustum[i].b = -b*near_clip;
-			frustum[i].t = -t*near_clip;
-			frustum[i].n = near_clip;
-			frustum[i].f = far_clip;
-		}
+        
 #endif   
     }
 
@@ -180,6 +160,33 @@ struct Hmd {
 
         // get desired model matrix (for navigation)
 		glm::mat4 modelview_mat = glm::translate(glm::mat4(1.0f), position) * mat4_cast(orientation);
+
+		// setup cameras:
+		for (int i = 0; i < 2; i++) {
+
+			vr::HmdMatrix34_t matEye = mHMD->GetEyeToHeadTransform((vr::Hmd_Eye)i);
+			
+			/*glm::mat4 matrixObj(
+				matEye.m[0][0], matEye.m[1][0], matEye.m[2][0], 0.0,
+				matEye.m[0][1], matEye.m[1][1], matEye.m[2][1], 0.0,
+				matEye.m[0][2], matEye.m[1][2], matEye.m[2][2], 0.0,
+				matEye.m[0][3], matEye.m[1][3], matEye.m[2][3], 1.0f
+			);*/
+
+			m_mat4viewEye[i] = mat4_from_openvr(matEye);//matrixObj;
+			mProjMatEye[i] = mat4_from_openvr(mHMD->GetProjectionMatrix((vr::Hmd_Eye)i, near_clip, far_clip));
+
+			// for some reason, this isn't producing the same results with glm::frustum as mProjMatEye
+			// so I don't trust it.
+			float l, r, t, b;
+			mHMD->GetProjectionRaw((vr::Hmd_Eye)i, &l, &r, &t, &b);
+			frustum[i].l = l*near_clip;
+			frustum[i].r = r*near_clip;
+			frustum[i].b = -b*near_clip;//-b*near_clip;
+			frustum[i].t = -t*near_clip;//-t*near_clip;
+			frustum[i].n = near_clip;
+			frustum[i].f = far_clip;
+		}
 
         vr::VREvent_t event;
 		while (mHMD->PollNextEvent(&event, sizeof(event))) {
