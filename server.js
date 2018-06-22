@@ -36,6 +36,12 @@ console.log('clientPath', clientPath)
 
 const projectlib = 'project.' + libext
 
+// State Editor:
+let stateSource
+let stateAST
+let state = [] // we'll send this to the client
+
+
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
@@ -884,11 +890,12 @@ ws.send('cardsFileList?' + cardsFileList)
                 // get sourcecode
                 stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
                 stateSource = JSON.stringify(stateSource)
-              
-                execSync('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json', {cwd: path.join(__dirname, '/cpp2json/')}, () => {
+
+                exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
                   console.log('\n\n\n\nstate.h traversed')
               
                   stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/', 'state.json'), 'utf-8'))
+                  console.log(stateAST)
               
                   Object.keys(stateAST.nodes).forEach(function (key) {
                     if (stateAST.nodes[key].name === 'State') {
@@ -900,7 +907,7 @@ ws.send('cardsFileList?' + cardsFileList)
               
                         let type = value.type
                         let offset = value.offsetof
-              
+                        
                         // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
                         switch (type) {
                           case 'float':
@@ -1039,10 +1046,6 @@ watcher
   })
 
 /// ////////////////////////////////////////////////////////////
-// State Editor:
-let stateSource
-let stateAST
-let state = [] // we'll send this to the client
 
 // mmap the state
 let statebuf
