@@ -4,6 +4,62 @@
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
+<!-- THEMES-->
+<link rel="stylesheet" href="cm/themes/3024-day.css">
+<link rel="stylesheet" href="cm/themes/3024-night.css">
+<link rel="stylesheet" href="cm/themes/abcdef.css">
+<link rel="stylesheet" href="cm/themes/ambiance.css">
+<link rel="stylesheet" href="cm/themes/base16-dark.css">
+<link rel="stylesheet" href="cm/themes/bespin.css">
+<link rel="stylesheet" href="cm/themes/base16-light.css">
+<link rel="stylesheet" href="cm/themes/blackboard.css">
+<link rel="stylesheet" href="cm/themes/cobalt.css">
+<link rel="stylesheet" href="cm/themes/colorforth.css">
+<link rel="stylesheet" href="cm/themes/dracula.css">
+<link rel="stylesheet" href="cm/themes/duotone-dark.css">
+<link rel="stylesheet" href="cm/themes/duotone-light.css">
+<link rel="stylesheet" href="cm/themes/eclipse.css">
+<link rel="stylesheet" href="cm/themes/elegant.css">
+<link rel="stylesheet" href="cm/themes/erlang-dark.css">
+<link rel="stylesheet" href="cm/themes/gruvbox-dark.css">
+<link rel="stylesheet" href="cm/themes/hopscotch.css">
+<link rel="stylesheet" href="cm/themes/icecoder.css">
+<link rel="stylesheet" href="cm/themes/isotope.css">
+<link rel="stylesheet" href="cm/themes/lesser-dark.css">
+<link rel="stylesheet" href="cm/themes/liquibyte.css">
+<link rel="stylesheet" href="cm/themes/lucario.css">
+<link rel="stylesheet" href="cm/themes/material.css">
+<link rel="stylesheet" href="cm/themes/mbo.css">
+<link rel="stylesheet" href="cm/themes/mdn-like.css">
+<link rel="stylesheet" href="cm/themes/midnight.css">
+<link rel="stylesheet" href="cm/themes/monokai.css">
+<link rel="stylesheet" href="cm/themes/neat.css">
+<link rel="stylesheet" href="cm/themes/neo.css">
+<link rel="stylesheet" href="cm/themes/night.css">
+<link rel="stylesheet" href="cm/themes/oceanic-next.css">
+<link rel="stylesheet" href="cm/themes/panda-syntax.css">
+<link rel="stylesheet" href="cm/themes/paraiso-dark.css">
+<link rel="stylesheet" href="cm/themes/paraiso-light.css">
+<link rel="stylesheet" href="cm/themes/pastel-on-dark.css">
+<link rel="stylesheet" href="cm/themes/railscasts.css">
+<link rel="stylesheet" href="cm/themes/rubyblue.css">
+<link rel="stylesheet" href="cm/themes/seti.css">
+<link rel="stylesheet" href="cm/themes/shadowfox.css">
+<link rel="stylesheet" href="cm/themes/solarized.css">
+<link rel="stylesheet" href="cm/themes/the-matrix.css">
+<link rel="stylesheet" href="cm/themes/tomorrow-night-bright.css">
+<link rel="stylesheet" href="cm/themes/tomorrow-night-eighties.css">
+<link rel="stylesheet" href="cm/themes/ttcn.css">
+<link rel="stylesheet" href="cm/themes/twilight.css">
+<link rel="stylesheet" href="cm/themes/vibrant-ink.css">
+<link rel="stylesheet" href="cm/themes/xq-dark.css">
+<link rel="stylesheet" href="cm/themes/xq-light.css">
+<link rel="stylesheet" href="cm/themes/yeti.css">
+<link rel="stylesheet" href="cm/themes/idea.css">
+<link rel="stylesheet" href="cm/themes/darcula.css">
+<link rel="stylesheet" href="cm/themes/zenburn.css">
+
+
 <!-- CSS -->
 <link rel=stylesheet href="css/alicenode.css">
 <link rel=stylesheet href="cm/docs.css">
@@ -199,7 +255,7 @@
 </table>
 <!-- CODEMIRROR & Gitgraph -->
 <div id="container">
-    <div id="view"></div>
+  <div id="view"></div>
     
     <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
 </div>
@@ -358,7 +414,30 @@ function initUI () {
       ws.send('chatMsg?Edited file ' + fileName + ' from commit ' + selectedCommit + '. <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>')
     }
   })
+
+  var choice = (location.hash && location.hash.slice(1)) ||
+               (document.location.search &&
+                decodeURIComponent(document.location.search.slice(1)));
+  if (choice) {
+    inputTheme.value = choice;
+    dv.edit.setOption("theme", choice);
+    dv.right.orig.setOption("theme", choice);
+  }
+
+   CodeMirror.on(window, "hashchange", function() {
+    var theme = location.hash.slice(1);
+    if (theme) { inputTheme.value = theme; selectTheme(); }
+  });
+
 }
+
+  var inputTheme = document.getElementById("themeSelect");
+  function selectTheme() {
+    var theme  = inputTheme.options[inputTheme.selectedIndex].textContent;
+    dv.edit.setOption("theme", theme);
+    dv.right.orig.setOption("theme", theme);
+    location.hash = "#" + theme;
+  }
 
 function toggleDifferences () {
   dv.setShowDifferences(highlight = !highlight)
@@ -982,34 +1061,6 @@ function hideAndSeek () {
   }
 }
 
-/* var codeMirrorPanels = document.getElementById("codeTheme");
-
- var themeEditor = CodeMirror.defaults(codeMirrorPanels, {
-    lineNumbers: true,
-    styleActiveLine: true,
-    matchBrackets: true
-  }); 
-
-  var inputTheme = document.getElementById("themeSelect");
-  
-  function selectTheme() {
-    var theme = inputTheme.options[inputTheme.selectedIndex].textContent;
-    themeEditor.setOption("theme", inputTheme);
-    location.hash = "#" + theme;
-  }
-
-  var choice = (location.hash && location.hash.slice(1)) ||
-               (document.location.search &&
-                decodeURIComponent(document.location.search.slice(1)));
-  if (choice) {
-    inputTheme.value = choice;
-    themeEditor.setOption("theme", choice);
-  }
-
-   CodeMirror.on(window, "hashchange", function() {
-    var theme = location.hash.slice(1);
-    if (theme) { input.value = theme; selectTheme(); }
-  }); */
 
 </script>
 
