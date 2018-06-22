@@ -1,0 +1,904 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "test.h",
+    "nodes": [
+        {
+            "ast": "Namespace",
+            "loc": {
+                "begin": {
+                    "char": 17,
+                    "col": 1,
+                    "line": 3
+                },
+                "end": {
+                    "char": 267,
+                    "col": 2,
+                    "line": 13
+                }
+            },
+            "name": "glm",
+            "nodes": [
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 35,
+                            "col": 2,
+                            "line": 5
+                        },
+                        "end": {
+                            "char": 62,
+                            "col": 29,
+                            "line": 5
+                        }
+                    },
+                    "name": "vec2",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 49,
+                                    "col": 16,
+                                    "line": 5
+                                },
+                                "end": {
+                                    "char": 56,
+                                    "col": 23,
+                                    "line": 5
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 49,
+                                    "col": 16,
+                                    "line": 5
+                                },
+                                "end": {
+                                    "char": 59,
+                                    "col": 26,
+                                    "line": 5
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "float"
+                        }
+                    ],
+                    "type": "glm::vec2"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 65,
+                            "col": 2,
+                            "line": 6
+                        },
+                        "end": {
+                            "char": 95,
+                            "col": 32,
+                            "line": 6
+                        }
+                    },
+                    "name": "vec3",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 79,
+                                    "col": 16,
+                                    "line": 6
+                                },
+                                "end": {
+                                    "char": 86,
+                                    "col": 23,
+                                    "line": 6
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 79,
+                                    "col": 16,
+                                    "line": 6
+                                },
+                                "end": {
+                                    "char": 89,
+                                    "col": 26,
+                                    "line": 6
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 79,
+                                    "col": 16,
+                                    "line": 6
+                                },
+                                "end": {
+                                    "char": 92,
+                                    "col": 29,
+                                    "line": 6
+                                }
+                            },
+                            "name": "z",
+                            "offsetof": 8,
+                            "sizeof": 4,
+                            "type": "float"
+                        }
+                    ],
+                    "type": "glm::vec3"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 98,
+                            "col": 2,
+                            "line": 7
+                        },
+                        "end": {
+                            "char": 131,
+                            "col": 35,
+                            "line": 7
+                        }
+                    },
+                    "name": "vec4",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 112,
+                                    "col": 16,
+                                    "line": 7
+                                },
+                                "end": {
+                                    "char": 119,
+                                    "col": 23,
+                                    "line": 7
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 112,
+                                    "col": 16,
+                                    "line": 7
+                                },
+                                "end": {
+                                    "char": 122,
+                                    "col": 26,
+                                    "line": 7
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 112,
+                                    "col": 16,
+                                    "line": 7
+                                },
+                                "end": {
+                                    "char": 125,
+                                    "col": 29,
+                                    "line": 7
+                                }
+                            },
+                            "name": "z",
+                            "offsetof": 8,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 112,
+                                    "col": 16,
+                                    "line": 7
+                                },
+                                "end": {
+                                    "char": 128,
+                                    "col": 32,
+                                    "line": 7
+                                }
+                            },
+                            "name": "w",
+                            "offsetof": 12,
+                            "sizeof": 4,
+                            "type": "float"
+                        }
+                    ],
+                    "type": "glm::vec4"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 134,
+                            "col": 2,
+                            "line": 8
+                        },
+                        "end": {
+                            "char": 167,
+                            "col": 35,
+                            "line": 8
+                        }
+                    },
+                    "name": "quat",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 148,
+                                    "col": 16,
+                                    "line": 8
+                                },
+                                "end": {
+                                    "char": 155,
+                                    "col": 23,
+                                    "line": 8
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 148,
+                                    "col": 16,
+                                    "line": 8
+                                },
+                                "end": {
+                                    "char": 158,
+                                    "col": 26,
+                                    "line": 8
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 148,
+                                    "col": 16,
+                                    "line": 8
+                                },
+                                "end": {
+                                    "char": 161,
+                                    "col": 29,
+                                    "line": 8
+                                }
+                            },
+                            "name": "z",
+                            "offsetof": 8,
+                            "sizeof": 4,
+                            "type": "float"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 148,
+                                    "col": 16,
+                                    "line": 8
+                                },
+                                "end": {
+                                    "char": 164,
+                                    "col": 32,
+                                    "line": 8
+                                }
+                            },
+                            "name": "w",
+                            "offsetof": 12,
+                            "sizeof": 4,
+                            "type": "float"
+                        }
+                    ],
+                    "type": "glm::quat"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 171,
+                            "col": 2,
+                            "line": 10
+                        },
+                        "end": {
+                            "char": 197,
+                            "col": 28,
+                            "line": 10
+                        }
+                    },
+                    "name": "ivec2",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 186,
+                                    "col": 17,
+                                    "line": 10
+                                },
+                                "end": {
+                                    "char": 191,
+                                    "col": 22,
+                                    "line": 10
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 186,
+                                    "col": 17,
+                                    "line": 10
+                                },
+                                "end": {
+                                    "char": 194,
+                                    "col": 25,
+                                    "line": 10
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "int"
+                        }
+                    ],
+                    "type": "glm::ivec2"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 200,
+                            "col": 2,
+                            "line": 11
+                        },
+                        "end": {
+                            "char": 229,
+                            "col": 31,
+                            "line": 11
+                        }
+                    },
+                    "name": "ivec3",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 215,
+                                    "col": 17,
+                                    "line": 11
+                                },
+                                "end": {
+                                    "char": 220,
+                                    "col": 22,
+                                    "line": 11
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 215,
+                                    "col": 17,
+                                    "line": 11
+                                },
+                                "end": {
+                                    "char": 223,
+                                    "col": 25,
+                                    "line": 11
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 215,
+                                    "col": 17,
+                                    "line": 11
+                                },
+                                "end": {
+                                    "char": 226,
+                                    "col": 28,
+                                    "line": 11
+                                }
+                            },
+                            "name": "z",
+                            "offsetof": 8,
+                            "sizeof": 4,
+                            "type": "int"
+                        }
+                    ],
+                    "type": "glm::ivec3"
+                },
+                {
+                    "ast": "StructDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 232,
+                            "col": 2,
+                            "line": 12
+                        },
+                        "end": {
+                            "char": 264,
+                            "col": 34,
+                            "line": 12
+                        }
+                    },
+                    "name": "ivec4",
+                    "nodes": [
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 247,
+                                    "col": 17,
+                                    "line": 12
+                                },
+                                "end": {
+                                    "char": 252,
+                                    "col": 22,
+                                    "line": 12
+                                }
+                            },
+                            "name": "x",
+                            "offsetof": 0,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 247,
+                                    "col": 17,
+                                    "line": 12
+                                },
+                                "end": {
+                                    "char": 255,
+                                    "col": 25,
+                                    "line": 12
+                                }
+                            },
+                            "name": "y",
+                            "offsetof": 4,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 247,
+                                    "col": 17,
+                                    "line": 12
+                                },
+                                "end": {
+                                    "char": 258,
+                                    "col": 28,
+                                    "line": 12
+                                }
+                            },
+                            "name": "z",
+                            "offsetof": 8,
+                            "sizeof": 4,
+                            "type": "int"
+                        },
+                        {
+                            "ast": "FieldDecl",
+                            "loc": {
+                                "begin": {
+                                    "char": 247,
+                                    "col": 17,
+                                    "line": 12
+                                },
+                                "end": {
+                                    "char": 261,
+                                    "col": 31,
+                                    "line": 12
+                                }
+                            },
+                            "name": "w",
+                            "offsetof": 12,
+                            "sizeof": 4,
+                            "type": "int"
+                        }
+                    ],
+                    "type": "glm::ivec4"
+                }
+            ]
+        },
+        {
+            "ast": "StructDecl",
+            "loc": {
+                "begin": {
+                    "char": 276,
+                    "col": 1,
+                    "line": 16
+                },
+                "end": {
+                    "char": 355,
+                    "col": 2,
+                    "line": 20
+                }
+            },
+            "name": "Particle",
+            "nodes": [
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 295,
+                            "col": 2,
+                            "line": 17
+                        },
+                        "end": {
+                            "char": 313,
+                            "col": 20,
+                            "line": 17
+                        }
+                    },
+                    "name": "location",
+                    "nodes": [
+                        {
+                            "ast": "NamespaceRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 295,
+                                    "col": 2,
+                                    "line": 17
+                                },
+                                "end": {
+                                    "char": 298,
+                                    "col": 5,
+                                    "line": 17
+                                }
+                            },
+                            "name": "glm"
+                        },
+                        {
+                            "ast": "TypeRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 300,
+                                    "col": 7,
+                                    "line": 17
+                                },
+                                "end": {
+                                    "char": 304,
+                                    "col": 11,
+                                    "line": 17
+                                }
+                            },
+                            "name": "struct glm::vec3",
+                            "type": "glm::vec3"
+                        }
+                    ],
+                    "offsetof": 0,
+                    "sizeof": 12,
+                    "type": "glm::vec3"
+                },
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 316,
+                            "col": 2,
+                            "line": 18
+                        },
+                        "end": {
+                            "char": 331,
+                            "col": 17,
+                            "line": 18
+                        }
+                    },
+                    "name": "color",
+                    "nodes": [
+                        {
+                            "ast": "NamespaceRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 316,
+                                    "col": 2,
+                                    "line": 18
+                                },
+                                "end": {
+                                    "char": 319,
+                                    "col": 5,
+                                    "line": 18
+                                }
+                            },
+                            "name": "glm"
+                        },
+                        {
+                            "ast": "TypeRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 321,
+                                    "col": 7,
+                                    "line": 18
+                                },
+                                "end": {
+                                    "char": 325,
+                                    "col": 11,
+                                    "line": 18
+                                }
+                            },
+                            "name": "struct glm::vec3",
+                            "type": "glm::vec3"
+                        }
+                    ],
+                    "offsetof": 12,
+                    "sizeof": 12,
+                    "type": "glm::vec3"
+                },
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 334,
+                            "col": 2,
+                            "line": 19
+                        },
+                        "end": {
+                            "char": 352,
+                            "col": 20,
+                            "line": 19
+                        }
+                    },
+                    "name": "velocity",
+                    "nodes": [
+                        {
+                            "ast": "NamespaceRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 334,
+                                    "col": 2,
+                                    "line": 19
+                                },
+                                "end": {
+                                    "char": 337,
+                                    "col": 5,
+                                    "line": 19
+                                }
+                            },
+                            "name": "glm"
+                        },
+                        {
+                            "ast": "TypeRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 339,
+                                    "col": 7,
+                                    "line": 19
+                                },
+                                "end": {
+                                    "char": 343,
+                                    "col": 11,
+                                    "line": 19
+                                }
+                            },
+                            "name": "struct glm::vec3",
+                            "type": "glm::vec3"
+                        }
+                    ],
+                    "offsetof": 24,
+                    "sizeof": 12,
+                    "type": "glm::vec3"
+                }
+            ],
+            "type": "Particle"
+        },
+        {
+            "ast": "StructDecl",
+            "loc": {
+                "begin": {
+                    "char": 359,
+                    "col": 1,
+                    "line": 23
+                },
+                "end": {
+                    "char": 447,
+                    "col": 2,
+                    "line": 32
+                }
+            },
+            "name": "State",
+            "nodes": [
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 377,
+                            "col": 2,
+                            "line": 26
+                        },
+                        "end": {
+                            "char": 382,
+                            "col": 7,
+                            "line": 26
+                        }
+                    },
+                    "name": "x",
+                    "offsetof": 0,
+                    "sizeof": 4,
+                    "type": "int"
+                },
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 385,
+                            "col": 2,
+                            "line": 27
+                        },
+                        "end": {
+                            "char": 392,
+                            "col": 9,
+                            "line": 27
+                        }
+                    },
+                    "name": "y",
+                    "offsetof": 4,
+                    "sizeof": 4,
+                    "type": "float"
+                },
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 396,
+                            "col": 2,
+                            "line": 29
+                        },
+                        "end": {
+                            "char": 418,
+                            "col": 24,
+                            "line": 29
+                        }
+                    },
+                    "name": "particles",
+                    "nodes": [
+                        {
+                            "ast": "TypeRef",
+                            "loc": {
+                                "begin": {
+                                    "char": 396,
+                                    "col": 2,
+                                    "line": 29
+                                },
+                                "end": {
+                                    "char": 404,
+                                    "col": 10,
+                                    "line": 29
+                                }
+                            },
+                            "name": "struct Particle",
+                            "type": "Particle"
+                        },
+                        {
+                            "ast": "IntegerLiteral",
+                            "loc": {
+                                "begin": {
+                                    "char": 415,
+                                    "col": 21,
+                                    "line": 29
+                                },
+                                "end": {
+                                    "char": 417,
+                                    "col": 23,
+                                    "line": 29
+                                }
+                            },
+                            "type": "int"
+                        }
+                    ],
+                    "offsetof": 8,
+                    "sizeof": 2160,
+                    "type": "Particle [60]"
+                },
+                {
+                    "ast": "FieldDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 422,
+                            "col": 2,
+                            "line": 31
+                        },
+                        "end": {
+                            "char": 444,
+                            "col": 24,
+                            "line": 31
+                        }
+                    },
+                    "name": "distance",
+                    "nodes": [
+                        {
+                            "ast": "IntegerLiteral",
+                            "loc": {
+                                "begin": {
+                                    "char": 437,
+                                    "col": 17,
+                                    "line": 31
+                                },
+                                "end": {
+                                    "char": 443,
+                                    "col": 23,
+                                    "line": 31
+                                }
+                            },
+                            "type": "int"
+                        }
+                    ],
+                    "offsetof": 2168,
+                    "sizeof": 400000,
+                    "type": "float [100000]"
+                }
+            ],
+            "type": "State"
+        }
+    ]
+}

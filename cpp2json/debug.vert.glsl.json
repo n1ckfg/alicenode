@@ -1,0 +1,129 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/debug.vert.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 18,
+                    "col": 1,
+                    "line": 2
+                },
+                "end": {
+                    "char": 30,
+                    "col": 13,
+                    "line": 2
+                }
+            },
+            "name": "mat4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 112,
+                    "col": 1,
+                    "line": 4
+                },
+                "end": {
+                    "char": 129,
+                    "col": 18,
+                    "line": 4
+                }
+            },
+            "name": "sampler2D",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 260,
+                    "col": 1,
+                    "line": 10
+                },
+                "end": {
+                    "char": 268,
+                    "col": 9,
+                    "line": 10
+                }
+            },
+            "name": "vec4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 288,
+                    "col": 1,
+                    "line": 11
+                },
+                "end": {
+                    "char": 296,
+                    "col": 9,
+                    "line": 11
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 350,
+                    "col": 1,
+                    "line": 13
+                },
+                "end": {
+                    "char": 358,
+                    "col": 9,
+                    "line": 13
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 367,
+                    "col": 1,
+                    "line": 15
+                },
+                "end": {
+                    "char": 1197,
+                    "col": 2,
+                    "line": 42
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 379,
+                            "col": 13,
+                            "line": 15
+                        },
+                        "end": {
+                            "char": 1197,
+                            "col": 2,
+                            "line": 42
+                        }
+                    },
+                    "text": "{\n\n\tworld_scale = uPointSize;\n\tworld_orientation = vec4(0, 0, 0, 1);\n\n\t// vertex in camera space:\n\tvec4 view_position = uViewMatrix * vec4(vertex_position, 1.);\n\n\t// vertex in screen space:\n\tgl_Position = uProjectionMatrix * view_position;\n\t//centre = (0.5 * gl_Position.xy/gl_Position.w + 0.5) * uViewPortHeight;\n\tgl_PointSize = world_scale * uViewPortHeight * uProjectionMatrix[1][1] / gl_Position.w;\n\t//radiusPixels = gl_PointSize / 2.0;\n\n\n\n\t// derive eye location in world space from current view matrix:\n\t// (could pass this in as a uniform instead...)\n\teye_position = -(uViewMatrix[3].xyz)*mat3(uViewMatrix);\n\n\t// we want the raymarching to operate in object-local space:\n\tworld_position = vertex_position;\n\t//ray_origin = scaledpos;\n\n\n\tcolor = vertex_color;\n\t//color = texture(uColorTex, vertex_color.xy).rgb;\n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}

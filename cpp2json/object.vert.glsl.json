@@ -1,0 +1,278 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/object.vert.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 18,
+                    "col": 1,
+                    "line": 2
+                },
+                "end": {
+                    "char": 30,
+                    "col": 13,
+                    "line": 2
+                }
+            },
+            "name": "mat4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 81,
+                    "col": 1,
+                    "line": 3
+                },
+                "end": {
+                    "char": 98,
+                    "col": 18,
+                    "line": 3
+                }
+            },
+            "name": "sampler3D",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 468,
+                    "col": 1,
+                    "line": 15
+                },
+                "end": {
+                    "char": 476,
+                    "col": 9,
+                    "line": 15
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 533,
+                    "col": 1,
+                    "line": 18
+                },
+                "end": {
+                    "char": 541,
+                    "col": 9,
+                    "line": 18
+                }
+            },
+            "name": "vec4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 561,
+                    "col": 1,
+                    "line": 19
+                },
+                "end": {
+                    "char": 569,
+                    "col": 9,
+                    "line": 19
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 626,
+                    "col": 1,
+                    "line": 21
+                },
+                "end": {
+                    "char": 634,
+                    "col": 9,
+                    "line": 21
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 670,
+                    "col": 1,
+                    "line": 22
+                },
+                "end": {
+                    "char": 678,
+                    "col": 9,
+                    "line": 22
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 690,
+                    "col": 1,
+                    "line": 23
+                },
+                "end": {
+                    "char": 698,
+                    "col": 9,
+                    "line": 23
+                }
+            },
+            "name": "out",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 699,
+                    "col": 10,
+                    "line": 23
+                },
+                "end": {
+                    "char": 710,
+                    "col": 21,
+                    "line": 23
+                }
+            },
+            "name": "species",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 750,
+                    "col": 1,
+                    "line": 26
+                },
+                "end": {
+                    "char": 1105,
+                    "col": 2,
+                    "line": 38
+                }
+            },
+            "mangled_name": "__Z11quat_rotateii",
+            "name": "quat_rotate",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 783,
+                            "col": 34,
+                            "line": 26
+                        },
+                        "end": {
+                            "char": 1105,
+                            "col": 2,
+                            "line": 38
+                        }
+                    },
+                    "text": "{\n\tvec4 p = vec4(\n\t\tq.w*v.x + q.y*v.z - q.z*v.y,\t// x\n\t\tq.w*v.y + q.z*v.x - q.x*v.z,\t// y\n\t\tq.w*v.z + q.x*v.y - q.y*v.x,\t// z\n\t\t-q.x*v.x - q.y*v.y - q.z*v.z\t// w\n\t);\n\treturn vec3(\n\t\tp.x*q.w - p.w*q.x + p.z*q.y - p.y*q.z,\t// x\n\t\tp.y*q.w - p.w*q.y + p.x*q.z - p.z*q.x,\t// y\n\t\tp.z*q.w - p.w*q.z + p.y*q.x - p.x*q.y\t// z\n\t);\n}"
+                }
+            ],
+            "type": "int (int, int)",
+            "type_args": [
+                "int",
+                "int"
+            ],
+            "type_ret": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1184,
+                    "col": 1,
+                    "line": 42
+                },
+                "end": {
+                    "char": 1662,
+                    "col": 2,
+                    "line": 56
+                }
+            },
+            "mangled_name": "__Z13quat_unrotatei",
+            "name": "quat_unrotate",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1225,
+                            "col": 42,
+                            "line": 42
+                        },
+                        "end": {
+                            "char": 1662,
+                            "col": 2,
+                            "line": 56
+                        }
+                    },
+                    "text": "{\n\t// return quat_mul(quat_mul(quat_conj(q), vec4(v, 0)), q).xyz;\n\t// reduced:\n\tvec4 p = vec4(\n\t\t\t\t  q.w*v.x - q.y*v.z + q.z*v.y,  // x\n\t\t\t\t  q.w*v.y - q.z*v.x + q.x*v.z,  // y\n\t\t\t\t  q.w*v.z - q.x*v.y + q.y*v.x,  // z\n\t\t\t\t  q.x*v.x + q.y*v.y + q.z*v.z   // w\n\t\t\t\t  );\n\treturn vec3(\n\t\t\t\tp.w*q.x + p.x*q.w + p.y*q.z - p.z*q.y,  // x\n\t\t\t\tp.w*q.y + p.y*q.w + p.z*q.x - p.x*q.z,  // y\n\t\t\t\tp.w*q.z + p.z*q.w + p.x*q.y - p.y*q.x   // z\n\t\t\t\t);\n}"
+                }
+            ],
+            "type": "int (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1664,
+                    "col": 1,
+                    "line": 58
+                },
+                "end": {
+                    "char": 2574,
+                    "col": 2,
+                    "line": 86
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1676,
+                            "col": 13,
+                            "line": 58
+                        },
+                        "end": {
+                            "char": 2574,
+                            "col": 2,
+                            "line": 86
+                        }
+                    },
+                    "text": "{\n\n\t// need to pass instance pose info to frag shader\n\tworld_position = iLocation;\n\tworld_scale = iScale;\n\tworld_orientation = iOrientation;\n\tphase = iPhase;\n\tbasecolor = iColor;\n\n\tint id = gl_InstanceID;\n\tspecies = id % 5;\n\n\t// converting vertex into world space:\n\tvec3 scaledpos = aPos * world_scale;\n\tvec3 vertexpos = world_position + quat_rotate(world_orientation, scaledpos);\n\t// calculate gl_Position the usual way\n\tgl_Position = uViewProjectionMatrix * vec4(vertexpos, 1.0); \n\n\tvec3 tc = (uFluidMatrix * vec4(vertexpos, 1.)).xyz;\n\tflow = texture(uFluidTex, tc).xyz;\n\n\t// derive eye location in world space from current view matrix:\n\t// (could pass this in as a uniform instead...)\n\teyepos = -(uViewMatrix[3].xyz)*mat3(uViewMatrix);\n\n\t// we want the raymarching to operate in object-local space:\n\tray_origin = scaledpos;\n\tray_direction = quat_unrotate(world_orientation, vertexpos-eyepos); \n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}

@@ -1,0 +1,95 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/simple.vert.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 19,
+                    "col": 1,
+                    "line": 3
+                },
+                "end": {
+                    "char": 31,
+                    "col": 13,
+                    "line": 3
+                }
+            },
+            "name": "mat4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 173,
+                    "col": 1,
+                    "line": 9
+                },
+                "end": {
+                    "char": 181,
+                    "col": 9,
+                    "line": 9
+                }
+            },
+            "name": "vec2",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 192,
+                    "col": 1,
+                    "line": 10
+                },
+                "end": {
+                    "char": 200,
+                    "col": 9,
+                    "line": 10
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 220,
+                    "col": 1,
+                    "line": 12
+                },
+                "end": {
+                    "char": 382,
+                    "col": 2,
+                    "line": 18
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 232,
+                            "col": 13,
+                            "line": 12
+                        },
+                        "end": {
+                            "char": 382,
+                            "col": 2,
+                            "line": 18
+                        }
+                    },
+                    "text": "{\n\ttexCoord = aTexCoord;\n\tnormal = aNormal;\n\tposition = (aPos * 8.) + vec3(4., 1., 4.);\n\t\n\tgl_Position = uViewProjectionMatrix * vec4(position, 1.);\n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}
