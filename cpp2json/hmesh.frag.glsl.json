@@ -1,0 +1,95 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/hmesh.frag.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 19,
+                    "col": 1,
+                    "line": 3
+                },
+                "end": {
+                    "char": 36,
+                    "col": 18,
+                    "line": 3
+                }
+            },
+            "name": "sampler2D",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 50,
+                    "col": 1,
+                    "line": 5
+                },
+                "end": {
+                    "char": 57,
+                    "col": 8,
+                    "line": 5
+                }
+            },
+            "name": "vec2",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 68,
+                    "col": 1,
+                    "line": 6
+                },
+                "end": {
+                    "char": 75,
+                    "col": 8,
+                    "line": 6
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 246,
+                    "col": 1,
+                    "line": 13
+                },
+                "end": {
+                    "char": 559,
+                    "col": 2,
+                    "line": 26
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 258,
+                            "col": 13,
+                            "line": 13
+                        },
+                        "end": {
+                            "char": 559,
+                            "col": 2,
+                            "line": 26
+                        }
+                    },
+                    "text": "{\n\tFragColor.rgb = vec3(0.);\n \t\n\tfloat fungus = texture(uFungusTex, texCoord).r;\n\tif (fungus > 0.) {\n\t\tFragColor.rgb = vec3(fungus * 0.7 + 0.2);\n\t} \n\tFragColor.rgb *= vec3(1. - steepness*2.);\n\n\tFragColor.rgb *= vec3(min(1., position.y * 2.));\n\n\tFragNormal.xyz = normal;\n\tFragPosition.xyz = position;\n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}

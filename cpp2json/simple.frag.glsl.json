@@ -1,0 +1,78 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/simple.frag.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 19,
+                    "col": 1,
+                    "line": 3
+                },
+                "end": {
+                    "char": 26,
+                    "col": 8,
+                    "line": 3
+                }
+            },
+            "name": "vec2",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 37,
+                    "col": 1,
+                    "line": 4
+                },
+                "end": {
+                    "char": 44,
+                    "col": 8,
+                    "line": 4
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 195,
+                    "col": 1,
+                    "line": 10
+                },
+                "end": {
+                    "char": 321,
+                    "col": 2,
+                    "line": 14
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 207,
+                            "col": 13,
+                            "line": 10
+                        },
+                        "end": {
+                            "char": 321,
+                            "col": 2,
+                            "line": 14
+                        }
+                    },
+                    "text": "{\n\tFragColor.rgb = normal*0.5+0.5; //vec3(texCoord, 0.);\n\tFragNormal.xyz = normal;\n\tFragPosition.xyz = position;\n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}

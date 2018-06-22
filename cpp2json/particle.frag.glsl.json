@@ -1,0 +1,782 @@
+{
+    "ast": "TranslationUnit",
+    "filename": "/Users/mp/alicenode_inhabitat/particle.frag.glsl",
+    "nodes": [
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 18,
+                    "col": 1,
+                    "line": 2
+                },
+                "end": {
+                    "char": 30,
+                    "col": 13,
+                    "line": 2
+                }
+            },
+            "name": "mat4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 95,
+                    "col": 1,
+                    "line": 5
+                },
+                "end": {
+                    "char": 102,
+                    "col": 8,
+                    "line": 5
+                }
+            },
+            "name": "vec4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 122,
+                    "col": 1,
+                    "line": 6
+                },
+                "end": {
+                    "char": 129,
+                    "col": 8,
+                    "line": 6
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 182,
+                    "col": 1,
+                    "line": 8
+                },
+                "end": {
+                    "char": 189,
+                    "col": 8,
+                    "line": 8
+                }
+            },
+            "name": "vec3",
+            "type": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 328,
+                    "col": 1,
+                    "line": 13
+                },
+                "end": {
+                    "char": 432,
+                    "col": 2,
+                    "line": 17
+                }
+            },
+            "mangled_name": "__Z3skyi",
+            "name": "sky",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 347,
+                            "col": 20,
+                            "line": 13
+                        },
+                        "end": {
+                            "char": 432,
+                            "col": 2,
+                            "line": 17
+                        }
+                    },
+                    "text": "{\n\tvec3 n = dir*0.5+0.5;\n\tn.g = mix(n.g, n.r, 0.5);\n\treturn mix(n, vec3(1.), 0.75);\n}"
+                }
+            ],
+            "type": "int (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 540,
+                    "col": 1,
+                    "line": 25
+                },
+                "end": {
+                    "char": 895,
+                    "col": 2,
+                    "line": 37
+                }
+            },
+            "mangled_name": "__Z11quat_rotateii",
+            "name": "quat_rotate",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 573,
+                            "col": 34,
+                            "line": 25
+                        },
+                        "end": {
+                            "char": 895,
+                            "col": 2,
+                            "line": 37
+                        }
+                    },
+                    "text": "{\n\tvec4 p = vec4(\n\t\tq.w*v.x + q.y*v.z - q.z*v.y,\t// x\n\t\tq.w*v.y + q.z*v.x - q.x*v.z,\t// y\n\t\tq.w*v.z + q.x*v.y - q.y*v.x,\t// z\n\t\t-q.x*v.x - q.y*v.y - q.z*v.z\t// w\n\t);\n\treturn vec3(\n\t\tp.x*q.w - p.w*q.x + p.z*q.y - p.y*q.z,\t// x\n\t\tp.y*q.w - p.w*q.y + p.x*q.z - p.z*q.x,\t// y\n\t\tp.z*q.w - p.w*q.z + p.y*q.x - p.x*q.y\t// z\n\t);\n}"
+                }
+            ],
+            "type": "int (int, int)",
+            "type_args": [
+                "int",
+                "int"
+            ],
+            "type_ret": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 937,
+                    "col": 1,
+                    "line": 40
+                },
+                "end": {
+                    "char": 982,
+                    "col": 2,
+                    "line": 42
+                }
+            },
+            "mangled_name": "__Z4vmaxi",
+            "name": "vmax",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 948,
+                            "col": 12,
+                            "line": 40
+                        },
+                        "end": {
+                            "char": 954,
+                            "col": 18,
+                            "line": 40
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 956,
+                            "col": 20,
+                            "line": 40
+                        },
+                        "end": {
+                            "char": 982,
+                            "col": 2,
+                            "line": 42
+                        }
+                    },
+                    "text": "{\n\treturn max(v.x, v.y);\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 984,
+                    "col": 1,
+                    "line": 44
+                },
+                "end": {
+                    "char": 1039,
+                    "col": 2,
+                    "line": 46
+                }
+            },
+            "mangled_name": "__Z4vmaxi",
+            "name": "vmax",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 995,
+                            "col": 12,
+                            "line": 44
+                        },
+                        "end": {
+                            "char": 1001,
+                            "col": 18,
+                            "line": 44
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1003,
+                            "col": 20,
+                            "line": 44
+                        },
+                        "end": {
+                            "char": 1039,
+                            "col": 2,
+                            "line": 46
+                        }
+                    },
+                    "text": "{\n\treturn max(max(v.x, v.y), v.z);\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1041,
+                    "col": 1,
+                    "line": 48
+                },
+                "end": {
+                    "char": 1106,
+                    "col": 2,
+                    "line": 50
+                }
+            },
+            "mangled_name": "__Z4vmaxi",
+            "name": "vmax",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1052,
+                            "col": 12,
+                            "line": 48
+                        },
+                        "end": {
+                            "char": 1058,
+                            "col": 18,
+                            "line": 48
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1060,
+                            "col": 20,
+                            "line": 48
+                        },
+                        "end": {
+                            "char": 1106,
+                            "col": 2,
+                            "line": 50
+                        }
+                    },
+                    "text": "{\n\treturn max(max(v.x, v.y), max(v.z, v.w));\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1108,
+                    "col": 1,
+                    "line": 52
+                },
+                "end": {
+                    "char": 1153,
+                    "col": 2,
+                    "line": 54
+                }
+            },
+            "mangled_name": "__Z4vmini",
+            "name": "vmin",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1119,
+                            "col": 12,
+                            "line": 52
+                        },
+                        "end": {
+                            "char": 1125,
+                            "col": 18,
+                            "line": 52
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1127,
+                            "col": 20,
+                            "line": 52
+                        },
+                        "end": {
+                            "char": 1153,
+                            "col": 2,
+                            "line": 54
+                        }
+                    },
+                    "text": "{\n\treturn min(v.x, v.y);\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1155,
+                    "col": 1,
+                    "line": 56
+                },
+                "end": {
+                    "char": 1210,
+                    "col": 2,
+                    "line": 58
+                }
+            },
+            "mangled_name": "__Z4vmini",
+            "name": "vmin",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1166,
+                            "col": 12,
+                            "line": 56
+                        },
+                        "end": {
+                            "char": 1172,
+                            "col": 18,
+                            "line": 56
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1174,
+                            "col": 20,
+                            "line": 56
+                        },
+                        "end": {
+                            "char": 1210,
+                            "col": 2,
+                            "line": 58
+                        }
+                    },
+                    "text": "{\n\treturn min(min(v.x, v.y), v.z);\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1212,
+                    "col": 1,
+                    "line": 60
+                },
+                "end": {
+                    "char": 1277,
+                    "col": 2,
+                    "line": 62
+                }
+            },
+            "mangled_name": "__Z4vmini",
+            "name": "vmin",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1223,
+                            "col": 12,
+                            "line": 60
+                        },
+                        "end": {
+                            "char": 1229,
+                            "col": 18,
+                            "line": 60
+                        }
+                    },
+                    "name": "v",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1231,
+                            "col": 20,
+                            "line": 60
+                        },
+                        "end": {
+                            "char": 1277,
+                            "col": 2,
+                            "line": 62
+                        }
+                    },
+                    "text": "{\n\treturn min(min(v.x, v.y), min(v.z, v.w));\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1315,
+                    "col": 1,
+                    "line": 65
+                },
+                "end": {
+                    "char": 1424,
+                    "col": 2,
+                    "line": 68
+                }
+            },
+            "mangled_name": "__Z4fBoxii",
+            "name": "fBox",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1326,
+                            "col": 12,
+                            "line": 65
+                        },
+                        "end": {
+                            "char": 1332,
+                            "col": 18,
+                            "line": 65
+                        }
+                    },
+                    "name": "p",
+                    "type": "int"
+                },
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1334,
+                            "col": 20,
+                            "line": 65
+                        },
+                        "end": {
+                            "char": 1340,
+                            "col": 26,
+                            "line": 65
+                        }
+                    },
+                    "name": "b",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1342,
+                            "col": 28,
+                            "line": 65
+                        },
+                        "end": {
+                            "char": 1424,
+                            "col": 2,
+                            "line": 68
+                        }
+                    },
+                    "text": "{\n\tvec3 d = abs(p) - b;\n\treturn length(max(d, vec3(0))) + vmax(min(d, vec3(0)));\n}"
+                }
+            ],
+            "type": "float (int, int)",
+            "type_args": [
+                "int",
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 1426,
+                    "col": 1,
+                    "line": 70
+                },
+                "end": {
+                    "char": 1606,
+                    "col": 2,
+                    "line": 76
+                }
+            },
+            "mangled_name": "__Z6fScenei",
+            "name": "fScene",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 1439,
+                            "col": 14,
+                            "line": 70
+                        },
+                        "end": {
+                            "char": 1445,
+                            "col": 20,
+                            "line": 70
+                        }
+                    },
+                    "name": "p",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 1447,
+                            "col": 22,
+                            "line": 70
+                        },
+                        "end": {
+                            "char": 1606,
+                            "col": 2,
+                            "line": 76
+                        }
+                    },
+                    "text": "{\n\tfloat r = world_scale;\n\tfloat s = length(p)-r;\n\t// r/2 is the biggest fBox we can fit in our bounding sphere\n\tfloat b = fBox(p, vec3(r * 0.5));\n\treturn s;\n}"
+                }
+            ],
+            "type": "float (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 2161,
+                    "col": 1,
+                    "line": 86
+                },
+                "end": {
+                    "char": 2509,
+                    "col": 2,
+                    "line": 95
+                }
+            },
+            "mangled_name": "__Z7normal4i",
+            "name": "normal4",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 2196,
+                            "col": 36,
+                            "line": 86
+                        },
+                        "end": {
+                            "char": 2509,
+                            "col": 2,
+                            "line": 95
+                        }
+                    },
+                    "text": "{\n\tvec2 e = vec2(-eps, eps);\n\t// tetrahedral points\n\tfloat t1 = fScene(p + e.yxx), t2 = fScene(p + e.xxy), t3 = fScene(p + e.xyx), t4 = fScene(p + e.yyy); \n\tvec3 n = (e.yxx*t1 + e.xxy*t2 + e.xyx*t3 + e.yyy*t4);\n\t// normalize for a consistent SDF:\n\t//return n / (4.*eps*eps);\n\t// otherwise:\n\treturn normalize(n);\n}"
+                }
+            ],
+            "type": "int (int)",
+            "type_args": [
+                "int"
+            ],
+            "type_ret": "int"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 2669,
+                    "col": 1,
+                    "line": 100
+                },
+                "end": {
+                    "char": 2995,
+                    "col": 2,
+                    "line": 107
+                }
+            },
+            "mangled_name": "__Z12computeDepthii",
+            "name": "computeDepth",
+            "nodes": [
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 2688,
+                            "col": 20,
+                            "line": 100
+                        },
+                        "end": {
+                            "char": 2694,
+                            "col": 26,
+                            "line": 100
+                        }
+                    },
+                    "name": "p",
+                    "type": "int"
+                },
+                {
+                    "ast": "ParmDecl",
+                    "loc": {
+                        "begin": {
+                            "char": 2696,
+                            "col": 28,
+                            "line": 100
+                        },
+                        "end": {
+                            "char": 2721,
+                            "col": 53,
+                            "line": 100
+                        }
+                    },
+                    "name": "viewProjectionMatrix",
+                    "type": "int"
+                },
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 2723,
+                            "col": 55,
+                            "line": 100
+                        },
+                        "end": {
+                            "char": 2995,
+                            "col": 2,
+                            "line": 107
+                        }
+                    },
+                    "text": "{\n\tfloat dfar = gl_DepthRange.far;\n\tfloat dnear = gl_DepthRange.near;\n\tvec4 clip_space_pos = viewProjectionMatrix * vec4(p, 1.);\n\tfloat ndc_depth = clip_space_pos.z / clip_space_pos.w;\t\n\t// standard perspective:\n\treturn (((dfar-dnear) * ndc_depth) + dnear + dfar) / 2.0;\n}"
+                }
+            ],
+            "type": "float (int, int)",
+            "type_args": [
+                "int",
+                "int"
+            ],
+            "type_ret": "float"
+        },
+        {
+            "ast": "FunctionDecl",
+            "loc": {
+                "begin": {
+                    "char": 2997,
+                    "col": 1,
+                    "line": 109
+                },
+                "end": {
+                    "char": 6342,
+                    "col": 2,
+                    "line": 219
+                }
+            },
+            "mangled_name": "_main",
+            "name": "main",
+            "nodes": [
+                {
+                    "ast": "CompoundStmt",
+                    "loc": {
+                        "begin": {
+                            "char": 3009,
+                            "col": 13,
+                            "line": 109
+                        },
+                        "end": {
+                            "char": 6342,
+                            "col": 2,
+                            "line": 219
+                        }
+                    },
+                    "text": "{\n\t// signed-normalized coordinate over the billboard:\n\tvec2 snorm = vec2(2.*gl_PointCoord.x-1.,1.-2.*gl_PointCoord.y);\n\n\t// quick circular mask. \n\t// this might not be accurate when using very wide FOV\n\tif (length(snorm) > 1.) discard; \n\n\t/*\n\t\t// do this option for complex geometries:\n\t\t\n\t\t// front face of a unit-radius sphere on this particle\n\t\tvec3 sphere = normalize(vec3(snorm, 1.));\n\t\t// rotated to face the camera just like the billboard itself\n\t\t// this is also thus the normal of a sphere centered at the particle\n\t\tvec3 spherenormal = mat3(uViewMatrixInverse) * sphere;\n\t\t// the billboard vertex, rotated & scaled to the world:\n\t\tvec3 billboard = world_scale * mat3(uViewMatrixInverse) * vec3(snorm, 0.);\n\t\t// this billboard vertex, located in world space:\n\t\tvec3 billboard_position = world_position + billboard;\n\t\t// use this to compute the ray direction from the eye:\n\t\tvec3 rd = normalize(billboard_position - eye_position);\n\t\t// the ray origin (relative to the particle location)\n\t\t// is computed by stepping back along the ray\n\t\tvec3 ro = billboard - rd * world_scale;\n\t\t\n\t\tfloat maxd = 4. * world_scale;\n\t\tfloat d = maxd;\n\t\tvec3 p = ro;\n\t\tfloat precis = 0.001;\n\t\tfloat count = 0.;\n\t\tfloat t = 0.;\n\t\t#define MAX_STEPS 8\n\t\tfloat STEP_SIZE = 1./float(MAX_STEPS);\n\t\tfor( int i=0; i<MAX_STEPS; i++ ) {\n\t\t\n\t\t\td = fScene(p);\n\t\t\t\n\t\t\tif (d < precis || t > maxd ) {\n\t\t\t\t//if (t <= maxd) count += STEP_SIZE * (d)/precis;\n\t\t\t\tbreak; // continue;\n\t\t\t}\n\t\t\t\n\t\t\t// advance ray\n\t\t\tt += d;\n\t\t\tp = ro+rd*t;\n\t\t\tcount += STEP_SIZE;\n\t\t}\n\t\tFragColor.rgb = vec3(count);\n\n\t\t//FragColor.rgb = spherenormal*0.5+0.5;\n\t\t//FragColor.rgb = rd;\n\n\t\t//FragColor.rgb = 40.*abs(rdiff);\n\t\t\n\t\t//FragColor.rgb = ro*0.5+0.5;\n\t\t\n\t\tif (d < precis) {\n\t\t\t// normal in object space:\n\t\t\tvec3 no = normal4(p, .01);\n\t\t\t// normal in world space\n\t\t\tvec3 n = quat_rotate(world_orientation, no);\n\t\t\t// ray direction in world space\n\t\t\tvec3 ray = quat_rotate(world_orientation, rd);\n\n\t\t\t// reflection vector \n\t\t\tvec3 ref = reflect(ray, n);\n\t\t\t\n\t\t\tfloat acute = abs(dot(n, ray)); // how much surface faces us\n\t\t\tfloat oblique = 1.0 - acute; // how much surface is perpendicular to us\n\t\t\t\n\t\t\t//color += (n*1.)*0.1;\n\t\t\t//color += mix(color, vec3(0.8)*max(0., dot(n, vec3(1.))), 0.5);\n\t\t\t\n\t\t\t\n\t\t\tfloat metallic = acute;\n\t\t\tvec3 color = mix(sky(n), sky(ref), metallic);\n\t\t\t\n\t\t\tcolor *= 0.5;\n\n\t\t\t// fog effect:\n\t\t\tvec3 fogcolor = sky(ray);\n\t\t\tfloat fogmix = length(world_position)/VERYFARAWAY;\n\t\t\tcolor = mix(color, fogcolor, fogmix);\n\t\t\t\n\t\t\tFragColor.rgb = color;\n\t\t} else {\n\t\t\tFragColor.rgb = vec3(0.);\n\t\t\tdiscard;\n\t\t}\n\t*/\n\t\n\t// this is a much simpler algorithm, for spheres only\n\n\n\t// front face of a unit-radius sphere on this particle\n\tvec3 sphere = normalize(vec3(snorm, 1.));\n\t// rotated to face the camera just like the billboard itself\n\t// this is also thus the normal of a sphere centered at the particle\n\tvec3 spherenormal = mat3(uViewMatrixInverse) * sphere;\n\t\n\t\n\tFragColor.rgb = color;\n\tFragNormal.xyz = spherenormal;\n\tFragPosition.xyz = world_position + sphere * world_scale;\n\n\t// place this fragment properly in the depth buffer\n\t// if you don't do this, the depth will be at the billboard location\n\t// but this is super-expensive; better to skip it if the particles are small enough\n\t//gl_FragDepth = computeDepth(world_position + p, uViewProjectionMatrix);\n}"
+                }
+            ],
+            "type": "void ()",
+            "type_args": [],
+            "type_ret": "void"
+        }
+    ]
+}
