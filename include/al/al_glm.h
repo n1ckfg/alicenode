@@ -21,6 +21,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
@@ -237,6 +238,7 @@ bool = glm::any(v<bool);	// also glm::all()
 
 m = mat4(1.); // or mat4();	// identity matrix
 m[3] = vec4(1, 1, 0, 1);	// set 4th column (translation)
+v = vec3(m[3]);				// get translation component
 
 v = m * v;					// vertex transformation
 
