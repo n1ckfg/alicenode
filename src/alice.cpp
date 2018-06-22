@@ -111,53 +111,10 @@ extern "C" AL_ALICE_EXPORT int frame() {
 
     glfwPollEvents();
     glfwMakeContextCurrent(alice.window.pointer); // maybe we want to have a onSim() event before doing this?
-     
+
 	if (alice.isRendering) 
     	alice.onFrame.emit(alice.window.width, alice.window.height);
-
-	/*
-	// TODO: remove
-	if (alice.leap->isConnected) 
-	{
-		// debug-draw the Leap data
-		// alice.leap->pos ?
-
-		//HANDS
-		LeapMotion::Hand& rh = alice.leap->hands[1];
-		LeapMotion::Hand& lh = alice.leap->hands[0];
-		//ARMS - ELBOW AND WRIST
-		LeapMotion::Arm& la = alice.leap->arms[0];
-		LeapMotion::Arm& ra = alice.leap->arms[1];
-
-		//FINGERS
-		//LeapMotion::Finger& forwardFingerR = rh.fingers[1];
-		LeapMotion::Finger& forwardFingerL = lh.fingers[2];
-
-		//BONES
-		LeapMotion::Bone& bonesLH_0 = forwardFingerL.bones[2];
-		LeapMotion::Bone& bonesLH_1 = forwardFingerL.bones[1];
-		//LeapMotion::Bone& bonesLH_2 = alice.leap->bones[2];
-		//LeapMotion::Bone& bonesLH_3 = alice.leap->bones[3];
-
 		
-		//Print Hand
-		//console.log("R_HAND pos %f\n L_HAND pos %f", rh.palmPos.x,  lh.palmPos.x);
-		//Print Elbow
-	//console.log("L_ELBOW pos %f\n R_ELBOW pos %f", la.elbowPos.x, ra.elbowPos.x);
-		//Print Wrist
-		//console.log("L_WRIST pos %f\n R_WRIST pos %f", la.wristPos.x, ra.wristPos.x);
-		//Print Fingers
-		//console.log("FINGER RIGHT pos %f\nFINGER LEFT pos %f\n", forwardFingerR.fingerPos.x, forwardFingerL.fingerPos.x);
-		//console.log("FINGER LEFT 0: %f\n", fingerL0);
-		//Print Bones
-		//console.log("BONE_M %f\nBONE_P %f", bonesLH_0.boneLength, bonesLH_1.boneLength);
-
-		int i=4, b=3;
-		//console.log("finger %d bone %d %f\n", i, b,  alice.leap->hands[0].fingers[i].bones[b].boneLength);
-
-	}
-    */
-
     glfwSwapBuffers(alice.window.pointer);
     
     double t1 = glfwGetTime();
