@@ -234,6 +234,8 @@ int main(int argc, const char ** argv) {
 	const char * filename = argv[1] ? argv[1] : "test.h";
 	const char * outfilename = argv[2] ? argv[2] : "test.json";
 
+	printf("parsing %s into %s\n", filename, outfilename);
+
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
 	/*
@@ -242,7 +244,7 @@ int main(int argc, const char ** argv) {
 		char const * args[] = { "-x", "c++", "-std=c++11", " -stdlib=libc++", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
 	
 	*/
-	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-I../../clang/6.0.0/include", "-I../../include" };
+	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-I../clang/6.0.0/include", "-I../include" };
 	int nargs = sizeof(args)/sizeof(char *);
 
 	// The index object is our main interface to libclang
