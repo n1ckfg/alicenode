@@ -534,16 +534,16 @@ function openSocket () {
 
             break
             // Files List
-          case 'setFileList':
+          case 'setcardsFileList':
 
-            fileList = JSON.parse(arg)
+            cardsFileList = JSON.parse(arg)
             var sel = document.getElementById('openFileName')
             // var length = select;
 
             // for (i = 3; i < sel.length; i++) {
             //     sel.options[i] = null;
             //     }
-            Object.values(fileList).forEach(function (key, value) {
+            Object.values(cardsFileList).forEach(function (key, value) {
               var opt = document.createElement('option')
               opt.appendChild(document.createTextNode(key))
               opt.value = key
