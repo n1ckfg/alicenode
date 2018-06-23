@@ -247,8 +247,7 @@ struct CloudDevice {
 					const uint8_t *cp = reinterpret_cast<uint8_t*>(&rgb);
 					rgbptr[i] = glm::vec3(cp[2]/255.f, cp[1]/255.f, cp[0]/255.f);
 
-					// this is probably wrong, as it doesn't take into account the registration?
-					// depth_to_color()
+					// this could be wrong?
 					glm::vec2 uv;
 					registration->apply(c, r, mm, uv.x, uv.y);
 					uv *= uvscale;
