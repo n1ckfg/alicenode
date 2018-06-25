@@ -4,6 +4,62 @@
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
+<!-- THEMES-->
+<link rel="stylesheet" href="cm/themes/3024-day.css">
+<link rel="stylesheet" href="cm/themes/3024-night.css">
+<link rel="stylesheet" href="cm/themes/abcdef.css">
+<link rel="stylesheet" href="cm/themes/ambiance.css">
+<link rel="stylesheet" href="cm/themes/base16-dark.css">
+<link rel="stylesheet" href="cm/themes/bespin.css">
+<link rel="stylesheet" href="cm/themes/base16-light.css">
+<link rel="stylesheet" href="cm/themes/blackboard.css">
+<link rel="stylesheet" href="cm/themes/cobalt.css">
+<link rel="stylesheet" href="cm/themes/colorforth.css">
+<link rel="stylesheet" href="cm/themes/dracula.css">
+<link rel="stylesheet" href="cm/themes/duotone-dark.css">
+<link rel="stylesheet" href="cm/themes/duotone-light.css">
+<link rel="stylesheet" href="cm/themes/eclipse.css">
+<link rel="stylesheet" href="cm/themes/elegant.css">
+<link rel="stylesheet" href="cm/themes/erlang-dark.css">
+<link rel="stylesheet" href="cm/themes/gruvbox-dark.css">
+<link rel="stylesheet" href="cm/themes/hopscotch.css">
+<link rel="stylesheet" href="cm/themes/icecoder.css">
+<link rel="stylesheet" href="cm/themes/isotope.css">
+<link rel="stylesheet" href="cm/themes/lesser-dark.css">
+<link rel="stylesheet" href="cm/themes/liquibyte.css">
+<link rel="stylesheet" href="cm/themes/lucario.css">
+<link rel="stylesheet" href="cm/themes/material.css">
+<link rel="stylesheet" href="cm/themes/mbo.css">
+<link rel="stylesheet" href="cm/themes/mdn-like.css">
+<link rel="stylesheet" href="cm/themes/midnight.css">
+<link rel="stylesheet" href="cm/themes/monokai.css">
+<link rel="stylesheet" href="cm/themes/neat.css">
+<link rel="stylesheet" href="cm/themes/neo.css">
+<link rel="stylesheet" href="cm/themes/night.css">
+<link rel="stylesheet" href="cm/themes/oceanic-next.css">
+<link rel="stylesheet" href="cm/themes/panda-syntax.css">
+<link rel="stylesheet" href="cm/themes/paraiso-dark.css">
+<link rel="stylesheet" href="cm/themes/paraiso-light.css">
+<link rel="stylesheet" href="cm/themes/pastel-on-dark.css">
+<link rel="stylesheet" href="cm/themes/railscasts.css">
+<link rel="stylesheet" href="cm/themes/rubyblue.css">
+<link rel="stylesheet" href="cm/themes/seti.css">
+<link rel="stylesheet" href="cm/themes/shadowfox.css">
+<link rel="stylesheet" href="cm/themes/solarized.css">
+<link rel="stylesheet" href="cm/themes/the-matrix.css">
+<link rel="stylesheet" href="cm/themes/tomorrow-night-bright.css">
+<link rel="stylesheet" href="cm/themes/tomorrow-night-eighties.css">
+<link rel="stylesheet" href="cm/themes/ttcn.css">
+<link rel="stylesheet" href="cm/themes/twilight.css">
+<link rel="stylesheet" href="cm/themes/vibrant-ink.css">
+<link rel="stylesheet" href="cm/themes/xq-dark.css">
+<link rel="stylesheet" href="cm/themes/xq-light.css">
+<link rel="stylesheet" href="cm/themes/yeti.css">
+<link rel="stylesheet" href="cm/themes/idea.css">
+<link rel="stylesheet" href="cm/themes/darcula.css">
+<link rel="stylesheet" href="cm/themes/zenburn.css">
+
+
 <!-- CSS -->
 <link rel=stylesheet href="css/alicenode.css">
 <link rel=stylesheet href="css/jquery-ui.css">
@@ -19,6 +75,7 @@
 <script src="cm/codemirror.js"></script>
 <script src="cm/xml.js"></script>
 <script src="cm/css.js"></script>
+<script src="cm/modes/clike.js"></script>
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
@@ -64,6 +121,66 @@
             <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
             <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
             <input id="server" type="text" value="ws://localhost:8080" size="40">
+            
+            <!-- THEMES SELECTION-->
+            <span>Select a theme: <select onchange="selectTheme()" id=themeSelect>
+                <option selected>default</option>
+                <option>3024-day</option>
+                <option>3024-night</option>
+                <option>abcdef</option>
+                <option>ambiance</option>
+                <option>base16-dark</option>
+                <option>base16-light</option>
+                <option>bespin</option>
+                <option>blackboard</option>
+                <option>cobalt</option>
+                <option>colorforth</option>
+                <option>darcula</option>
+                <option>dracula</option>
+                <option>duotone-dark</option>
+                <option>duotone-light</option>
+                <option>eclipse</option>
+                <option>elegant</option>
+                <option>erlang-dark</option>
+                <option>gruvbox-dark</option>
+                <option>hopscotch</option>
+                <option>icecoder</option>
+                <option>idea</option>
+                <option>isotope</option>
+                <option>lesser-dark</option>
+                <option>liquibyte</option>
+                <option>lucario</option>
+                <option>material</option>
+                <option>mbo</option>
+                <option>mdn-like</option>
+                <option>midnight</option>
+                <option>monokai</option>
+                <option>neat</option>
+                <option>neo</option>
+                <option>night</option>
+                <option>oceanic-next</option>
+                <option>panda-syntax</option>
+                <option>paraiso-dark</option>
+                <option>paraiso-light</option>
+                <option>pastel-on-dark</option>
+                <option>railscasts</option>
+                <option>rubyblue</option>
+                <option>seti</option>
+                <option>shadowfox</option>
+                <option>solarized dark</option>
+                <option>solarized light</option>
+                <option>the-matrix</option>
+                <option>tomorrow-night-bright</option>
+                <option>tomorrow-night-eighties</option>
+                <option>ttcn</option>
+                <option>twilight</option>
+                <option>vibrant-ink</option>
+                <option>xq-dark</option>
+                <option>xq-light</option>
+                <option>yeti</option>
+                <option>zenburn</option>
+            </select>
+            </span>
         </th>
         <th>
             <button onclick="openSocket()">Open</button>
@@ -280,7 +397,7 @@ function initUI () {
     // keep this at 10 or less. if infinite it slows the page down a LOT. this is essentially the size of the buffer beyond what is displayed, and if set to infinite or larger number, enables text searching, but again, page loading is an issue.
     viewportMargin: 10,
     // keep this. we're primarily concerned with being able to edit cpp code
-    mode: 'clike',
+    mode: "text/x-csrc",
     // show where there two versions differ
     highlightDifferences: highlight,
     // we do want to be able to edit code in the right editor, because that's where the whole 'branching-as-playfulness' comes in
@@ -301,7 +418,38 @@ function initUI () {
       ws.send('chatMsg?Edited file ' + fileName + ' from commit ' + selectedCommit + '. <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>')
     }
   })
+
+  var choice = (location.hash && location.hash.slice(1)) ||
+               (document.location.search &&
+                decodeURIComponent(document.location.search.slice(1)));
+  if (choice) {
+    inputTheme.value = choice;
+    dv.edit.setOption("theme", choice);
+    dv.right.orig.setOption("theme", choice);
+  }
+
+   CodeMirror.on(window, "hashchange", function() {
+    var theme = location.hash.slice(1);
+    if (theme) { inputTheme.value = theme; selectTheme(); }
+  });
+
+dv.edit.setOption("highlightDifferences", false);
+    dv.right.orig.setOption("highlightDifferences", false);
+
+      dv.edit.setOption("highlightDifferences", true);
+    dv.right.orig.setOption("highlightDifferences", true);
+
+    
+
 }
+
+  var inputTheme = document.getElementById("themeSelect");
+  function selectTheme() {
+    var theme  = inputTheme.options[inputTheme.selectedIndex].textContent;
+    dv.edit.setOption("theme", theme);
+    dv.right.orig.setOption("theme", theme);
+    location.hash = "#" + theme;
+  }
 
 function toggleDifferences () {
   dv.setShowDifferences(highlight = !highlight)
