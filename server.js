@@ -41,7 +41,68 @@ let stateSource
 let stateAST
 let state = [] // we'll send this to the client
 
+/// 
+// mmap the state
+let statebuf
+try {
+  buffSize = fs.statSync('state.bin').size
+  statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
+  console.log('mapped state.bin, size ' + statebuf.byteLength)
+} catch (e) {
+  console.error('failed to map the state.bin:', e.message)
+}
 
+getState()
+              function getState () {
+                // get sourcecode
+                stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
+                stateSource = JSON.stringify(stateSource)
+
+                exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
+                  console.log('\nstate.h traversed\n')
+              
+                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
+                  console.log(stateAST)
+              
+                  Object.keys(stateAST.nodes).forEach(function (key) {
+                    if (stateAST.nodes[key].name === 'State') {
+
+              
+                      Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
+                        let value = stateAST.nodes[key].nodes[objectKey]
+                        paramName = value.name
+              
+                        let type = value.type
+                        let offset = value.offsetof
+                        
+                        // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+                        switch (type) {
+                          case 'float':
+                            // let obj = new Object;
+                            let paramValue = statebuf.readFloatLE(offset)
+                            console.log("\n\n\n" + paramValue)
+
+              
+                            // let objArray = [paramValue, type, offset]
+                            // obj[paramName] = objArray
+              
+                            // console.log(obj);
+                            state.push({paramName, paramValue, type, offset})
+              
+                            // console.log("float detected " + paramName, paramValue)
+                            break
+              
+                          default:
+                            state.push({paramName, type})
+                        }
+                      })
+                    }
+                    // console.log(arg.nodes[key].name)
+                  })
+                })
+
+   
+              }
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
@@ -162,7 +223,9 @@ function aliceCommand (command, arg) {
 //   console.error('failed to map the state.bin:', e.message)
 // }
 
-/// //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 // HTTP SERVER
 
@@ -892,14 +955,14 @@ ws.send('cardsFileList?' + cardsFileList)
                 stateSource = JSON.stringify(stateSource)
 
                 exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
-                  console.log('\n\n\n\nstate.h traversed')
+                  console.log('\nstate.h traversed\n')
               
-                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/', 'state.json'), 'utf-8'))
+                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
                   console.log(stateAST)
               
                   Object.keys(stateAST.nodes).forEach(function (key) {
                     if (stateAST.nodes[key].name === 'State') {
-                      // console.log(arg.nodes[key].nodes)
+
               
                       Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
                         let value = stateAST.nodes[key].nodes[objectKey]
@@ -913,6 +976,8 @@ ws.send('cardsFileList?' + cardsFileList)
                           case 'float':
                             // let obj = new Object;
                             let paramValue = statebuf.readFloatLE(offset)
+                            console.log("\n\n\n" + paramValue)
+
               
                             // let objArray = [paramValue, type, offset]
                             // obj[paramName] = objArray
@@ -1047,15 +1112,7 @@ watcher
 
 /// ////////////////////////////////////////////////////////////
 
-// mmap the state
-let statebuf
-try {
-  buffSize = fs.statSync('state.bin').size
-  statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
-  console.log('mapped state.bin, size ' + statebuf.byteLength)
-} catch (e) {
-  console.error('failed to map the state.bin:', e.message)
-}
+
 
 
 
