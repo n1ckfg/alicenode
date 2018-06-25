@@ -103,6 +103,10 @@ getState()
 
    
               }
+// refresh the state from the mmap every 10 seconds
+setInterval(function () {
+  getState();
+}, 10000)
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
@@ -945,61 +949,10 @@ ws.send('cardsFileList?' + cardsFileList)
 
           case "stateEditorConnect":
 
-          //////// MAJOR BUG: the cpp2json is unable to find the clang includes... even though the paths seem to be correct. need to figure this out!
-          
-            //on connection with state editor, do this:
-            getState()
-              function getState () {
-                // get sourcecode
-                stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
-                stateSource = JSON.stringify(stateSource)
-
-                exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
-                  console.log('\nstate.h traversed\n')
-              
-                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
-                  console.log(stateAST)
-              
-                  Object.keys(stateAST.nodes).forEach(function (key) {
-                    if (stateAST.nodes[key].name === 'State') {
-
-              
-                      Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
-                        let value = stateAST.nodes[key].nodes[objectKey]
-                        paramName = value.name
-              
-                        let type = value.type
-                        let offset = value.offsetof
-                        
-                        // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-                        switch (type) {
-                          case 'float':
-                            // let obj = new Object;
-                            let paramValue = statebuf.readFloatLE(offset)
-                            console.log("\n\n\n" + paramValue)
-
-              
-                            // let objArray = [paramValue, type, offset]
-                            // obj[paramName] = objArray
-              
-                            // console.log(obj);
-                            state.push({paramName, paramValue, type, offset})
-              
-                            // console.log("float detected " + paramName, paramValue)
-                            break
-              
-                          default:
-                            state.push({paramName, type})
-                        }
-                      })
-                    }
-                    // console.log(arg.nodes[key].name)
-                  })
-                })
-
-   
-              }
+          // NOTE: for now (maybe) the getState Function will exist outside this scope, at global-level. 
+          // Send the state when a state editor connects
             
+
               ws.send('state?' + JSON.stringify(state))
               ws.send('state.h?' + stateSource) 
 
