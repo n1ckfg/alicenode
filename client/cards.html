@@ -323,19 +323,19 @@ function openSocket () {
             /// ///////////
             
           // send the list of files in the projectPath to the cards editor
-          case 'fileList':
+          case 'cardsFileList':
             // first clear the select element options before populating it again
             document.getElementById('openFileName').options.length = 2;
             
-            var fileList = arg.replace(/,$/, '').split(',').map(function (name) {
+            var cardsFileList = arg.replace(/,$/, '').split(',').map(function (name) {
               return {name: name}
             })
             var sel = document.getElementById('openFileName')
 
-            Object.values(fileList).forEach(function (key, value) {
+            Object.values(cardsFileList).forEach(function (key, value) {
               var opt = document.createElement('option')
-              opt.appendChild(document.createTextNode(fileList[value].name))
-              opt.value = fileList[value].name
+              opt.appendChild(document.createTextNode(cardsFileList[value].name))
+              opt.value = cardsFileList[value].name
               sel.appendChild(opt)
             })
             break

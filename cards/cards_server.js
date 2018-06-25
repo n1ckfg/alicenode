@@ -23,7 +23,7 @@ let filename
 // cards functions:
 listFiles()
 function listFiles () {
-  fileList = fs.readdirSync(projectPath).filter(function (file) {
+  cardsFileList = fs.readdirSync(projectPath).filter(function (file) {
     if (file.charAt(0) === '+');
     else if (file.charAt(0) === '.');
     else if (file.includes('.dylib'));
@@ -140,7 +140,7 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
-  ws.send('fileList?' + fileList)
+  ws.send('cardsFileList?' + cardsFileList)
   // console.log(deck)
 
   // if the ast parser produced any warnings/errors:

@@ -1,0 +1,222 @@
+{
+   "ast": "TranslationUnit",
+   "filename": "test.h",
+   "nodes": [
+      {
+         "ast": "StructDecl",
+         "comment": {
+            "text": "/*\n\tFooey foofoo\n*/"
+         },
+         "loc": {
+            "begin": {
+               "char": 21,
+               "col": 1,
+               "line": 5
+            },
+            "end": {
+               "char": 133,
+               "col": 2,
+               "line": 16
+            }
+         },
+         "name": "Foo",
+         "nodes": [
+            {
+               "ast": "FieldDecl",
+               "loc": {
+                  "begin": {
+                     "char": 35,
+                     "col": 2,
+                     "line": 6
+                  },
+                  "end": {
+                     "char": 44,
+                     "col": 11,
+                     "line": 6
+                  }
+               },
+               "name": "x",
+               "nodes": [
+                  {
+                     "ast": "IntegerLiteral",
+                     "loc": {
+                        "begin": {
+                           "char": 43,
+                           "col": 10,
+                           "line": 6
+                        },
+                        "end": {
+                           "char": 44,
+                           "col": 11,
+                           "line": 6
+                        }
+                     },
+                     "type": "int"
+                  }
+               ],
+               "type": "int"
+            },
+            {
+               "ast": "CXXMethod",
+               "comment": {
+                  "text": "// methy meth"
+               },
+               "loc": {
+                  "begin": {
+                     "char": 63,
+                     "col": 2,
+                     "line": 9
+                  },
+                  "end": {
+                     "char": 97,
+                     "col": 3,
+                     "line": 11
+                  }
+               },
+               "mangled_name": "__ZN3Foo4methEi",
+               "name": "meth",
+               "nodes": [
+                  {
+                     "ast": "ParmDecl",
+                     "loc": {
+                        "begin": {
+                           "char": 72,
+                           "col": 11,
+                           "line": 9
+                        },
+                        "end": {
+                           "char": 77,
+                           "col": 16,
+                           "line": 9
+                        }
+                     },
+                     "name": "y",
+                     "type": "int"
+                  },
+                  {
+                     "ast": "CompoundStmt",
+                     "loc": {
+                        "begin": {
+                           "char": 79,
+                           "col": 18,
+                           "line": 9
+                        },
+                        "end": {
+                           "char": 97,
+                           "col": 3,
+                           "line": 11
+                        }
+                     },
+                     "text": "{\n\t\treturn x*y;\n\t}"
+                  }
+               ],
+               "type": "int (int)",
+               "type_args": [
+                  "int"
+               ],
+               "type_ret": "int"
+            },
+            {
+               "ast": "CXXMethod",
+               "loc": {
+                  "begin": {
+                     "char": 100,
+                     "col": 2,
+                     "line": 13
+                  },
+                  "end": {
+                     "char": 131,
+                     "col": 3,
+                     "line": 15
+                  }
+               },
+               "mangled_name": "__ZN3Foo4methEv",
+               "name": "meth",
+               "nodes": [
+                  {
+                     "ast": "CompoundStmt",
+                     "loc": {
+                        "begin": {
+                           "char": 113,
+                           "col": 15,
+                           "line": 13
+                        },
+                        "end": {
+                           "char": 131,
+                           "col": 3,
+                           "line": 15
+                        }
+                     },
+                     "text": "{\n\t\treturn 0.f;\n\t}"
+                  }
+               ],
+               "type": "float ()",
+               "type_args": [],
+               "type_ret": "float"
+            }
+         ],
+         "type": "Foo"
+      },
+      {
+         "ast": "FunctionDecl",
+         "comment": {
+            "text": "// zappy zapzap"
+         },
+         "loc": {
+            "begin": {
+               "char": 152,
+               "col": 1,
+               "line": 19
+            },
+            "end": {
+               "char": 190,
+               "col": 2,
+               "line": 23
+            }
+         },
+         "mangled_name": "__Z3zapf",
+         "name": "zap",
+         "nodes": [
+            {
+               "ast": "ParmDecl",
+               "loc": {
+                  "begin": {
+                     "char": 160,
+                     "col": 9,
+                     "line": 19
+                  },
+                  "end": {
+                     "char": 167,
+                     "col": 16,
+                     "line": 19
+                  }
+               },
+               "name": "f",
+               "type": "float"
+            },
+            {
+               "ast": "CompoundStmt",
+               "loc": {
+                  "begin": {
+                     "char": 169,
+                     "col": 18,
+                     "line": 19
+                  },
+                  "end": {
+                     "char": 190,
+                     "col": 2,
+                     "line": 23
+                  }
+               },
+               "text": "{\n\n\n\treturn 99 * f;\n}"
+            }
+         ],
+         "type": "int (float)",
+         "type_args": [
+            "float"
+         ],
+         "type_ret": "int"
+      }
+   ]
+}
+

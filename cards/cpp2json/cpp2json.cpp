@@ -234,6 +234,8 @@ int main(int argc, const char ** argv) {
 	const char * filename = argv[1] ? argv[1] : "test.h";
 	const char * outfilename = argv[2] ? argv[2] : "test.json";
 
+	printf("parsing %s into %s\n", filename, outfilename);
+
 	// The TU represents an invocation of the compiler, based on a source file
 	// it needs to know what the invocation arguments to the compiler would be:
 	/*
