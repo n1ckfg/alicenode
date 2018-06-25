@@ -59,10 +59,9 @@ getState()
                 stateSource = JSON.stringify(stateSource)
 
                 exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
-                  console.log('\nstate.h traversed\n')
               
                   stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
-                  console.log(stateAST)
+                  console.log("stateAST Loaded")
               
                   Object.keys(stateAST.nodes).forEach(function (key) {
                     if (stateAST.nodes[key].name === 'State') {
@@ -80,7 +79,7 @@ getState()
                           case 'float':
                             // let obj = new Object;
                             let paramValue = statebuf.readFloatLE(offset)
-                            console.log("\n\n\n" + paramValue)
+                            //console.log("\n\n\n" + paramValue)
 
               
                             // let objArray = [paramValue, type, offset]
@@ -99,12 +98,15 @@ getState()
                     }
                     // console.log(arg.nodes[key].name)
                   })
+                  console.log('mapped state var updated in server\n')
+
                 })
 
-   
+
               }
 // refresh the state from the mmap every 10 seconds
 setInterval(function () {
+  console.log('\nupdating mapped state var in server')
   getState();
 }, 10000)
 // let port = 8080
@@ -187,8 +189,6 @@ let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
   cwd: projectPath
 })
 
-// alice.stdout.on("data", function(data) { console.log(data.toString());});
-// alice.stderr.on("data", function(data) { console.log(data.toString());});
 alice.on('message', function (data) { console.log('msg', data.toString())})
 alice.stdout.pipe(process.stdout)
 alice.stderr.pipe(process.stderr)
@@ -336,10 +336,7 @@ function listFiles () {
     }
   })
 }
-console.log("\n\n\n\n\n" + cardsFileList)
 ws.send('cardsFileList?' + cardsFileList)
-
-
 
   // /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
   ws.on('message', function (message) {
@@ -546,7 +543,6 @@ ws.send('cardsFileList?' + cardsFileList)
 
           // Select user
         case 'selectUser':
-          console.log(arg)
           // have userlist ready
           userEntry = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           // client's git username
@@ -554,8 +550,6 @@ ws.send('cardsFileList?' + cardsFileList)
           // client's git email
           userEmail = userEntry[arg]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
-
-          console.log(userWorktree)
 
           ws.send("chatMsg?'Right Editor' set to work within worktree: " + userWorktree)
 
@@ -933,12 +927,13 @@ ws.send('cardsFileList?' + cardsFileList)
 
           src = fs.readFileSync(filepath, 'utf8')
           exec('./cpp2json ' + filepath + ' ' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
-            console.log(filename + ' traversed')
+
 
             deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
 
             ws.send('deck?' + deck)
             ws.send('src?' + src)
+            console.log("\nA cards editor has opened " + filename + "\n")
           })
 
           break
@@ -1007,10 +1002,10 @@ server.listen(8080, function () {
   console.log('server listening on %d', server.address().port)
 })
 
-setInterval(function () {
-  // if (statebuf) sendAllClients(statebuf);
-  // sendAllClients("fps?"+);
-}, 100)
+// setInterval(function () {
+//   // if (statebuf) sendAllClients(statebuf);
+//   // sendAllClients("fps?"+);
+// }, 100)
 
 /// //////////////////////////////////////////////////////////////////////////////
 
