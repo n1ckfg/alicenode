@@ -188,6 +188,21 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
+
+  
+
+  sessions[perSessionData.id] = perSessionData
+
+  console.log('server received a connection, new session ' + perSessionData.id)
+  console.log('server has ' + wss.clients.size + ' connected clients')
+
+  // const location = url.parse(req.url, true)
+  // You might use location.query.access_token to authenticate or share sessions
+  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+  // respond to any messages from the client:
+
+  // /\/\/\/\/\/\/\/\/\/\ Alicenode Main Editor: /\/\/\/\/\/\/\/\/\/\/
   // get the current list of authors involved in the alicenode_inhabitat project
   let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
 
@@ -220,21 +235,40 @@ wss.on('connection', function (ws, req) {
     ws.send('setBranchList?' + err)
   })
 
-  sessions[perSessionData.id] = perSessionData
 
-  console.log('server received a connection, new session ' + perSessionData.id)
-  console.log('server has ' + wss.clients.size + ' connected clients')
-
-  // const location = url.parse(req.url, true)
-  // You might use location.query.access_token to authenticate or share sessions
-  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-
-  // respond to any messages from the client:
-
-
-
-
+  // /\/\/\/\/\/\/\/\/\/\ Alicenode Cards Editor /\/\/\/\/\/\/\/\/\
   
+let deck
+let src
+let errors
+let filename
+
+// cards functions:
+listFiles()
+function listFiles () {
+  cardsFileList = fs.readdirSync(projectPath).filter(function (file) {
+    if (file.charAt(0) === '+');
+    else if (file.charAt(0) === '.');
+    else if (file.includes('.dylib'));
+    else if (file.includes('userlist.json'));
+    else if (file.includes('userWorktree'));
+    else if (file.includes('.code-workspace'));
+    else if (file.includes('tmp'));
+    else if (file.includes('.bin'));
+    else if (file.includes('.dll'));
+    else if (file.includes('.lib'));
+    // to do add filter that makes sure it ignores folders! maybe in the future we'll want to recursively search folders, but for now, folders likely indicate either git meta, worktrees, or tmp.
+    else {
+      return file
+    }
+  })
+}
+console.log("\n\n\n\n\n" + cardsFileList)
+ws.send('cardsFileList?' + cardsFileList)
+
+
+
+  // /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
   ws.on('message', function (message) {
     let onHash
     let numBranches
@@ -815,7 +849,30 @@ wss.on('connection', function (ws, req) {
 
           break
 
-          // state editor receives:
+
+
+// /\/\/\/\/\/\/\/\/\/\ Alicenode Cards Editor /\/\/\/\/\/\/\/\/\
+          case 'cardsFileRequest':
+
+          // getCpp2json(arg)
+          filename = arg
+          filepath = path.join(projectPath, '/', filename)
+
+          src = fs.readFileSync(filepath, 'utf8')
+          exec('./cpp2json ' + filepath + ' ' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
+            console.log(filename + ' traversed')
+
+            deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
+
+            ws.send('deck?' + deck)
+            ws.send('src?' + src)
+          })
+
+          break
+
+          
+
+// /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
 
           case "stateEditorConnect":
 
@@ -875,7 +932,8 @@ wss.on('connection', function (ws, req) {
               ws.send('state.h?' + stateSource) 
 
             break
-          case 'stateUpdate':
+            
+            case 'stateUpdate':
             // stateUpdate = JSON.stringify(arg)
             // console.log(arg)
             // console.log(state)
