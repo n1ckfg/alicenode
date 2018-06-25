@@ -72,6 +72,7 @@
 <script src="cm/codemirror.js"></script>
 <script src="cm/xml.js"></script>
 <script src="cm/css.js"></script>
+<script src="cm/modes/clike.js"></script>
 <script src="cm/modes/javascript.js"></script>
 <script src="cm/diff_match_patch.js"></script>
 <script src="cm/merge.js"></script>
@@ -393,7 +394,7 @@ function initUI () {
     // keep this at 10 or less. if infinite it slows the page down a LOT. this is essentially the size of the buffer beyond what is displayed, and if set to infinite or larger number, enables text searching, but again, page loading is an issue.
     viewportMargin: 10,
     // keep this. we're primarily concerned with being able to edit cpp code
-    mode: 'clike',
+    mode: "text/x-csrc",
     // show where there two versions differ
     highlightDifferences: highlight,
     // we do want to be able to edit code in the right editor, because that's where the whole 'branching-as-playfulness' comes in
@@ -428,6 +429,14 @@ function initUI () {
     var theme = location.hash.slice(1);
     if (theme) { inputTheme.value = theme; selectTheme(); }
   });
+
+dv.edit.setOption("highlightDifferences", false);
+    dv.right.orig.setOption("highlightDifferences", false);
+
+      dv.edit.setOption("highlightDifferences", true);
+    dv.right.orig.setOption("highlightDifferences", true);
+
+    
 
 }
 
@@ -758,7 +767,6 @@ function openSocket () {
             // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
             orig1 = arg
             isRightDirty == false
-
             initUI()
             // make sure that the right code editor dirty flag is reset
 
