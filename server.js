@@ -355,6 +355,7 @@ ws.send('cardsFileList?' + cardsFileList)
         // console.log(JSON.stringify(stderr))
         let commitList = stderr.split('refs/heads').join('')
         ws.send('branchCommits?' + commitList)
+        console.log(commitList)
       })
     }
 
@@ -456,10 +457,15 @@ ws.send('cardsFileList?' + cardsFileList)
 
     if (message.includes('git show')) {
       // if a fileName has been selected
+      console.log("\n\n\n\n" + message)
+      console.log(fileName)
       if (fileName) {
         // path.join("..", "alicenode_inhabitat/project.cpp")
-        exec(message + ':' + fileName, { cwd: projectPath }, (stdout) => {
-          ws.send('show?' + stdout)
+        exec(message + ':' + fileName, { cwd: projectPath }, (stdout, stderr, err) => {
+          console.log("stdout" + stdout)
+          console.log("stderr" + stderr)
+          console.log("err" + err)
+          ws.send('show?' + stderr)
 
           console.log('sending show ' + stdout)
           // console.log(stdout);
