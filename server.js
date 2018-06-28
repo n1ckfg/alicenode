@@ -42,6 +42,7 @@ const projectlib = 'project.' + libext
 let stateSource
 let stateAST
 let state = [] // we'll send this to the client
+let paramValue;
 
 /// 
 // mmap the state
@@ -56,6 +57,8 @@ try {
 
 getState()
 function getState () {
+  //clear state:
+  state = []
   // get sourcecode
   stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
   stateSource = JSON.stringify(stateSource)
@@ -72,6 +75,7 @@ function getState () {
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
           let value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
+          
 
           let type = value.type
           let offset = value.offsetof
@@ -80,7 +84,7 @@ function getState () {
           switch (type) {
             case 'float':
               // let obj = new Object;
-              let paramValue = statebuf.readFloatLE(offset)
+              paramValue = statebuf.readFloatLE(offset)
               //console.log("\n\n\n" + paramValue)
 
 
@@ -91,6 +95,34 @@ function getState () {
               state.push({paramName, paramValue, type, offset})
 
               // console.log("float detected " + paramName, paramValue)
+              break
+
+            case (type.includes('float ')):
+              // paramValue = statebuf.readFloatLE(offset)
+              paramValue = "test 32"
+              //console.log("\n\n\n" + paramValue)
+
+
+              // let objArray = [paramValue, type, offset]
+              // obj[paramName] = objArray
+
+              // console.log(obj);
+              state.push({paramName, paramValue, type, offset})
+              console.log(paramName, paramValue, type)
+            break
+
+            case 'Object':
+
+              paramValue = statebuf.readUInt8(offset)
+            //console.log("\n\n\n" + paramValue)
+
+
+            // let objArray = [paramValue, type, offset]
+            // obj[paramName] = objArray
+
+            // console.log(obj);
+              state.push({paramName, paramValue, type, offset})
+
               break
 
             default:
@@ -963,6 +995,9 @@ ws.send('cardsFileList?' + cardsFileList)
 
               ws.send('state?' + JSON.stringify(state))
               ws.send('state.h?' + stateSource) 
+
+              // console.log(state)
+
 
             break
             
