@@ -140,8 +140,9 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
-//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. 
+//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. try 'npm start git-only'. note, 'npm start' is default
 if (serverMode !== "git-only") {
+  projectBuild();
 // BUILD PROJECT
   function projectBuild () {
     let out = ''
@@ -152,10 +153,6 @@ if (serverMode !== "git-only") {
     }
     console.log('built project', out.toString())
   }
-
-  // GRAHAM: can we please add a startup flag to npm start to disable this as an option? it should be default, but we can't work if we're working on the subway or somewhere else without wifi
-  // try to pull, as good practice:
-  // console.log("git pull:", execSync('git pull').toString());
 
   // should we build now?
   if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
@@ -208,33 +205,6 @@ function gitAddAndCommit () {
   }
 }
 
-//
-
-/// //////////////////////////////////////////////////////////////////////////////
-
-
-
-// MMAP THE STATE
-
-// let statebuf
-// try {
-//   statebuf = mmapfile.openSync('state.bin', fs.statSync('state.bin').size, 'r+')
-//   console.log('mapped state.bin, size ' + statebuf.byteLength)
-
-//   // slow version:
-//   setInterval(function () {
-//     let idx = randomInt(0, 10) * (4 * 3)
-//     let v = statebuf.readFloatLE(idx)
-//     v = v + 0.01
-//     if (v > 1.0) v -= 2.0
-//     if (v < -1.0) v += 2.0
-//     // statebuf.writeFloatLE(v, idx);
-//   }, 1000 / 120)
-// } catch (e) {
-//   console.error('failed to map the state.bin:', e.message)
-// }
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -283,8 +253,6 @@ wss.on('connection', function (ws, req) {
   // You might use location.query.access_token to authenticate or share sessions
   // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
-  // respond to any messages from the client:
-
   // /\/\/\/\/\/\/\/\/\/\ Alicenode Main Editor: /\/\/\/\/\/\/\/\/\/\/
   // get the current list of authors involved in the alicenode_inhabitat project
   let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
@@ -308,21 +276,17 @@ wss.on('connection', function (ws, req) {
     }
   })
   let userWorktree // the directory that a client's right editor will work in
-
   ws.send('setFileList?' + JSON.stringify(fileList))
-
 
   // get list of branches within repo
   exec('git branch -v', {cwd: projectPath}, (stdout, err, stderr) => {
     ws.send('setBranchList?' + err)
   })
 
-
   // /\/\/\/\/\/\/\/\/\/\ Alicenode Cards Editor /\/\/\/\/\/\/\/\/\
   
 let deck
 let src
-let errors
 
 // cards functions:
 listFiles()
@@ -774,19 +738,11 @@ ws.send('cardsFileList?' + cardsFileList)
 
           thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
 
-          // console.log(thisAuthor)
-          // console.log(arg)
-
-          // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
-          // console.log(thisAuthor)
-
-          fs.writeFileSync(projectPath + '/' + userWorktree + '/' + fileName, newCode, 'utf8')
+          fs.writeFileSync(userWorktree + '/' + fileName, newCode, 'utf8')
           // git add and commit the new changes, including commitMsg
           execSync('git add .', {cwd: userWorktree }, () => { console.log('git added') })
           execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: userWorktree }, () => { console.log('git committed') })
           execSync('git status', {cwd: userWorktree }, (stdout) => { console.log('\ngit status: \n' + stdout) })
-
-
 
         break
           // Client sent code from the left editor. write changes and commit using the name and email provided by the client.
