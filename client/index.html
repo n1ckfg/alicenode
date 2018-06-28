@@ -200,7 +200,7 @@
         </th>
         <th>
             <div class="onoffswitch">
-                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; initUI()">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; toggleCollapse()">
                 <label class="onoffswitch-label" for="toggleCollapse"></label>
             </div>Collapse Changes
         </th>
@@ -308,8 +308,8 @@ var ws
 var currentUser = 'FullName'
 
 var filename // the currently selected filename
-// var ws_url = "ws://" + window.location.host + "mergeTestCode.html";
-var ws_url = 'ws://localhost:8080'
+var ws_url = "ws://" + window.location.host;
+// var ws_url = 'ws://localhost:8080'
 
 // var col;
 // codemirror/mergeview globals:
@@ -612,6 +612,7 @@ function openSocket () {
             var sel = document.getElementById('chooseUser')
             // store the incoming userlist in a global
             currentUserList = JSON.parse(arg)
+            console.log(currentUserList)
             // compare the previous userlist with the incoming list
             // append any new names
             Object.keys(currentUserList).forEach(function (key) {
