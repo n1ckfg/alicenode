@@ -24,7 +24,7 @@ function randomInt (low, high) {
 // CONFIGURATION
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
-
+// console.log("\n\n\n" + process.argv[2])
 // derive project to launch from first argument:
 process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
 const projectPath = process.cwd()
@@ -53,57 +53,57 @@ try {
 }
 
 getState()
-              function getState () {
-                // get sourcecode
-                stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
-                stateSource = JSON.stringify(stateSource)
+function getState () {
+  // get sourcecode
+  stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
+  stateSource = JSON.stringify(stateSource)
 
-                exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
-              
-                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
-                  console.log("stateAST Loaded")
-              
-                  Object.keys(stateAST.nodes).forEach(function (key) {
-                    if (stateAST.nodes[key].name === 'State') {
+  exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
 
-              
-                      Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
-                        let value = stateAST.nodes[key].nodes[objectKey]
-                        paramName = value.name
-              
-                        let type = value.type
-                        let offset = value.offsetof
-                        
-                        // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-                        switch (type) {
-                          case 'float':
-                            // let obj = new Object;
-                            let paramValue = statebuf.readFloatLE(offset)
-                            //console.log("\n\n\n" + paramValue)
+    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
+    console.log("stateAST Loaded")
 
-              
-                            // let objArray = [paramValue, type, offset]
-                            // obj[paramName] = objArray
-              
-                            // console.log(obj);
-                            state.push({paramName, paramValue, type, offset})
-              
-                            // console.log("float detected " + paramName, paramValue)
-                            break
-              
-                          default:
-                            state.push({paramName, type})
-                        }
-                      })
-                    }
-                    // console.log(arg.nodes[key].name)
-                  })
-                  console.log('mapped state var updated in server\n')
-
-                })
+    Object.keys(stateAST.nodes).forEach(function (key) {
+      if (stateAST.nodes[key].name === 'State') {
 
 
-              }
+        Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
+          let value = stateAST.nodes[key].nodes[objectKey]
+          paramName = value.name
+
+          let type = value.type
+          let offset = value.offsetof
+          
+          // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+          switch (type) {
+            case 'float':
+              // let obj = new Object;
+              let paramValue = statebuf.readFloatLE(offset)
+              //console.log("\n\n\n" + paramValue)
+
+
+              // let objArray = [paramValue, type, offset]
+              // obj[paramName] = objArray
+
+              // console.log(obj);
+              state.push({paramName, paramValue, type, offset})
+
+              // console.log("float detected " + paramName, paramValue)
+              break
+
+            default:
+              state.push({paramName, type})
+          }
+        })
+      }
+      // console.log(arg.nodes[key].name)
+    })
+    console.log('mapped state var updated in server\n')
+
+  })
+
+
+}
 // refresh the state from the mmap every 10 seconds
 setInterval(function () {
   console.log('\nupdating mapped state var in server')
