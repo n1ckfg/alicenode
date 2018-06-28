@@ -319,7 +319,7 @@ var orig1 = 'This editor pulls code in from other commits/branches';
 var dv;
 let panes = 2;
 let highlight = true;
-//let connect = "align";
+let connect = "align";
 var target;
 var collapse = false;
 var requested;
@@ -408,7 +408,7 @@ function initUI () {
     // we do want to be able to edit code in the right editor, because that's where the whole 'branching-as-playfulness' comes in
     allowEditingOriginals: true,
     // not yet sure what difference this makes... check the codemirror manual?
-    // connect: "connect",
+     connect: connect,
     // option to collapse code in either editor that doesn't differ from its left or right counterpart. this is switchable.
     collapseIdentical: collapse
   });
@@ -774,7 +774,7 @@ function openSocket () {
             // alert(whatever, but essentially an ok and cancel button)
             // }
             // orig1 = arg + value.replace(/\.\.\//g, "codemirror/").replace("yellow", "orange");
-           // orig1 = arg;
+            // orig1 = arg;
             dv.right.orig.setOption("value", arg);
             isRightDirty == false
 
