@@ -297,9 +297,13 @@ function openSocket() {
                     break;
                     
                     case "state":
-                    console.log("state " + arg)
                     //we need to clear the table rows (except for the first, since [1]in order to add after last we need something there already, annnnd the 0th table row is our table header!)
-                    $("#stateValues").find("tr:gt(0)").remove(); 
+                    
+                    $("#stateValues").find("tr:gt(0)").remove();
+                    
+                    //console.log(arg)
+
+                    
                     
                     state = (JSON.parse(arg))
                     let offset;
@@ -313,6 +317,18 @@ function openSocket() {
                          type = state[key].type;
                          pName = state[key].paramName;
                          pValue = state[key].paramValue;
+
+                         //don't create new table row and spinner if already exists, but do update the value.
+                        //  if ( "row_" + pName ) {
+ 
+                        //         console.log("row_" + pName)
+                        //         $('#' + pName).val(35);
+                        //     //$( "#myDiv" ).show();
+                            
+
+                        //     } 
+                        //     // if the pName doesn't yet exist, then create a row and spinner for the state param and value value
+                        //     else {
                         
                         // for ( property in state[key] ) {
                         //     //console.log( property ); // Outputs: foo, fiz or fiz, foo
@@ -330,35 +346,46 @@ function openSocket() {
                         //console.log(array)
 
                         //different types will require different ui elements.
-                        switch (type) {
-                            
-                            // a float or an int will use the jquery spinner
-                            case "float":
+                            switch (type) {
+                                
+                                // a float or an int will use the jquery spinner
+                                case "float":
+                                // 
+                                // $('#stateParams tr').click(function(){
+                                //     $(this).remove();
+                                //     return false;
+                                //});
+                                $('#stateValues tr:last').after('<tr id=\"row_' + pName + '\"><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                // turn the input element into a jquery spinner
+                                $("#" + pName).spinner({
+                                    step: 0.1,
+                                });
+                                // have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                                $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                    updateState(this.id, ui.value);
+                                    }
+                                });
+                                $().data('mmapData', { offset: offset })
 
-                            $('#stateValues tr:last').after('<tr><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
-                            //turn the input element into a jquery spinner
-                            $("#" + pName).spinner();
-                            //have the spinner report its value whenever it gets changed by mouse or keyboard events.
-                            $( "#" + pName ).spinner({spin: function( event, ui, id ) {
-                                updateState(this.id, ui.value);
-                                }
-                            });
-                            $("#" + pName).data('mmapData', { offset: offset })
-                            break;
-                            
-                            //for params whose type we haven't yet figure out how to retrieve (if they are vec3, for example)
-                            default:
+                                $("#" + pName).width(100);
 
-                            var li = document.createElement('li');
-                            var list = document.getElementById('otherParams');
+                                break;
+                                
+                                // for params whose type we haven't yet figure out how to retrieve (if they are vec3, for example)
+                                default:
 
-                            li.innerHTML = ("Parameter: " + pName + " Type: " + type);
-                            list.appendChild(li);
+                                var li = document.createElement('li');
+                                var list = document.getElementById('otherParams');
 
-                            var chatMessages = document.querySelector('#otherParams');
-                            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
-                            break;
-                        }
+                                li.innerHTML = ("Parameter: " + pName + " Type: " + type);
+                                list.appendChild(li);
+
+                                var chatMessages = document.querySelector('#otherParams');
+                                chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+                                break;
+                            }
+
+                        // }
                     })
 
 

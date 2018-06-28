@@ -25,6 +25,8 @@ function randomInt (low, high) {
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
 
+const serverMode = process.env.startFlag
+ console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
 // derive project to launch from first argument:
 process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
 const projectPath = process.cwd()
@@ -36,6 +38,79 @@ console.log('clientPath', clientPath)
 
 const projectlib = 'project.' + libext
 
+// State Editor:
+let stateSource
+let stateAST
+let state = [] // we'll send this to the client
+
+/// 
+// mmap the state
+let statebuf
+try {
+  buffSize = fs.statSync('state.bin').size
+  statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
+  console.log('mapped state.bin, size ' + statebuf.byteLength)
+} catch (e) {
+  console.error('failed to map the state.bin:', e.message)
+}
+
+getState()
+function getState () {
+  // get sourcecode
+  stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
+  stateSource = JSON.stringify(stateSource)
+
+  exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
+
+    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
+    console.log("stateAST Loaded")
+
+    Object.keys(stateAST.nodes).forEach(function (key) {
+      if (stateAST.nodes[key].name === 'State') {
+
+
+        Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
+          let value = stateAST.nodes[key].nodes[objectKey]
+          paramName = value.name
+
+          let type = value.type
+          let offset = value.offsetof
+          
+          // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+          switch (type) {
+            case 'float':
+              // let obj = new Object;
+              let paramValue = statebuf.readFloatLE(offset)
+              //console.log("\n\n\n" + paramValue)
+
+
+              // let objArray = [paramValue, type, offset]
+              // obj[paramName] = objArray
+
+              // console.log(obj);
+              state.push({paramName, paramValue, type, offset})
+
+              // console.log("float detected " + paramName, paramValue)
+              break
+
+            default:
+              state.push({paramName, type})
+          }
+        })
+      }
+      // console.log(arg.nodes[key].name)
+    })
+    console.log('mapped state var updated in server\n')
+
+  })
+
+
+}
+// refresh the state from the mmap every 10 seconds
+setInterval(function () {
+  console.log('\nupdating mapped state var in server')
+  getState();
+}, 10000)
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
@@ -65,32 +140,60 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
+//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. 
+if (serverMode !== "git-only") {
 // BUILD PROJECT
-function projectBuild () {
-  let out = ''
-  if (process.platform === 'win32') {
-    out = execSync('build.bat "' + serverPath + '"', {stdio: 'inherit'})
-  } else {
-    out = execSync('sh build.sh "' + serverPath + '"', {stdio: 'inherit'})
+  function projectBuild () {
+    let out = ''
+    if (process.platform === 'win32') {
+      out = execSync('build.bat "' + serverPath + '"', {stdio: 'inherit'})
+    } else {
+      out = execSync('sh build.sh "' + serverPath + '"', {stdio: 'inherit'})
+    }
+    console.log('built project', out.toString())
   }
-  console.log('built project', out.toString())
-}
 
-// GRAHAM: can we please add a startup flag to npm start to disable this as an option? it should be default, but we can't work if we're working on the subway or somewhere else without wifi
-// try to pull, as good practice:
-// console.log("git pull:", execSync('git pull').toString());
+  // GRAHAM: can we please add a startup flag to npm start to disable this as an option? it should be default, but we can't work if we're working on the subway or somewhere else without wifi
+  // try to pull, as good practice:
+  // console.log("git pull:", execSync('git pull').toString());
 
-// should we build now?
-if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
-  console.warn('project lib is out of date, rebuilding')
-  try {
-    projectBuild()
-  } catch (e) {
-    console.error('ERROR', e.message)
-    // do a git commit with a note about it being a failed build.
+  // should we build now?
+  if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
+    console.warn('project lib is out of date, rebuilding')
+    try {
+      projectBuild()
+    } catch (e) {
+      console.error('ERROR', e.message)
+      // do a git commit with a note about it being a failed build.
+    }
   }
-}
 
+    // LAUNCH ALICE PROCESS
+
+  // start up the alice executable:
+  let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
+    cwd: projectPath
+  })
+
+  alice.on('message', function (data) { console.log('msg', data.toString())})
+  alice.stdout.pipe(process.stdout)
+  alice.stderr.pipe(process.stderr)
+
+  // when it's done, load the new dll back in:
+  alice.on('exit', function (code) {
+    console.log('alice exit code', code)
+    // let node exit when it can:
+    process.exitCode = 1 // wasn't working on Windows :-(
+    process.exit(code)
+  })
+
+  function aliceCommand (command, arg) {
+    let msg = command + '?' + arg + '\0'
+    console.log('sending alice', msg)
+    alice.stdin.write(command + '?' + arg + '\0')
+  }
+
+}
 /// //////////////////////////////////////////////////////////////////////////////
 
 // UPDATE GIT REPO: do we commit the alicenode_inhabitat repo on startup?
@@ -109,32 +212,7 @@ function gitAddAndCommit () {
 
 /// //////////////////////////////////////////////////////////////////////////////
 
-// LAUNCH ALICE PROCESS
 
-// start up the alice executable:
-let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
-  cwd: projectPath
-})
-
-// alice.stdout.on("data", function(data) { console.log(data.toString());});
-// alice.stderr.on("data", function(data) { console.log(data.toString());});
-alice.on('message', function (data) { console.log('msg', data.toString())})
-alice.stdout.pipe(process.stdout)
-alice.stderr.pipe(process.stderr)
-
-// when it's done, load the new dll back in:
-alice.on('exit', function (code) {
-  console.log('alice exit code', code)
-  // let node exit when it can:
-  process.exitCode = 1 // wasn't working on Windows :-(
-  process.exit(code)
-})
-
-function aliceCommand (command, arg) {
-  let msg = command + '?' + arg + '\0'
-  console.log('sending alice', msg)
-  alice.stdin.write(command + '?' + arg + '\0')
-}
 
 // MMAP THE STATE
 
@@ -156,7 +234,9 @@ function aliceCommand (command, arg) {
 //   console.error('failed to map the state.bin:', e.message)
 // }
 
-/// //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 // HTTP SERVER
 
@@ -263,10 +343,7 @@ function listFiles () {
     }
   })
 }
-console.log("\n\n\n\n\n" + cardsFileList)
 ws.send('cardsFileList?' + cardsFileList)
-
-
 
   // /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
   ws.on('message', function (message) {
@@ -285,6 +362,7 @@ ws.send('cardsFileList?' + cardsFileList)
         // console.log(JSON.stringify(stderr))
         let commitList = stderr.split('refs/heads').join('')
         ws.send('branchCommits?' + commitList)
+        console.log(commitList)
       })
     }
 
@@ -386,10 +464,15 @@ ws.send('cardsFileList?' + cardsFileList)
 
     if (message.includes('git show')) {
       // if a fileName has been selected
+      console.log("\n\n\n\n" + message)
+      console.log(fileName)
       if (fileName) {
         // path.join("..", "alicenode_inhabitat/project.cpp")
-        exec(message + ':' + fileName, { cwd: projectPath }, (stdout) => {
-          ws.send('show?' + stdout)
+        exec(message + ':' + fileName, { cwd: projectPath }, (stdout, stderr, err) => {
+          console.log("stdout" + stdout)
+          console.log("stderr" + stderr)
+          console.log("err" + err)
+          ws.send('show?' + stderr)
 
           console.log('sending show ' + stdout)
           // console.log(stdout);
@@ -473,7 +556,6 @@ ws.send('cardsFileList?' + cardsFileList)
 
           // Select user
         case 'selectUser':
-          console.log(arg)
           // have userlist ready
           userEntry = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           // client's git username
@@ -481,8 +563,6 @@ ws.send('cardsFileList?' + cardsFileList)
           // client's git email
           userEmail = userEntry[arg]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
-
-          console.log(userWorktree)
 
           ws.send("chatMsg?'Right Editor' set to work within worktree: " + userWorktree)
 
@@ -860,12 +940,13 @@ ws.send('cardsFileList?' + cardsFileList)
 
           src = fs.readFileSync(filepath, 'utf8')
           exec('./cpp2json ' + filepath + ' ' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
-            console.log(filename + ' traversed')
+
 
             deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
 
             ws.send('deck?' + deck)
             ws.send('src?' + src)
+            console.log("\nA cards editor has opened " + filename + "\n")
           })
 
           break
@@ -876,58 +957,10 @@ ws.send('cardsFileList?' + cardsFileList)
 
           case "stateEditorConnect":
 
-          //////// MAJOR BUG: the cpp2json is unable to find the clang includes... even though the paths seem to be correct. need to figure this out!
-          
-            //on connection with state editor, do this:
-            getState()
-              function getState () {
-                // get sourcecode
-                stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
-                stateSource = JSON.stringify(stateSource)
-              
-                execSync('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json', {cwd: path.join(__dirname, '/cpp2json/')}, () => {
-                  console.log('\n\n\n\nstate.h traversed')
-              
-                  stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/', 'state.json'), 'utf-8'))
-              
-                  Object.keys(stateAST.nodes).forEach(function (key) {
-                    if (stateAST.nodes[key].name === 'State') {
-                      // console.log(arg.nodes[key].nodes)
-              
-                      Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
-                        let value = stateAST.nodes[key].nodes[objectKey]
-                        paramName = value.name
-              
-                        let type = value.type
-                        let offset = value.offsetof
-              
-                        // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-                        switch (type) {
-                          case 'float':
-                            // let obj = new Object;
-                            let paramValue = statebuf.readFloatLE(offset)
-              
-                            // let objArray = [paramValue, type, offset]
-                            // obj[paramName] = objArray
-              
-                            // console.log(obj);
-                            state.push({paramName, paramValue, type, offset})
-              
-                            // console.log("float detected " + paramName, paramValue)
-                            break
-              
-                          default:
-                            state.push({paramName, type})
-                        }
-                      })
-                    }
-                    // console.log(arg.nodes[key].name)
-                  })
-                })
-
-   
-              }
+          // NOTE: for now (maybe) the getState Function will exist outside this scope, at global-level. 
+          // Send the state when a state editor connects
             
+
               ws.send('state?' + JSON.stringify(state))
               ws.send('state.h?' + stateSource) 
 
@@ -982,10 +1015,10 @@ server.listen(8080, function () {
   console.log('server listening on %d', server.address().port)
 })
 
-setInterval(function () {
-  // if (statebuf) sendAllClients(statebuf);
-  // sendAllClients("fps?"+);
-}, 100)
+// setInterval(function () {
+//   // if (statebuf) sendAllClients(statebuf);
+//   // sendAllClients("fps?"+);
+// }, 100)
 
 /// //////////////////////////////////////////////////////////////////////////////
 
@@ -1039,20 +1072,8 @@ watcher
   })
 
 /// ////////////////////////////////////////////////////////////
-// State Editor:
-let stateSource
-let stateAST
-let state = [] // we'll send this to the client
 
-// mmap the state
-let statebuf
-try {
-  buffSize = fs.statSync('state.bin').size
-  statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
-  console.log('mapped state.bin, size ' + statebuf.byteLength)
-} catch (e) {
-  console.error('failed to map the state.bin:', e.message)
-}
+
 
 
 
