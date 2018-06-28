@@ -148,7 +148,7 @@ struct LeapMotion : public LeapMotionData, public Leap::Listener {
             hand.isLeft = leaphand.isLeft();
             hand.isVisible = true;
 
-           // printf("(%d)%d = %d ", j, h, id);
+           //printf("(%d)%d = %d ", j, h, id);
 
             hand.id = id;
 

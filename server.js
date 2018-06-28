@@ -172,8 +172,9 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
-//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. 
+//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. try 'npm start git-only'. note, 'npm start' is default
 if (serverMode !== "git-only") {
+  projectBuild();
 // BUILD PROJECT
   function projectBuild () {
     let out = ''
@@ -184,10 +185,6 @@ if (serverMode !== "git-only") {
     }
     console.log('built project', out.toString())
   }
-
-  // GRAHAM: can we please add a startup flag to npm start to disable this as an option? it should be default, but we can't work if we're working on the subway or somewhere else without wifi
-  // try to pull, as good practice:
-  // console.log("git pull:", execSync('git pull').toString());
 
   // should we build now?
   if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
@@ -240,33 +237,6 @@ function gitAddAndCommit () {
   }
 }
 
-//
-
-/// //////////////////////////////////////////////////////////////////////////////
-
-
-
-// MMAP THE STATE
-
-// let statebuf
-// try {
-//   statebuf = mmapfile.openSync('state.bin', fs.statSync('state.bin').size, 'r+')
-//   console.log('mapped state.bin, size ' + statebuf.byteLength)
-
-//   // slow version:
-//   setInterval(function () {
-//     let idx = randomInt(0, 10) * (4 * 3)
-//     let v = statebuf.readFloatLE(idx)
-//     v = v + 0.01
-//     if (v > 1.0) v -= 2.0
-//     if (v < -1.0) v += 2.0
-//     // statebuf.writeFloatLE(v, idx);
-//   }, 1000 / 120)
-// } catch (e) {
-//   console.error('failed to map the state.bin:', e.message)
-// }
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -300,6 +270,9 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
+  let fileName // user-selected fileName
+  let userName; 
+
 
   
 
@@ -311,8 +284,6 @@ wss.on('connection', function (ws, req) {
   // const location = url.parse(req.url, true)
   // You might use location.query.access_token to authenticate or share sessions
   // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-
-  // respond to any messages from the client:
 
   // /\/\/\/\/\/\/\/\/\/\ Alicenode Main Editor: /\/\/\/\/\/\/\/\/\/\/
   // get the current list of authors involved in the alicenode_inhabitat project
@@ -337,23 +308,17 @@ wss.on('connection', function (ws, req) {
     }
   })
   let userWorktree // the directory that a client's right editor will work in
-
   ws.send('setFileList?' + JSON.stringify(fileList))
-
-  let fileName // user-selected fileName
 
   // get list of branches within repo
   exec('git branch -v', {cwd: projectPath}, (stdout, err, stderr) => {
     ws.send('setBranchList?' + err)
   })
 
-
   // /\/\/\/\/\/\/\/\/\/\ Alicenode Cards Editor /\/\/\/\/\/\/\/\/\
   
 let deck
 let src
-let errors
-let filename
 
 // cards functions:
 listFiles()
@@ -377,12 +342,12 @@ function listFiles () {
 }
 ws.send('cardsFileList?' + cardsFileList)
 
-  // /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
+// on message receive
   ws.on('message', function (message) {
     let onHash
     let numBranches
     // console.log(message)
-    var userName // this is what the client has signed in as
+    //var userName // this is what the client has signed in as
 
     if (message.includes('fileRequest')) {
       fileName = message.replace('fileRequest', '')
@@ -411,9 +376,9 @@ ws.send('cardsFileList?' + cardsFileList)
       let gitCommand = message.replace('editedRightCode', '')
       console.log(gitCommand)
 
-      wss.clients.forEach(function each (client) {
-        client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
-      })
+      // wss.clients.forEach(function each (client) {
+      //   client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
+      // })
 
       // sendAllClients(userName + " changed " + fileName + " on branch ")
       // get number of branches in alicenode_inhabitat
@@ -560,7 +525,7 @@ ws.send('cardsFileList?' + cardsFileList)
           let useremail = arg.split('$?$')[1]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
           // whenever a worktree is created, a branch is named after it too. we won't use this branch, but we do need to delete it before we can add a new worktree.
-          execSync('git branch -d +' + userName.split(' ').join('_'))
+          // execSync('git branch -d +' + userName.split(' ').join('_'))
           let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           userlist[userName] = useremail
 
@@ -592,6 +557,8 @@ ws.send('cardsFileList?' + cardsFileList)
           userEntry = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           // client's git username
           userName = arg
+
+          //console.log(arg)
           // client's git email
           userEmail = userEntry[arg]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
@@ -793,6 +760,23 @@ ws.send('cardsFileList?' + cardsFileList)
           })
           break
 
+        case 'editRight':
+
+        // console.log(arg)
+          // get the commit message provided by the client
+          commitMsg = arg.substring(arg.lastIndexOf('?commit') + 1, arg.lastIndexOf('?code')).replace('commit', '')
+          // get the code
+          newCode = arg.split('?code')[1]
+
+          thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
+
+          fs.writeFileSync(userWorktree + '/' + fileName, newCode, 'utf8')
+          // git add and commit the new changes, including commitMsg
+          execSync('git add .', {cwd: userWorktree }, () => { console.log('git added') })
+          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: userWorktree }, () => { console.log('git committed') })
+          execSync('git status', {cwd: userWorktree }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+
+        break
           // Client sent code from the left editor. write changes and commit using the name and email provided by the client.
         case 'edit':
           // console.log(arg)
