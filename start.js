@@ -6,12 +6,13 @@ const find = require('find-process');
 
 let proc;
  
-console.log(process.argv[2])
 if (process.argv[2] === "git-only"){
 
 	function launch() {
 		console.log("-------------------------------------------------------------");
-	    proc = fork("server.js", [], {});
+
+		// TODO: need to pass argv[2] to server.js
+	    proc = fork("server.js", [], {env : {"startFlag" : process.argv[2]}});
 	    proc.on("exit", function(code) {
 	        console.log("START exit code", code);
 	        killAlice();
@@ -23,8 +24,6 @@ if (process.argv[2] === "git-only"){
 	    });
 	}
 
-	
-fork
 	let watcher = chokidar.watch("server.js")
 	.on('error', error => console.log(`Watcher error: ${error}`))
 	.on('change', (filepath, stats) => {
@@ -37,10 +36,6 @@ fork
 
 	launch();
 
-
-
-
-	console.log(process.argv[2])
 	function killAlice() {
 	    let alice = os.type == "Darwin" ? "alice" : "alice.exe";
 	    find('name', alice).then(function (list) {
