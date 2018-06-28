@@ -528,7 +528,7 @@ ws.send('cardsFileList?' + cardsFileList)
           let useremail = arg.split('$?$')[1]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
           // whenever a worktree is created, a branch is named after it too. we won't use this branch, but we do need to delete it before we can add a new worktree.
-          execSync('git branch -d +' + userName.split(' ').join('_'))
+          // execSync('git branch -d +' + userName.split(' ').join('_'))
           let userlist = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           userlist[userName] = useremail
 
