@@ -272,7 +272,7 @@
                 <button onclick="sendLeftCode()">Send Left Code</button>
             </th>
             <th style="text-align:right">
-                <button onclick="sendCodeRelay()">Send Right Code</button>
+                <button onclick="sendRightCode()">Send Right Code</button>
             </th>
         </tr>
 </table>
@@ -414,13 +414,14 @@ function initUI () {
   });
 
   // Detect when user first makes a change to the code in the right editor view
-  dv.rightOriginal().on('changes', function (dv, changeObj) {
+  dv.rightOriginal().on('keypress', function (dv, changeObj) {
     // && currentBranch == "master"
     if (isRightDirty === false) {
       ws.send('editedRightCode' + authorName.split(' ').join('_') + '_' + selectedCommit + '_' + new Date().getTime() + ' ' + selectedCommit)
       isRightDirty = true
       console.log('editedRightCode' + authorName.split(' ').join('_') + '_' + selectedCommit + '_' + new Date().getTime() + ' ' + selectedCommit)
-      ws.send('chatMsg?Edited file ' + fileName + ' from commit ' + selectedCommit + '. <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>')
+      ws.send('chatMsg?Edited file ' + fileName + ' from commit ' + selectedCommit)
+      //  '. <TO DO: get the new branch name from server that was created by dirtying the flag, report it in this chat message so we can offer all chat clients the ability to load the changes posted in the chat log!>')
     }
   });
 
@@ -498,16 +499,26 @@ function sendLeftCode () {
   ws.send(changes)
 }
 // Send current content within CodeMirror's Right editor to the server on the branch it is assigned to.
-function sendRightCode (val) {
-  if (val.includes('hash?')) {
-    thisHash = (val.replace('hash?', ''))
-    console.log('Hash ' + thisHash + ' chosen')
-  } else {
-    var message = 'newbranch?' + dv.rightOriginal().getValue()
-    console.log('SENDING TO SERVER: \n' + message)
-    ws.send(message)
-    // selectedHash("this hash");
-  }
+function sendRightCode () {
+
+  var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+  //   var message = "edit?" + editorCM.getValue();
+  var changes = 'editRight?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.rightOriginal().getValue()
+  log('Sent LeftEditor Contents to server: ' + commitMsg)
+  // log('sending: ' + message);
+  ws.send(changes)
+
+
+  // console.log(val)
+  // if (val.includes('hash?')) {
+  //   thisHash = (val.replace('hash?', ''))
+  //   console.log('Hash ' + thisHash + ' chosen')
+  // } else {
+  //   var message = 'newbranch?' + dv.rightOriginal().getValue()
+  //   console.log('SENDING TO SERVER: \n' + message)
+  //   ws.send(message)
+  //   // selectedHash("this hash");
+  // }
 }
 
 // TODO: make sure that when branch is selected, the server switches to that branch in the user's worktree.

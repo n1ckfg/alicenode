@@ -268,6 +268,9 @@ wss.on('connection', function (ws, req) {
     socket: ws
 
   }
+  let fileName // user-selected fileName
+  let userName; 
+
 
   
 
@@ -308,7 +311,6 @@ wss.on('connection', function (ws, req) {
 
   ws.send('setFileList?' + JSON.stringify(fileList))
 
-  let fileName // user-selected fileName
 
   // get list of branches within repo
   exec('git branch -v', {cwd: projectPath}, (stdout, err, stderr) => {
@@ -321,7 +323,6 @@ wss.on('connection', function (ws, req) {
 let deck
 let src
 let errors
-let filename
 
 // cards functions:
 listFiles()
@@ -345,12 +346,12 @@ function listFiles () {
 }
 ws.send('cardsFileList?' + cardsFileList)
 
-  // /\/\/\/\/\/\/\/\/\/\ Alicenode State Editor /\/\/\/\/\/\/\/\/\
+// on message receive
   ws.on('message', function (message) {
     let onHash
     let numBranches
     // console.log(message)
-    var userName // this is what the client has signed in as
+    //var userName // this is what the client has signed in as
 
     if (message.includes('fileRequest')) {
       fileName = message.replace('fileRequest', '')
@@ -379,9 +380,9 @@ ws.send('cardsFileList?' + cardsFileList)
       let gitCommand = message.replace('editedRightCode', '')
       console.log(gitCommand)
 
-      wss.clients.forEach(function each (client) {
-        client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
-      })
+      // wss.clients.forEach(function each (client) {
+      //   client.send('chatMsg?newCommit ' + userName + ' changed ' + fileName + ' on branch ')
+      // })
 
       // sendAllClients(userName + " changed " + fileName + " on branch ")
       // get number of branches in alicenode_inhabitat
@@ -560,6 +561,8 @@ ws.send('cardsFileList?' + cardsFileList)
           userEntry = JSON.parse(fs.readFileSync(path.join(projectPath, 'userlist.json'), 'utf8'))
           // client's git username
           userName = arg
+
+          //console.log(arg)
           // client's git email
           userEmail = userEntry[arg]
           userWorktree = projectPath + path.join('/+' + userName.split(' ').join('_'))
@@ -761,6 +764,31 @@ ws.send('cardsFileList?' + cardsFileList)
           })
           break
 
+        case 'editRight':
+
+        // console.log(arg)
+          // get the commit message provided by the client
+          commitMsg = arg.substring(arg.lastIndexOf('?commit') + 1, arg.lastIndexOf('?code')).replace('commit', '')
+          // get the code
+          newCode = arg.split('?code')[1]
+
+          thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
+
+          // console.log(thisAuthor)
+          // console.log(arg)
+
+          // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
+          // console.log(thisAuthor)
+
+          fs.writeFileSync(projectPath + '/' + userWorktree + '/' + fileName, newCode, 'utf8')
+          // git add and commit the new changes, including commitMsg
+          execSync('git add .', {cwd: userWorktree }, () => { console.log('git added') })
+          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: userWorktree }, () => { console.log('git committed') })
+          execSync('git status', {cwd: userWorktree }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+
+
+
+        break
           // Client sent code from the left editor. write changes and commit using the name and email provided by the client.
         case 'edit':
           // console.log(arg)
