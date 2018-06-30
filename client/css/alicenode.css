@@ -41,30 +41,6 @@ th {
     transform: scaleY(-1);
 }
 
-
-/* #serverMessages { */
-    /* position: fixed; */
-    /* bottom: 0; */
-    /* right: 10%; */
-    /* width: 100%; */
-    /* height: 10%; */
-    /* overflow: auto; */
-    /* font-size: 8pt;  */
-    /* height: 10%;     */
-/* } */
-
-.chatFooter{
-    height: 29%;
-    bottom: 0px;
-    width: 100%;
-}
-
-#chatHeader{
-    float: left; 
-    width: calc(50% - 10px); 
-    margin: 5px;
-    height: calc(100% - 36px);
-}
 #terminal {
     color:#1bb700;
     font-weight: bold;
@@ -79,6 +55,116 @@ th {
     height: calc(100% - 26px);
     padding: 2px 5px 2px 5px;
 }
+
+   
+#commit_detail {
+    color:#19191b;
+    font-weight: bold;
+    background:#9da1a4;
+    position: fixed;
+    left: 52%;
+    width: 48%;
+    /* bottom: 100%;
+    width: 50%; */
+    height: 100%;
+    overflow: scroll;
+}
+
+/* #serverMessages { */
+    /* position: fixed; */
+    /* bottom: 0; */
+    /* right: 10%; */
+    /* width: 100%; */
+    /* height: 10%; */
+    /* overflow: auto; */
+    /* font-size: 8pt;  */
+    /* height: 10%;     */
+/* } */
+
+/* ##################
+   GitNavigation Area
+   ##################*/
+#mainHeader{
+    width: 100%; 
+    float: left; 
+    background-color: rgb(173, 173, 173);
+}
+
+#gitSelector{
+    background-color: lightslategray;
+    width: 100%;
+}
+
+#gitTableHeader{
+    background-color:rgb(139, 139, 139); 
+    font-size: 14px; 
+    text-decoration: none; 
+    text-align: center;
+}
+
+#chooseBranch {
+    overflow:scroll;
+    position: sticky;
+    left: 0;
+    top: 0%;
+    width: 34.3%
+
+}
+
+#newBranch, #myButton, #openStateEditor, #openCardsEditor, .openCloseSocket, .sendCode, .sendCodeRight{
+    float: left;
+    margin: 2px;
+    border: 2px solid gray;
+    background-color: lightgray;
+   
+}
+
+.sendCodeRight{
+    float: right;
+}
+
+
+#newBranch:hover, #myButton:hover, #openStateEditor:hover, #openCardsEditor:hover, .openCloseSocket:hover,.sendCode:hover, .sendCodeRight:hover{
+    background-color: lightgreen;
+}
+#search1, #search2, #search3, #server {
+    float: right;
+    margin: 2px;
+    border: 2px solid lightgray;
+    border-radius: 40px;
+    height: 2%;
+    padding: 0 11px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    color: darkgray;
+}
+#search1:focus, #search2:focus, #search3:focus, #server:focus {
+    border-color: lightsalmon;
+    outline:none;
+}
+
+#fileInCommit{
+    max-width: 70%;
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+
+.chatFooter{
+    height: 29%;
+    bottom: 0px;
+    width: 100%;
+}
+
+#chatHeader{
+    float: left; 
+    width: calc(50% - 10px); 
+    margin: 5px;
+    height: calc(100% - 36px);
+}
+
 /* chat messages */
 /* * { margin: 0; padding: 0;  } */
 /* body { font: 13px Helvetica, Arial; } */
@@ -99,25 +185,15 @@ th {
     text-align: left;
 }
 #chat_messages li:nth-child(odd) { background: #eee; }
-   
-#commit_detail {
-    color:#19191b;
-    font-weight: bold;
-    background:#9da1a4;
-    position: fixed;
-    left: 52%;
-    width: 48%;
-    /* bottom: 100%;
-    width: 50%; */
-    height: 100%;
-    overflow: scroll;
-}
+
 /* 
 #nodes circle:hover {
     fill: blue;
 }   */
 
-
+/*
+CodeMirror Buttons
+*/
 .onoffswitch {
     position: relative; width: 40px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none; float: left;
@@ -153,23 +229,4 @@ th {
     right: 0px; 
     background-color: #27A1CA; 
     box-shadow: 3px 6px 18px 0px rgba(0, 0, 0, 0.2);
-}
-
-#chooseBranch {
-    overflow:scroll;
-    position: sticky;
-    left: 0;
-    top: 0%;
-    width: 34.3%
-
-}
-#search1, #search2, #search3 {
-    float: right;
-}
-
-#fileInCommit{
-    max-width: 70%;
-    float: left;
-    padding: 0;
-    margin: 0;
 }

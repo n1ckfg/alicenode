@@ -106,7 +106,7 @@
 <body>
 
 <!-- Client 'logs in' to server using the full name and email associated with their github account -->
-<table style="width: 100%; float: left; background-color: rgba(19, 119, 32, 0.74)"> 
+<table id="mainHeader"> 
     <tr style="float: left">
         <th style="text-decoration: none">
             <form name="usernames">
@@ -183,12 +183,12 @@
             </span>
         </th>
         <th>
-            <button onclick="openSocket()">Open</button>
-            <button onclick="closeSocket()">Close</button>
+            <button onclick="openSocket()" class="openCloseSocket">Open</button>
+            <button onclick="closeSocket()" class="openCloseSocket">Close</button>
         </th>   
     </tr> 
     <!-- Customize the Codemirror Instance -->
-    <tr style="float: right">     
+    <!-- <tr style="float: right">     
         <th>
             <b>Editor Settings: </b>
         </th>
@@ -210,21 +210,27 @@
                 <label class="onoffswitch-label" for="toggleAlign"></label>
             </div>Align Changes
         </th>
-    </tr>    
+    </tr>     -->
+
+    <tr id="settingsMenu">
+      <th id="dropDownMain">
+
+      </th>
+    </tr>
 </table>
 <!-- git repo navigation area -->
-<table style="background-color: blue" width=100% id="gitSelector">  
+<table id="gitSelector">  
     <tr>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+        <th id="gitTableHeader">
             <b>Branches</b>
             <input type="text" id="search1" onkeyup='hideAndSeek("chooseBranch","search1");' placeholder="Search...">
             <button onclick="clientNewBranch()" id="newBranch">New Branch</button>
         </th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+        <th id="gitTableHeader">
             <b>Files within Selected Branch</b>
             <input type="text" id="search2" onkeyup='hideAndSeek("openFileName", "search2");' placeholder="Search...">
         </th>
-        <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
+        <th id="gitTableHeader">
             <p id="fileInCommit"><p>    
             <input type="text" id="search3" onkeyup='hideAndSeek("selectCommit", "search3");' placeholder="Search...">      
         </th>
@@ -269,10 +275,10 @@
 <table width="80%">
         <tr>
             <th style="text-align:left">
-                <button onclick="sendLeftCode()">Send Left Code</button>
+                <button class="sendCode" onclick="sendLeftCode()">Send Left Code</button>
             </th>
             <th style="text-align:right">
-                <button onclick="sendRightCode()">Send Right Code</button>
+                <button class="sendCode, sendCodeRight"  onclick="sendRightCode()">Send Right Code</button>
             </th>
         </tr>
 </table>
