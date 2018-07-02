@@ -53,7 +53,6 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	bool ctrl = (mods & 2) != 0;
 	bool alt = (mods & 4) != 0;
 	bool cmd = (mods & 8) != 0;
-	console.log("keycode: %d scancode: %d press: %d shift %d ctrl %d alt %d cmd %d", keycode, scancode, downup, shift, ctrl, alt, cmd);
 	
 	switch (keycode) { 
 	case GLFW_KEY_SPACE: {
