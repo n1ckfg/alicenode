@@ -13,13 +13,16 @@ struct AL_ALICE_EXPORT Alice {
 	vdk::signal<void()> onReloadGPU;
 	vdk::signal<void(std::string filename)> onFileChange;
 	vdk::signal<void(int keycode, int scancode, int downup, bool shift, bool ctrl, bool alt, bool cmd)> onKeyEvent;
+
+	FPS fps;
 	
 	double t = 0.;	  		// clock time
 	double simTime = 0.; 	// simulation time
+	/*
 	double dt = 1/60.; 		// updated continually while running
 	double desiredFrameRate = 60.;
 	double fpsAvg = 30;	
-	int framecount = 0;
+	int framecount = 0;*/
 
 	int isSimulating = true;
 	int isRendering = true;
@@ -32,8 +35,6 @@ struct AL_ALICE_EXPORT Alice {
 	Hmd * hmd;
 	LeapMotion * leap;
 
-
-	
 	static Alice& Instance();	
 	
 };

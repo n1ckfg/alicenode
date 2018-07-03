@@ -41,8 +41,7 @@ struct MetroThread {
         thread = std::thread([this](){
             while(isRunning) {
                 function(fps.dt);
-                fps.sleep();
-                fps.measure();
+                fps.frame();
             }
         });
     }
@@ -50,11 +49,6 @@ struct MetroThread {
     void end() {
         isRunning = 0;
         if (thread.joinable()) thread.join();
-    }
-
-    // returns the FPS that would be possible if the thread didn't sleep at all
-    double potentialFPS() {
-        return fps.fps / fps.performance;
     }
 
 };

@@ -47,62 +47,78 @@ struct Timer {
 };
 
 struct FPS {
+	// last time point that we measured:
 	std::chrono::steady_clock::time_point last;
+	// last time point that we woke from sleep:
+	std::chrono::steady_clock::time_point woke;
+
+	// the time we want to pass between frames:
+	double dtIdeal;
+	// the time that actually passed between frames:
+	double dtActual; 
+	// a running average of it:
+	double dt;
+	// the sub-duration we were actually working for:
+	double dtWorked; 
 	
 	// what FPS we would actually like to have
 	double fpsIdeal = 30.; 
-	double dtIdeal = 1./30.;
 	// the actual last measurement taken
 	double fpsActual;
-	double dtActual; // 1/fps == frames per second
 	// the running average of FPS
 	double fps;
-	double dt; // 1/fps == frames per second
+	// how fast it could potentially run (with no sleeps)
+	double fpsPotential;
+
 	// closer to 0, the more averaged the fps will be
 	// closer to 1, the more actual the fps will be
 	double fpsAccuracy = 0.1;
 	// the number of measurements taken since reset()
 	int64_t count = 0; 
-	// fraction of available time that was actually used
-	double performance = 1.;
+	
 	
 	FPS(double fpsIdeal=30.) : fpsIdeal(fpsIdeal) {
-		fps = fpsActual = fpsIdeal;
-		dt = dtActual = dtIdeal = 1./fpsIdeal;
 		reset();
 	}
 
 	void reset() {
+		fps = fpsActual = fpsPotential = fpsIdeal;
+		dt = dtWorked = dtActual = dtIdeal = 1./fpsIdeal;
 		last = std::chrono::steady_clock::now();
 		count = 0;
 	}
 
-	// call this between two measure() calls
-	// it will add a sleep() in an attempt to make up the original desired frame rate
-	// returns the % of the available frame time that is used
-	double sleep() {
-		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-		std::chrono::steady_clock::duration dur = t1-last;
-		double elapsed = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count());
-		performance = elapsed / dtIdeal;
-		if (performance < 1.00) {
-			al_sleep(dtIdeal - elapsed);
-		}
-		return performance;
+	void setFPS(double f) {
+		fpsIdeal = f;
+		dtIdeal = 1./fpsIdeal;
 	}
 
 	// mark a frame boundary, and update the count and fps estimates accordingly
-	// returns true approximately once per second, useful for debug posting
-	bool measure(double interval = 1.) {
-		count++;
+	// if dosleep is true, the thread will sleep to throttle to the desired frame rate
+	bool frame(bool dosleep = true) {
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-		std::chrono::steady_clock::duration dur = t1-last;
-		dtActual = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count());
+
+		// get dt:
+		dtActual = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(t1-last).count());
+		dtWorked = 1e-9*(std::chrono::duration_cast<std::chrono::nanoseconds>(t1-woke).count());
+		
+		// throttle FPS?
+		double surplus = dtIdeal - dtWorked;
+		if (dosleep && surplus > 0) {
+			al_sleep(surplus);
+			// measure actual work-time from now, to exclude sleep:
+			woke = std::chrono::steady_clock::now();
+		} else {
+			woke = t1;
+		}
+
+		// update state:
 		fpsActual = 1./dtActual;
 		fps += fpsAccuracy * (fpsActual - fps);
 		dt = 1./fps;
+		fpsPotential += fpsAccuracy * ((1./dtWorked) - fpsPotential);
 		last = t1;
-		return (count % int64_t(fpsIdeal)) == 0;
+		count++;
 	}
 };
 
