@@ -116,7 +116,7 @@ struct Hashspace3D {
 			// earlier 
 			//std::reverse(std::begin(list), std::end(list));
 			
-			//std::sort(list.begin(), list.end(), [](ShellData a, ShellData b) { return b.distance > a.distance; });
+			std::sort(list.begin(), list.end(), [](ShellData a, ShellData b) { return b.distance > a.distance; });
 			
 			if (!list.empty()) {
 				for (unsigned j=0; j<list.size(); j++) {
@@ -368,6 +368,8 @@ struct Hashspace2D {
 		for (unsigned d=0; d<mDim2; d++) {
 			Shell& shell = mShells[d];
 			shell.start = vi; 
+
+
 			
 			std::vector<ShellData>& list = shells[d];
 			
@@ -375,7 +377,7 @@ struct Hashspace2D {
 			// earlier 
 			//std::reverse(std::begin(list), std::end(list));
 			
-			//std::sort(list.begin(), list.end(), [](ShellData a, ShellData b) { return b.distance > a.distance; });
+			std::sort(list.begin(), list.end(), [](ShellData a, ShellData b) { return b.distance > a.distance; });
 			
 			if (!list.empty()) {
 				for (unsigned j=0; j<list.size(); j++) {
@@ -386,7 +388,7 @@ struct Hashspace2D {
 
 			// shells run 0..1024 (mdim2)
 			// ranges up to 32768 (mdim3)
-			//object_post(0, "shell %d: %d..%d", d, shell.start, shell.end);
+			//console.log("shell %d: %d..%d", d, shell.start, shell.end);
 		}
 		
 		

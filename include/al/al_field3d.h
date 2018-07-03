@@ -188,9 +188,8 @@ inline void al_field3d_addnorm_interp(const glm::ivec3 dim, T * data, glm::vec3 
 
 // Gauss-Seidel relaxation scheme:
 template<typename T>
-inline void al_field3d_diffuse(const glm::ivec3 dim, const T * iptr, T * optr, double diffusion=0.5, unsigned passes=10) {
-	T div = T(1.0/((1.+6.*diffusion)));
-	T diffuse = T(diffusion);
+inline void al_field3d_diffuse(const glm::ivec3 dim, const T * iptr, T * optr, T diffusion=0.5, unsigned passes=10) {
+	T div = T(1.0)/((T(1.)+T(6.)*diffusion));
 	for (unsigned n=0 ; n<passes ; n++) {
 		for (size_t z=0;z<dim.z;z++) {
 			for (size_t y=0;y<dim.y;y++) {
@@ -205,7 +204,7 @@ inline void al_field3d_diffuse(const glm::ivec3 dim, const T * iptr, T * optr, d
 					const T v00a = optr[al_field3d_index(dim, x,  y,  z-1)];
 					const T v00b = optr[al_field3d_index(dim, x,  y,  z+1)];
 
-					optr[here]   = div*(prev + diffuse*(va00 + vb00 + v0a0 + v0b0 + v00a + v00b));
+					optr[here]   = div*(prev + diffusion*(va00 + vb00 + v0a0 + v0b0 + v00a + v00b));
 				}
 
 			}

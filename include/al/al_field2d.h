@@ -152,8 +152,8 @@ inline void al_field2d_addnorm_interp(const glm::ivec2 dim, T * data, glm::vec2 
 
 // Gauss-Seidel relaxation scheme:
 template<typename T>
-inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, double diffusion=0.5, unsigned passes=10) {
-	double div = 1.0/((1.+4.*diffusion));
+inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, T diffusion=T(0.5), unsigned passes=10) {
+	T div = T(1.0)/((T(1.)+T(4.)*diffusion));
 	for (unsigned n=0 ; n<passes ; n++) {
 		for (size_t y=0;y<dim.y;y++) {
 			for (size_t x=0;x<dim.x;x++) {
@@ -163,7 +163,7 @@ inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, d
 				const T& vb0 = optr[al_field2d_index(dim, x+1,y  )];
 				const T& v0a = optr[al_field2d_index(dim, x,  y-1)];
 				const T& v0b = optr[al_field2d_index(dim, x,  y+1)];			
-				next = T(div)*(prev + T(diffusion)*(va0 + vb0 + v0a + v0b));
+				next = div*(prev + T(diffusion)*(va0 + vb0 + v0a + v0b));
 			}
 		}
 	}
