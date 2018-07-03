@@ -3,7 +3,6 @@
 
 #include <chrono>
 #include <thread>
-
 #include <flicks/flicks.h>
 
 /*
@@ -37,6 +36,7 @@ struct Timer {
 		last = std::chrono::steady_clock::now();
 	}
 
+	// no. seconds since the last measure
 	double measure(bool reset=true) {
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 		std::chrono::steady_clock::duration dur = t1-last;
@@ -45,6 +45,7 @@ struct Timer {
 		return elapsed;
 	}
 };
+
 
 struct FPS {
 	// last time point that we measured:
