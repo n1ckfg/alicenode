@@ -369,8 +369,6 @@ struct Hashspace2D {
 			Shell& shell = mShells[d];
 			shell.start = vi; 
 
-
-			
 			std::vector<ShellData>& list = shells[d];
 			
 			// the order of the elements within a shell is biased
