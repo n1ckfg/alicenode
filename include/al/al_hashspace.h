@@ -159,7 +159,7 @@ struct Hashspace3D {
 	}
 	
 	
-	int query(std::vector<int32_t>& result, int maxResults, glm::vec3 center, int32_t selfId=-1, float maxRadius=1000.f, float minRadius=0) {
+	int query(std::vector<int32_t>& result, int maxResults, glm::vec3 center, int32_t selfId=-1, float maxRadius=1000.f, float minRadius=0, bool toroidal=true) {
 		int nres = 0;
 		
 		// convert distance in term of voxels:
@@ -185,7 +185,11 @@ struct Hashspace3D {
 			// we must check an entire shell, to avoid any spatial bias
 			// due to the ordering of voxels within a shell
 			for (uint32_t i = cellstart; i < cellend; i++) {
-				uint32_t index = hash(x, y, z, mVoxelsByDistance[i]);
+				uint32_t index = toroidal 
+					? hash(x, y, z, mVoxelsByDistance[i])
+					: hash_nontoroidal(x, y, z, mVoxelsByDistance[i]);
+				if (!isValid(index)) continue;
+
 				const Voxel& voxel = mVoxels[index];
 				// now add any objects in this voxel to the result...
 				const int32_t first = voxel.first;
@@ -235,6 +239,7 @@ struct Hashspace3D {
 	inline glm::ivec3 dim() { return glm::ivec3(mDim); }
 	
 	static uint32_t invalidHash() { return UINT_MAX; }
+	static bool isValid(uint32_t h) { return h != invalidHash(); }
 	
 	inline uint32_t hash(glm::vec3 v) const { 
 		glm::vec4 norm = world2voxels * glm::vec4(v, 1.f);
@@ -249,6 +254,16 @@ struct Hashspace3D {
 	inline uint32_t hashx(uint32_t v) const { return v & mWrap; }
 	inline uint32_t hashy(uint32_t v) const { return (v & mWrap)<<mShift; }
 	inline uint32_t hashz(uint32_t v) const { return (v & mWrap)<<mShift2; }
+
+	inline uint32_t hashx_nontoroidal(uint32_t v) const { 
+		return v >= 0 && v < mWrap ? v : invalidHash();
+	}
+	inline uint32_t hashy_nontoroidal(uint32_t v) const { 
+		return v >= 0 && v < mWrap ? v<<mShift : invalidHash();
+	}
+	inline uint32_t hashz_nontoroidal(uint32_t v) const { 
+		return v >= 0 && v < mWrap ? v<<mShift2 : invalidHash();
+	}
 	
 	inline uint32_t unhashx(uint32_t h) const { return (h) & mWrap; }
 	inline uint32_t unhashy(uint32_t h) const { return (h>>mShift) & mWrap; }
@@ -259,6 +274,15 @@ struct Hashspace3D {
 		return	hashx(unhashx(offset) + x) +
 		hashy(unhashy(offset) + y) +
 		hashz(unhashz(offset) + z);
+	}
+
+	inline uint32_t hash_nontoroidal(uint32_t x, uint32_t y, uint32_t z, uint32_t offset) const {
+		x = hashx_nontoroidal(unhashx(offset) + x);
+		y = hashy_nontoroidal(unhashy(offset) + y);
+		z = hashy_nontoroidal(unhashz(offset) + z);
+		return	isValid(x) && isValid(y) && isValid(z) 
+			? x + y + z
+			: invalidHash();
 	}
 	
 	// this is definitely not thread-safe.
@@ -420,7 +444,7 @@ struct Hashspace2D {
 		return *this;
 	}
 	
-	
+	/*
 	int query(std::vector<int32_t>& result, int maxResults, glm::vec2 center, int32_t selfId=-1, float maxRadius=1000.f, float minRadius=0) {
 		int nres = 0;
 		
@@ -475,6 +499,64 @@ struct Hashspace2D {
 		}
 		return nres;
 	}
+*/
+	int query(std::vector<int32_t>& result, int maxResults, glm::vec2 center, int32_t selfId=-1, float maxRadius=1000.f, float minRadius=0, bool toroidal=true) {
+		int nres = 0;
+		
+		// convert distance in term of voxels:
+		minRadius = minRadius * world2voxels_scale;
+		maxRadius = maxRadius * world2voxels_scale;
+		
+		// convert pos:
+		auto ctr = transform(world2voxels, center); //world2voxels * center;
+		const uint32_t x = ctr.x+0.5;
+		const uint32_t y = ctr.y+0.5;
+	
+		// get shell radii:
+		const uint32_t iminr2 = glm::max(uint32_t(0), uint32_t(minRadius*minRadius));
+		const uint32_t imaxr2 = glm::min(mDim2, uint32_t(1 + maxRadius*maxRadius));
+		
+		// move out shell by shell until we have enough results
+		for (int s = iminr2; s <= imaxr2 && nres < maxResults; s++) {
+			const Shell& shell = mShells[s];
+			const uint32_t cellstart = shell.start;
+			const uint32_t cellend = shell.end;
+			// look at all the voxels in this shell
+			// we must check an entire shell, to avoid any spatial bias
+			// due to the ordering of voxels within a shell
+			for (uint32_t i = cellstart; i < cellend; i++) {
+				uint32_t index = toroidal ? hash(x, y, mVoxelsByDistance[i])
+					: hash_nontoroidal(x, y, mVoxelsByDistance[i]);
+				if (!isValid(index)) continue;
+
+				const Voxel& voxel = mVoxels[index];
+				// now add any objects in this voxel to the result...
+				const int32_t first = voxel.first;
+				if (first >= 0) {
+					int32_t current = first;
+					//int runaway_limit = 100;
+					do {
+						const Object& o = mObjects[current];
+						if (current != o.id) {
+							//object_post(0, "corrupt list");
+							break;
+						}
+						if (current != selfId) {
+							result.push_back(current);
+							nres++;
+						}
+						current = o.next;
+					} while (
+							current != first // bail if we looped around the voxel
+							//&& nres < maxResults // bail if we have enough hits
+							//&& current >= 0  // bail if this isn't a valid object
+							//&& --runaway_limit // bail if this has lost control
+							); 
+				}	
+			}
+		}
+		return nres;
+	}
 	
 	inline void remove(uint32_t objectId) {
 		Object& o = mObjects[objectId];
@@ -496,6 +578,7 @@ struct Hashspace2D {
 	inline glm::ivec2 dim() { return glm::ivec2(mDim); }
 	
 	static uint32_t invalidHash() { return UINT_MAX; }
+	static bool isValid(uint32_t h) { return h != invalidHash(); }
 	
 	inline uint32_t hash(glm::vec2 v) const { 
 		glm::vec2 norm = transform(world2voxels, v);//world2voxels * v; 
@@ -509,6 +592,14 @@ struct Hashspace2D {
 	}
 	inline uint32_t hashx(uint32_t v) const { return v & mWrap; }
 	inline uint32_t hashy(uint32_t v) const { return (v & mWrap)<<mShift; }
+
+
+	inline uint32_t hashx_nontoroidal(uint32_t v) const { 
+		return v >= 0 && v < mWrap ? v : invalidHash();
+	}
+	inline uint32_t hashy_nontoroidal(uint32_t v) const { 
+		return v >= 0 && v < mWrap ? v<<mShift : invalidHash();
+	}
 	
 	inline uint32_t unhashx(uint32_t h) const { return (h) & mWrap; }
 	inline uint32_t unhashy(uint32_t h) const { return (h>>mShift) & mWrap; }
@@ -516,7 +607,13 @@ struct Hashspace2D {
 	// generate hash offset by an already generated hash:
 	inline uint32_t hash(uint32_t x, uint32_t y, uint32_t offset) const {
 		return	hashx(unhashx(offset) + x) +
-		hashy(unhashy(offset) + y);
+				hashy(unhashy(offset) + y);
+	}
+
+	inline uint32_t hash_nontoroidal(uint32_t x, uint32_t y, uint32_t offset) const {
+		x = hashx_nontoroidal(unhashx(offset) + x);
+		y = hashy_nontoroidal(unhashy(offset) + y);
+		return	isValid(x) && isValid(y) ? x + y : invalidHash();
 	}
 	
 	// this is definitely not thread-safe.

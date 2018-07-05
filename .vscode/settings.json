@@ -89,7 +89,9 @@
         "cinttypes": "cpp",
         "hashtable": "cpp",
         "__config": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "__functional_base": "cpp",
+        "future": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"
