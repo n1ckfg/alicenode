@@ -96,7 +96,7 @@ struct FPS {
 
 	// mark a frame boundary, and update the count and fps estimates accordingly
 	// if dosleep is true, the thread will sleep to throttle to the desired frame rate
-	bool frame(bool dosleep = true) {
+	void frame(bool dosleep = true) {
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
 		// get dt:
