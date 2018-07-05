@@ -76,15 +76,16 @@ struct CellSpace {
 
 	// notice that it isn't bounds-checking
 	static const int32_t raw_index(glm::vec2 pos) {
-		return int32_t(pos.x * SPACE_DIM) + int32_t(pos.y * SPACE_DIM)*SPACE_DIM;
+		return int32_t(pos.x * (SPACE_DIM-1)) + int32_t(pos.y * (SPACE_DIM-1))*SPACE_DIM;
 	}
 
 	// notice that it isn't bounds-checking
 	static const int32_t safe_index(glm::vec2 pos) {
-		return wrap(int32_t(pos.x * SPACE_DIM), SPACE_DIM) 
-			 + wrap(int32_t(pos.y * SPACE_DIM), SPACE_DIM)*SPACE_DIM;
+		return wrap(int32_t(pos.x * (SPACE_DIM-1)), SPACE_DIM) 
+			 + wrap(int32_t(pos.y * (SPACE_DIM-1)), SPACE_DIM)*SPACE_DIM;
 	}
 	
+	// positions are all in normalized 0..1:
 	void unset(glm::vec2 pos) {
 		cells[raw_index(pos)] = invalid;
 	}
