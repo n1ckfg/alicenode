@@ -14,6 +14,11 @@ void al_field2d_zero(const glm::ivec2 dim, T * data) {
 }
 
 template<typename T>
+void al_field2d_add(const glm::ivec2 dim, T * data, const T v) {
+	for (unsigned int i=0; i<dim.x*dim.y; i++) { data[i] += v; }
+}
+
+template<typename T>
 void al_field2d_scale(const glm::ivec2 dim, T * data, const T v) {
 	for (unsigned int i=0; i<dim.x*dim.y; i++) { data[i] *= v; }
 }
@@ -30,6 +35,10 @@ inline size_t al_field2d_index(const glm::ivec2 dim, int x, int y) {
 }
 
 inline size_t al_field2d_index(const glm::ivec2 dim, glm::ivec2 p) { return al_field2d_index(dim, p.x, p.y); }
+
+inline size_t al_field2d_index_norm(const glm::ivec2 dim, glm::vec2 p) { 
+	return al_field2d_index(dim, p.x * dim.x, p.y * dim.y); 
+}
 
 inline size_t al_field2d_index_nowrap(const glm::ivec2 dim, int x, int y) {
 	return  x + y*dim.x;
@@ -152,8 +161,8 @@ inline void al_field2d_addnorm_interp(const glm::ivec2 dim, T * data, glm::vec2 
 
 // Gauss-Seidel relaxation scheme:
 template<typename T>
-inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, double diffusion=0.5, unsigned passes=10) {
-	double div = 1.0/((1.+4.*diffusion));
+inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, T diffusion=T(0.5), unsigned passes=10) {
+	T div = T(1.0)/((T(1.)+T(4.)*diffusion));
 	for (unsigned n=0 ; n<passes ; n++) {
 		for (size_t y=0;y<dim.y;y++) {
 			for (size_t x=0;x<dim.x;x++) {
@@ -163,7 +172,7 @@ inline void al_field2d_diffuse(const glm::ivec2 dim, const T * iptr, T * optr, d
 				const T& vb0 = optr[al_field2d_index(dim, x+1,y  )];
 				const T& v0a = optr[al_field2d_index(dim, x,  y-1)];
 				const T& v0b = optr[al_field2d_index(dim, x,  y+1)];			
-				next = T(div)*(prev + T(diffusion)*(va0 + vb0 + v0a + v0b));
+				next = div*(prev + T(diffusion)*(va0 + vb0 + v0a + v0b));
 			}
 		}
 	}

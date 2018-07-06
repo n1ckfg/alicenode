@@ -267,10 +267,8 @@ struct CloudDevice {
 
 			listener.release(frames);
 
-			if (fps.measure()) {
-				console.log("freenect %d fps %f", id, fps.fps);
-			}
-		
+			//if (fps.measure()) console.log("freenect %d fps %f", id, fps.fps);
+			fps.frame(false);
 		}
 
 		console.log("bye from freenect thread for device %s", dev->getSerialNumber().c_str());

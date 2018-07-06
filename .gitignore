@@ -5,6 +5,9 @@ alice.exe
 clang+llvm-6
 cpp2json.exe
 cpp2json
+cpp2json/project.cpp.json
+cpp2json/state.h.json
+
 
 
 client/gitgraph.json

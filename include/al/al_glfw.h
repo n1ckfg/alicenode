@@ -72,7 +72,7 @@ struct Window {
 	};
 
 	int width = 1920/2;
-	int height = 1280/2;
+	int height = 1080/2;
 	int x, y; // position
 	int windowed_width, windowed_height; 
 	GLFWwindow* pointer = 0; 

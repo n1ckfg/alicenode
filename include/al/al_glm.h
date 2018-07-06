@@ -172,15 +172,19 @@ inline glm::vec2 transform (glm::mat3 const & mat, glm::vec2 const & vec) {
 	return glm::vec2(mat * glm::vec3(vec, 1.f));
 }
 
+glm::vec2 limit(glm::vec2 v, float max) {
+	float len2 = glm::dot(v,v); 
+	return (len2 > max*max) ? v * max/sqrtf(len2) : v;
+}
+
 // max should be >> 0.
 template<typename T>
 inline T limit(T v, float max) {
 	// float len2 = glm::dot(v,v);
 	// if (len2 > max*max) return v * max/sqrt(len);
-	float len = glm::length(v);
-	if (len > max) return v * max/len;
+	float len2 = glm::dot(v,v);
 	// v /= glm::min(len, max);   // TODO faster or slower?
-	return v;
+	return (len2 > max*max) ? v * max/sqrtf(len2) : v;
 }
 
 #endif // AL_GLM_H

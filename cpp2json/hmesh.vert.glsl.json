@@ -28,9 +28,26 @@
                     "line": 4
                 },
                 "end": {
-                    "char": 148,
-                    "col": 18,
+                    "char": 143,
+                    "col": 13,
                     "line": 4
+                }
+            },
+            "name": "mat4",
+            "type": "int"
+        },
+        {
+            "ast": "VarDecl",
+            "loc": {
+                "begin": {
+                    "char": 205,
+                    "col": 1,
+                    "line": 7
+                },
+                "end": {
+                    "char": 222,
+                    "col": 18,
+                    "line": 7
                 }
             },
             "name": "sampler2D",
@@ -40,14 +57,14 @@
             "ast": "VarDecl",
             "loc": {
                 "begin": {
-                    "char": 277,
+                    "char": 351,
                     "col": 1,
-                    "line": 10
+                    "line": 13
                 },
                 "end": {
-                    "char": 285,
+                    "char": 359,
                     "col": 9,
-                    "line": 10
+                    "line": 13
                 }
             },
             "name": "vec2",
@@ -57,14 +74,14 @@
             "ast": "VarDecl",
             "loc": {
                 "begin": {
-                    "char": 296,
+                    "char": 370,
                     "col": 1,
-                    "line": 11
+                    "line": 14
                 },
                 "end": {
-                    "char": 304,
+                    "char": 378,
                     "col": 9,
-                    "line": 11
+                    "line": 14
                 }
             },
             "name": "vec3",
@@ -74,14 +91,14 @@
             "ast": "FunctionDecl",
             "loc": {
                 "begin": {
-                    "char": 345,
+                    "char": 398,
                     "col": 1,
-                    "line": 14
+                    "line": 16
                 },
                 "end": {
-                    "char": 971,
+                    "char": 1016,
                     "col": 2,
-                    "line": 34
+                    "line": 36
                 }
             },
             "mangled_name": "_main",
@@ -91,17 +108,17 @@
                     "ast": "CompoundStmt",
                     "loc": {
                         "begin": {
-                            "char": 357,
+                            "char": 410,
                             "col": 13,
-                            "line": 14
+                            "line": 16
                         },
                         "end": {
-                            "char": 971,
+                            "char": 1016,
                             "col": 2,
-                            "line": 34
+                            "line": 36
                         }
                     },
-                    "text": "{\n\ttexCoord = aTexCoord;\n\tnormal = aNormal;\n\n\t// basic grid mesh is 0..1, need to scale that to the world\n\tposition = (uLandMatrixInverse * vec4(aPos, 1.)).xyz;\n\n\t// get the landscape data (normal + height) from the texture:\n\tvec4 land = texture(uLandTex, texCoord.xy);\n\n\t// height (land.w) needs to be scaled to the world\n\tvec3 deform = (uLandMatrixInverse * vec4(0., land.w, 0., 1.)).xyz;\n\tposition += deform;\n\tnormal = land.xyz;\n\n\t// steepness depends on normal:\n\t//steepness = abs(1. - dot(normal, vec3(0, 1, 0)));\n\tsteepness = abs(1. - normal.y);\n\t\n\tgl_Position = uViewProjectionMatrix * vec4(position, 1.);\n}"
+                    "text": "{\n\ttexCoord = aTexCoord;\n\tnormal = aNormal;\n\n\tmat4 landMat = uWorld2Map * uLandMatrixInverse;\n\n\t// basic grid mesh is 0..1, need to scale that to the world\n\tposition = (landMat * vec4(aPos, 1.)).xyz;\n\n\n\t// get the landscape data (normal + height) from the texture:\n\t//vec4 land = texture(uLandTex, texCoord.xy);\n\tvec4 land = textureLod(uLandTex, texCoord.xy, uLandLoD);\n\n\t// height (land.w) needs to be scaled to the world\n\tvec3 deform = (uLandMatrixInverse * vec4(0., land.w, 0., 1.)).xyz;\n\tposition += deform * uMapScale;\n\tnormal = land.xyz;\n\t\n\tgl_Position = uViewProjectionMatrix * vec4(position, 1.);\n}"
                 }
             ],
             "type": "void ()",

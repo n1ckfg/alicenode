@@ -24,7 +24,7 @@
     <script src="cm/codemirror.js"></script>
     <script src="cm/css.js"></script>
     <!-- load local server version if cdn unavailable -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script><script>if (!window.jQuery) document.write('<script src="cm/diff_match_patch.js"><\/script>');</script> -->
 
     <!-- <script src="cm/htmlmixed.js"></script> -->
     <!-- <script src="cm/xml.js"></script> -->
@@ -42,11 +42,11 @@
     <!-- style -->
     <link rel=stylesheet href="css/jquery-ui.css">
 
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> -->
 
     <link rel=stylesheet href="css/cards.css">
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/jquery-ui.js"></script>
 
     <!-- resizeable columns -->
     <link rel=stylesheet href="css/colresizeable.css">
@@ -116,8 +116,8 @@ rgb(199, 0, 57) --> */
             <table name="stateParams" overflow="scroll" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
                 <tbody>
                     <tr >
-                        <th style="width: 60%;">Parameter</th>
-                        <th style="width: 40%;">Value</th>          
+                        <th style="width: 40%;">Parameter</th>
+                        <th style="width: 60%;">Value</th>          
                     </tr>
                 </tbody>
             </table>
@@ -127,9 +127,7 @@ rgb(199, 0, 57) --> */
         <td>
             Errors/Warnings from Server
         </td>
-        <td>
-            Parameters Available but not yet Mapped in Server
-        </td>
+
     <tr height="20%">
         <td>
             <div id="serverWarnings" overflow="auto">
@@ -306,6 +304,7 @@ function openSocket() {
                     
                     
                     state = (JSON.parse(arg))
+                    console.log(state)
                     let offset;
                     let type;
                     let pName;
@@ -370,18 +369,42 @@ function openSocket() {
                                 $("#" + pName).width(100);
 
                                 break;
+
+
                                 
                                 // for params whose type we haven't yet figure out how to retrieve (if they are vec3, for example)
                                 default:
 
-                                var li = document.createElement('li');
-                                var list = document.getElementById('otherParams');
+                                    //TEMPORARY:
 
-                                li.innerHTML = ("Parameter: " + pName + " Type: " + type);
-                                list.appendChild(li);
+                                    pValue = type
 
-                                var chatMessages = document.querySelector('#otherParams');
-                                chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+
+                                    $('#stateValues tr:last').after('<tr id=\"row_' + pName + '\"><td>' + pName + '</td><td>' + '<input type=text id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                        //these are arrays, so we cant just put them into a spinner ui.
+
+                                        // turn the input element into a jquery spinner
+                                        // $("#" + pName).spinner({
+                                        //     step: 0.1,
+                                        // });
+                                    // have the input report its value whenever it gets changed by mouse or keyboard events.
+                                    $( "#" + pName ).on("change paste keyup", function( event, ui, id ) {
+                                        updateState(this.id, ui.value);
+                                        }
+                                    );
+
+                                    $().data('mmapData', { offset: offset })
+
+                                    $("#" + pName).width(200);
+
+                                // var li = document.createElement('li');
+                                // var list = document.getElementById('otherParams');
+
+                                // li.innerHTML = ("Parameter: " + pName + " Type: " + type);
+                                // list.appendChild(li);
+
+                                // var chatMessages = document.querySelector('#otherParams');
+                                // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
                                 break;
                             }
 

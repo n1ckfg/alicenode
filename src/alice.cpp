@@ -53,7 +53,6 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	bool ctrl = (mods & 2) != 0;
 	bool alt = (mods & 4) != 0;
 	bool cmd = (mods & 8) != 0;
-	console.log("keycode: %d scancode: %d press: %d shift %d ctrl %d alt %d cmd %d", keycode, scancode, downup, shift, ctrl, alt, cmd);
 	
 	switch (keycode) { 
 	case GLFW_KEY_SPACE: {
@@ -116,24 +115,20 @@ extern "C" AL_ALICE_EXPORT int frame() {
     	alice.onFrame.emit(alice.window.width, alice.window.height);
 		
     glfwSwapBuffers(alice.window.pointer);
+
     
-    double t1 = glfwGetTime();
-    alice.dt = t1-alice.t;
-    alice.t = t1;
-    alice.framecount++;
-	if (alice.isSimulating) alice.simTime += alice.dt;
-    
-    alice.fpsAvg += 0.01*(1./alice.dt - alice.fpsAvg);
-    if (alice.framecount % 60 == 0) {
-        console.log("fps %f", alice.fpsAvg);
-    }
+	/*
     
     // do we need to sleep?
     double tframe = t1-tbegin;
     double tsleep = 1./alice.desiredFrameRate - tframe;
     if (tsleep > 0.001) {
     	al_sleep(tsleep);
-    }
+    }*/
+
+	alice.fps.frame();
+	if (alice.isSimulating) alice.simTime += alice.fps.dtActual;
+
     return !glfwWindowShouldClose(alice.window.pointer);
 }
 
