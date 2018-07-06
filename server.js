@@ -10,6 +10,10 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
+const sortJson = require('sort-json-array');
+    const options = { ignoreCase: true, reverse: true, depth: 1};
+
+
 
 function random (low, high) {
   return Math.random() * (high - low) + low
@@ -68,6 +72,8 @@ function getState () {
 
     stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
+
+    
     
 
     Object.keys(stateAST.nodes).forEach(function (key) {
@@ -79,7 +85,7 @@ function getState () {
           
 
           let type = value.type
-           offset = value.offsetof
+           let offset = value.offsetof
            console.log(type)
           // sizeOf = value.sizeof
 
@@ -87,10 +93,15 @@ function getState () {
           
           // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
           switch (type) {
+
+            case (type.includes('void')):
+            console.log(type)
+              //ignore void
+            break
             case 'float':
               // let obj = new Object;
               paramValue = statebuf.readFloatLE(offset)
-              //console.log("\n\n\n" + paramValue)
+              console.log("\n\n\n" + paramValue)
 
 
               // let objArray = [paramValue, type, offset]
@@ -101,6 +112,32 @@ function getState () {
 
               // console.log("float detected " + paramName, paramValue)
               break
+            case 'glm::vec3':
+
+            break
+
+            case 'double':
+
+            break
+
+            case 'glm::vec4':
+
+            break
+
+            case 'DebugDot':
+
+            break
+
+            case 'CreaturePart':
+
+            break
+            case 'Particle':
+            break
+            case 'Segment':
+            break
+            case 'Creature':
+
+            break
 
             case (type.includes('float ')):
               // paramValue = statebuf.readFloatLE(offset)
@@ -143,14 +180,14 @@ function getState () {
               break
 
             default:
-              state.push({paramName, type})
+              //state.push({paramName, type})
           }
         })
       }
       // console.log(arg.nodes[key].name)
     })
     console.log('mapped state var updated in server\n')
-    //console.log(state)
+    console.log(state)
 
   })
 
@@ -993,14 +1030,12 @@ ws.send('cardsFileList?' + cardsFileList)
 
           // NOTE: for now (maybe) the getState Function will exist outside this scope, at global-level. 
           // Send the state when a state editor connects
-            
-
+              state = sortJson(state, 'paramName', 'asc')
               ws.send('state?' + JSON.stringify(state))
               console.log(state)
               ws.send('state.h?' + stateSource) 
 
               // console.log(state)
-
 
             break
             

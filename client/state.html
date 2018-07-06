@@ -117,7 +117,8 @@ rgb(199, 0, 57) --> */
                 <tbody>
                     <tr >
                         <th style="width: 40%;">Parameter</th>
-                        <th style="width: 60%;">Value</th>          
+                        <th style="width: 20%;">Type</th>
+                        <th style="width: 40%;">Value</th>          
                     </tr>
                 </tbody>
             </table>
@@ -343,18 +344,20 @@ function openSocket() {
                         // pValue = array[0];
 
                         //console.log(array)
+                        console.log(type)
 
                         //different types will require different ui elements.
                             switch (type) {
                                 
                                 // a float or an int will use the jquery spinner
                                 case "float":
+                                case "int":
                                 // 
                                 // $('#stateParams tr').click(function(){
                                 //     $(this).remove();
                                 //     return false;
                                 //});
-                                $('#stateValues tr:last').after('<tr id=\"row_' + pName + '\"><td>' + pName + '</td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                $('#stateValues tr:last').after('<tr id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
                                 // turn the input element into a jquery spinner
                                 $("#" + pName).spinner({
                                     step: 0.1,
