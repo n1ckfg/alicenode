@@ -12,7 +12,7 @@
 <link rel=stylesheet href="cm/one-dark.css">
 <link rel=stylesheet href="css/jquery-ui.css">
 <link rel=stylesheet href="css/alicenode.css">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="css/jquery-ui.css">
 <link rel=stylesheet href="css/cards.css">
 <link rel=stylesheet href="css/colresizeable.css">
 
@@ -26,10 +26,10 @@
 <script src="cm/addons/fullscreen/fullscreen.js"></script>
 <script src="cm/cm-resize.js"></script>
 <script src="cm/autorefresh.js"></script>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="js/jquery-1.12.4.js"></script>
+<script src="js/jquery-ui.js"></script>
 <script src="js/colResizable-1.5.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
 </head>
 
 <style>
@@ -348,6 +348,8 @@ function openSocket () {
 
           case 'deck':
             deck = (JSON.parse(arg))
+
+            console.log()
             // var newCard = [];
 
             // send astJSON to function that will regen the ast into full file (for loading into the Head node of the graph)

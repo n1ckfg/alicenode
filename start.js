@@ -6,7 +6,7 @@ const find = require('find-process');
 
 let proc;
  
-if (process.argv[2] === "git-only"){
+if (process.argv[2] === "nosim"){
 
 	function launch() {
 		console.log("-------------------------------------------------------------");

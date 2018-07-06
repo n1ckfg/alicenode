@@ -51,6 +51,7 @@ try {
   buffSize = fs.statSync('state.bin').size
   statebuf = mmapfile.openSync('state.bin', buffSize, 'r+')
   console.log('mapped state.bin, size ' + statebuf.byteLength)
+  // console.log(Buffer.byteLength(statebuf))
 } catch (e) {
   console.error('failed to map the state.bin:', e.message)
 }
@@ -67,10 +68,10 @@ function getState () {
 
     stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
+    
 
     Object.keys(stateAST.nodes).forEach(function (key) {
       if (stateAST.nodes[key].name === 'State') {
-
 
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
           let value = stateAST.nodes[key].nodes[objectKey]
@@ -78,7 +79,11 @@ function getState () {
           
 
           let type = value.type
-          let offset = value.offsetof
+           offset = value.offsetof
+           console.log(type)
+          // sizeOf = value.sizeof
+
+          // console.log(sizeOf)
           
           // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
           switch (type) {
@@ -100,7 +105,7 @@ function getState () {
             case (type.includes('float ')):
               // paramValue = statebuf.readFloatLE(offset)
               paramValue = "test 32"
-              //console.log("\n\n\n" + paramValue)
+              // console.log("\n\n\n" + paramValue)
 
 
               // let objArray = [paramValue, type, offset]
@@ -108,7 +113,7 @@ function getState () {
 
               // console.log(obj);
               state.push({paramName, paramValue, type, offset})
-              console.log(paramName, paramValue, type)
+              //console.log(paramName, paramValue, type)
             break
 
             case 'Object':
@@ -124,6 +129,18 @@ function getState () {
               state.push({paramName, paramValue, type, offset})
 
               break
+            case 'int':
+            paramValue = statebuf.readIntLE(offset, 4)
+            // console.log("\n\n\n" + paramName + paramValue)
+
+
+            // let objArray = [paramValue, type, offset]
+            // obj[paramName] = objArray
+
+            // console.log(obj);
+            state.push({paramName, paramValue, type, offset})
+              
+              break
 
             default:
               state.push({paramName, type})
@@ -133,6 +150,7 @@ function getState () {
       // console.log(arg.nodes[key].name)
     })
     console.log('mapped state var updated in server\n')
+    //console.log(state)
 
   })
 
@@ -172,8 +190,8 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
-//serverMode can be set to git-only, so that the simulation won't run. useful for deving just the client-server without needing resources. try 'npm start git-only'. note, 'npm start' is default
-if (serverMode !== "git-only") {
+//serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
+if (serverMode !== 'nosim') {
   projectBuild();
 // BUILD PROJECT
   function projectBuild () {
@@ -978,6 +996,7 @@ ws.send('cardsFileList?' + cardsFileList)
             
 
               ws.send('state?' + JSON.stringify(state))
+              console.log(state)
               ws.send('state.h?' + stateSource) 
 
               // console.log(state)
