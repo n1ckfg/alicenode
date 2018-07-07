@@ -14,7 +14,7 @@ rem if compiled OK, run it:
 if %errorlevel% neq 0 (
     echo Exit Code is %errorlevel%
 ) else (
-    cpp2json.exe state.h state.json
+    cpp2json.exe ../../alicenode_inhabitat/state.h state.json
 )
 
 @endlocal
