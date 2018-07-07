@@ -22,6 +22,7 @@
     "dirty-object": "^1.0.6",
     "express": "^4.16.3",
     "find-process": "^1.1.1",
+    "get-type": "^1.1.0",
     "git-log-to-json": "^1.1.1",
     "json5": "^1.0.1",
     "list-directory-contents": "0.0.3",

@@ -12,6 +12,7 @@ const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const sortJson = require('sort-json-array');
     const options = { ignoreCase: true, reverse: true, depth: 1};
+const getType = require('getType');
 
 
 
@@ -47,6 +48,8 @@ let stateSource
 let stateAST
 let state = [] // we'll send this to the client
 let paramValue;
+let unusedParams = []
+
 
 /// 
 // mmap the state
@@ -64,6 +67,7 @@ getState()
 function getState () {
   //clear state:
   state = []
+  unusedParams = []
   // get sourcecode
   stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
   stateSource = JSON.stringify(stateSource)
@@ -72,6 +76,7 @@ function getState () {
 
     stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
+    //console.log(stateAST)
 
     
     
@@ -80,123 +85,76 @@ function getState () {
       if (stateAST.nodes[key].name === 'State') {
 
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
-          let value = stateAST.nodes[key].nodes[objectKey]
+          value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
           
 
-          let type = value.type
-           let offset = value.offsetof
-           console.log(type)
+          type = value.type
+           offset = value.offsetof
+
+           if (type.includes('void')) {
+              //we ignore 'void' types for now
+          } else {
+           console.log(paramName, paramValue, type, offset)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
           
           // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-          switch (type) {
 
-            case (type.includes('void')):
-            console.log(type)
-              //ignore void
-            break
-            case 'float':
-              // let obj = new Object;
-              paramValue = statebuf.readFloatLE(offset)
-              console.log("\n\n\n" + paramValue)
+            switch (type) {
 
-
-              // let objArray = [paramValue, type, offset]
-              // obj[paramName] = objArray
-
-              // console.log(obj);
+              case 'float':
+                paramValue = statebuf.readFloatLE(offset)
+                state.push({paramName, paramValue, type, offset})
+                break
+              case 'int':
+              paramValue = statebuf.readIntLE(offset, 4)
               state.push({paramName, paramValue, type, offset})
-
-              // console.log("float detected " + paramName, paramValue)
-              break
-            case 'glm::vec3':
-
-            break
-
-            case 'double':
-
-            break
-
-            case 'glm::vec4':
-
-            break
-
-            case 'DebugDot':
-
-            break
-
-            case 'CreaturePart':
-
-            break
-            case 'Particle':
-            break
-            case 'Segment':
-            break
-            case 'Creature':
-
-            break
-
-            case (type.includes('float ')):
-              // paramValue = statebuf.readFloatLE(offset)
-              paramValue = "test 32"
-              // console.log("\n\n\n" + paramValue)
-
-
-              // let objArray = [paramValue, type, offset]
-              // obj[paramName] = objArray
-
-              // console.log(obj);
+                break
+              // case 'glm::vec3':
+              //   break
+              case 'double':
+              paramValue = statebuf.readDoubleLE(offset);
               state.push({paramName, paramValue, type, offset})
-              //console.log(paramName, paramValue, type)
-            break
+                break
+              // case 'glm::vec4':
+              //   break
+              case 'DebugDot':
 
-            case 'Object':
+              //console.log(ParamName, paramValue)
+                break
+              case 'CreaturePart':
+                break
+              case 'Particle':
+                break
+              case 'Segment':
+                break
+              case 'Creature':
+                break
 
-              paramValue = statebuf.readUInt8(offset)
-            //console.log("\n\n\n" + paramValue)
-
-
-            // let objArray = [paramValue, type, offset]
-            // obj[paramName] = objArray
-
-            // console.log(obj);
-              state.push({paramName, paramValue, type, offset})
-
-              break
-            case 'int':
-            paramValue = statebuf.readIntLE(offset, 4)
-            // console.log("\n\n\n" + paramName + paramValue)
-
-
-            // let objArray = [paramValue, type, offset]
-            // obj[paramName] = objArray
-
-            // console.log(obj);
-            state.push({paramName, paramValue, type, offset})
-              
-              break
-
-            default:
-              //state.push({paramName, type})
-          }
+              case 'Object':
+                paramValue = statebuf.readUInt8(offset)
+                state.push({paramName, paramValue, type, offset})
+                break
+              default:
+                  //console.log('\nWarning: unknown parameter found in state.bin. please add switch to case "switch (type)": \nname: ' + paramName + '\nvalue: ' + paramValue + '\ntype: ' + type + '\noffset:' + offset)
+              }
+            }
         })
       }
       // console.log(arg.nodes[key].name)
     })
-    console.log('mapped state var updated in server\n')
-    console.log(state)
-
+    //console.log(state)
+ 
   })
 
 
 }
 // refresh the state from the mmap every 10 seconds
 setInterval(function () {
-  console.log('\nupdating mapped state var in server')
-  getState();
+  //console.log('\nupdating mapped state var in server')
+  //getState();
 }, 10000)
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
@@ -1032,7 +990,7 @@ ws.send('cardsFileList?' + cardsFileList)
           // Send the state when a state editor connects
               state = sortJson(state, 'paramName', 'asc')
               ws.send('state?' + JSON.stringify(state))
-              console.log(state)
+              //console.log(state)
               ws.send('state.h?' + stateSource) 
 
               // console.log(state)

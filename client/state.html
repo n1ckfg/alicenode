@@ -318,40 +318,13 @@ function openSocket() {
                          pName = state[key].paramName;
                          pValue = state[key].paramValue;
 
-                         //don't create new table row and spinner if already exists, but do update the value.
-                        //  if ( "row_" + pName ) {
- 
-                        //         console.log("row_" + pName)
-                        //         $('#' + pName).val(35);
-                        //     //$( "#myDiv" ).show();
-                            
-
-                        //     } 
-                        //     // if the pName doesn't yet exist, then create a row and spinner for the state param and value value
-                        //     else {
-                        
-                        // for ( property in state[key] ) {
-                        //     //console.log( property ); // Outputs: foo, fiz or fiz, foo
-                        //     pName = property
-                        //     //console.log(property[0], property[1], property[2])
-                        // }
-                        // //console.log(pValue)
-                        // let array = Object.values(state[key])[0]
-                        
-                        // offset = array[2];
-                        // type = array[1];
-                        
-                        // pValue = array[0];
-
-                        //console.log(array)
-                        console.log(type)
-
                         //different types will require different ui elements.
                             switch (type) {
                                 
                                 // a float or an int will use the jquery spinner
                                 case "float":
                                 case "int":
+                                case "double":
                                 // 
                                 // $('#stateParams tr').click(function(){
                                 //     $(this).remove();
@@ -408,6 +381,11 @@ function openSocket() {
 
                                 // var chatMessages = document.querySelector('#otherParams');
                                 // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+                                break;
+
+                            case "unusedParams":
+                                                                                        console.log("parameter types found but not used: " + arg)
+                                
                                 break;
                             }
 
