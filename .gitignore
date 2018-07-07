@@ -7,6 +7,7 @@ cpp2json.exe
 cpp2json
 cpp2json/project.cpp.json
 cpp2json/state.h.json
+cpp2json/state.json
 
 
 
