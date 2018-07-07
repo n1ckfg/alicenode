@@ -197,7 +197,7 @@ if (serverMode !== 'nosim') {
     } else {
       out = execSync('sh build.sh "' + serverPath + '"', {stdio: 'inherit'})
     }
-    console.log('built project', out.toString())
+    //console.log('built project', out.toString())
   }
 
   // should we build now?
