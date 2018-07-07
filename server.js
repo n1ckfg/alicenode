@@ -95,8 +95,7 @@ function getState () {
            if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           //console.log(paramName, paramValue, type, offset)
-           console.log(type.get(value))
+           console.log(paramName, paramValue, type, offset)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
