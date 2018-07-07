@@ -12,7 +12,7 @@ const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const sortJson = require('sort-json-array');
     const options = { ignoreCase: true, reverse: true, depth: 1};
-const getType = require('getType');
+const getType = require('get-type');
 
 
 
@@ -95,12 +95,14 @@ function getState () {
            if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           console.log(paramName, paramValue, type, offset)
+           //console.log(paramName, paramValue, type, offset)
+           console.log(type.get(value))
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
           
           // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
+            
 
             switch (type) {
 
