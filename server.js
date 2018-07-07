@@ -189,6 +189,8 @@ function pruneWorktree () {
 //serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
 if (serverMode !== 'nosim') {
   projectBuild();
+
+  
 // BUILD PROJECT
   function projectBuild () {
     let out = ''
@@ -998,23 +1000,48 @@ ws.send('cardsFileList?' + cardsFileList)
 
             break
             
-            case 'stateUpdate':
+          case 'stateUpdate':
             // stateUpdate = JSON.stringify(arg)
             // console.log(arg)
             // console.log(state)
-            let theName = arg.substr(0, arg.indexOf(' '))
-            let theValue = arg.substr(arg.indexOf(' ') + 1)
+            let stateName = arg.substr(0, arg.indexOf(' '))
+            let stateValue = arg.substr(arg.indexOf(' ') + 1)
             // console.log(theName, theValue)
 
             function findObj (result) {
-              return result.paramName === theName
+              return result.paramName === stateName
             }
 
             let thisObj = state.find(findObj)
             // console.log(thisObj.offset)
 
-            statebuf.writeFloatLE(theValue, thisObj.offset)
+            statebuf.writeFloatLE(stateValue, thisObj.offset)
 
+            break
+
+          case 'state.h_write':
+
+            //console.log(arg)
+
+
+
+            commitMsg = arg.substring(arg.lastIndexOf('?commit') + 1, arg.lastIndexOf('?code')).replace('commit', '')
+          // get the code
+          newCode = arg.split('?code')[1]
+
+          thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
+
+          // console.log(thisAuthor)
+          // console.log(arg)
+
+          // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
+          // console.log(thisAuthor)
+
+          fs.writeFileSync(projectPath + '/' + fileName, newCode, 'utf8')
+          // git add and commit the new changes, including commitMsg
+          execSync('git add .', {cwd: projectPath }, () => { console.log('git added') })
+          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
+          execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
             break
 
         default:

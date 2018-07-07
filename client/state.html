@@ -96,6 +96,15 @@ rgb(199, 0, 57) --> */
             <button onclick="openSocket()">Open</button>
             <button onclick="closeSocket()">Close</button></th>
     </tr>
+
+    <tr>
+        <td>
+            <button onclick="writeStateH()">Save state.h</button>write state.h to file and commit
+        </td>
+        <td>
+
+        </td>
+    </tr>
     <tr>
         <td valign="top" height="90%">     
             <!-- table for the state.h code editor -->
@@ -263,36 +272,6 @@ function openSocket() {
                     //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
                     sourceCard(stateCode)
                     //get and set code in the new card
-                    function sourceCard(stateCode) {
-                    // isRightDirty = false;
-                        if (value == null) return;
-                        var target = document.getElementById("stateh_source");
-                        target.innerHTML = "";
-                        dv = CodeMirror(target, {
-                            //position: "relative",
-                            value: stateCode,
-                            // origLeft: panes == 3 ? orig1 : null,
-                            // origRight: orig1,
-                            lineNumbers: true,
-                            mode: "clike",
-                            //highlightDifferences: "highlight",
-                            theme: 'one-dark',
-                            readOnly: true,
-                            //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
-                            viewportMargin: 10,
-                            revertButtons: true,
-                            allowEditingOriginals: true,
-                            // autoRefresh: true,
-                            // showDifferences: true,
-                            linewrapping: true,
-                            //editing
-                            undoDepth: 200,
-                            //cursor settings:
-                            cursorBlinkRate: 300,
-                            cursorScrollMargin: 0,                   
-                        });
-                        dv.setSize("100%", 550);
-                    }
                     break;
                     
                     case "state":
@@ -420,6 +399,47 @@ function closeSocket() {
 setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
+
+function sourceCard(stateCode) {
+    // isRightDirty = false;
+    if (value == null) return;
+    var target = document.getElementById("stateh_source");
+    target.innerHTML = "";
+    dv = CodeMirror(target, {
+        //position: "relative",
+        value: stateCode,
+        // origLeft: panes == 3 ? orig1 : null,
+        // origRight: orig1,
+        lineNumbers: true,
+        mode: "clike",
+        //highlightDifferences: "highlight",
+        theme: 'one-dark',
+        readOnly: false,
+        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
+        viewportMargin: 10,
+        revertButtons: true,
+        allowEditingOriginals: true,
+        // autoRefresh: true,
+        // showDifferences: true,
+        linewrapping: true,
+        //editing
+        undoDepth: 200,
+        //cursor settings:
+        cursorBlinkRate: 300,
+        cursorScrollMargin: 0,                   
+    });
+    dv.setSize("100%", 550);
+}
+
+function writeStateH() {
+    authorName = "Graham Wakefield"
+    authorEmail = "grrrwaaa@gmail.com"
+
+    var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+
+    ws.send('edit?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.getValue())
+    console.log(authorName, authorEmail, commitMsg)
+}
 
 
 </script>

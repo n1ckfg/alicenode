@@ -299,6 +299,7 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// emit an event?
 	if (ext == ".git") {
 		// ignore changes to such files
+		//TODO: need to add ignore folder directories beginning with "+", i.e. the worktrees!
 		return;
 	} 
 
