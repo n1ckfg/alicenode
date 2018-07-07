@@ -1037,7 +1037,7 @@ ws.send('cardsFileList?' + cardsFileList)
           // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
           // console.log(thisAuthor)
 
-          fs.writeFileSync(projectPath + '/' + fileName, newCode, 'utf8')
+          fs.writeFileSync(projectPath + '/state.h', newCode, 'utf8')
           // git add and commit the new changes, including commitMsg
           execSync('git add .', {cwd: projectPath }, () => { console.log('git added') })
           execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
