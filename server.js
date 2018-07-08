@@ -10,6 +10,11 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
+const sortJson = require('sort-json-array');
+    const options = { ignoreCase: true, reverse: true, depth: 1};
+const getType = require('get-type');
+
+
 
 function random (low, high) {
   return Math.random() * (high - low) + low
@@ -43,6 +48,8 @@ let stateSource
 let stateAST
 let state = [] // we'll send this to the client
 let paramValue;
+let unusedParams = []
+
 
 /// 
 // mmap the state
@@ -60,6 +67,7 @@ getState()
 function getState () {
   //clear state:
   state = []
+  unusedParams = []
   // get sourcecode
   stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
   stateSource = JSON.stringify(stateSource)
@@ -68,98 +76,86 @@ function getState () {
 
     stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
+    //console.log(stateAST)
+
+    
     
 
     Object.keys(stateAST.nodes).forEach(function (key) {
       if (stateAST.nodes[key].name === 'State') {
 
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
-          let value = stateAST.nodes[key].nodes[objectKey]
+          value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
           
 
-          let type = value.type
+          type = value.type
            offset = value.offsetof
-           console.log(type)
+
+           if (type.includes('void')) {
+              //we ignore 'void' types for now
+          } else {
+           console.log(paramName, paramValue, type, offset)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
           
           // need to write switch based on the type of the node. see nodejs buffer doc see buff.write types (i.e. buff.writeInt32, buff.writeUInt32BE)
-          switch (type) {
-            case 'float':
-              // let obj = new Object;
-              paramValue = statebuf.readFloatLE(offset)
-              //console.log("\n\n\n" + paramValue)
+            
 
+            switch (type) {
 
-              // let objArray = [paramValue, type, offset]
-              // obj[paramName] = objArray
-
-              // console.log(obj);
+              case 'float':
+                paramValue = statebuf.readFloatLE(offset)
+                state.push({paramName, paramValue, type, offset})
+                break
+              case 'int':
+              paramValue = statebuf.readIntLE(offset, 4)
               state.push({paramName, paramValue, type, offset})
-
-              // console.log("float detected " + paramName, paramValue)
-              break
-
-            case (type.includes('float ')):
-              // paramValue = statebuf.readFloatLE(offset)
-              paramValue = "test 32"
-              // console.log("\n\n\n" + paramValue)
-
-
-              // let objArray = [paramValue, type, offset]
-              // obj[paramName] = objArray
-
-              // console.log(obj);
+                break
+              // case 'glm::vec3':
+              //   break
+              case 'double':
+              paramValue = statebuf.readDoubleLE(offset);
               state.push({paramName, paramValue, type, offset})
-              //console.log(paramName, paramValue, type)
-            break
+                break
+              // case 'glm::vec4':
+              //   break
+              case 'DebugDot':
 
-            case 'Object':
+              //console.log(ParamName, paramValue)
+                break
+              case 'CreaturePart':
+                break
+              case 'Particle':
+                break
+              case 'Segment':
+                break
+              case 'Creature':
+                break
 
-              paramValue = statebuf.readUInt8(offset)
-            //console.log("\n\n\n" + paramValue)
-
-
-            // let objArray = [paramValue, type, offset]
-            // obj[paramName] = objArray
-
-            // console.log(obj);
-              state.push({paramName, paramValue, type, offset})
-
-              break
-            case 'int':
-            paramValue = statebuf.readIntLE(offset, 4)
-            // console.log("\n\n\n" + paramName + paramValue)
-
-
-            // let objArray = [paramValue, type, offset]
-            // obj[paramName] = objArray
-
-            // console.log(obj);
-            state.push({paramName, paramValue, type, offset})
-              
-              break
-
-            default:
-              state.push({paramName, type})
-          }
+              case 'Object':
+                paramValue = statebuf.readUInt8(offset)
+                state.push({paramName, paramValue, type, offset})
+                break
+              default:
+                  //console.log('\nWarning: unknown parameter found in state.bin. please add switch to case "switch (type)": \nname: ' + paramName + '\nvalue: ' + paramValue + '\ntype: ' + type + '\noffset:' + offset)
+              }
+            }
         })
       }
       // console.log(arg.nodes[key].name)
     })
-    console.log('mapped state var updated in server\n')
     //console.log(state)
-
+ 
   })
 
 
 }
 // refresh the state from the mmap every 10 seconds
 setInterval(function () {
-  console.log('\nupdating mapped state var in server')
-  getState();
+  //console.log('\nupdating mapped state var in server')
+  //getState();
 }, 10000)
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
@@ -193,6 +189,8 @@ function pruneWorktree () {
 //serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
 if (serverMode !== 'nosim') {
   projectBuild();
+
+  
 // BUILD PROJECT
   function projectBuild () {
     let out = ''
@@ -201,7 +199,7 @@ if (serverMode !== 'nosim') {
     } else {
       out = execSync('sh build.sh "' + serverPath + '"', {stdio: 'inherit'})
     }
-    console.log('built project', out.toString())
+    //console.log('built project', out.toString())
   }
 
   // should we build now?
@@ -993,34 +991,52 @@ ws.send('cardsFileList?' + cardsFileList)
 
           // NOTE: for now (maybe) the getState Function will exist outside this scope, at global-level. 
           // Send the state when a state editor connects
-            
-
+              state = sortJson(state, 'paramName', 'asc')
               ws.send('state?' + JSON.stringify(state))
-              console.log(state)
+              //console.log(state)
               ws.send('state.h?' + stateSource) 
 
               // console.log(state)
 
-
             break
             
-            case 'stateUpdate':
+          case 'stateUpdate':
             // stateUpdate = JSON.stringify(arg)
             // console.log(arg)
             // console.log(state)
-            let theName = arg.substr(0, arg.indexOf(' '))
-            let theValue = arg.substr(arg.indexOf(' ') + 1)
+            let stateName = arg.substr(0, arg.indexOf(' '))
+            let stateValue = arg.substr(arg.indexOf(' ') + 1)
             // console.log(theName, theValue)
 
             function findObj (result) {
-              return result.paramName === theName
+              return result.paramName === stateName
             }
 
             let thisObj = state.find(findObj)
             // console.log(thisObj.offset)
 
-            statebuf.writeFloatLE(theValue, thisObj.offset)
+            statebuf.writeFloatLE(stateValue, thisObj.offset)
 
+            break
+
+          case 'state.h_write':
+            newStateH = JSON.parse(arg)
+            //commitMsg = newStateH.commitMsg
+            //stateAuthor = newStateH.authorName
+            // maybe don't need the email for now
+            // commitEmail = newStateH.authorEmail
+
+            // get the code
+            //newCode = newStateH.newState
+
+            fs.writeFileSync(projectPath + '/state.h', newStateH.newState, 'utf8')
+            // git add and commit the new changes, including commitMsg
+            execSync('git add .', {cwd: projectPath }, () => { console.log('\n\n\n\ngit added') })
+            // execSync('git commit -m \"' + newStateH.commitMsg + '\"', {cwd: projectPath }, () => { 
+            //   console.log('git committed') 
+            // })
+            // execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+              
             break
 
         default:

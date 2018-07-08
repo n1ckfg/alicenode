@@ -167,10 +167,10 @@ CXChildVisitResult visit (CXCursor c, CXCursor parent, CXClientData client_data)
 		} break;
 		case CXCursor_FieldDecl:  {
 			 jnode["offsetof"] = clang_Cursor_getOffsetOfField(c) / 8;
-			//printf("offset %lld \n", clang_Cursor_getOffsetOfField(c));
+			printf("offset %lld %s \n", clang_Cursor_getOffsetOfField(c) / 8, name);
 			//jnode["offsetof"] = clang_Type_getOffsetOf(clang_getCursorType(parent), name) / 8;
 			jnode["sizeof"] = clang_Type_getSizeOf(ctype);
-			//printf("sizeof %lld \n", clang_Type_getSizeOf(ctype));
+			printf("sizeof %lld \n", clang_Type_getSizeOf(ctype));
 		} break;
 		case CXCursor_FloatingLiteral:
 		case CXCursor_IntegerLiteral: 
@@ -244,8 +244,9 @@ int main(int argc, const char ** argv) {
 		char const * args[] = { "-x", "c++", "-std=c++11", " -stdlib=libc++", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../../include" };
 	
 	*/
-	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-I../clang/6.0.0/include", "-I../include" };
+	char const * args[] = { "-v", "-x", "c++", "-std=c++11", "-fparse-all-comments", "-D__STDC_CONSTANT_MACROS", "-D__STDC_LIMIT_MACROS", "-I../clang/6.0.0/include", "-I../include" };
 	int nargs = sizeof(args)/sizeof(char *);
+	printf("nargs %d\n", nargs);
 
 	// The index object is our main interface to libclang
 	CXIndex index = clang_createIndex(0, 0);

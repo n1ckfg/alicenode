@@ -299,8 +299,10 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// emit an event?
 	if (ext == ".git") {
 		// ignore changes to such files
+		//TODO: need to add ignore folder directories beginning with "+", i.e. the worktrees!
 		return;
 	} 
+
 
 	// filter out double-notification events:
 	double modified = al_fs_modified(name);
@@ -312,11 +314,9 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// update our last-modified cache:
 	modtimes[name] = modified;
 	
-	fprintf(stderr, "Change detected in %s\n", name.c_str());
-	if (ext == ".glsl") {
-		// shader mods should always do this:
-		alice.onReloadGPU.emit();
-	} else if (ext == ".cpp" || ext == ".h") {
+
+	if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
+		
 		// trigger rebuild...
 
 		// first unload the lib:
