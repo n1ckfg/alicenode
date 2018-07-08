@@ -432,15 +432,19 @@ function sourceCard(stateCode) {
 }
 
 function writeStateH() {
+
+    writeStateH = {};
+    
     authorName = "Graham Wakefield"
     authorEmail = "grrrwaaa@gmail.com"
+    newState = dv.getValue()
 
     var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
-
-    ws.send('edit?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.getValue())
-    console.log(authorName, authorEmail, commitMsg)
+    writeStateH = {authorName, authorEmail, newState, commitMsg}
+    ws.send('state.h_write?' + JSON.stringify(writeStateH))
+    console.log(writeStateH)
 }
-
+//testing writing state.h from within state editor
 
 </script>
 

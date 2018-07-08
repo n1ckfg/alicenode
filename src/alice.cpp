@@ -303,6 +303,7 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		return;
 	} 
 
+
 	// filter out double-notification events:
 	double modified = al_fs_modified(name);
 	auto search = modtimes.find(name);
@@ -313,11 +314,9 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	// update our last-modified cache:
 	modtimes[name] = modified;
 	
-	fprintf(stderr, "Change detected in %s\n", name.c_str());
-	if (ext == ".glsl") {
-		// shader mods should always do this:
-		alice.onReloadGPU.emit();
-	} else if (ext == ".cpp" || ext == ".h") {
+
+	if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
+		
 		// trigger rebuild...
 
 		// first unload the lib:

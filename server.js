@@ -1020,28 +1020,23 @@ ws.send('cardsFileList?' + cardsFileList)
             break
 
           case 'state.h_write':
+            newStateH = JSON.parse(arg)
+            //commitMsg = newStateH.commitMsg
+            //stateAuthor = newStateH.authorName
+            // maybe don't need the email for now
+            // commitEmail = newStateH.authorEmail
 
-            //console.log(arg)
+            // get the code
+            //newCode = newStateH.newState
 
-
-
-            commitMsg = arg.substring(arg.lastIndexOf('?commit') + 1, arg.lastIndexOf('?code')).replace('commit', '')
-          // get the code
-          newCode = arg.split('?code')[1]
-
-          thisAuthor = (arg.substring(arg.lastIndexOf('?author') + 1, arg.lastIndexOf('?commit')).replace('author', ''))
-
-          // console.log(thisAuthor)
-          // console.log(arg)
-
-          // let thisUserEmail = (arg.substring(arg.lastIndexOf("?email")+1,arg.lastIndexOf("?commit")).replace("email", ""))
-          // console.log(thisAuthor)
-
-          fs.writeFileSync(projectPath + '/state.h', newCode, 'utf8')
-          // git add and commit the new changes, including commitMsg
-          execSync('git add .', {cwd: projectPath }, () => { console.log('git added') })
-          execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
-          execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+            fs.writeFileSync(projectPath + '/state.h', newStateH.newState, 'utf8')
+            // git add and commit the new changes, including commitMsg
+            execSync('git add .', {cwd: projectPath }, () => { console.log('\n\n\n\ngit added') })
+            // execSync('git commit -m \"' + newStateH.commitMsg + '\"', {cwd: projectPath }, () => { 
+            //   console.log('git committed') 
+            // })
+            // execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
+              
             break
 
         default:
