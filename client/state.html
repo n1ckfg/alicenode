@@ -194,6 +194,7 @@ function updateState(paramName, paramValue){
         pName = state[key].paramName;
         begin = state[key].begin - 1;
         end = state[key].end;
+        
         //tell codemirror to highlight the chosen lines
         if (pName == paramName){
                 // remember all the lines that have been highlighted

@@ -98,15 +98,19 @@ function getState () {
           value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
           begin = value.loc.begin.line
+          beginChar = value.loc.begin.char
+          beginCol = value.loc.begin.col
           end = value.loc.end.line
-          
+          endChar = value.loc.end.char
+          endCol = value.loc.end.col
+          //console.log(paramName, value.loc)
           type = value.type
           offset = value.offsetof
 
            if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           console.log(paramName, paramValue, type, offset, begin, end)
+           console.log(paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
@@ -117,17 +121,17 @@ function getState () {
 
               case 'float':
                 paramValue = statebuf.readFloatLE(offset)
-                state.push({paramName, paramValue, type, offset, begin, end})
+                state.push({paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol})
                 break
               case 'int':
               paramValue = statebuf.readIntLE(offset, 4)
-              state.push({paramName, paramValue, type, offset, begin, end})
+              state.push({paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol})
                 break
               // case 'glm::vec3':
               //   break
               case 'double':
               paramValue = statebuf.readDoubleLE(offset);
-              state.push({paramName, paramValue, type, offset, begin, end})
+              state.push({paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol})
                 break
               // case 'glm::vec4':
               //   break
@@ -146,7 +150,7 @@ function getState () {
 
               case 'Object':
                 paramValue = statebuf.readUInt8(offset)
-                state.push({paramName, paramValue, type, offset, begin, end})
+                state.push({paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol})
                 break
               default:
                   //console.log('\nWarning: unknown parameter found in state.bin. please add switch to case "switch (type)": \nname: ' + paramName + '\nvalue: ' + paramValue + '\ntype: ' + type + '\noffset:' + offset)
