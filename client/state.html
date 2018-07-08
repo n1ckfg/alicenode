@@ -61,7 +61,9 @@
 
 <style>
 
-
+.cm-highlight {color: lightgreen; background-color: green}
+.cm-highlight-lastLine {color: rgb(144, 182, 238); background-color: rgb(0, 102, 128)}
+.CodeMirror-selection-highlight-scrollbar {background-color: green}
 
 /* <!-- rgb(39, 174, 96)
 rgb(142, 68, 173)
@@ -100,6 +102,8 @@ rgb(199, 0, 57) --> */
     <tr>
         <td>
             <button id="writeStateH">Save state.h</button>
+            <button id="clearHighlights">Clear Highlighting</button>
+
         </td>
         <td>
 
@@ -173,11 +177,14 @@ var ws_url = "ws://" + window.location.host;
 //the alicenode state:
 var state = [];
 var lines = []
+var lastLine;
 
 function log(msg){
   console.log(msg)
 }
 function updateState(paramName, paramValue){
+    console.log(lines)
+
     //update the state.bin server-side
     let stateUpdate = [];
     ws.send("stateUpdate?" + paramName + " " + paramValue)
@@ -185,14 +192,25 @@ function updateState(paramName, paramValue){
     // get the begin-end lines of each parameter within the state.h!
     Object.keys(state).forEach(function(key, value) {
         pName = state[key].paramName;
-        begin = state[key].begin;
+        begin = state[key].begin - 1;
         end = state[key].end;
         //tell codemirror to highlight the chosen lines
         if (pName == paramName){
-
+                // remember all the lines that have been highlighted
+                lines.push({begin})
+                // highlight previously modified parameter as blue in the state.h
+                if (lastLine) {
+                    dv.addLineClass(lastLine, 'background', 'cm-highlight-lastLine');
+                }
                 var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
                 var middleHeight = dv.getScrollerElement().offsetHeight / 2; 
                 dv.scrollTo(null, t - middleHeight - 5); 
+                dv.addLineClass(begin, 'background', 'cm-highlight');
+                dv.setCursor({line: begin, ch: window.lastpo});
+
+                // store the selected line for next time we change a param
+                lastLine = begin;
+
             
             console.log(paramName, begin, end)
         }
@@ -429,6 +447,7 @@ function sourceCard(stateCode) {
         value: stateCode,
         // origLeft: panes == 3 ? orig1 : null,
         // origRight: orig1,
+        styleActiveLine: true,
         lineNumbers: true,
         mode: "clike",
         //highlightDifferences: "highlight",
@@ -467,6 +486,20 @@ $(function() {
         console.log(writeStateH)           
     });
 });
+
+
+//// clear highlights
+$(function() {
+    $("#clearHighlights").click( function()
+        {
+        Object.keys(lines).forEach(function(key, value) {
+        console.log(lines[key].begin)
+        dv.removeLineClass(lines[key].begin, 'background');
+
+        });
+    });
+
+})
 
 </script>
 
