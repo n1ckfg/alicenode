@@ -41,21 +41,21 @@ console.log('clientPath', clientPath)
 
 const projectlib = 'project.' + libext
 
-// remove temporary files:
-removeTempFiles()
-function removeTempFiles () {
-  cardsFileList = fs.readdirSync(serverPath + '/cpp2json/output').filter(function (file) {
-      if (file.includes('.json')) {
-        fs.unlink(serverPath + '/cpp2json/output/' + file, (err) => {
-          if (err) throw err;
-          console.log('/cpp2json/output/' + file + ' was deleted');
-        });
-      }
-    else {
-      return file
-    }
-  })
-}
+// // remove temporary files:
+// removeTempFiles()
+// function removeTempFiles () {
+//   cardsFileList = fs.readdirSync(serverPath + '/cpp2json/output').filter(function (file) {
+//       if (file.includes('.json')) {
+//         fs.unlink(serverPath + '/cpp2json/output/' + file, (err) => {
+//           if (err) throw err;
+//           console.log('/cpp2json/output/' + file + ' was deleted');
+//         });
+//       }
+//     else {
+//       return file
+//     }
+//   })
+// }
 
 // State Editor:
 let stateSource
@@ -200,7 +200,6 @@ function pruneWorktree () {
 if (serverMode !== 'nosim') {
   projectBuild();
 
-  
 // BUILD PROJECT
   function projectBuild () {
     let out = ''
