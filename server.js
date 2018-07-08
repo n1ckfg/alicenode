@@ -44,11 +44,11 @@ const projectlib = 'project.' + libext
 // remove temporary files:
 removeTempFiles()
 function removeTempFiles () {
-  cardsFileList = fs.readdirSync(serverPath + '/cpp2json').filter(function (file) {
+  cardsFileList = fs.readdirSync(serverPath + '/cpp2json/output').filter(function (file) {
       if (file.includes('.json')) {
-        fs.unlink(serverPath + '/cpp2json/' + file, (err) => {
+        fs.unlink(serverPath + '/cpp2json/output/' + file, (err) => {
           if (err) throw err;
-          console.log('/cpp2json/' + file + ' was deleted');
+          console.log('/cpp2json/output/' + file + ' was deleted');
         });
       }
     else {
@@ -88,7 +88,7 @@ function getState () {
 
   exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' output/state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
 
-    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
+    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/output/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
 
     Object.keys(stateAST.nodes).forEach(function (key) {
@@ -983,7 +983,7 @@ ws.send('cardsFileList?' + cardsFileList)
           exec('./cpp2json ' + filepath + ' output/' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
 
 
-            deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
+            deck = fs.readFileSync(path.join(__dirname, '/cpp2json/output/', filename + '.json'), 'utf-8')
 
             ws.send('deck?' + deck)
             ws.send('src?' + src)
