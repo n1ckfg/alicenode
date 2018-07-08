@@ -200,13 +200,13 @@
         </th>
         <th>
             <div class="onoffswitch">
-                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="collapse = !collapse; toggleCollapse()">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleCollapse" onclick="toggleCollapse()">
                 <label class="onoffswitch-label" for="toggleCollapse"></label>
             </div>Collapse Changes
         </th>
         <th>
             <div class="onoffswitch">
-                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="connect = connect ? null : 'align'; initUI()">
+                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="toggleAlign" onclick="toggleAlign()">
                 <label class="onoffswitch-label" for="toggleAlign"></label>
             </div>Align Changes
         </th>
@@ -321,7 +321,7 @@ let panes = 2;
 let highlight = true;
 let connect = "align";
 var target;
-var collapse = false;
+let collapse = false;
 var requested;
 var current;
 var isRightDirty = false;
@@ -438,6 +438,21 @@ function initUI () {
     var theme = location.hash.slice(1);
     if (theme) { inputTheme.value = theme; selectTheme(); }
   });
+}
+function toggleCollapse(collapse1){
+
+  collapse = !collapse
+  console.log("Collapse =" + collapse);
+  dv.edit.setOption("collapseIdentical", collapse);
+  dv.right.orig.setOption("collapseIdentical", collapse);
+  console.log();
+}
+
+function toggleAlign(){
+  dv.edit.setOption("connect", connect = connect ? null :
+'align');
+  dv.right.orig.setOption("connect", connect = connect ? null :
+'align');
 }
 
   var inputTheme = document.getElementById("themeSelect");
