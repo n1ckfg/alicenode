@@ -14,8 +14,6 @@ const sortJson = require('sort-json-array');
     const options = { ignoreCase: true, reverse: true, depth: 1};
 const getType = require('get-type');
 
-
-
 function random (low, high) {
   return Math.random() * (high - low) + low
 }
@@ -99,15 +97,16 @@ function getState () {
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
           value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
+          begin = value.loc.begin.line
+          end = value.loc.end.line
           
-
           type = value.type
-           offset = value.offsetof
+          offset = value.offsetof
 
            if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           console.log(paramName, paramValue, type, offset)
+           console.log(paramName, paramValue, type, offset, begin, end)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
@@ -119,17 +118,17 @@ function getState () {
 
               case 'float':
                 paramValue = statebuf.readFloatLE(offset)
-                state.push({paramName, paramValue, type, offset})
+                state.push({paramName, paramValue, type, offset, begin, end})
                 break
               case 'int':
               paramValue = statebuf.readIntLE(offset, 4)
-              state.push({paramName, paramValue, type, offset})
+              state.push({paramName, paramValue, type, offset, begin, end})
                 break
               // case 'glm::vec3':
               //   break
               case 'double':
               paramValue = statebuf.readDoubleLE(offset);
-              state.push({paramName, paramValue, type, offset})
+              state.push({paramName, paramValue, type, offset, begin, end})
                 break
               // case 'glm::vec4':
               //   break
@@ -148,7 +147,7 @@ function getState () {
 
               case 'Object':
                 paramValue = statebuf.readUInt8(offset)
-                state.push({paramName, paramValue, type, offset})
+                state.push({paramName, paramValue, type, offset, begin, end})
                 break
               default:
                   //console.log('\nWarning: unknown parameter found in state.bin. please add switch to case "switch (type)": \nname: ' + paramName + '\nvalue: ' + paramValue + '\ntype: ' + type + '\noffset:' + offset)

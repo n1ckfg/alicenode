@@ -171,18 +171,32 @@ var history;
 var ws;
 var ws_url = "ws://" + window.location.host;
 //the alicenode state:
-var state;
+var state = [];
+var lines = []
 
 function log(msg){
   console.log(msg)
 }
 function updateState(paramName, paramValue){
+    //update the state.bin server-side
     let stateUpdate = [];
-    // console.log(paramName)
-    //console.log(state)
-    //stateUpdate.push({paramName, paramValue})
-    
     ws.send("stateUpdate?" + paramName + " " + paramValue)
+
+    // get the begin-end lines of each parameter within the state.h!
+    Object.keys(state).forEach(function(key, value) {
+        pName = state[key].paramName;
+        begin = state[key].begin;
+        end = state[key].end;
+        //tell codemirror to highlight the chosen lines
+        if (pName == paramName){
+
+                var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
+                var middleHeight = dv.getScrollerElement().offsetHeight / 2; 
+                dv.scrollTo(null, t - middleHeight - 5); 
+            
+            console.log(paramName, begin, end)
+        }
+    })
 }
 
 // $('.param').click(function() {
@@ -289,13 +303,18 @@ function openSocket() {
                     let type;
                     let pName;
                     let pValue;
+                    let start;
+                    let end;
                     Object.keys(state).forEach(function(key, value) {
                         //console.log(state[key].paramName)
                         pName;
-
+                        
                          type = state[key].type;
                          pName = state[key].paramName;
                          pValue = state[key].paramValue;
+                         begin = state[key].begin;
+                         end = state[key].end;
+
 
                         //different types will require different ui elements.
                             switch (type) {
@@ -327,7 +346,7 @@ function openSocket() {
 
 
                                 
-                                // for params whose type we haven't yet figure out how to retrieve (if they are vec3, for example)
+                                // for params whose type we haven't yet figure out how to retrieve
                                 default:
 
                                     //TEMPORARY:
@@ -435,6 +454,7 @@ function sourceCard(stateCode) {
 $(function() {
     $("#writeStateH").click( function()
         {
+            //console.log(line)
         writeStateH = {};
 
         authorName = "Graham Wakefield"
