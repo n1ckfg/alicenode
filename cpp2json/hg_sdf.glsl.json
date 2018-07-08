@@ -1,6 +1,6 @@
 {
     "ast": "TranslationUnit",
-    "filename": "/Users/mp/alicenode_inhabitat/hg_sdf.glsl",
+    "filename": "/Users/nicoleskrypuch/alicenode_inhabitat/hg_sdf.glsl",
     "nodes": [
         {
             "ast": "FunctionDecl",

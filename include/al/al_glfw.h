@@ -115,7 +115,7 @@ struct Window {
 			glfwWindowHint(GLFW_AUTO_ICONIFY, GL_TRUE);
 			glfwWindowHint(GLFW_DECORATED, GL_TRUE);
 
-			glfwWindowHint(GLFW_FOCUSED, GL_FALSE); // don't grab focus, it's annoying
+			//glfwWindowHint(GLFW_FOCUSED, GL_FALSE); // don't grab focus, it's annoying
 			pointer = glfwCreateWindow(width, height, "alice", NULL, NULL);
 		}
 		

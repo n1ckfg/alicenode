@@ -14,8 +14,6 @@ const sortJson = require('sort-json-array');
     const options = { ignoreCase: true, reverse: true, depth: 1};
 const getType = require('get-type');
 
-
-
 function random (low, high) {
   return Math.random() * (high - low) + low
 }
@@ -42,6 +40,22 @@ console.log('serverPath', serverPath)
 console.log('clientPath', clientPath)
 
 const projectlib = 'project.' + libext
+
+// remove temporary files:
+removeTempFiles()
+function removeTempFiles () {
+  cardsFileList = fs.readdirSync(serverPath + '/cpp2json/output').filter(function (file) {
+      if (file.includes('.json')) {
+        fs.unlink(serverPath + '/cpp2json/output/' + file, (err) => {
+          if (err) throw err;
+          console.log('/cpp2json/output/' + file + ' was deleted');
+        });
+      }
+    else {
+      return file
+    }
+  })
+}
 
 // State Editor:
 let stateSource
@@ -72,14 +86,10 @@ function getState () {
   stateSource = fs.readFileSync(path.join(projectPath, '/state.h')).toString()
   stateSource = JSON.stringify(stateSource)
 
-  exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
+  exec(('./cpp2json ' + path.join(projectPath + '/state.h') + ' output/state.json'), {cwd: __dirname + '/cpp2json/'}, () => {
 
-    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/state.json'), 'utf-8'))
+    stateAST = JSON.parse(fs.readFileSync(path.join(__dirname, '/cpp2json/output/state.json'), 'utf-8'))
     console.log("stateAST Loaded")
-    //console.log(stateAST)
-
-    
-    
 
     Object.keys(stateAST.nodes).forEach(function (key) {
       if (stateAST.nodes[key].name === 'State') {
@@ -87,15 +97,16 @@ function getState () {
         Object.keys(stateAST.nodes[key].nodes).map(function (objectKey, index) {
           value = stateAST.nodes[key].nodes[objectKey]
           paramName = value.name
+          begin = value.loc.begin.line
+          end = value.loc.end.line
           
-
           type = value.type
-           offset = value.offsetof
+          offset = value.offsetof
 
            if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           console.log(paramName, paramValue, type, offset)
+           console.log(paramName, paramValue, type, offset, begin, end)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
@@ -107,17 +118,17 @@ function getState () {
 
               case 'float':
                 paramValue = statebuf.readFloatLE(offset)
-                state.push({paramName, paramValue, type, offset})
+                state.push({paramName, paramValue, type, offset, begin, end})
                 break
               case 'int':
               paramValue = statebuf.readIntLE(offset, 4)
-              state.push({paramName, paramValue, type, offset})
+              state.push({paramName, paramValue, type, offset, begin, end})
                 break
               // case 'glm::vec3':
               //   break
               case 'double':
               paramValue = statebuf.readDoubleLE(offset);
-              state.push({paramName, paramValue, type, offset})
+              state.push({paramName, paramValue, type, offset, begin, end})
                 break
               // case 'glm::vec4':
               //   break
@@ -136,7 +147,7 @@ function getState () {
 
               case 'Object':
                 paramValue = statebuf.readUInt8(offset)
-                state.push({paramName, paramValue, type, offset})
+                state.push({paramName, paramValue, type, offset, begin, end})
                 break
               default:
                   //console.log('\nWarning: unknown parameter found in state.bin. please add switch to case "switch (type)": \nname: ' + paramName + '\nvalue: ' + paramValue + '\ntype: ' + type + '\noffset:' + offset)
@@ -966,15 +977,14 @@ ws.send('cardsFileList?' + cardsFileList)
 // /\/\/\/\/\/\/\/\/\/\ Alicenode Cards Editor /\/\/\/\/\/\/\/\/\
           case 'cardsFileRequest':
 
-          // getCpp2json(arg)
           filename = arg
           filepath = path.join(projectPath, '/', filename)
 
           src = fs.readFileSync(filepath, 'utf8')
-          exec('./cpp2json ' + filepath + ' ' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
+          exec('./cpp2json ' + filepath + ' output/' + filename + '.json', {cwd: path.join(__dirname, '/cpp2json')}, () => {
 
 
-            deck = fs.readFileSync(path.join(__dirname, '/cpp2json/', filename + '.json'), 'utf-8')
+            deck = fs.readFileSync(path.join(__dirname, '/cpp2json/output/', filename + '.json'), 'utf-8')
 
             ws.send('deck?' + deck)
             ws.send('src?' + src)
