@@ -99,7 +99,7 @@ rgb(199, 0, 57) --> */
 
     <tr>
         <td>
-            <button onclick="writeStateH()">Save state.h</button>write state.h to file and commit
+            <button id="writeStateH">Save state.h</button>
         </td>
         <td>
 
@@ -431,20 +431,22 @@ function sourceCard(stateCode) {
     dv.setSize("100%", 550);
 }
 
-function writeStateH() {
+// write new state.h to disk and commit changes
+$(function() {
+    $("#writeStateH").click( function()
+        {
+        writeStateH = {};
 
-    writeStateH = {};
-    
-    authorName = "Graham Wakefield"
-    authorEmail = "grrrwaaa@gmail.com"
-    newState = dv.getValue()
+        authorName = "Graham Wakefield"
+        authorEmail = "grrrwaaa@gmail.com"
+        newState = dv.getValue()
 
-    var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
-    writeStateH = {authorName, authorEmail, newState, commitMsg}
-    ws.send('state.h_write?' + JSON.stringify(writeStateH))
-    console.log(writeStateH)
-}
-//testing writing state.h from within state editor
+        var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+        writeStateH = {authorName, authorEmail, newState, commitMsg}
+        ws.send('state.h_write?' + JSON.stringify(writeStateH))
+        console.log(writeStateH)           
+    });
+});
 
 </script>
 
