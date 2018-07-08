@@ -315,7 +315,11 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 	modtimes[name] = modified;
 	
 
-	if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
+	if (ext == ".glsl") {
+		
+		alice.onReloadGPU.emit();
+
+	} else if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
 		
 		// trigger rebuild...
 
