@@ -618,18 +618,19 @@ var cursorX;
 
 $(function() {
 
-$("#stateh_source").on("mouseover", function (event){
-    $(".cm-number").hover(function(){
-    EventUtil.addHandler(document,'mousewheel', onWheel);
-    EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
+$("#stateh_source").on("mouseover", function (){
+    $(".cm-number").hover(function(event){
+        EventUtil.addHandler(document,'mousewheel', onWheel);
+        EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
+        $(".cm-number").filter(EventUtil.getTarget(event)).css("background-color", "mediumblue");
+    },
+    function(){
+            EventUtil.removeHandler(document, 'mousewheel', onWheel);
+            EventUtil.removeHandler(document, 'DOMMouseScroll', onWheel);
 
-
-},
-function(){
-    EventUtil.removeHandler(document, 'mousewheel', onWheel);
-    EventUtil.removeHandler(document, 'DOMMouseScroll', onWheel);
-});
-});
+            $(".cm-number").filter(EventUtil.getTarget(event)).removeAttr("style");
+        });
+    });
 });
 
 
