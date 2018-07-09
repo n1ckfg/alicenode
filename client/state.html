@@ -131,8 +131,7 @@ rgb(199, 0, 57) --> */
                     <tr >
                         <th style="width: 40%;">Parameter</th>
                         <th style="width: 20%;">Type</th>
-                        <th style="width: 40%;">Value</th>  
-                        <input type="text" id="dontmatter" class="cm-number" value="1" name="alsoDontmatter" size="3" />        
+                        <th style="width: 40%;">Value</th>          
                     </tr>
                 </tbody>
             </table>
@@ -181,15 +180,12 @@ var lines = []
 var lastLine;
 
 var dv;
-let dataL = new Array();
-let dataC = new Array();
-let dataB = new Array();
 
 function log(msg){
   console.log(msg)
 }
 function updateState(paramName, paramValue){
-    console.log(lines)
+    console.log("lines")
 
     //update the state.bin server-side
     let stateUpdate = [];
@@ -254,12 +250,6 @@ function sourceCard(stateCode) {
         autofocus: true                 
     });
     dv.setSize("100%", 550);
-
-    for(var i = 0; i < dataL.length; i++){
-        updateCodeMirror("test", dataL[i], dataC[i], dataB[i]);
-        console.log("Line"+dataL[i]+" Char" + dataC[i])
-    }
-
 
 }
 
@@ -413,9 +403,6 @@ function openSocket() {
                                 $().data('mmapData', { offset: offset })
 
                                 $("#" + pName).width(100);
-                                dataL.push(begin);
-                                dataC.push(endCol);
-                                dataB.push(endCol - 1)
 
 
                                 break;
@@ -576,24 +563,51 @@ preventDefault: function(event) {
 
 };
 
+var curElem;
 function onWheel(event) {
+curElem = EventUtil.getTarget(event);
 event = EventUtil.getEvent(event);
-var curElem = EventUtil.getTarget(event);
-var curVal = parseInt(curElem.innerHTML);
+var curValInt = parseInt(curElem.innerHTML);
+var curValFloat = parseFloat(curElem.innerHTML);
 var delta = EventUtil.getWheelDelta(event);
 
+var scrollType = getLineData(event);
+console.log(scrollType)
 
+  switch (scrollType) {
+                                
+    case "float":
+        if (delta > 0) {
+            curElem.innerHTML = curValFloat + 0.01 +"f";
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValFloat - 0.01+"f";
+            getLineData(event);
+        }
+        break;
+    case "int":
+    if (delta > 0) {
+            curElem.innerHTML = curValInt + 1;
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValInt - 1;
+            getLineData(event);
+        }
+        break;
+    case "double":
 
+    case "default":
+        if (delta > 0) {
+            curElem.innerHTML = curValInt + 1;
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValInt - 1;
+            getLineData(event);
+        }
+        console.log("default")
+        break;
+  }
 
-if (delta > 0) {
-    curElem.innerHTML = curVal + 1;
-    var cursorX = event.pageX;
-    var cursorY = event.pageY;
-    console.log(cursorX)
-    console.log(dv.coordsChar({ left: cursorX, top: cursorY }));
-} else{ 
-    curElem.innerHTML = curVal - 1;
-}
 
 EventUtil.preventDefault(event);
 
@@ -618,19 +632,31 @@ function(){
 });
 });
 
-function updateCodeMirror(text, start, end, beginCol){
-    var doc = dv.getDoc();
-    var pos = { // create a new object to avoid mutation of the original selection
-        line: start,
-        ch: end - 1 // set the character position to the end of the line
-    }
-    var posS = { // create a new object to avoid mutation of the original selection
-        line: start,
-        ch: beginCol // set the character position to the end of the line
-    }
-    doc.replaceRange(text, posS, pos);
-}
 
+function getLineData(event){
+    var cursorX = event.pageX;
+    var cursorY = event.pageY;
+
+    var scrollData = dv.coordsChar({ left: cursorX, top: cursorY });
+    scrollData.line = scrollData.line + 1;
+
+    for(var i = 0; i < state.length; i++){
+
+            if(scrollData.line == state[i].begin){
+                //console.log("object?" + scrollData.line + " stateNumber:" + state[i].begin)
+
+                var correctObject = state[i];
+                ws.send("stateUpdate?" + correctObject.paramName + " " + curElem.innerHTML)
+                document.getElementById(correctObject.paramName).value=curElem.innerHTML;
+               // console.log(correctObject.paramName + " value: " + curElem.innerHTML)
+
+               return state[i].type;
+            }
+
+        }
+    
+
+}
 </script>
 
 

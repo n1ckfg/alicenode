@@ -1019,7 +1019,7 @@ ws.send('cardsFileList?' + cardsFileList)
             let stateName = arg.substr(0, arg.indexOf(' '))
             let stateValue = arg.substr(arg.indexOf(' ') + 1)
             // console.log(theName, theValue)
-
+            console.log(arg)
             function findObj (result) {
               return result.paramName === stateName
             }
