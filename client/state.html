@@ -181,6 +181,9 @@ var lines = []
 var lastLine;
 
 var dv;
+let dataL = new Array();
+let dataC = new Array();
+let dataB = new Array();
 
 function log(msg){
   console.log(msg)
@@ -251,6 +254,13 @@ function sourceCard(stateCode) {
         autofocus: true                 
     });
     dv.setSize("100%", 550);
+
+    for(var i = 0; i < dataL.length; i++){
+        updateCodeMirror("test", dataL[i], dataC[i], dataB[i]);
+        console.log("Line"+dataL[i]+" Char" + dataC[i])
+    }
+
+
 }
 
 
@@ -362,6 +372,7 @@ function openSocket() {
                     let end;
                     let begin;
                     let endChar;
+                    let endCol;
 
 
                     Object.keys(state).forEach(function(key, value) {
@@ -374,6 +385,7 @@ function openSocket() {
                          begin = state[key].begin;
                          end = state[key].end;
                          endChar = state[key].endChar;
+                         endCol = state[key].endCol;
 
 
                         //different types will require different ui elements.
@@ -401,6 +413,10 @@ function openSocket() {
                                 $().data('mmapData', { offset: offset })
 
                                 $("#" + pName).width(100);
+                                dataL.push(begin);
+                                dataC.push(endCol);
+                                dataB.push(endCol - 1)
+
 
                                 break;
 
@@ -561,7 +577,6 @@ preventDefault: function(event) {
 };
 
 function onWheel(event) {
-
 event = EventUtil.getEvent(event);
 var curElem = EventUtil.getTarget(event);
 var curVal = parseInt(curElem.innerHTML);
@@ -572,7 +587,10 @@ var delta = EventUtil.getWheelDelta(event);
 
 if (delta > 0) {
     curElem.innerHTML = curVal + 1;
-    console.log(dv.getDoc().getLine())
+    var cursorX = event.pageX;
+    var cursorY = event.pageY;
+    console.log(cursorX)
+    console.log(dv.coordsChar({ left: cursorX, top: cursorY }));
 } else{ 
     curElem.innerHTML = curVal - 1;
 }
@@ -581,12 +599,17 @@ EventUtil.preventDefault(event);
 
 }
 
+var cursorY;
+var cursorX;
+
 $(function() {
 
-$("#stateh_source").on("mouseover", function (){
+$("#stateh_source").on("mouseover", function (event){
     $(".cm-number").hover(function(){
     EventUtil.addHandler(document,'mousewheel', onWheel);
     EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
+
+
 },
 function(){
     EventUtil.removeHandler(document, 'mousewheel', onWheel);
@@ -594,6 +617,19 @@ function(){
 });
 });
 });
+
+function updateCodeMirror(text, start, end, beginCol){
+    var doc = dv.getDoc();
+    var pos = { // create a new object to avoid mutation of the original selection
+        line: start,
+        ch: end - 1 // set the character position to the end of the line
+    }
+    var posS = { // create a new object to avoid mutation of the original selection
+        line: start,
+        ch: beginCol // set the character position to the end of the line
+    }
+    doc.replaceRange(text, posS, pos);
+}
 
 </script>
 
