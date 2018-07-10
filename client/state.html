@@ -179,11 +179,13 @@ var state = [];
 var lines = []
 var lastLine;
 
+var dv;
+
 function log(msg){
   console.log(msg)
 }
 function updateState(paramName, paramValue){
-    console.log(lines)
+    console.log("lines")
 
     //update the state.bin server-side
     let stateUpdate = [];
@@ -217,6 +219,41 @@ function updateState(paramName, paramValue){
         }
     })
 }
+
+function sourceCard(stateCode) {
+    // isRightDirty = false;
+    if (value == null) return;
+    var target = document.getElementById("stateh_source");
+    target.innerHTML = "";
+    dv = CodeMirror(target, {
+        //position: "relative",
+        value: stateCode,
+        // origLeft: panes == 3 ? orig1 : null,
+        // origRight: orig1,
+        styleActiveLine: true,
+        lineNumbers: true,
+        mode: "clike",
+        //highlightDifferences: "highlight",
+        theme: 'one-dark',
+        readOnly: false,
+        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
+        viewportMargin: 10,
+        revertButtons: true,
+        allowEditingOriginals: true,
+        // autoRefresh: true,
+        // showDifferences: true,
+        linewrapping: true,
+        //editing
+        undoDepth: 200,
+        //cursor settings:
+        cursorBlinkRate: 300,
+        cursorScrollMargin: 0,  
+        autofocus: true                 
+    });
+    dv.setSize("100%", 550);
+
+}
+
 
 // $('.param').click(function() {
 //   console.log($(this).attr('value'));
@@ -324,6 +361,11 @@ function openSocket() {
                     let pValue;
                     let start;
                     let end;
+                    let begin;
+                    let endChar;
+                    let endCol;
+
+
                     Object.keys(state).forEach(function(key, value) {
                         //console.log(state[key].paramName)
                         pName;
@@ -333,6 +375,8 @@ function openSocket() {
                          pValue = state[key].paramValue;
                          begin = state[key].begin;
                          end = state[key].end;
+                         endChar = state[key].endChar;
+                         endCol = state[key].endCol;
 
 
                         //different types will require different ui elements.
@@ -360,6 +404,7 @@ function openSocket() {
                                 $().data('mmapData', { offset: offset })
 
                                 $("#" + pName).width(100);
+
 
                                 break;
 
@@ -438,37 +483,6 @@ setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
 
-function sourceCard(stateCode) {
-    // isRightDirty = false;
-    if (value == null) return;
-    var target = document.getElementById("stateh_source");
-    target.innerHTML = "";
-    dv = CodeMirror(target, {
-        //position: "relative",
-        value: stateCode,
-        // origLeft: panes == 3 ? orig1 : null,
-        // origRight: orig1,
-        styleActiveLine: true,
-        lineNumbers: true,
-        mode: "clike",
-        //highlightDifferences: "highlight",
-        theme: 'one-dark',
-        readOnly: false,
-        //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
-        viewportMargin: 10,
-        revertButtons: true,
-        allowEditingOriginals: true,
-        // autoRefresh: true,
-        // showDifferences: true,
-        linewrapping: true,
-        //editing
-        undoDepth: 200,
-        //cursor settings:
-        cursorBlinkRate: 300,
-        cursorScrollMargin: 0,                   
-    });
-    dv.setSize("100%", 550);
-}
 
 // write new state.h to disk and commit changes
 $(function() {
@@ -502,6 +516,162 @@ $(function() {
 
 })
 
+var EventUtil = {
+
+addHandler: function(element, type, handler){
+    if (element.addEventListener){
+        element.addEventListener(type, handler, false);
+    } else if (element.attachEvent){
+        element.attachEvent("on" + type, handler);
+    } else {
+        element["on" + type] = handler;
+    }
+},
+
+removeHandler: function(element, type, handler){
+    if (element.removeEventListener){
+        element.removeEventListener(type, handler, false);
+    } else if (element.detachEvent){
+        element.detachEvent("on" + type, handler);
+    } else {
+        element["on" + type] = null;
+    }
+},
+
+getEvent: function(event) {
+    return event ? event : window.event;
+},
+
+getTarget: function(event) {
+    return event.target || event.srcElement;    
+},
+
+getWheelDelta: function(event) {
+    if (event.wheelDelta){
+        return event.wheelDelta;
+    } else {
+        return -event.detail * 40;
+    }
+},
+
+preventDefault: function(event) {
+    if (event.preventDefault){
+        event.preventDefault();
+    } else {
+        event.returnValue = false;
+    }
+}
+
+};
+
+var curElem;
+function onWheel(event) {
+curElem = EventUtil.getTarget(event);
+event = EventUtil.getEvent(event);
+var curValInt = parseInt(curElem.innerHTML);
+var curValFloat = parseFloat(curElem.innerHTML);
+var delta = EventUtil.getWheelDelta(event);
+
+var scrollType = getLineData(event);
+
+  switch (scrollType) {
+                                
+    case "float":
+        if (delta > 0) {
+            curElem.innerHTML = curValFloat + 0.01 +"f";
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValFloat - 0.01+"f";
+            getLineData(event);
+        }
+        break;
+    case "int":
+    if (delta > 0) {
+            curElem.innerHTML = curValInt + 1;
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValInt - 1;
+            getLineData(event);
+        }
+        break;
+    case "double":
+    case "default":
+        if (delta > 0) {
+            curElem.innerHTML = curValInt + 1;
+            getLineData(event);
+        } else{ 
+            curElem.innerHTML = curValInt - 1;
+            getLineData(event);
+        }
+        break;
+  }
+
+
+EventUtil.preventDefault(event);
+
+}
+
+var cursorY;
+var cursorX;
+
+$(function() {
+
+$("#stateh_source").on("mouseover", function (){
+    $(".cm-number").hover(function(event){
+        EventUtil.addHandler(document,'mousewheel', onWheel);
+        EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
+        $(".cm-number").filter(EventUtil.getTarget(event)).css("background-color", "mediumblue");
+    },
+    function(){
+            EventUtil.removeHandler(document, 'mousewheel', onWheel);
+            EventUtil.removeHandler(document, 'DOMMouseScroll', onWheel);
+
+            $(".cm-number").filter(EventUtil.getTarget(event)).removeAttr("style");
+        });
+    });
+});
+
+
+function getLineData(event){
+    var cursorX = event.pageX;
+    var cursorY = event.pageY;
+
+    var scrollData = dv.coordsChar({ left: cursorX, top: cursorY });
+    scrollData.line = scrollData.line + 1;
+
+    for(var i = 0; i < state.length; i++){
+
+            if(scrollData.line == state[i].begin){
+                //console.log("object?" + scrollData.line + " stateNumber:" + state[i].begin)
+
+                var correctObject = state[i];
+
+                if(state[i].type == "float"){
+                    
+                    var slice = curElem.innerHTML;
+                    curElem.innerHTML = slice = parseFloat(slice).toFixed(2);
+                    curElem.innerHTML = curElem.innerHTML.toString() + "f";
+                    slice.toString();
+                    slice.substring(0, slice.length - 1);
+                    parseFloat(slice);
+
+
+                    ws.send("stateUpdate?" + correctObject.paramName + " " + slice)
+                    document.getElementById(correctObject.paramName).value= slice;
+                } else{
+                    ws.send("stateUpdate?" + correctObject.paramName + " " + curElem.innerHTML)
+                    document.getElementById(correctObject.paramName).value=curElem.innerHTML;
+                // console.log(correctObject.paramName + " value: " + curElem.innerHTML)
+                }
+
+
+               return state[i].type;
+            }
+
+        }
+    
+
+}
 </script>
 
 
