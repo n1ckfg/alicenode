@@ -572,7 +572,6 @@ var curValFloat = parseFloat(curElem.innerHTML);
 var delta = EventUtil.getWheelDelta(event);
 
 var scrollType = getLineData(event);
-console.log(scrollType)
 
   switch (scrollType) {
                                 
@@ -595,7 +594,6 @@ console.log(scrollType)
         }
         break;
     case "double":
-
     case "default":
         if (delta > 0) {
             curElem.innerHTML = curValInt + 1;
@@ -604,7 +602,6 @@ console.log(scrollType)
             curElem.innerHTML = curValInt - 1;
             getLineData(event);
         }
-        console.log("default")
         break;
   }
 
@@ -647,9 +644,25 @@ function getLineData(event){
                 //console.log("object?" + scrollData.line + " stateNumber:" + state[i].begin)
 
                 var correctObject = state[i];
-                ws.send("stateUpdate?" + correctObject.paramName + " " + curElem.innerHTML)
-                document.getElementById(correctObject.paramName).value=curElem.innerHTML;
-               // console.log(correctObject.paramName + " value: " + curElem.innerHTML)
+
+                if(state[i].type == "float"){
+                    
+                    var slice = curElem.innerHTML;
+                    curElem.innerHTML = slice = parseFloat(slice).toFixed(2);
+                    curElem.innerHTML = curElem.innerHTML.toString() + "f";
+                    slice.toString();
+                    slice.substring(0, slice.length - 1);
+                    parseFloat(slice);
+
+
+                    ws.send("stateUpdate?" + correctObject.paramName + " " + slice)
+                    document.getElementById(correctObject.paramName).value= slice;
+                } else{
+                    ws.send("stateUpdate?" + correctObject.paramName + " " + curElem.innerHTML)
+                    document.getElementById(correctObject.paramName).value=curElem.innerHTML;
+                // console.log(correctObject.paramName + " value: " + curElem.innerHTML)
+                }
+
 
                return state[i].type;
             }
