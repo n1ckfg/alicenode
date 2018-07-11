@@ -1,33 +1,33 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 
-//const fastcall = require("fastcall")
-const express = require('express');
-const WebSocket = require('ws');
-// const mmapfile = require('mmapfile');
-const chokidar = require('chokidar');
+// //const fastcall = require("fastcall")
+// const express = require('express');
+// const WebSocket = require('ws');
+// // const mmapfile = require('mmapfile');
+// const chokidar = require('chokidar');
 
-//zlib compression:
-const pako = require('pako');
+// //zlib compression:
+// const pako = require('pako');
 
-const JSON5 = require('json5');
-const http = require('http');
-const url = require('url');
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
-const execPromise = require('child-process-promise');
+// const JSON5 = require('json5');
+// const http = require('http');
+// const url = require('url');
+// const fs = require("fs");
+// const path = require("path");
+// const os = require("os");
+// const { exec, execSync, spawn, spawnSync, fork } = require('child_process');
+// const execPromise = require('child-process-promise');
 
-const libext = process.platform == "win32" ? "dll" : "dylib";
-// derive project to launch from first argument:
-process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
+// const libext = process.platform == "win32" ? "dll" : "dylib";
+// // derive project to launch from first argument:
+// process.chdir(process.argv[2] ||  path.join("..", "alicenode_inhabitat"));
 
-const project_path = process.cwd();
-const server_path = __dirname;
-const client_path = path.join(server_path, "client");
+// const project_path = process.cwd();
+// const server_path = __dirname;
+// const client_path = path.join(server_path, "client");
 
 
-console.log(project_path + "/project.cpp")
+// console.log(project_path + "/project.cpp")
 
 // let fileList = fs.readdirSync(project_path).filter(function(file) {
 
@@ -251,3 +251,34 @@ console.log(project_path + "/project.cpp")
 //   console.log(commitList)
 
 //   })
+
+//#!/usr/bin/env node
+// const fastcall = require("fastcall")
+const express = require('express')
+const WebSocket = require('ws')
+const mmapfile = require('mmapfile')
+const chokidar = require('chokidar')
+const pako = require('pako') // zlib compression
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
+const os = require('os')
+const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
+const sortJson = require('sort-json-array');
+    const options = { ignoreCase: true, reverse: true, depth: 1};
+const getType = require('get-type');
+
+function random (low, high) {
+  return Math.random() * (high - low) + low
+}
+
+function randomInt (low, high) {
+  return Math.floor(Math.random() * (high - low) + low)
+}
+
+/// ///////////////////////////////////////////////////////////////////////////
+
+// CONFIGURATION
+
+const libext = process.platform === 'win32' ? 'dll' : 'dylib'
+console.log(libext);
