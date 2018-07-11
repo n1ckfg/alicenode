@@ -286,7 +286,8 @@ m = glm::affineInverse(m);	// Fast inverse for affine matrix.
 m = glm::inverseTranspose(m);
 
 # Quaternions
-// uses wxyz order:
+
+// NOTE: glm stores quats as xyzw (same as a vec4), but declares them as wxyz:
 q = quat(w, x, y, z);
 
 q = q * rot;				// rot is in model space (local)
