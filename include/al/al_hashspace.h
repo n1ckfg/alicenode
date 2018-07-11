@@ -216,6 +216,9 @@ struct Hashspace3D {
 				}	
 			}
 		}
+
+		// TODO: would be nice to set the nearest as the first item...
+
 		return nres;
 	}
 	
