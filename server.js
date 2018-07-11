@@ -14,6 +14,9 @@ const sortJson = require('sort-json-array');
     const options = { ignoreCase: true, reverse: true, depth: 1};
 const getType = require('get-type');
 
+var ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
+
+
 function random (low, high) {
   return Math.random() * (high - low) + low
 }
@@ -28,8 +31,11 @@ function randomInt (low, high) {
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
 
+//serverMode can be set to 'nosim' for client editors testing
 const serverMode = process.env.startFlag
- console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
+if (serverMode) {
+  console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
+}
 // derive project to launch from first argument:
 process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
 const projectPath = process.cwd()
@@ -56,6 +62,46 @@ const projectlib = 'project.' + libext
 //     }
 //   })
 // }
+
+// refresh the state from the mmap every 10 seconds
+//let maxPID; // the process ID for max/msp
+setInterval(function () {
+
+  ps.lookup({
+    command: 'Max',
+    }, function(err, resultList ) {
+    if (err) {
+        throw new Error( err );
+    }
+    //console.log(resultList)
+    if (resultList.length == 0) {
+      console.log("max not running, launching now")
+
+      switch (libext) {
+        case "dylib":
+        exec("open -a 'Max' " + projectPath + "/audio/audiostate_sonification.maxpat")
+
+        break;
+
+        case "win32":
+        case "dll":
+        exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
+
+        break;
+      }
+    } else {
+        resultList.forEach(function( process ){
+          if ( process ){
+              console.log( 'Process check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
+              //maxPID = process.pid;
+          } 
+      }); 
+    }
+  })
+  //console.log('\nupdating mapped state var in server')
+  //getState();
+}, 10000)
+
 
 // State Editor:
 let stateSource
@@ -166,11 +212,7 @@ function getState () {
 
 
 }
-// refresh the state from the mmap every 10 seconds
-setInterval(function () {
-  //console.log('\nupdating mapped state var in server')
-  //getState();
-}, 10000)
+
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
