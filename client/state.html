@@ -401,6 +401,11 @@ function openSocket() {
                                     updateState(this.id, ui.value);
                                     }
                                 });
+
+                                 $( "#" + pName ).keyup(function(event, ui, id ) {
+                                     updateState(this.id, ui.value);
+                                 });
+                                 
                                 $().data('mmapData', { offset: offset })
 
                                 $("#" + pName).width(100);

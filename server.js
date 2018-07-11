@@ -123,8 +123,28 @@ try {
   console.error('failed to map the state.bin:', e.message)
 }
 
+switch(libext){
+  case "win32":
+  case "dll":
+    exec('./build.bat', {cwd: __dirname + '/cpp2json/'}, (stdout) => {
+      console.log("Standard Output: " + stdout);
+    });
+    break;
+  case "dylib":
+    exec('./build.sh', {cwd: __dirname + '/cpp2json/'}, (stdout) => {
+      console.log("Standard Output: " + stdout);
+    });
+  default:
+    console.log("Your not on any compatable machine.");
+    break;
+}
+
+
 getState()
 function getState () {
+
+  
+
   //clear state:
   state = []
   unusedParams = []
@@ -156,7 +176,7 @@ function getState () {
           if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-           console.log(paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol)
+          console.log(paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
@@ -207,7 +227,7 @@ function getState () {
       // console.log(arg.nodes[key].name)
     })
     //console.log(state)
- 
+
   })
 
 
