@@ -459,6 +459,8 @@ int main(int argc, char ** argv) {
 	setup();
 
 	alice.cloudDeviceManager.reset();
+	alice.cloudDeviceManager.devices[0].use_colour = 0;
+	alice.cloudDeviceManager.devices[1].use_colour = 0;
 	alice.cloudDeviceManager.open_all();
 	//alice.cloudDeviceManager.open();
 
