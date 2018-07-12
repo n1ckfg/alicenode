@@ -556,6 +556,14 @@ struct FloatTexture2D {
 		unbind();
 	}
 	
+	// 2-plane:
+	void submit(glm::ivec2 dim, glm::vec2 * data) {
+		bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, dim.x, dim.y, 0, GL_RG, GL_FLOAT, data);
+		if(generateMipMap) glGenerateMipmap(GL_TEXTURE_2D);  
+		unbind();
+	}
+	
 	// 3-plane:
 	void submit(glm::ivec2 dim, glm::vec3 * data) {
 		bind();
@@ -877,6 +885,76 @@ struct SimpleFBO {
 	}
 };
 
+struct TextureDrawer {
+
+	Shader * texDrawShader = 0;
+	QuadMesh * quadMesh = 0;
+	
+	void dest_closing() {
+		if (quadMesh) {
+			quadMesh->dest_closing();
+			delete quadMesh;
+			quadMesh = 0;
+		}
+		if (texDrawShader) {
+			delete texDrawShader;
+			texDrawShader = 0;
+		}
+		texDrawShader = 0;
+	}
+
+	bool dest_changed() {
+		dest_closing();
+	}
+
+	void draw(GLuint tex, glm::vec2 scale=glm::vec2(1.f), glm::vec2 offset=glm::vec2(0.f)) {
+		
+		if (!texDrawShader) {
+			const char * vp = R"(
+				#version 330 core
+				uniform vec2 uScale, uOffset;
+				layout (location = 0) in vec2 aPos;
+				layout (location = 1) in vec2 aTexCoord;
+				
+				out vec2 texCoord;
+				
+				void main() {
+					gl_Position = vec4(aPos*uScale+uOffset, 0., 1.0);
+					texCoord = aTexCoord;
+				}
+			)";
+			const char * fp = R"(
+				#version 330 core
+				out vec4 FragColor;
+				in vec2 texCoord;
+				uniform sampler2D tex;
+
+								void main() {
+					//FragColor = vec4(texCoord, 0.5, 1.);
+					FragColor = texture(tex, texCoord);
+				}
+			)";
+			texDrawShader = new Shader(vp, fp);
+		}
+	
+		texDrawShader->use();
+		texDrawShader->uniform("uScale", scale);
+		texDrawShader->uniform("uOffset", offset);
+		draw_no_shader(tex);
+		texDrawShader->unuse();
+	}
+
+	void draw_no_shader(GLuint tex) {
+		
+		if (!quadMesh) {
+			quadMesh = new QuadMesh;
+			quadMesh->dest_changed();
+		}
+		glBindTexture(GL_TEXTURE_2D, tex);
+		quadMesh->draw();
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+};
 
 
 #endif
