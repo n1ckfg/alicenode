@@ -127,7 +127,7 @@ setInterval(function () {
           resultList.forEach(function( process ){
             if ( process ){
 
-              //report max running:
+              //report Alice running:
               console.log( 'Process check: Application %s running on PID: %s', process.command, process.pid);
   
             } 
