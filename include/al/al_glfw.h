@@ -80,10 +80,10 @@ struct Window {
 	bool isFullScreen = 0;
 	
 	Window() {
-		
+		monitor = glfwGetPrimaryMonitor();
 	}
 	
-	bool open() {
+	bool open(int monitorIdx = 0) {
 		if (pointer) return true;
 		
 		// GL context options:
@@ -94,7 +94,7 @@ struct Window {
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); 
 	#endif
 
-		monitor = glfwGetPrimaryMonitor();
+		
 		
 		// OS window options:
 		if (0) {
