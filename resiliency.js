@@ -112,14 +112,12 @@ setInterval(function () {
   
         switch (libext) {
           case "dylib":
-         // exec("open -a Max " + projectPath + "/audio/audiostate_sonification.maxpat")
-  
+            exec("../alicenode/alice project.dylib")
           break;
   
           case "win32":
           case "dll":
-         // console.log("alice is not running")
-          //exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
+            exec("..\alicenode\alice.exe project.dll")
   
           break;
         }
@@ -136,3 +134,8 @@ setInterval(function () {
     })
 
 }, 10000)
+
+// to do:
+// if the simulation goes down, relaunch it
+
+// if the simulation goes down 3 times in a row, restart the computer
