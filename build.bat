@@ -15,11 +15,13 @@ rem compile & link:
 cl /W3 /EHsc /O2  ^
 /I include ^
 /I include/uv ^
+/I include/opencv2 ^
 src/alice.cpp ^
 /link ^
 /MACHINE:X64 ^
 /WHOLEARCHIVE:lib/win64/lib-vc2017/glfw3.lib ^
 /WHOLEARCHIVE:lib\win64\lib-vc2017\libuv.lib ^
+lib/win64/zlib.lib lib/win64/ippicvmt.lib lib/win64/opencv_core320.lib lib/win64/opencv_flann320.lib lib/win64/opencv_calib3d320.lib lib/win64/opencv_imgproc320.lib lib/win64/opencv_features2d320.lib lib/win64/opencv_video320.lib lib/win64/opencv_tracking320.lib ^
 lib/win64/libusb-1.0.lib ^
 lib/win64/freenect2static.lib ^
  /DYNAMICBASE ^
