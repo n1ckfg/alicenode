@@ -128,6 +128,12 @@ struct CloudDevice {
 	const CloudFrame& cloudFrame() const {
 		return cloudFrames[lastCloudFrame];
 	}
+
+// the most recently completed frame:
+	const CloudFrame& cloudFramePrev() const {
+		return cloudFrames[(lastCloudFrame + KINECT_FRAME_BUFFERS - 1) % KINECT_FRAME_BUFFERS];
+	}
+
 	// the most recently completed frame:
 	const ColourFrame& colourFrame() const {
 		return colourFrames[lastColourFrame];
