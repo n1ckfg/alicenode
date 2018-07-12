@@ -140,6 +140,8 @@ extern "C" AL_ALICE_EXPORT int setup() {
 	console.log("setup");
 	console.log("alice alice %p", &alice);
 
+
+
 	if (!alice.window.open()) return -1;
 	
 	glfwSetKeyCallback(alice.window.pointer, glfw_key_callback);
@@ -422,6 +424,8 @@ int main(int argc, char ** argv) {
 	// don't want to buffer the stdio calls -- want them ASAP
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
+
+	alice.window.monitor = alice.windowManager.monitors[alice.windowManager.monitor_count-1];
 
 	setup();
 
