@@ -11,10 +11,10 @@ const path = require('path')
 const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const sortJson = require('sort-json-array');
-    const options = { ignoreCase: true, reverse: true, depth: 1};
+const options = { ignoreCase: true, reverse: true, depth: 1};
 const getType = require('get-type');
+const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
 
-var ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
 
 
 function random (low, high) {
@@ -92,8 +92,9 @@ setInterval(function () {
     } else {
         resultList.forEach(function( process ){
           if ( process ){
-              console.log( 'Process check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
-              //maxPID = process.pid;
+            //report max running:
+            console.log( '\nProcess check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
+
           } 
       }); 
     }
@@ -138,6 +139,7 @@ switch(libext){
     console.log("Your not on any compatable machine.");
     break;
 }
+
 
 
 getState()

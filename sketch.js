@@ -276,9 +276,34 @@ function randomInt (low, high) {
   return Math.floor(Math.random() * (high - low) + low)
 }
 
+process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
+const projectPath = process.cwd()
+const serverPath = __dirname
+const clientPath = path.join(serverPath, 'client')
+
 /// ///////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
-console.log(libext);
+//console.log(libext);
+//TODO: get the flags available for lsof! can we pass it a filepath?
+// exec("lsof -c Max" + projectPath + "/audio/audiostate_sonification.maxpat", (stdout, stderr, err) => {
+//   console.log(stdout, stderr, err)
+// })
+
+var paths = [projectPath + "/audio/audiostate_sonification.maxpat"]
+//var delInterval = setInterval(del(), 1000);
+
+var Opened = require('@ronomon/opened');
+//var paths = [...];
+Opened.files(paths,
+  function(error, hashTable) {
+    if (error) throw error;
+    paths.forEach(
+      function(path) {
+        console.log(path + ' open=' + hashTable[path]);
+      }
+    );
+  }
+);
