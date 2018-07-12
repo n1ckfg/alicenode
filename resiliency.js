@@ -63,6 +63,7 @@ const projectlib = 'project.' + libext
 //let maxPID; // the process ID for max/msp
 setInterval(function () {
 
+  // is Max running?
   ps.lookup({
     command: 'Max',
     }, function(err, resultList ) {
@@ -89,12 +90,49 @@ setInterval(function () {
         resultList.forEach(function( process ){
           if ( process ){
             //report max running:
-            console.log( '\nProcess check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
+            console.log('Process check: Application %s running on PID: %s', process.command, process.pid);
 
           } 
       }); 
     }
   })
-  //console.log('\nupdating mapped state var in server')
-  //getState();
+
+  // is alice running?
+
+    // is Max running?
+    ps.lookup({
+      command: 'Alice',
+      }, function(err, resultList ) {
+      if (err) {
+          throw new Error( err );
+      }
+      //console.log(resultList)
+      if (resultList.length == 0) {
+        console.log("alice not running, launching now")
+  
+        switch (libext) {
+          case "dylib":
+         // exec("open -a Max " + projectPath + "/audio/audiostate_sonification.maxpat")
+  
+          break;
+  
+          case "win32":
+          case "dll":
+         // console.log("alice is not running")
+          //exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
+  
+          break;
+        }
+      } else {
+          resultList.forEach(function( process ){
+            if ( process ){
+
+              //report max running:
+              console.log( 'Process check: Application %s running on PID: %s', process.command, process.pid);
+  
+            } 
+        }); 
+      }
+    })
+
 }, 10000)
