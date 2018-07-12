@@ -44,6 +44,28 @@ const clientPath = path.join(serverPath, 'client')
 
 const projectlib = 'project.' + libext
 
+
+
+// listen to max.app for performance issues:
+
+var ws = new WebSocket('ws://localhost:8080');
+
+ws.onopen = function () {
+  
+};
+
+//the sonification patch runs some profiling and will send messages to resiliency.js if any of the measures go over a threshold:
+ws.on('message', function (message) {
+  //console.log(message)
+  switch (message) {
+    
+    case "audio spiking":
+    console.log("persistent audio spiking within 5 second window, restarting Max")
+    ws.send("closePatcher")
+    break;
+  }
+});
+
 // // remove temporary files:
 // removeTempFiles()
 // function removeTempFiles () {
@@ -61,7 +83,45 @@ const projectlib = 'project.' + libext
 // }
 // refresh the state from the mmap every 10 seconds
 //let maxPID; // the process ID for max/msp
+var crashCountAlice = 0;
+var crashCountMax = 0;
 setInterval(function () {
+
+  // is Alice running?
+  ps.lookup({
+    command: 'Alice',
+    }, function(err, resultList ) {
+    if (err) {
+        throw new Error( err );
+    }
+    //console.log(resultList)
+    if (resultList.length == 0) {
+      console.log("alice not running, launching now")
+      crashCountAlice++;
+      console.log("alice has crashed " + crashCountAlice + " times")
+
+      switch (libext) {
+        case "dylib":
+          exec("../alicenode/alice project.dylib")
+        break;
+
+        case "win32":
+        case "dll":
+          exec("..\alicenode\alice.exe project.dll")
+
+        break;
+      }
+    } else {
+        resultList.forEach(function( process ){
+          if ( process ){
+
+            //report Alice running:
+            console.log( 'Process check: Application %s running on PID: %s', process.command, process.pid);
+
+          } 
+      }); 
+    }
+  })
 
   // is Max running?
   ps.lookup({
@@ -73,6 +133,9 @@ setInterval(function () {
     //console.log(resultList)
     if (resultList.length == 0) {
       console.log("max not running, launching now")
+      crashCountMax++;
+      console.log("max has crashed " + crashCountMax + " times")
+
 
       switch (libext) {
         case "dylib":
@@ -97,41 +160,7 @@ setInterval(function () {
     }
   })
 
-  // is alice running?
 
-    // is Max running?
-    ps.lookup({
-      command: 'Alice',
-      }, function(err, resultList ) {
-      if (err) {
-          throw new Error( err );
-      }
-      //console.log(resultList)
-      if (resultList.length == 0) {
-        console.log("alice not running, launching now")
-  
-        switch (libext) {
-          case "dylib":
-            exec("../alicenode/alice project.dylib")
-          break;
-  
-          case "win32":
-          case "dll":
-            exec("..\alicenode\alice.exe project.dll")
-  
-          break;
-        }
-      } else {
-          resultList.forEach(function( process ){
-            if ( process ){
-
-              //report Alice running:
-              console.log( 'Process check: Application %s running on PID: %s', process.command, process.pid);
-  
-            } 
-        }); 
-      }
-    })
 
 }, 10000)
 
@@ -139,3 +168,6 @@ setInterval(function () {
 // if the simulation goes down, relaunch it
 
 // if the simulation goes down 3 times in a row, restart the computer
+
+
+
