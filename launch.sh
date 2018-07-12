@@ -24,6 +24,6 @@ echo "Launching Max/MSP & Sonification Patch on process ID $!" &
 # Start Alice!
 echo Starting Alice!
 ../alicenode/alice project.dylib
-echo Exit Code is %errorlevel%
+echo Exit Code is $errorlevel
 
 wait
