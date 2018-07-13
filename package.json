@@ -31,6 +31,7 @@
     "mmapfile": "^0.1.1",
     "node-giff": "0.0.7",
     "node-hotspot": "^0.1.7",
+    "node-pty": "^0.7.6",
     "pako": "^1.0.6",
     "ps-node": "^0.1.6",
     "redis": "^2.8.0",
@@ -42,7 +43,8 @@
     "uglify-js": "^3.3.27",
     "vis": "^4.21.0",
     "websocket": "^1.0.26",
-    "ws": "^5.1.0"
+    "ws": "^5.1.0",
+    "xterm": "^3.5.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

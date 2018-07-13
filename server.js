@@ -111,7 +111,11 @@ let state = [] // we'll send this to the client
 let paramValue;
 let unusedParams = []
 
+//run the terminal!
+exec("ttyd -p 8081 bash -x", (stdout) => {
 
+  console.log(stdout)
+})
 /// 
 // mmap the state
 let statebuf
@@ -271,6 +275,24 @@ function startAlice() {
     if (alice) {
       alice.kill()
     }
+
+      // is Max running?
+  ps.lookup({
+    command: 'Alice',
+    }, function(err, resultList ) {
+    if (err) {
+        throw new Error( err );
+    }
+        resultList.forEach(function( process ){
+          if ( process ){
+            //report max running:
+            console.log('Process check: Application %s running on PID: %s', process.command, process.pid);
+
+
+          } 
+      }); 
+    
+  })
   
 
 // BUILD PROJECT
@@ -615,6 +637,8 @@ ws.send('cardsFileList?' + cardsFileList)
             let dateStamp = (new Date().getHours()) + ':' + (new Date().getMinutes()) + ':' + (new Date().getSeconds())
             client.send('chatMsg? ' + dateStamp + ' ' + userName + ': ' + arg)
           })
+
+
 
           break
 

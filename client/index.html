@@ -118,8 +118,10 @@
         <th>
             <!-- Open other editors in new tabs -->
             <button onclick="newEditor()" id="myButton">New Editor</button>
-            <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
-            <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
+            <button onclick="openCardsEditor()" id="openCardsEditor">Cards Editor</button>
+            <button onclick="openStateEditor()" id="openStateEditor">State Editor</button>
+            <button onclick="openTerminal()" id="openTerminal">Terminal (hit refresh after loading)</button>
+            
             <input id="server" type="text" value="ws://localhost:8080" size="40">
             
             <!-- THEMES SELECTION-->
@@ -380,6 +382,18 @@ function openCardsEditor () {
 // open the state editor in new tab
 function openStateEditor () {
   window.open(document.URL + 'state.html')
+}
+
+function openTerminal () {
+  var terminalHost = location.host.substr(0, location.host.indexOf(':')) + ':8081';
+  // var childWindow = "";
+  window.open(terminalHost)
+  // childWindow = window.open(terminalHost)
+  // setTimeout(
+  //   function() {
+  //     childWindow.location.href=terminalHost;
+
+  //   }, 2000);
 }
 
 function toggleDifferences () {
