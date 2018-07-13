@@ -80,12 +80,14 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	} break;
 	case GLFW_KEY_F11: {
 		if (downup) {
-			alice.window.toggleFullScreen();
+			//alice.window.toggleFullScreen();
+			alice.goFullScreen = !alice.goFullScreen;
 		}
 	} break;
 	case GLFW_KEY_F: {
 		if (cmd && downup) {
-			alice.window.toggleFullScreen();
+			//alice.window.toggleFullScreen();
+			alice.goFullScreen = !alice.goFullScreen;
 		}
 	} break;
 
@@ -109,6 +111,10 @@ extern "C" AL_ALICE_EXPORT int frame() {
 	double tbegin = glfwGetTime();
 
     glfwPollEvents();
+	if (alice.goFullScreen != alice.window.isFullScreen) {
+		alice.window.fullScreen(alice.goFullScreen);
+	}
+
     glfwMakeContextCurrent(alice.window.pointer); // maybe we want to have a onSim() event before doing this?
 
 	if (alice.isRendering) 

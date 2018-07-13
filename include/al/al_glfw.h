@@ -110,7 +110,7 @@ struct Window {
 			isFullScreen = 1;
 			//glfwSetInputMode(pointer, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			#ifdef AL_WIN
-			while(ShowCursor(false)>=0);
+			//while(ShowCursor(false)>=0);
 			//SetCursor(NULL);
 			#endif
 		} else {
@@ -125,7 +125,7 @@ struct Window {
 			pointer = glfwCreateWindow(width, height, "alice", NULL, NULL);
 
 			#ifdef AL_WIN
-			while(ShowCursor(true)>=0);
+			//while(ShowCursor(true)>=0);
 			#endif
 		}
 		
