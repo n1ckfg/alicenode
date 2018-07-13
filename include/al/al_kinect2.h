@@ -113,6 +113,8 @@ struct CloudDevice {
 
 	std::string serial;
 	int id = 0;
+	
+	FPS fps;
 
 	glm::mat4 cloudTransform = glm::mat4(1.);
 
@@ -148,7 +150,6 @@ struct CloudDevice {
 	libfreenect2::Freenect2Device * dev = 0;
 	libfreenect2::PacketPipeline *pipeline = 0;
 
-	FPS fps;
 
  	int kinect_thread_fun() {
 

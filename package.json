@@ -21,6 +21,7 @@
     "chokidar": "^2.0.3",
     "code-forensics": "^0.15.1",
     "dirty-object": "^1.0.6",
+    "electron-shutdown-command": "0.0.8",
     "express": "^4.16.3",
     "find-process": "^1.1.1",
     "get-type": "^1.1.0",
