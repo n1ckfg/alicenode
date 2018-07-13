@@ -111,6 +111,7 @@ struct Window {
 			//glfwSetInputMode(pointer, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			#ifdef AL_WIN
 			while(ShowCursor(false)>=0);
+			//SetCursor(NULL);
 			#endif
 		} else {
 
