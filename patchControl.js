@@ -1,12 +1,35 @@
-// simple script which runs when launch.sh exits; tells the audiostate_sonification.maxpat to initiate a safe shutdown of max
-const WebSocket = require('ws')
-var ws = new WebSocket('ws://localhost:8080');
+#!/usr/bin/env node
 
-ws.onopen = function () {
-  ws.send("closePatcher")
-  
-};
 
-process.on('exit', function(code) {  
-  return console.log(`About to exit with code ${code}`);
+// launch this when an alice-related process (kinect, steam, etc), fails, and alice wants resiliency to reload them.
+var ws = require('websocket').client;
+ 
+var client = new ws();
+ 
+client.on('connect', function(connection) {
+    console.log('WebSocket Client Connected');
+
+    
+    connection.on('error', function(error) {
+        console.log("Connection Error: " + error.toString());
+    });
+    connection.on('close', function() {
+        console.log('echo-protocol Connection Closed');
+    });
+    connection.on('message', function(message) {
+        if (message.type === 'utf8') {
+            console.log("Received: '" + message.utf8Data + "'");
+        }
+    });
+    
+    function sendNumber() {
+        if (connection.connected) {
+            var number = Math.round(Math.random() * 0xFFFFFF);
+            connection.sendUTF(number.toString());
+            setTimeout(sendNumber, 1000);
+        }
+    }
+    sendNumber();
 });
+ 
+client.connect('ws://localhost:8080/', 'echo-protocol');

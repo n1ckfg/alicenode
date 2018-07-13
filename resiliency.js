@@ -174,29 +174,37 @@ wss.on('connection', function (ws, req) {
 
   console.log('server received a connection, new session ' + perSessionData.id)
   console.log('server has ' + wss.clients.size + ' connected clients')
-function writeReport() {
-  fs.writeFileSync(serverPath + "/aliceReport.json", JSON.stringify(aliceReport, null, 2),  'utf-8')
-}
+// function writeReport() {
+//   fs.writeFileSync(serverPath + "/aliceReport.json", JSON.stringify(aliceReport, null, 2),  'utf-8')
+// }
 
-let aliceReport = JSON.parse(fs.readFileSync(serverPath + "/aliceReport.json"));
-console.log(aliceReport)
-let ufxError = 0;
-let audioSpikes = 0;
+// let aliceReport = JSON.parse(fs.readFileSync(serverPath + "/aliceReport.json"));
+// console.log(aliceReport)
+// ufxErrors = aliceReport[0].ufxErrors;
+// console.log(ufxErrors)
+
+// let audioSpikes = 0;
 // on message receive
   ws.on('message', function (message) {
 
       // process WebSocket message
+    if (message.includes("relay")){
+      console.log(message.slice(6))
 
-      console.log(message)
+    }
+    console.log(message)
   switch (message) {
-    
+
     case "audio spiking":
     console.log("persistent audio spiking within 5 second window, restarting Max")
     ws.send("closePatcher")
 
       break
     case "MaxMSP: RME UFX+ Driver NOT Loaded":
+    ufxErrors++;
     ws.send("closePatcher")
+    // aliceReport.push({ufxErrors: ufxErrors})
+    // writeReport();
    
     //disable this for now: (i don't want a thousand emails today)
     //sendemail();
@@ -204,10 +212,12 @@ let audioSpikes = 0;
       break
     case "test":
       console.log("writing test report value")
-      aliceReport.push({testData: "test"})
-      writeReport();
+      // aliceReport.push({testData: "test"})
+      // writeReport();
 
       break
+
+
   }
   
 
