@@ -108,15 +108,25 @@ struct Window {
 			glfwWindowHint(GLFW_AUTO_ICONIFY, GL_FALSE);
 			pointer = glfwCreateWindow(width, height, "alice", monitor, NULL);
 			isFullScreen = 1;
+			//glfwSetInputMode(pointer, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			#ifdef AL_WIN
+			while(ShowCursor(false)>=0);
+			//SetCursor(NULL);
+			#endif
 		} else {
 
 			glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 			glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
 			glfwWindowHint(GLFW_AUTO_ICONIFY, GL_TRUE);
 			glfwWindowHint(GLFW_DECORATED, GL_TRUE);
+			//glfwSetInputMode(pointer, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 			//glfwWindowHint(GLFW_FOCUSED, GL_FALSE); // don't grab focus, it's annoying
 			pointer = glfwCreateWindow(width, height, "alice", NULL, NULL);
+
+			#ifdef AL_WIN
+			while(ShowCursor(true)>=0);
+			#endif
 		}
 		
 		// try to create it:
