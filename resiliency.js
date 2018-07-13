@@ -14,6 +14,8 @@ const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const sendmail = require('sendmail')();
 const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
+//const shutdown = require('electron-shutdown-command');
+
 
 /// ///////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +58,8 @@ setInterval(function () {
 
           case "win32":
           case "dll":
-            exec("../alicenode/alice.exe project.dll")
+          console.log("launch windows")
+            exec("../alicenode/alice.exe project.dll", {cwd: projectPath})
 
           break;
         }
@@ -70,7 +73,11 @@ setInterval(function () {
           case "win32":
           case "dll":
           console.log("alice has crashed more than 3 times, restarting machine!")
+          ws.send("closePatcher")
+          //shutdown.shutdown(); // simple system shutdown with default options
 
+          
+         // execSync("shutdown /r -t 5")
           break;
         }
       }
