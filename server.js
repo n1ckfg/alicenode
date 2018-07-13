@@ -265,9 +265,13 @@ function pruneWorktree () {
 /// //////////////////////////////////////////////////////////////////////////////
 
 function startAlice() {
-//serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
-// if (serverMode !== 'nosim') {
-  projectBuild();
+
+    // LAUNCH ALICE PROCESS
+
+    if (alice) {
+      alice.kill()
+    }
+  
 
 // BUILD PROJECT
   function projectBuild () {
@@ -280,22 +284,20 @@ function startAlice() {
     //console.log('built project', out.toString())
   }
 
-  // should we build now?
-  if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
-    console.warn('project lib is out of date, rebuilding')
-    try {
-      projectBuild()
-    } catch (e) {
-      console.error('ERROR', e.message)
-      // do a git commit with a note about it being a failed build.
-    }
-  }
+  //serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
+  // if (serverMode !== 'nosim') {
+    projectBuild();
 
-    // LAUNCH ALICE PROCESS
-
-  if (alice) {
-    alice.kill()
-  }
+  // // should we build now?
+  // if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
+  //   console.warn('project lib is out of date, rebuilding')
+  //   try {
+  //     projectBuild()
+  //   } catch (e) {
+  //     console.error('ERROR', e.message)
+  //     // do a git commit with a note about it being a failed build.
+  //   }
+  // }
 
   // start up the alice executable:
   alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
@@ -313,12 +315,12 @@ function startAlice() {
     process.exitCode = 1 // wasn't working on Windows :-(
     process.exit(code)
   })
+}
 
-  function aliceCommand (command, arg) {
-    let msg = command + '?' + arg + '\0'
-    console.log('sending alice', msg)
-    alice.stdin.write(command + '?' + arg + '\0')
-  }
+function aliceCommand (command, arg) {
+  let msg = command + '?' + arg + '\0'
+  console.log('sending alice', msg)
+  alice.stdin.write(command + '?' + arg + '\0')
 }
 
 startAlice();
