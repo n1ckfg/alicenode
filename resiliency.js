@@ -3,32 +3,17 @@
 
 // this script ensures other scripts/processes are running, and relaunch if they fail
 
+const fs = require('fs')
 
 // const fastcall = require("fastcall")
 const express = require('express')
 const WebSocket = require('ws')
-const mmapfile = require('mmapfile')
-const chokidar = require('chokidar')
-const pako = require('pako') // zlib compression
 const http = require('http')
-const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
-const sortJson = require('sort-json-array');
-const options = { ignoreCase: true, reverse: true, depth: 1};
-const getType = require('get-type');
+const sendmail = require('sendmail')();
 const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
-
-
-
-function random (low, high) {
-  return Math.random() * (high - low) + low
-}
-
-function randomInt (low, high) {
-  return Math.floor(Math.random() * (high - low) + low)
-}
 
 /// ///////////////////////////////////////////////////////////////////////////
 
@@ -45,44 +30,7 @@ const clientPath = path.join(serverPath, 'client')
 const projectlib = 'project.' + libext
 
 
-
-// listen to max.app for performance issues:
-
-var ws = new WebSocket('ws://localhost:8080');
-
-ws.onopen = function () {
-  
-};
-
-//the sonification patch runs some profiling and will send messages to resiliency.js if any of the measures go over a threshold:
-ws.on('message', function (message) {
-  //console.log(message)
-  switch (message) {
-    
-    case "audio spiking":
-    console.log("persistent audio spiking within 5 second window, restarting Max")
-    ws.send("closePatcher")
-    break;
-  }
-});
-
-// // remove temporary files:
-// removeTempFiles()
-// function removeTempFiles () {
-//   cardsFileList = fs.readdirSync(serverPath + '/cpp2json/output').filter(function (file) {
-//       if (file.includes('.json')) {
-//         fs.unlink(serverPath + '/cpp2json/output/' + file, (err) => {
-//           if (err) throw err;
-//           console.log('/cpp2json/output/' + file + ' was deleted');
-//         });
-//       }
-//     else {
-//       return file
-//     }
-//   })
-// }
-// refresh the state from the mmap every 10 seconds
-//let maxPID; // the process ID for max/msp
+ 
 var crashCountAlice = 0;
 var crashCountMax = 0;
 setInterval(function () {
@@ -98,18 +46,33 @@ setInterval(function () {
     if (resultList.length == 0) {
       console.log("alice not running, launching now")
       crashCountAlice++;
-      console.log("alice has crashed " + crashCountAlice + " times")
+      if (crashCountAlice < 4) {
+        console.log("alice has crashed " + crashCountAlice + " times")
 
-      switch (libext) {
-        case "dylib":
-          exec("../alicenode/alice project.dylib")
-        break;
+        switch (libext) {
+          case "dylib":
+            exec("../alicenode/alice project.dylib")
+          break;
 
-        case "win32":
-        case "dll":
-          exec("..\alicenode\alice.exe project.dll")
+          case "win32":
+          case "dll":
+            exec("../alicenode/alice.exe project.dll")
 
-        break;
+          break;
+        }
+      } else {
+        switch (libext) {
+          case "dylib":
+          console.log("alice has crashed more than 3 times, restarting machine!")
+
+          break;
+
+          case "win32":
+          case "dll":
+          console.log("alice has crashed more than 3 times, restarting machine!")
+
+          break;
+        }
       }
     } else {
         resultList.forEach(function( process ){
@@ -171,3 +134,116 @@ setInterval(function () {
 
 
 
+// HTTP SERVER
+
+let sessionId = 0
+let sessions = []
+
+const app = express()
+app.use(express.static(clientPath))
+app.get('/', function (req, res) {
+  res.sendFile(path.join(clientPath, 'index.html'))
+})
+// app.get('*', function(req, res) { console.log(req); });
+const server = http.createServer(app)
+
+// add a websocket service to the http server:
+const wss = new WebSocket.Server({ server })
+
+// send a (string) message to all connected clients:
+function sendAllClients (msg) {
+  wss.clients.forEach(function each (client) {
+    client.send(msg)
+  })
+}
+
+// whenever a client connects to this websocket:
+wss.on('connection', function (ws, req) {
+  let perSessionData = {
+    id: sessionId++,
+    socket: ws
+
+  }
+  let fileName // user-selected fileName
+  let userName; 
+
+
+  
+
+  sessions[perSessionData.id] = perSessionData
+
+  console.log('server received a connection, new session ' + perSessionData.id)
+  console.log('server has ' + wss.clients.size + ' connected clients')
+function writeReport() {
+  fs.writeFileSync(serverPath + "/aliceReport.json", JSON.stringify(aliceReport, null, 2),  'utf-8')
+}
+
+let aliceReport = JSON.parse(fs.readFileSync(serverPath + "/aliceReport.json"));
+console.log(aliceReport)
+let ufxError = 0;
+let audioSpikes = 0;
+// on message receive
+  ws.on('message', function (message) {
+
+      // process WebSocket message
+
+      console.log(message)
+  switch (message) {
+    
+    case "audio spiking":
+    console.log("persistent audio spiking within 5 second window, restarting Max")
+    ws.send("closePatcher")
+
+      break
+    case "MaxMSP: RME UFX+ Driver NOT Loaded":
+    ws.send("closePatcher")
+   
+    //disable this for now: (i don't want a thousand emails today)
+    //sendemail();
+
+      break
+    case "test":
+      console.log("writing test report value")
+      aliceReport.push({testData: "test"})
+      writeReport();
+
+      break
+  }
+  
+
+})
+
+  ws.on('error', function (e) {
+    if (e.message === 'read ECONNRESET') {
+      // ignore this, client will still emit close event
+    } else {
+      console.error('websocket error: ', e.message)
+    }
+  })
+
+  // what to do if client disconnects?
+  ws.on('close', function (connection) {
+    console.log('client connection closed')
+
+    delete sessions[perSessionData.id]
+
+    // tell git-in-vr to push the atomic commits?
+  })
+})
+
+server.listen(8080, function () {
+  console.log('server listening on %d', server.address().port)
+})
+
+function sendemail () {
+  sendmail({
+    from: 'alicenodeerrors@gmail.com',
+    to: 'info@palumbomichael.com ',
+    subject: 'Alicenode Error: RME UFX+ Not Loaded',
+    html: 'hello from Korea ',
+  }, function(err, reply) {
+    console.log(err && err.stack);
+    console.dir(reply);
+  });
+
+}
