@@ -189,7 +189,12 @@ wss.on('connection', function (ws, req) {
 
       // process WebSocket message
     if (message.includes("relay")){
-      console.log(message.slice(6))
+      relayMessage = message.slice(6)
+        switch (message) {
+
+          case "kinect":
+          break
+        }
 
     }
     console.log(message)
@@ -201,7 +206,7 @@ wss.on('connection', function (ws, req) {
 
       break
     case "MaxMSP: RME UFX+ Driver NOT Loaded":
-    ufxErrors++;
+   // ufxErrors++;
     ws.send("closePatcher")
     // aliceReport.push({ufxErrors: ufxErrors})
     // writeReport();
