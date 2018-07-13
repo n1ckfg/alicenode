@@ -613,7 +613,7 @@ struct CloudDeviceManager {
 			device.dev = freenect2.openDevice(device.serial);
 		}
 
-		device.start();
+		if (device.dev) device.start();
 	}
 
 	

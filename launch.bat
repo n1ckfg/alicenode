@@ -2,16 +2,16 @@ echo off
 title Inhabitat Launcher
 
 
-:: launch resiliency.js
-echo running our resiliency script
-start node resiliency.js &
+REM :: launch resiliency.js
+REM echo running our resiliency script
+REM start node resiliency.js &
 
-:: Start Alice!
-start ..\alicenode\alice.exe project.dll
+REM :: Start Alice!
+REM start ..\alicenode\alice.exe project.dll
 
-echo Exit Code is %errorlevel%
-:: should we launch the resiliency script before or after everything else is launched?
-:: for now running it after everything else
+REM echo Exit Code is %errorlevel%
+REM :: should we launch the resiliency script before or after everything else is launched?
+REM :: for now running it after everything else
 
 
 :: Exit this script if terminated by another process
@@ -29,7 +29,7 @@ echo "Insuperposition Launcher"
 
 :: launch resiliency.js
 echo running our resiliency script
-node resiliency.js & 
+start node resiliency.js & 
 
 :: launch max and audiostate patcher  
 start ../alicenode_inhabitat/audio/audiostate_sonification.maxpat &
@@ -37,6 +37,7 @@ echo "Launching Max/MSP & Sonification Patch on process ID $!" &
 
 :: Start Alice!
 echo Starting Alice!
+cd ..\alicenode_inhabitat
 ..\alicenode\alice.exe project.dll
 echo Exit Code is %errorlevel%
 
