@@ -16,6 +16,7 @@ const getType = require('get-type');
 const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
 
 
+let alice
 
 function random (low, high) {
   return Math.random() * (high - low) + low
@@ -263,8 +264,9 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
+function startAlice() {
 //serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
-if (serverMode !== 'nosim') {
+// if (serverMode !== 'nosim') {
   projectBuild();
 
 // BUILD PROJECT
@@ -291,8 +293,12 @@ if (serverMode !== 'nosim') {
 
     // LAUNCH ALICE PROCESS
 
+  if (alice) {
+    alice.kill()
+  }
+
   // start up the alice executable:
-  let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
+  alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
     cwd: projectPath
   })
 
@@ -313,8 +319,10 @@ if (serverMode !== 'nosim') {
     console.log('sending alice', msg)
     alice.stdin.write(command + '?' + arg + '\0')
   }
-
 }
+
+startAlice();
+//}
 
 /// //////////////////////////////////////////////////////////////////////////////
 
@@ -1180,7 +1188,7 @@ watcher
   .on('change', (filepath, stats) => {
     // console.log("changed", filepath);
     switch (path.extname(filepath)) {
-      case '.h':
+      // case '.h':
       case '.cpp':
         // first, reload & rebuild sim:
         try {
@@ -1188,6 +1196,9 @@ watcher
           sendAllClients('edit?' + fs.readFileSync('project.cpp', 'utf8'))
 
           // gitAddAndCommit();
+
+          startAlice();
+          
         } catch (e) {
           console.error(e.message)
         }
