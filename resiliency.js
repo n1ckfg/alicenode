@@ -3,6 +3,7 @@
 
 // this script ensures other scripts/processes are running, and relaunch if they fail
 
+const fs = require('fs')
 
 // const fastcall = require("fastcall")
 const express = require('express')
@@ -173,8 +174,14 @@ wss.on('connection', function (ws, req) {
 
   console.log('server received a connection, new session ' + perSessionData.id)
   console.log('server has ' + wss.clients.size + ' connected clients')
+function writeReport() {
+  fs.writeFileSync(serverPath + "/aliceReport.json", JSON.stringify(aliceReport, null, 2),  'utf-8')
+}
 
-
+let aliceReport = JSON.parse(fs.readFileSync(serverPath + "/aliceReport.json"));
+console.log(aliceReport)
+let ufxError = 0;
+let audioSpikes = 0;
 // on message receive
   ws.on('message', function (message) {
 
@@ -187,15 +194,20 @@ wss.on('connection', function (ws, req) {
     console.log("persistent audio spiking within 5 second window, restarting Max")
     ws.send("closePatcher")
 
-    break
+      break
     case "MaxMSP: RME UFX+ Driver NOT Loaded":
     ws.send("closePatcher")
-
+   
     //disable this for now: (i don't want a thousand emails today)
     //sendemail();
 
-    break
-    break;
+      break
+    case "test":
+      console.log("writing test report value")
+      aliceReport.push({testData: "test"})
+      writeReport();
+
+      break
   }
   
 
