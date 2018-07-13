@@ -30,14 +30,13 @@ function randomInt (low, high) {
 // CONFIGURATION
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
-
 //serverMode can be set to 'nosim' for client editors testing
-const serverMode = process.env.startFlag
+const serverMode = process.env.startFlag || process.argv[2]
 if (serverMode) {
   console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
 }
 // derive project to launch from first argument:
-process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
+process.chdir('../alicenode_inhabitat')
 const projectPath = process.cwd()
 const serverPath = __dirname
 const clientPath = path.join(serverPath, 'client')
@@ -65,43 +64,43 @@ const projectlib = 'project.' + libext
 
 // refresh the state from the mmap every 10 seconds
 //let maxPID; // the process ID for max/msp
-setInterval(function () {
+// setInterval(function () {
 
-  ps.lookup({
-    command: 'Max',
-    }, function(err, resultList ) {
-    if (err) {
-        throw new Error( err );
-    }
-    //console.log(resultList)
-    if (resultList.length == 0) {
-      console.log("max not running, launching now")
+//   ps.lookup({
+//     command: 'Max',
+//     }, function(err, resultList ) {
+//     if (err) {
+//         throw new Error( err );
+//     }
+//     //console.log(resultList)
+//     if (resultList.length == 0) {
+//       console.log("max not running, launching now")
 
-      switch (libext) {
-        case "dylib":
-        exec("open -a 'Max' " + projectPath + "/audio/audiostate_sonification.maxpat")
+//       switch (libext) {
+//         case "dylib":
+//         exec("open -a 'Max' " + projectPath + "/audio/audiostate_sonification.maxpat")
 
-        break;
+//         break;
 
-        case "win32":
-        case "dll":
-        exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
+//         case "win32":
+//         case "dll":
+//         exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
 
-        break;
-      }
-    } else {
-        resultList.forEach(function( process ){
-          if ( process ){
-            //report max running:
-            console.log( '\nProcess check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
+//         break;
+//       }
+//     } else {
+//         resultList.forEach(function( process ){
+//           if ( process ){
+//             //report max running:
+//             console.log( '\nProcess check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
 
-          } 
-      }); 
-    }
-  })
-  //console.log('\nupdating mapped state var in server')
-  //getState();
-}, 10000)
+//           } 
+//       }); 
+//     }
+//   })
+//   //console.log('\nupdating mapped state var in server')
+//   //getState();
+// }, 10000)
 
 
 // State Editor:
@@ -123,7 +122,7 @@ try {
 } catch (e) {
   console.error('failed to map the state.bin:', e.message)
 }
-
+/*
 switch(libext){
   case "win32":
   case "dll":
@@ -139,7 +138,7 @@ switch(libext){
     console.log("Your not on any compatable machine.");
     break;
 }
-
+*/
 
 
 getState()
@@ -316,6 +315,7 @@ if (serverMode !== 'nosim') {
   }
 
 }
+
 /// //////////////////////////////////////////////////////////////////////////////
 
 // UPDATE GIT REPO: do we commit the alicenode_inhabitat repo on startup?
