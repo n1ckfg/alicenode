@@ -377,7 +377,7 @@ function openSocket() {
                          end = state[key].end;
                          endChar = state[key].endChar;
                          endCol = state[key].endCol;
-
+                         offset = state[key].offset;
 
                         //different types will require different ui elements.
                             switch (type) {
@@ -398,16 +398,25 @@ function openSocket() {
                                 });
                                 // have the spinner report its value whenever it gets changed by mouse or keyboard events.
                                 $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                    console.log(event)
+                                    console.log(ui)
+                                    console.log(id)
                                     updateState(this.id, ui.value);
                                     }
                                 });
 
-                                 $( "#" + pName ).keyup(function(event, ui, id ) {
-                                     updateState(this.id, ui.value);
-                                 });
-                                 
-                                $().data('mmapData', { offset: offset })
+                                $('#' + pName).on("keyup",function(event){
+                                    
+                                    console.log(event.target.value)
+                                    console.log(event.target.id)
+                                    if(event.keyCode == 13){ 
+                                         event.stopImmediatePropogation();
+                                         event.preventDefault();
+                                    }
+                                    updateState(event.target.id, event.target.value);
+                                });
 
+                                $().data('mmapData', { offset: offset })
                                 $("#" + pName).width(100);
 
 
