@@ -1,4 +1,5 @@
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
+const ip = require('ip')
 
 
 var http = require("http"), terminal = require("web-terminal");
@@ -12,4 +13,4 @@ var http = require("http"), terminal = require("web-terminal");
     console.log("Server running at http://127.0.0.1:1337/");
     
     terminal(app);
-    console.log("Web-terminal accessible at http://127.0.0.1:1337/terminal");
+    console.log('Web-terminal accessible at http://' + ip.address() + ':8088/terminal');

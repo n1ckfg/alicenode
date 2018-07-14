@@ -26,6 +26,7 @@
     "find-process": "^1.1.1",
     "get-type": "^1.1.0",
     "git-log-to-json": "^1.1.1",
+    "ip": "^1.1.5",
     "json5": "^1.0.1",
     "list-directory-contents": "0.0.3",
     "mmapfile": "^0.1.1",

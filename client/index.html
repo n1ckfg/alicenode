@@ -281,7 +281,7 @@
 <script>document.domain = document.domain;
 </script>
 <!-- <iframe src="http://192.168.0.27:8081" width=100%>Windows Machine</iframe> -->
-<iframe src="http://192.168.0.27:8081" width=100%></iframe>
+<iframe src="http://192.168.0.27:8088/terminal" width=100%></iframe>
 <!-- Chat and System Logs -->
     <!-- <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
@@ -385,7 +385,7 @@ function openStateEditor () {
 }
 
 function openTerminal () {
-  var terminalHost = "http://" + location.host.substr(0, location.host.indexOf(':')) + ':8081';
+  var terminalHost = "http://" + location.host.substr(0, location.host.indexOf(':')) + ':8088/terminal';
   // var childWindow = "";
   window.open(terminalHost)
   
