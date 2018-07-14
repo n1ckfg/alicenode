@@ -103,6 +103,7 @@ rgb(199, 0, 57) --> */
         <td>
             <button id="writeStateH">Save state.h</button>
             <button id="clearHighlights">Clear Highlighting</button>
+            <button id="rebuildCPP2JSON">Rebuild cpp2json</button>
 
         </td>
         <td>
@@ -121,6 +122,20 @@ rgb(199, 0, 57) --> */
                             <div id="stateh_source"></div>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            Notes: saving state.h also triggers a rebuild of cpp2json. This bootstraps an issue where cpp2json seems to only provide parameter names that were present at the most-recent build.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <script>document.domain = document.domain;
+                            </script>
+                            <!-- <iframe src="http://192.168.0.27:8081" width=100%>Windows Machine</iframe> -->
+                            
+                            <iframe src="http://192.168.0.27:8088/terminal" width=100% height=200px></iframe>
+                        </td>
+                    </tr>
                 
             </table>
         </td>
@@ -135,22 +150,6 @@ rgb(199, 0, 57) --> */
                     </tr>
                 </tbody>
             </table>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            Errors/Warnings from Server
-        </td>
-
-    <tr height="20%">
-        <td>
-            <div id="serverWarnings" overflow="auto">
-
-        </td>
-        <td>
-            <div id="otherParams" overflow="auto">
-                    </div>
-            <!-- <li id="state"></li> -->
         </td>
     </tr>
 
@@ -511,7 +510,10 @@ $(function() {
         var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
         writeStateH = {authorName, authorEmail, newState, commitMsg}
         ws.send('state.h_write?' + JSON.stringify(writeStateH))
-        console.log(writeStateH)           
+        console.log(writeStateH)
+        // tell server to rebuild cpp2json in case param names were added/removed/changed to state.h
+        ws.send("rebuildCpp2json?")
+          
     });
 });
 
@@ -528,6 +530,16 @@ $(function() {
     });
 
 })
+
+//// trigger manual rebuild of cpp2json
+$(function() {
+    $("#rebuildCPP2JSON").click( function()
+        {
+            ws.send("rebuildCpp2json?")
+    });
+
+})
+rebuildCPP2JSON
 
 var EventUtil = {
 

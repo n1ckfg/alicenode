@@ -27,7 +27,7 @@ REM }
 
 echo "Insuperposition Launcher"
 echo starting alicenode server, serverMode set to 'nosim'
-start npm \start nosim & 
+start node webterminal.js & 
 :: launch resiliency.js
 echo running our resiliency script
 start node resiliency.js & 
