@@ -239,7 +239,7 @@ function sourceCard(stateCode) {
         allowEditingOriginals: true,
         // autoRefresh: true,
         // showDifferences: true,
-        linewrapping: true,
+        lineWrapping: true,
         //editing
         undoDepth: 200,
         //cursor settings:
@@ -636,14 +636,6 @@ EventUtil.preventDefault(event);
 
 }
 
-function noScroll() {
-    $(".cm-number").scrollLeft(0);
-    window.scrollTo( 0, 0 );
-    window.scrollX(0);
-    window.scrollY(0);
-}
-
-
 var cursorY;
 var cursorX;
 
@@ -655,19 +647,13 @@ $("#stateh_source").on("mouseover", function (){
         EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
         
         $(".cm-number").filter(EventUtil.getTarget(event)).css("background-color", "mediumblue");
-        $(".cm-number").filter(EventUtil.getTarget(event)).css("overflow-x", "hidden");
-        $(".cm-number").filter(EventUtil.getTarget(event)).css("overflow-y", "hidden");
 
-
-        EventUtil.addHandler(document, 'scroll', noScroll);
     },
     function(){
             EventUtil.removeHandler(document, 'mousewheel', onWheel);
             EventUtil.removeHandler(document, 'DOMMouseScroll', onWheel);
 
-
             $(".cm-number").filter(EventUtil.getTarget(event)).removeAttr("style");
-            EventUtil.removeHandler(document, 'scroll', noScroll);
         });
     });
 });
