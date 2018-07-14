@@ -112,7 +112,7 @@ let paramValue;
 let unusedParams = []
 
 //run the terminal!
-exec("ttyd -p 8081 bash -x", (stdout) => {
+exec("web-terminal --port 8081", (stdout) => {
 
   console.log(stdout)
 })
@@ -638,33 +638,7 @@ ws.send('cardsFileList?' + cardsFileList)
             client.send('chatMsg? ' + dateStamp + ' ' + userName + ': ' + arg)
           })
 
-
-
-          break
-
-          case 'cliProject':
-          console.log(arg)
-          exec(arg, {cwd: projectPath}, (stdout, stderr, err) => {
-            var cliResult = (stdout,stderr,err)
-            wss.clients.forEach(function each (client) {
-              let dateStamp = (new Date().getHours()) + ':' + (new Date().getMinutes()) + ':' + (new Date().getSeconds())
-              client.send('chatMsg? ' + dateStamp + ' : ' + cliResult)
-            })
-            
-          })
-
           break;
-
-          case 'cliServer':
-          console.log(arg)
-          exec(arg, {cwd: serverPath}, (stdout, stderr, err) => {
-            var cliResult = (stdout,stderr,err)
-            wss.clients.forEach(function each (client) {
-              let dateStamp = (new Date().getHours()) + ':' + (new Date().getMinutes()) + ':' + (new Date().getSeconds())
-              client.send('chatMsg? ' + dateStamp + ' : ' + cliResult)
-            })
-            
-          })
 
           // git checkout Michael_Palumbo_ac107e5_1527003819750
 
