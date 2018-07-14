@@ -281,7 +281,11 @@
 <script>document.domain = document.domain;
 </script>
 <!-- <iframe src="http://192.168.0.27:8081" width=100%>Windows Machine</iframe> -->
+<<<<<<< HEAD
 <iframe src="http://localhost:8081" width=100% height=40%></iframe>
+=======
+<iframe src="http://192.168.0.27:8088/terminal" width=100%></iframe>
+>>>>>>> 7e8ba0621dfec5ab20825c8ff339395d9e26987b
 <!-- Chat and System Logs -->
     <!-- <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
@@ -385,7 +389,7 @@ function openStateEditor () {
 }
 
 function openTerminal () {
-  var terminalHost = "http://" + location.host.substr(0, location.host.indexOf(':')) + ':8081';
+  var terminalHost = "http://" + location.host.substr(0, location.host.indexOf(':')) + ':8088/terminal';
   // var childWindow = "";
   window.open(terminalHost)
   

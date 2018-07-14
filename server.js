@@ -112,10 +112,7 @@ let paramValue;
 let unusedParams = []
 
 //run the terminal!
-exec("web-terminal --port 8081", (stdout) => {
 
-  console.log(stdout)
-})
 /// 
 // mmap the state
 let statebuf
@@ -181,7 +178,7 @@ function getState () {
           if (type.includes('void')) {
               //we ignore 'void' types for now
           } else {
-          console.log(paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol)
+          // console.log(paramName, paramValue, type, offset, begin, end, beginChar, beginCol, endChar, endCol)
           // sizeOf = value.sizeof
 
           // console.log(sizeOf)
