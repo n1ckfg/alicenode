@@ -16,7 +16,9 @@ const sendmail = require('sendmail')();
 const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
 //const shutdown = require('electron-shutdown-command');
 
-
+exec("node webterminal.js", (stdout, stderr, err) => {
+  console.log(stdout,stderr,err)
+})
 /// ///////////////////////////////////////////////////////////////////////////
 
 // CONFIGURATION
