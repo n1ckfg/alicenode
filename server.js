@@ -112,10 +112,7 @@ let paramValue;
 let unusedParams = []
 
 //run the terminal!
-exec("web-terminal --port 8081", (stdout) => {
 
-  console.log(stdout)
-})
 /// 
 // mmap the state
 let statebuf
