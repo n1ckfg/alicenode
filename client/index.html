@@ -429,6 +429,19 @@ function initUI () {
     collapseIdentical: collapse
   });
 
+  //key bindings for left editor
+  var leftMap = {
+    "Cmd-S": function(cm){sendLeftCode();},
+    "Ctrl-S": function(cm){sendLeftCode();}
+  }
+  dv.edit.addKeyMap(leftMap);
+
+    //key bindings for left editor
+    var rightMap = {
+      "Cmd-S": function(cm){sendRightCode();},
+      "Ctrl-S": function(cm){sendLeftCode();}
+  }
+  dv.right.orig.addKeyMap(rightMap);
   // Detect when user first makes a change to the code in the right editor view
   dv.rightOriginal().on('keypress', function (dv, changeObj) {
     // && currentBranch == "master"
@@ -455,6 +468,9 @@ function initUI () {
     if (theme) { inputTheme.value = theme; selectTheme(); }
   });
 }
+
+
+
 
 // dv.setOption("extraKeys", {
 //   Cmd-s: function(cm) {
@@ -536,6 +552,10 @@ function sendLeftCode () {
   // also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
   // and email
   var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+  if (commitMsg === null) {
+      console.log("space swords are totally cancelled")
+        return; //break out of the function early if user cancels
+    }
   //   var message = "edit?" + editorCM.getValue();
   var changes = 'edit?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.editor().getValue()
   log('Sent LeftEditor Contents to server: ' + commitMsg)
@@ -546,6 +566,11 @@ function sendLeftCode () {
 function sendRightCode () {
 
   var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
+  if (commitMsg === null) {
+    console.log("space luge is totally cancelled")
+
+        return; //break out of the function early if 
+    }
   //   var message = "edit?" + editorCM.getValue();
   var changes = 'editRight?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.rightOriginal().getValue()
   log('Sent LeftEditor Contents to server: ' + commitMsg)
