@@ -645,9 +645,9 @@ $("#stateh_source").on("mouseover", function (){
     $(".cm-number").hover(function(event){
         EventUtil.addHandler(document,'mousewheel', onWheel);
         EventUtil.addHandler(document,'DOMMouseScroll', onWheel);
-        
+
         $(".cm-number").filter(EventUtil.getTarget(event)).css("background-color", "mediumblue"); 
-        $(this).scrollTop($(this).scrollTop()-e.originalEvent.wheelDeltaY);
+        $(this).scrollTop($(this).scrollTop()-event.originalEvent.wheelDeltaY);
 
     },
     function(){
