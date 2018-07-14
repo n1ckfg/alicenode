@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Alicenode Editor</title>
+<title>/alicenode Editor</title>
 <meta charset="utf-8"/>
 <!-- //TEMPORARY: just to aid in development workflow -->
 <!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
@@ -281,7 +281,7 @@
 <script>document.domain = document.domain;
 </script>
 <!-- <iframe src="http://192.168.0.27:8081" width=100%>Windows Machine</iframe> -->
-<iframe src="http://localhost:8081" width=100%></iframe>
+<iframe src="http://192.168.0.27:8081" width=100%></iframe>
 <!-- Chat and System Logs -->
     <!-- <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
@@ -599,7 +599,7 @@ function openSocket () {
   ws.onopen = function () {
     // log('open');
     //ws.send('client_SVG?')
-    ws.send('getCurrentBranch')
+    ws.send('AlicenodegetCurrentBranch')
 
     sessionStorage.echoServer = url
   }
@@ -655,7 +655,7 @@ function openSocket () {
             var sel = document.getElementById('chooseUser')
             // store the incoming userlist in a global
             currentUserList = JSON.parse(arg)
-            //console.log(currentUserList)
+            console.log(currentUserList)
             // compare the previous userlist with the incoming list
             // append any new names
             Object.keys(currentUserList).forEach(function (key) {
