@@ -1,7 +1,8 @@
 <!doctype html>
-<title>Alicenode Editor</title>
+<title>/alicenode Editor</title>
 <meta charset="utf-8"/>
-
+<!-- //TEMPORARY: just to aid in development workflow -->
+<!-- <meta http-equiv="refresh" content="5; URL=http://192.168.1.48:8080/index_v2.html"> -->
 <!--        SOURCES         -->
 <!-- THEMES-->
 <!-- <link rel="stylesheet" href="cm/themes/3024-day.css">
@@ -85,7 +86,6 @@
 <script src="js/jquery.color.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jquery.graphviz.svg.js"></script>
-<script src="js/mousetrap.js"></script>
 <!-- misc -->
 <link rel="shortcut icon"><!-- fix the 'cannot find 'favicon.ico' error -->
 
@@ -281,7 +281,7 @@
 <script>document.domain = document.domain;
 </script>
 <!-- <iframe src="http://192.168.0.27:8081" width=100%>Windows Machine</iframe> -->
-<iframe src="http://localhost:8081" width=100%></iframe>
+<iframe src="http://192.168.0.27:8081" width=100%></iframe>
 <!-- Chat and System Logs -->
     <!-- <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
@@ -429,19 +429,6 @@ function initUI () {
     collapseIdentical: collapse
   });
 
-  //key bindings for left editor
-  var leftMap = {
-    "Cmd-S": function(cm){sendLeftCode();},
-    "Ctrl-S": function(cm){sendLeftCode();}
-  }
-  dv.edit.addKeyMap(leftMap);
-
-    //key bindings for left editor
-    var rightMap = {
-      "Cmd-S": function(cm){sendRightCode();},
-      "Ctrl-S": function(cm){sendLeftCode();}
-  }
-  dv.right.orig.addKeyMap(rightMap);
   // Detect when user first makes a change to the code in the right editor view
   dv.rightOriginal().on('keypress', function (dv, changeObj) {
     // && currentBranch == "master"
@@ -468,16 +455,6 @@ function initUI () {
     if (theme) { inputTheme.value = theme; selectTheme(); }
   });
 }
-
-
-
-
-// dv.setOption("extraKeys", {
-//   Cmd-s: function(cm) {
-//     var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-//     cm.replaceSelection(spaces);
-//   }
-// });
 function toggleCollapse(collapse1){
 
   collapse = !collapse
@@ -538,12 +515,6 @@ function resize (mergeView) {
   mergeView.wrap.style.height = height + 'px';
 }
 
-
-Mousetrap.bind('ctrl+s', function(e) {
-  // your function here...
-  alert("it worked!")
-});
-
 // Send current content within CodeMirror's Left editor to the server (will restart simulation)
 function sendLeftCode () {
   // TODO: figure out how to include the var 'authorName' in this
@@ -552,10 +523,6 @@ function sendLeftCode () {
   // also, if "guest" is selected, then make sure server just does a regular commit (no added author flag)
   // and email
   var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
-  if (commitMsg === null) {
-      console.log("space swords are totally cancelled")
-        return; //break out of the function early if user cancels
-    }
   //   var message = "edit?" + editorCM.getValue();
   var changes = 'edit?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.editor().getValue()
   log('Sent LeftEditor Contents to server: ' + commitMsg)
@@ -566,11 +533,6 @@ function sendLeftCode () {
 function sendRightCode () {
 
   var commitMsg = prompt('Please provide a comment about your changes', 'reticulating splines')
-  if (commitMsg === null) {
-    console.log("space luge is totally cancelled")
-
-        return; //break out of the function early if 
-    }
   //   var message = "edit?" + editorCM.getValue();
   var changes = 'editRight?' + '?author' + authorName + ' <' + authorEmail + '>?commit' + commitMsg + '?code' + dv.rightOriginal().getValue()
   log('Sent LeftEditor Contents to server: ' + commitMsg)
@@ -637,7 +599,7 @@ function openSocket () {
   ws.onopen = function () {
     // log('open');
     //ws.send('client_SVG?')
-    ws.send('getCurrentBranch')
+    ws.send('AlicenodegetCurrentBranch')
 
     sessionStorage.echoServer = url
   }
@@ -693,7 +655,7 @@ function openSocket () {
             var sel = document.getElementById('chooseUser')
             // store the incoming userlist in a global
             currentUserList = JSON.parse(arg)
-            //console.log(currentUserList)
+            console.log(currentUserList)
             // compare the previous userlist with the incoming list
             // append any new names
             Object.keys(currentUserList).forEach(function (key) {
