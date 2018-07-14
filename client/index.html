@@ -385,9 +385,11 @@ function openStateEditor () {
 }
 
 function openTerminal () {
-  var terminalHost = location.host.substr(0, location.host.indexOf(':')) + ':8081';
+  //var terminalHost = location.host.substr(0, location.host.indexOf(':')) + ':8081';
   // var childWindow = "";
-  window.open(terminalHost)
+  window.open("http://192.168.0.27:8081")
+  window.location
+  console.log( window.location)
   // childWindow = window.open(terminalHost)
   // setTimeout(
   //   function() {
