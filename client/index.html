@@ -598,7 +598,7 @@ function openSocket () {
   ws.binaryType = 'arraybuffer'
   ws.onopen = function () {
     // log('open');
-    ws.send('client_SVG?')
+    //ws.send('client_SVG?')
     ws.send('getCurrentBranch')
 
     sessionStorage.echoServer = url
