@@ -1,3 +1,3 @@
 echo off
-title Inhabitat Launcher
+title Insuperposition Webterminal
 node webterminal.js
