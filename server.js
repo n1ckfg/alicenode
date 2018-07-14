@@ -1150,6 +1150,23 @@ ws.send('cardsFileList?' + cardsFileList)
               
             break
 
+          case 'rebuildCpp2json':
+
+          switch(libext){
+            case "win32":
+            case "dll":
+              exec('./build.bat', {cwd: __dirname + '/cpp2json/'}, (stdout) => {
+                console.log("Standard Output: " + stdout);
+              });
+              break;
+            case "dylib":
+              exec('./build.sh', {cwd: __dirname + '/cpp2json/'}, (stdout) => {
+                console.log("Standard Output: " + stdout);
+              });
+              break;
+            }
+              
+
         default:
           console.log('unknown cmd', cmd, 'arg', arg)
       }
