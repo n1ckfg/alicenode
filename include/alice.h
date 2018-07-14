@@ -26,6 +26,7 @@ struct AL_ALICE_EXPORT Alice {
 
 	int isSimulating = true;
 	int isRendering = true;
+	int goFullScreen = false;
 
 	// services:
 	Window::Manager windowManager;

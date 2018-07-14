@@ -185,8 +185,6 @@ function log(msg){
   console.log(msg)
 }
 function updateState(paramName, paramValue){
-    console.log("lines")
-
     //update the state.bin server-side
     let stateUpdate = [];
     ws.send("stateUpdate?" + paramName + " " + paramValue)
@@ -460,8 +458,8 @@ function openSocket() {
                                 break;
 
                             case "unusedParams":
-                                                                                        console.log("parameter types found but not used: " + arg)
-                                
+                            console.log("parameter types found but not used: " + arg)
+
                                 break;
                             }
 
@@ -472,6 +470,7 @@ function openSocket() {
 
 
                     default:
+
                     break;
 
                     }

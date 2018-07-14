@@ -11,8 +11,12 @@ const path = require('path')
 const os = require('os')
 const { exec, execSync, spawn, spawnSync, fork } = require('child_process')
 const sortJson = require('sort-json-array');
-    const options = { ignoreCase: true, reverse: true, depth: 1};
+const options = { ignoreCase: true, reverse: true, depth: 1};
 const getType = require('get-type');
+const ps = require('ps-node'); // check if a process is running. using it in the function that checks and/or launches the max/msp sonification patch
+
+
+let alice
 
 function random (low, high) {
   return Math.random() * (high - low) + low
@@ -27,11 +31,13 @@ function randomInt (low, high) {
 // CONFIGURATION
 
 const libext = process.platform === 'win32' ? 'dll' : 'dylib'
-
-const serverMode = process.env.startFlag
- console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
+//serverMode can be set to 'nosim' for client editors testing
+const serverMode = process.env.startFlag || process.argv[2]
+if (serverMode) {
+  console.log("\n\nServer Mode set to '" + serverMode + "'\n\n")
+}
 // derive project to launch from first argument:
-process.chdir(process.argv[2] || path.join('..', 'alicenode_inhabitat'))
+process.chdir('../alicenode_inhabitat')
 const projectPath = process.cwd()
 const serverPath = __dirname
 const clientPath = path.join(serverPath, 'client')
@@ -57,6 +63,47 @@ const projectlib = 'project.' + libext
 //   })
 // }
 
+// refresh the state from the mmap every 10 seconds
+//let maxPID; // the process ID for max/msp
+// setInterval(function () {
+
+//   ps.lookup({
+//     command: 'Max',
+//     }, function(err, resultList ) {
+//     if (err) {
+//         throw new Error( err );
+//     }
+//     //console.log(resultList)
+//     if (resultList.length == 0) {
+//       console.log("max not running, launching now")
+
+//       switch (libext) {
+//         case "dylib":
+//         exec("open -a 'Max' " + projectPath + "/audio/audiostate_sonification.maxpat")
+
+//         break;
+
+//         case "win32":
+//         case "dll":
+//         exec("start " + projectPath + "/audio/audiostate_sonification.maxpat")
+
+//         break;
+//       }
+//     } else {
+//         resultList.forEach(function( process ){
+//           if ( process ){
+//             //report max running:
+//             console.log( '\nProcess check: Application MaxMSP running on PID: %s, %s', process.pid, process.command);
+
+//           } 
+//       }); 
+//     }
+//   })
+//   //console.log('\nupdating mapped state var in server')
+//   //getState();
+// }, 10000)
+
+
 // State Editor:
 let stateSource
 let stateAST
@@ -64,7 +111,11 @@ let state = [] // we'll send this to the client
 let paramValue;
 let unusedParams = []
 
+//run the terminal!
+exec("web-terminal --port 8081", (stdout) => {
 
+  console.log(stdout)
+})
 /// 
 // mmap the state
 let statebuf
@@ -76,8 +127,7 @@ try {
 } catch (e) {
   console.error('failed to map the state.bin:', e.message)
 }
-
-/** 
+/*
 switch(libext){
   case "win32":
   case "dll":
@@ -187,11 +237,7 @@ function getState () {
 
 
 }
-// refresh the state from the mmap every 10 seconds
-setInterval(function () {
-  //console.log('\nupdating mapped state var in server')
-  //getState();
-}, 10000)
+
 // let port = 8080
 // let userName = "Guest"; //temporary: default to guest when using the client app
 let gitHash
@@ -221,9 +267,32 @@ function pruneWorktree () {
 }
 /// //////////////////////////////////////////////////////////////////////////////
 
-//serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
-if (serverMode !== 'nosim') {
-  projectBuild();
+function startAlice() {
+
+    // LAUNCH ALICE PROCESS
+
+    if (alice) {
+      alice.kill()
+    }
+
+      // is Max running?
+  ps.lookup({
+    command: 'Alice',
+    }, function(err, resultList ) {
+    if (err) {
+        throw new Error( err );
+    }
+        resultList.forEach(function( process ){
+          if ( process ){
+            //report max running:
+            console.log('Process check: Application %s running on PID: %s', process.command, process.pid);
+
+
+          } 
+      }); 
+    
+  })
+  
 
 // BUILD PROJECT
   function projectBuild () {
@@ -236,21 +305,23 @@ if (serverMode !== 'nosim') {
     //console.log('built project', out.toString())
   }
 
-  // should we build now?
-  if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
-    console.warn('project lib is out of date, rebuilding')
-    try {
-      projectBuild()
-    } catch (e) {
-      console.error('ERROR', e.message)
-      // do a git commit with a note about it being a failed build.
-    }
-  }
+  //serverMode can be set to 'nosim' so that the simulation won't run. useful for deving any client-server webapps without hogging resources, or when the build is in a failed state. try 'npm start nosim'. note, 'npm start' is default
+  // if (serverMode !== 'nosim') {
+    projectBuild();
 
-    // LAUNCH ALICE PROCESS
+  // // should we build now?
+  // if (!fs.existsSync(projectlib) || fs.statSync('project.cpp').mtime > fs.statSync(projectlib).mtime) {
+  //   console.warn('project lib is out of date, rebuilding')
+  //   try {
+  //     projectBuild()
+  //   } catch (e) {
+  //     console.error('ERROR', e.message)
+  //     // do a git commit with a note about it being a failed build.
+  //   }
+  // }
 
   // start up the alice executable:
-  let alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
+  alice = spawn(path.join(__dirname, 'alice'), [projectlib], {
     cwd: projectPath
   })
 
@@ -265,14 +336,17 @@ if (serverMode !== 'nosim') {
     process.exitCode = 1 // wasn't working on Windows :-(
     process.exit(code)
   })
-
-  function aliceCommand (command, arg) {
-    let msg = command + '?' + arg + '\0'
-    console.log('sending alice', msg)
-    alice.stdin.write(command + '?' + arg + '\0')
-  }
-
 }
+
+function aliceCommand (command, arg) {
+  let msg = command + '?' + arg + '\0'
+  console.log('sending alice', msg)
+  alice.stdin.write(command + '?' + arg + '\0')
+}
+
+startAlice();
+//}
+
 /// //////////////////////////////////////////////////////////////////////////////
 
 // UPDATE GIT REPO: do we commit the alicenode_inhabitat repo on startup?
@@ -563,7 +637,7 @@ ws.send('cardsFileList?' + cardsFileList)
             client.send('chatMsg? ' + dateStamp + ' ' + userName + ': ' + arg)
           })
 
-          break
+          break;
 
           // git checkout Michael_Palumbo_ac107e5_1527003819750
 
@@ -1139,7 +1213,7 @@ watcher
   .on('change', (filepath, stats) => {
     // console.log("changed", filepath);
     switch (path.extname(filepath)) {
-      case '.h':
+      // case '.h':
       case '.cpp':
         // first, reload & rebuild sim:
         try {
@@ -1147,6 +1221,9 @@ watcher
           sendAllClients('edit?' + fs.readFileSync('project.cpp', 'utf8'))
 
           // gitAddAndCommit();
+
+          startAlice();
+          
         } catch (e) {
           console.error(e.message)
         }

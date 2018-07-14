@@ -80,12 +80,14 @@ void glfw_key_callback(GLFWwindow* window_pointer, int keycode, int scancode, in
 	} break;
 	case GLFW_KEY_F11: {
 		if (downup) {
-			alice.window.toggleFullScreen();
+			//alice.window.toggleFullScreen();
+			alice.goFullScreen = !alice.goFullScreen;
 		}
 	} break;
 	case GLFW_KEY_F: {
 		if (cmd && downup) {
-			alice.window.toggleFullScreen();
+			//alice.window.toggleFullScreen();
+			alice.goFullScreen = !alice.goFullScreen;
 		}
 	} break;
 
@@ -109,6 +111,10 @@ extern "C" AL_ALICE_EXPORT int frame() {
 	double tbegin = glfwGetTime();
 
     glfwPollEvents();
+	if (alice.goFullScreen != alice.window.isFullScreen) {
+		alice.window.fullScreen(alice.goFullScreen);
+	}
+
     glfwMakeContextCurrent(alice.window.pointer); // maybe we want to have a onSim() event before doing this?
 
 	if (alice.isRendering) 
@@ -139,6 +145,8 @@ extern "C" AL_ALICE_EXPORT int setup() {
 
 	console.log("setup");
 	console.log("alice alice %p", &alice);
+
+
 
 	if (!alice.window.open()) return -1;
 	
@@ -319,30 +327,30 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		
 		alice.onReloadGPU.emit();
 
-	} else if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
+	// } else if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
 		
-		// trigger rebuild...
+	// 	// trigger rebuild...
 
-		// first unload the lib:
-		if (!project_lib_path.empty()) {
-			closelib(project_lib_path.c_str());
-		}
+	// 	// first unload the lib:
+	// 	if (!project_lib_path.empty()) {
+	// 		closelib(project_lib_path.c_str());
+	// 	}
 
-		// TODO: run build.bat
-		#ifdef AL_WIN
+	// 	// TODO: run build.bat
+	// 	#ifdef AL_WIN
 			
-			system("build.bat");
-		#else
-			system("./build.sh");
-		#endif
+	// 		system("build.bat");
+	// 	#else
+	// 		system("./build.sh");
+	// // 	#endif
 
-	}  else if (ext == ".dll" || ext == ".dylib") {
-		// trigger reload...
-		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
+	// }  else if (ext == ".dll" || ext == ".dylib") {
+	// 	// trigger reload...
+	// 	fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
 
-		if (name == project_lib_path) {
-			openlib(project_lib_path.c_str());
-		}
+	// 	if (name == project_lib_path) {
+	// 		openlib(project_lib_path.c_str());
+	// 	}
 	}
 	alice.onFileChange.emit(name);
 }
@@ -412,41 +420,8 @@ int main(int argc, char ** argv) {
 	// TODO: remove
 	alice.leap->connect();
 
-	/*
-	void ALeapMotionDebugInfo ::Tick( float DeltaTime )
-	{
-		Super::Tick( DeltaTime );
-		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
-	}
 
-	Device->SetReferenceFrameOncePerTick();
-	Leap::Frame frame = Device->Frame();
-
-	void ALeapMotionDebugInfo::Tick( float DeltaTime )
-	{
-		Super::Tick( DeltaTime );
-		FLeapMotionDevice* Device = FLeapMotionControllerPlugin::GetLeapDeviceSafe();
-		GEngine->ClearOnScreenDebugMessages();
-
-		if (Device && Device->IsConnected())
-		{
-			Device->SetReferenceFrameOncePerTick();
-			Leap::Frame frame = Device->Frame();
-
-			FString leapLabel = FString::Printf( TEXT( "LeapController - Frame: %u"), frame.id());
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, leapLabel);
-		}
-		else{
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, FString(TEXT ("LeapController - No Data" )));
-		}
-	}
-
-	ALeapMotionDebugInfo::ALeapMotionDebugInfo()
-	{
-		PrimaryActorTick.bCanEverTick = true;
-		PrimaryActorTick.bStartWithTickEnabled = true;
-	}
-	*/
+	
 
 	uv_pipe_init(&uv_main_loop, &stdin_pipe, 0);
 	uv_pipe_open(&stdin_pipe, 0);
@@ -456,9 +431,13 @@ int main(int argc, char ** argv) {
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
 
+	alice.window.monitor = alice.windowManager.monitors[alice.windowManager.monitor_count-1];
+
 	setup();
 
 	alice.cloudDeviceManager.reset();
+	alice.cloudDeviceManager.devices[0].use_colour = 0;
+	alice.cloudDeviceManager.devices[1].use_colour = 0;
 	alice.cloudDeviceManager.open_all();
 	//alice.cloudDeviceManager.open();
 
@@ -469,9 +448,6 @@ int main(int argc, char ** argv) {
 	//alice.onReset.emit();
 
 	console.log("begin rendering");
-
-	
-	
 	
     while(frame()) {
 

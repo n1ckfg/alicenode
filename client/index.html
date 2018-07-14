@@ -118,8 +118,10 @@
         <th>
             <!-- Open other editors in new tabs -->
             <button onclick="newEditor()" id="myButton">New Editor</button>
-            <button onclick="openCardsEditor()" id="openCardsEditor">Open Cards Editor</button>
-            <button onclick="openStateEditor()" id="openStateEditor">Open State Editor</button>
+            <button onclick="openCardsEditor()" id="openCardsEditor">Cards Editor</button>
+            <button onclick="openStateEditor()" id="openStateEditor">State Editor</button>
+            <button onclick="openTerminal()" id="openTerminal">Terminal (hit refresh after loading)</button>
+            
             <input id="server" type="text" value="ws://localhost:8080" size="40">
             
             <!-- THEMES SELECTION-->
@@ -277,8 +279,13 @@
         </tr>
 </table>
 
+<script>
+// use this to prevent cross domain request issues when requesting the terminal
+document.domain = document.domain;
+</script>
+<iframe src="http://localhost:8081" width=100%></iframe>
 <!-- Chat and System Logs -->
-    <div class="chatFooter">
+    <!-- <div class="chatFooter">
          <div id="chatHeader">Chat and System Messages
             <div id="chat_messages"></div>
             <form id="chat_form" onSubmit="return false;">
@@ -287,12 +294,9 @@
             </form>  
         </div> 
         <div id="chatHeader" style="float: right;">Integrated Terminal
-            <div id="terminal">
-                >.
-            </div>
+            <iframe src="192.168.0.27:8081">
         </div>
-    </div>
-
+    </div> -->
 <script>
 
 
@@ -310,6 +314,15 @@ var currentUser = 'FullName'
 var filename // the currently selected filename
 var ws_url = "ws://" + window.location.host;
 // var ws_url = 'ws://localhost:8080'
+
+function loadIframe(iframeName, url) {
+    var $iframe = $('#' + iframeName);
+    if ( $iframe.length ) {
+        $iframe.attr('src',url);    // here you can change src
+        return false;
+    }
+    return true;
+}
 
 // var col;
 // codemirror/mergeview globals:
@@ -380,6 +393,20 @@ function openCardsEditor () {
 // open the state editor in new tab
 function openStateEditor () {
   window.open(document.URL + 'state.html')
+}
+
+function openTerminal () {
+  //var terminalHost = location.host.substr(0, location.host.indexOf(':')) + ':8081';
+  // var childWindow = "";
+  window.open("http://192.168.0.27:8081")
+  window.location
+  console.log( window.location)
+  // childWindow = window.open(terminalHost)
+  // setTimeout(
+  //   function() {
+  //     childWindow.location.href=terminalHost;
+
+  //   }, 2000);
 }
 
 function toggleDifferences () {
@@ -605,6 +632,7 @@ function openSocket () {
         let cmd = message.substring(0, q)
         let arg = message.substring(q + 1)
         switch(cmd) {
+          /*
           // receive chat message from chat server (can include one's own)
           case 'chatMsg':
 
@@ -631,7 +659,7 @@ function openSocket () {
             chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight
             // }
             break
-
+          */
             // set available users list
           case 'setUserList':
             // get the username <select> element
@@ -928,15 +956,16 @@ function chooseCommit () {
 }
 
 // Client log
+
 function log (message) {
   var li = document.createElement('li')
   li.innerHTML = ('system: ' + message)
   var list = document.getElementById('chat_messages')
-  list.appendChild(li)
+  // list.appendChild(li) //NOTE: this is disabled for now!
 }
 
 // //chat client:
-
+/*
 // if user click's the 'send' button
 $(document).ready(function () {
   $('#chatSendMsg').click(function () {
@@ -964,7 +993,7 @@ input.addEventListener('keyup', function (event) {
 if (sessionStorage.echoServer) {
   document.getElementById('server').value = sessionStorage.echoServer
 }
-
+*/
 /// ////////////////////////////// BUILD THE REPO GRAPH //////////////////////////
 
 // spacing of commits horizontally & vertically (maybe a svg scaling transform could be used instead??)

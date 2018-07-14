@@ -113,6 +113,8 @@ struct CloudDevice {
 
 	std::string serial;
 	int id = 0;
+	
+	FPS fps;
 
 	glm::mat4 cloudTransform = glm::mat4(1.);
 
@@ -128,6 +130,12 @@ struct CloudDevice {
 	const CloudFrame& cloudFrame() const {
 		return cloudFrames[lastCloudFrame];
 	}
+
+// the most recently completed frame:
+	const CloudFrame& cloudFramePrev() const {
+		return cloudFrames[(lastCloudFrame + KINECT_FRAME_BUFFERS - 1) % KINECT_FRAME_BUFFERS];
+	}
+
 	// the most recently completed frame:
 	const ColourFrame& colourFrame() const {
 		return colourFrames[lastColourFrame];
@@ -142,7 +150,6 @@ struct CloudDevice {
 	libfreenect2::Freenect2Device * dev = 0;
 	libfreenect2::PacketPipeline *pipeline = 0;
 
-	FPS fps;
 
  	int kinect_thread_fun() {
 
@@ -607,7 +614,7 @@ struct CloudDeviceManager {
 			device.dev = freenect2.openDevice(device.serial);
 		}
 
-		device.start();
+		if (device.dev) device.start();
 	}
 
 	
