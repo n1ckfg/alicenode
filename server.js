@@ -724,7 +724,7 @@ ws.send('cardsFileList?' + cardsFileList)
           // console.log(currentBranch)
           // ws.send(currentBranch)
 
-          // break;
+        /*  // break;
           // Build gitgraph and send to client
         case 'client_SVG':
 
@@ -883,6 +883,7 @@ ws.send('cardsFileList?' + cardsFileList)
             })
           })
           break
+          */
 
         case 'editRight':
 
@@ -922,7 +923,8 @@ ws.send('cardsFileList?' + cardsFileList)
           execSync('git add .', {cwd: projectPath }, () => { console.log('git added') })
           execSync('git commit --author=\"' + thisAuthor + '\" -m \"' + commitMsg + '\"', {cwd: projectPath }, () => { console.log('git committed') })
           execSync('git status', {cwd: projectPath }, (stdout) => { console.log('\ngit status: \n' + stdout) })
-
+          
+          /*
           exec('git log --all --ignore-missing --full-history --reflog --topo-order --date=short --pretty="%h|%p|%d|%cd|%cN|%s%b|" --stat > ' + path.join(__dirname, '/tmp/gitlog.txt'), {cwd: projectPath}, (stdout, stderr, err) => {
             // exec buffer size is smaller than our current worktree output, so save it to text file and re-read it.
             fs.readFile(path.join(__dirname, '/tmp/gitlog.txt'), 'utf8', function (err, data) {
@@ -1066,7 +1068,7 @@ ws.send('cardsFileList?' + cardsFileList)
               ws.send('gitLog?' + graphjson)
             })
           })
-
+          */
           break
 
 

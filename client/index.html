@@ -265,7 +265,7 @@
 <div id="container">
     <div id="view"></div>
     
-    <div id="gitgraph" style="text-align: left; padding-left: 10px"></div>
+    <!-- <div id="gitgraph" style="text-align: left; padding-left: 10px"></div> -->
 </div>
 <!-- Send Code -->
 <table width="80%">
@@ -826,13 +826,13 @@ function openSocket () {
 
             let svg = make_svg_from_commits(graph)
 
-            // push the svg content to the gitgraph div
-            $('#gitgraph').html(svg)
-            // make the gitgraph resizeable
-            // see more at https://jqueryui.com/resizable
-            $( function () {
-              $('#gitgraph').resizable()
-            })
+            // // push the svg content to the gitgraph div
+            // $('#gitgraph').html(svg)
+            // // make the gitgraph resizeable
+            // // see more at https://jqueryui.com/resizable
+            // $( function () {
+            //   $('#gitgraph').resizable()
+            // })
             break;
 
             // TODO: unable to iterate through an array's values. for some reason the values get split into separate characters.
