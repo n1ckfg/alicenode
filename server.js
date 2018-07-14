@@ -145,7 +145,6 @@ switch(libext){
 }
 */
 
-
 getState()
 function getState () {
 
@@ -1110,22 +1109,24 @@ ws.send('cardsFileList?' + cardsFileList)
             
           case 'stateUpdate':
             // stateUpdate = JSON.stringify(arg)
-            // console.log(arg)
+            //console.log(arg)
             // console.log(state)
             let stateName = arg.substr(0, arg.indexOf(' '))
             let stateValue = arg.substr(arg.indexOf(' ') + 1)
-            // console.log(theName, theValue)
+            //console.log(stateName, stateValue)
             console.log(arg)
+            console.log("My value: " + stateValue+ " Name: " + stateName)
             function findObj (result) {
               return result.paramName === stateName
             }
 
-            let thisObj = state.find(findObj)
-            // console.log(thisObj.offset)
 
+            let thisObj = state.find(findObj)
+            console.log("My offset: " + thisObj.offset)
+            console.log(statebuf.writeFloatLE(stateValue, thisObj.offset))
             statebuf.writeFloatLE(stateValue, thisObj.offset)
 
-            break
+            break;
 
           case 'state.h_write':
             newStateH = JSON.parse(arg)
