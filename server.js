@@ -1110,20 +1110,42 @@ ws.send('cardsFileList?' + cardsFileList)
             // stateUpdate = JSON.stringify(arg)
             //console.log(arg)
             // console.log(state)
-            let stateName = arg.substr(0, arg.indexOf(' '))
-            let stateValue = arg.substr(arg.indexOf(' ') + 1)
+            let newString = arg.split(" ")
+            let stateName = newString[0]
+            let stateValue = newString[1]
+            let stateType = newString[2]         
+            
             //console.log(stateName, stateValue)
-            console.log(arg)
-            console.log("My value: " + stateValue+ " Name: " + stateName)
+            //console.log(arg)
+            
+            //console.log(stateName, stateValue, stateType)
             function findObj (result) {
               return result.paramName === stateName
             }
 
 
             let thisObj = state.find(findObj)
-            console.log("My offset: " + thisObj.offset)
-            console.log(statebuf.writeFloatLE(stateValue, thisObj.offset))
-            statebuf.writeFloatLE(stateValue, thisObj.offset)
+
+            switch (stateType) {
+              case "float":
+                statebuf.writeFloatLE(stateValue, thisObj.offset)
+              break
+
+              case "int":
+              statebuf.writeIntLE(stateValue, thisObj.offset)
+
+              break
+
+              case "double":
+              statebuf.writeDoubleLE(stateValue, thisObj.offset)
+
+              break
+
+              default:
+
+              break
+
+            }
 
             break;
 
