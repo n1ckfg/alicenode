@@ -327,30 +327,33 @@ void file_changed_event(uv_fs_event_t *handle, const char *filename, int events,
 		
 		alice.onReloadGPU.emit();
 
-	// } else if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
+#ifdef AL_OSX
+	} else if (ext == ".cpp" || (name != "state.h" && ext == ".h")){
 		
-	// 	// trigger rebuild...
+		// trigger rebuild...
 
-	// 	// first unload the lib:
-	// 	if (!project_lib_path.empty()) {
-	// 		closelib(project_lib_path.c_str());
-	// 	}
+		// first unload the lib:
+		if (!project_lib_path.empty()) {
+			closelib(project_lib_path.c_str());
+		}
 
-	// 	// TODO: run build.bat
-	// 	#ifdef AL_WIN
+		// TODO: run build.bat
+		#ifdef AL_WIN
 			
-	// 		system("build.bat");
-	// 	#else
-	// 		system("./build.sh");
-	// // 	#endif
+			system("build.bat");
+		#else
+			system("./build.sh");
+	 	#endif
 
-	// }  else if (ext == ".dll" || ext == ".dylib") {
-	// 	// trigger reload...
-	// 	fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
+	}  else if (ext == ".dll" || ext == ".dylib") {
+		// trigger reload...
+		fprintf(stderr, "reload %s %s %d\n", name.c_str(), project_lib_path.c_str(), (int)(name == project_lib_path));
 
-	// 	if (name == project_lib_path) {
-	// 		openlib(project_lib_path.c_str());
-	// 	}
+		if (name == project_lib_path) {
+			openlib(project_lib_path.c_str());
+		
+		}
+#endif
 	}
 	alice.onFileChange.emit(name);
 }
