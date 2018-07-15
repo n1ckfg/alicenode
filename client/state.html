@@ -94,39 +94,34 @@ rgb(199, 0, 57) --> */
 <table width="100%" height="100%">
     <tr  height="5%" >
         <th style="text-decoration: none">Alicenode State Editor</th>
-        <th><input id="server" type="text" value="ws://localhost:8080" size="40">
-            <button onclick="openSocket()">Open</button>
-            <button onclick="closeSocket()">Close</button></th>
+        <th>
+            Parameters
+        </th>
+        <th>
+                <input id="server" type="text" value="ws://localhost:8080" size="40">
+                <button onclick="openSocket()">Open</button>
+                <button onclick="closeSocket()">Close</button>
+        </th>
     </tr>
-
-    <tr>
+    <tr></tr>
         <td>
+
             <button id="writeStateH">Save state.h</button>
             <button id="clearHighlights">Clear Highlighting</button>
-
-        </td>
-        <td>
-
-        </td>
-    </tr>
-    <tr>
-        <td valign="top" height="90%">     
-            <!-- table for the state.h code editor -->
-            <table name="cm" display="inline-block" id="state.h" width="100%" border="0" cellpadding="0" cellspacing="0" >
-                    <tr >
-                        <th >state.h</th>
-                    </tr>
-                    <tr>
-                        <td > 
-                            <div id="stateh_source"></div>
-                        </td>
-                    </tr>
-                
-            </table>
+            <div id="stateh_source"></div> 
+            <table name="stateParams" overflow="scroll" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+                    <tbody>
+                        <tr >
+                            <th style="width: 40%;">Parameter</th>
+                            <th style="width: 20%;">Type</th>
+                            <th style="width: 40%;">Value</th>          
+                        </tr>
+                    </tbody>
+                </table>
         </td>
         <td valign="top">
             <!-- table for the state.h parameters and values -->
-            <table name="stateParams" overflow="scroll" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+            <table name="stateParams2" overflow="scroll" id="stateValues2" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
                 <tbody>
                     <tr >
                         <th style="width: 40%;">Parameter</th>
@@ -136,26 +131,19 @@ rgb(199, 0, 57) --> */
                 </tbody>
             </table>
         </td>
-    </tr>
-    <tr>
-        <td>
-            Errors/Warnings from Server
+        <td valign="top">
+            <!-- table for the state.h parameters and values -->
+            <table name="stateParams3" overflow="scroll" id="stateValues3" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+                <tbody>
+                    <tr >
+                        <th style="width: 40%;">Parameter</th>
+                        <th style="width: 20%;">Type</th>
+                        <th style="width: 40%;">Value</th>          
+                    </tr>
+                </tbody>
+            </table>
         </td>
-
-    <tr height="20%">
-        <td>
-            <div id="serverWarnings" overflow="auto">
-
-        </td>
-        <td>
-            <div id="otherParams" overflow="auto">
-                    </div>
-            <!-- <li id="state"></li> -->
-        </td>
-    </tr>
-
-            </div>
-        </td>
+        
     </tr>
 
 </table>
@@ -196,7 +184,7 @@ function updateState(paramName, paramValue){
     let stateUpdate = [];
     ws.send("stateUpdate?" + paramName + " " + paramValue + " " + paramType)
 
-/*
+
     // get the begin-end lines of each parameter within the state.h!
     Object.keys(state).forEach(function(key, value) {
         pName = state[key].paramName;
@@ -212,6 +200,8 @@ function updateState(paramName, paramValue){
                 }
                 var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
                 var middleHeight = dv.getScrollerElement().offsetHeight / 2; 
+                dv.focus();
+
                 dv.scrollTo(null, t - middleHeight - 5); 
                 dv.addLineClass(begin, 'background', 'cm-highlight');
                 dv.setCursor({line: begin, ch: window.lastpo});
@@ -222,7 +212,7 @@ function updateState(paramName, paramValue){
             
             console.log(paramName, begin, end)
         }
-    }) */
+    }) 
 }
 
 // $('.param').click(function() {
@@ -318,6 +308,7 @@ function openSocket() {
                     //we need to clear the table rows (except for the first, since [1]in order to add after last we need something there already, annnnd the 0th table row is our table header!)
                     
                     $("#stateValues").find("tr:gt(0)").remove();
+                    $("#stateValues2").find("tr:gt(0)").remove();
                     
                     //console.log(arg)
 
@@ -331,7 +322,9 @@ function openSocket() {
                     let pValue;
                     let start;
                     let end;
+                    let rowCount = 0;
                     Object.keys(state).forEach(function(key, value) {
+                        rowCount++;
                         //console.log(state[key].paramName)
                         pName;
                         
@@ -354,19 +347,50 @@ function openSocket() {
                                 //     $(this).remove();
                                 //     return false;
                                 //});
-                                $('#stateValues tr:last').after('<tr id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
-                                // turn the input element into a jquery spinner
-                                $("#" + pName).spinner({
-                                    step: 0.1,
-                                });
-                                // have the spinner report its value whenever it gets changed by mouse or keyboard events.
-                                $( "#" + pName ).spinner({spin: function( event, ui, id ) {
-                                    updateState(this.id, ui.value);
-                                    }
-                                });
-                                $().data('mmapData', { offset: offset })
+                                if (rowCount <= 9) {
+                                    $('#stateValues tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                    // turn the input element into a jquery spinner
+                                    $("#" + pName).spinner({
+                                        step: 0.1,
+                                    });
+                                    // have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                                    $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                        updateState(this.id, ui.value);
+                                        }
+                                    });
+                                    $().data('mmapData', { offset: offset })
 
-                                $("#" + pName).width(100);
+                                    $("#" + pName).width(100);
+                                } else if (rowCount > 9 && rowCount <= 28) {
+                                    $('#stateValues2 tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                    // turn the input element into a jquery spinner
+                                    $("#" + pName).spinner({
+                                        step: 0.1,
+                                    });
+                                    // have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                                    $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                        updateState(this.id, ui.value);
+                                        }
+                                    });
+                                    $().data('mmapData', { offset: offset })
+
+                                    $("#" + pName).width(100);
+                                } else {
+                                    $('#stateValues3 tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+                                    // turn the input element into a jquery spinner
+                                    $("#" + pName).spinner({
+                                        step: 0.1,
+                                    });
+                                    // have the spinner report its value whenever it gets changed by mouse or keyboard events.
+                                    $( "#" + pName ).spinner({spin: function( event, ui, id ) {
+                                        updateState(this.id, ui.value);
+                                        }
+                                    });
+                                    $().data('mmapData', { offset: offset })
+
+                                    $("#" + pName).width(100);
+
+                                }
 
                                 break;
 
@@ -461,6 +485,7 @@ function sourceCard(stateCode) {
         //highlightDifferences: "highlight",
         theme: 'one-dark',
         readOnly: false,
+        //pointer-events: none,
         //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
         viewportMargin: 10,
         revertButtons: true,
