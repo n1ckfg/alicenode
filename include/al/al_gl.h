@@ -901,19 +901,21 @@ struct SimpleFBO {
 		
 	}
 	
-	void draw(glm::vec2 uTopLeft=glm::vec2(-1.f), glm::vec2 uBottomRight=glm::vec2(1.f)) {
+	void draw(glm::vec2 uBottomLeft=glm::vec2(0.f), glm::vec2 uTopRight=glm::vec2(1.f)) {
 		
 		if (!texDrawShader) {
 			const char * vp = R"(
 				#version 330 core
-				uniform vec2 uTopLeft, uBottomRight;
+				uniform vec2 uBottomLeft, uTopRight;
 				layout (location = 0) in vec2 aPos;
 				layout (location = 1) in vec2 aTexCoord;
 				
 				out vec2 texCoord;
 				
 				void main() {
-					gl_Position = vec4(mix(uTopLeft, uBottomRight, aPos), 0., 1.0);
+					vec2 p = mix(uBottomLeft, uTopRight, aPos);
+					p = p * 2. - 1.;
+					gl_Position = vec4(p, 0., 1.0);
 					texCoord = aTexCoord;
 				}
 			)";
@@ -932,8 +934,8 @@ struct SimpleFBO {
 		}
 	
 		texDrawShader->use();
-		texDrawShader->uniform("uTopLeft", uTopLeft);
-		texDrawShader->uniform("uBottomRight", uBottomRight);
+		texDrawShader->uniform("uBottomLeft", uBottomLeft);
+		texDrawShader->uniform("uTopRight", uTopRight);
 		draw_no_shader();
 		texDrawShader->unuse();
 	}
@@ -972,19 +974,21 @@ struct TextureDrawer {
 		dest_closing();
 	}
 
-	void draw(GLuint tex, glm::vec2 uTopLeft=glm::vec2(-1.f), glm::vec2 uBottomRight=glm::vec2(1.f)) {
+	void draw(GLuint tex, glm::vec2 uBottomLeft=glm::vec2(0.f), glm::vec2 uTopRight=glm::vec2(1.f)) {
 		
 		if (!texDrawShader) {
 			const char * vp = R"(
 				#version 330 core
-				uniform vec2 uTopLeft, uBottomRight;
+				uniform vec2 uBottomLeft, uTopRight;
 				layout (location = 0) in vec2 aPos;
 				layout (location = 1) in vec2 aTexCoord;
 				
 				out vec2 texCoord;
 				
 				void main() {
-					gl_Position = vec4(mix(uTopLeft, uBottomRight, aPos), 0., 1.0);
+					vec2 p = mix(uBottomLeft, uTopRight, aPos);
+					p = p * 2. - 1.;
+					gl_Position = vec4(p, 0., 1.0);
 					texCoord = aTexCoord;
 				}
 			)";
@@ -1002,8 +1006,8 @@ struct TextureDrawer {
 		}
 	
 		texDrawShader->use();
-		texDrawShader->uniform("uTopLeft", uTopLeft);
-		texDrawShader->uniform("uBottomRight", uBottomRight);
+		texDrawShader->uniform("uBottomLeft", uBottomLeft);
+		texDrawShader->uniform("uTopRight", uTopRight);
 		draw_no_shader(tex);
 		texDrawShader->unuse();
 	}
