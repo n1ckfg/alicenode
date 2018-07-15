@@ -109,7 +109,7 @@ rgb(199, 0, 57) --> */
             <button id="writeStateH">Save state.h</button>
             <button id="clearHighlights">Clear Highlighting</button>
             <div id="stateh_source"></div> 
-            <table name="stateParams" overflow="scroll" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+            <table name="stateParams" id="stateValues" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
                     <tbody>
                         <tr >
                             <th style="width: 40%;">Parameter</th>
@@ -121,7 +121,7 @@ rgb(199, 0, 57) --> */
         </td>
         <td valign="top">
             <!-- table for the state.h parameters and values -->
-            <table name="stateParams2" overflow="scroll" id="stateValues2" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+            <table name="stateParams2" id="stateValues2" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
                 <tbody>
                     <tr >
                         <th style="width: 40%;">Parameter</th>
@@ -133,7 +133,7 @@ rgb(199, 0, 57) --> */
         </td>
         <td valign="top">
             <!-- table for the state.h parameters and values -->
-            <table name="stateParams3" overflow="scroll" id="stateValues3" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
+            <table name="stateParams3" id="stateValues3" width="100%" border="0" cellpadding="0" cellspacing="0" display="inline-block";>
                 <tbody>
                     <tr >
                         <th style="width: 40%;">Parameter</th>
@@ -185,6 +185,13 @@ function updateState(paramName, paramValue){
     ws.send("stateUpdate?" + paramName + " " + paramValue + " " + paramType)
 
 
+
+// <!-- 
+// var testVariable = 10;
+// var oldVar = testVariable;
+
+// if (oldVar != testVariable)
+// alert("testVariable has changed!"); -->
     // get the begin-end lines of each parameter within the state.h!
     Object.keys(state).forEach(function(key, value) {
         pName = state[key].paramName;
@@ -192,10 +199,10 @@ function updateState(paramName, paramValue){
         end = state[key].end;
         //tell codemirror to highlight the chosen lines
         if (pName == paramName){
-                // remember all the lines that have been highlighted
-                lines.push({begin})
-                // highlight previously modified parameter as blue in the state.h
-                if (lastLine) {
+                // // remember all the lines that have been highlighted
+                // lines.push({begin})
+                // if the parameter is different from previous change, highlight previously modified parameter as blue in the state.h
+                if (lastLine !== undefined && lastLine !== begin) {
                     dv.addLineClass(lastLine, 'background', 'cm-highlight-lastLine');
                 }
                 var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
