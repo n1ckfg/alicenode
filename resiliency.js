@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 // this script ensures other scripts/processes are running, and relaunch if they fail
 
 const fs = require('fs')
@@ -34,7 +33,6 @@ const clientPath = path.join(serverPath, 'client')
 const projectlib = 'project.' + libext
 
 
- 
 var crashCountAlice = 0;
 var crashCountMax = 0;
 setInterval(function () {
