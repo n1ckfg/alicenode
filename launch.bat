@@ -26,11 +26,11 @@ REM   Taskkill /IM alice.exe
 REM }
 
 echo "Insuperposition Launcher"
-echo starting alicenode server, serverMode set to 'nosim'
-start node webterminal.js & 
+REM echo starting alicenode server, serverMode set to 'nosim'
+REM start node webterminal.js & 
 :: launch resiliency.js
-echo running our resiliency script
-start node resiliency.js & 
+REM echo running our resiliency script
+REM start node resiliency.js & 
 
 :: launch max and audiostate patcher  
 start ../alicenode_inhabitat/audio/audiostate_sonification.maxpat &
