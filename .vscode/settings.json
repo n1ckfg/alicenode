@@ -91,7 +91,8 @@
         "__config": "cpp",
         "__nullptr": "cpp",
         "__functional_base": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "__functional_03": "cpp"
     },
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent"
