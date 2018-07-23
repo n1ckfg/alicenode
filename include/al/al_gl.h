@@ -828,6 +828,8 @@ struct SimpleFBO {
 	
 	Shader * texDrawShader = 0;
 	QuadMeshNorm * quadMesh = 0;
+
+	bool useFloatTexture = false;
 	
 	void dest_closing() {
 		if (quadMesh) {
@@ -872,7 +874,11 @@ struct SimpleFBO {
 		glBindTexture(GL_TEXTURE_2D, tex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, dim.x, dim.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		if (useFloatTexture) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, dim.x, dim.y, 0, GL_RGBA, GL_FLOAT, 0);
+		} else {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, dim.x, dim.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		}
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
 
 		bool result = fbo_check();
