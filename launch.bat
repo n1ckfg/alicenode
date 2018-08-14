@@ -32,7 +32,7 @@ REM start node webterminal.js &
 echo running our resiliency script
 start node resiliency.js & 
 
-:: launch max and audiostate patcher  
+:: launch max and audiostate patcher 
 start ../alicenode_inhabitat/audio/audiostate_sonification.maxpat &
 echo "Launching Max/MSP & Sonification Patch on process ID $!" &
 

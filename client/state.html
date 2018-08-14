@@ -170,70 +170,7 @@ var lastLine;
 function log(msg){
   console.log(msg)
 }
-function updateState(paramName, paramValue){
-    console.log(paramName, paramValue)
-    var paramType;
-    Object.keys(state).forEach(function(key, value) {
-        // console.log(key, value)
-        if (paramName === state[key].paramName) {
-            paramType = state[key].type
-        }                     
-    })
-    //console.log(stateUpdate)
-    //update the state.bin server-side
-    let stateUpdate = [];
-    ws.send("stateUpdate?" + paramName + " " + paramValue + " " + paramType)
 
-
-
-// <!-- 
-// var testVariable = 10;
-// var oldVar = testVariable;
-
-// if (oldVar != testVariable)
-// alert("testVariable has changed!"); -->
-    // get the begin-end lines of each parameter within the state.h!
-    Object.keys(state).forEach(function(key, value) {
-        pName = state[key].paramName;
-        begin = state[key].begin - 1;
-        end = state[key].end;
-        //tell codemirror to highlight the chosen lines
-        if (pName == paramName){
-                // // remember all the lines that have been highlighted
-                // lines.push({begin})
-                // if the parameter is different from previous change, highlight previously modified parameter as blue in the state.h
-                if (lastLine !== undefined && lastLine !== begin) {
-                    dv.addLineClass(lastLine, 'background', 'cm-highlight-lastLine');
-                }
-                var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
-                var middleHeight = dv.getScrollerElement().offsetHeight / 2; 
-                dv.focus();
-
-                dv.scrollTo(null, t - middleHeight - 5); 
-                dv.addLineClass(begin, 'background', 'cm-highlight');
-                dv.setCursor({line: begin, ch: window.lastpo});
-
-                // store the selected line for next time we change a param
-                lastLine = begin;
-
-            
-            console.log(paramName, begin, end)
-        }
-    }) 
-}
-
-// $('.param').click(function() {
-//   console.log($(this).attr('value'));
-// });
-// <!-- 
-// $(document).click(function(event) {
-//     var text = $(event.target).text();
-//     console.log(text)
-// });
-
-// $(document).click(function(event) {
-//     console.log($(event.target).text());
-// }); -->
 document.getElementById('server').value = ws_url;
 
 function openSocket() {
@@ -242,41 +179,22 @@ function openSocket() {
     ws = new WebSocket(ws_url);
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
-        // tell the server to send the most-recent state
+        // request the most-recent state from the server
         ws.send("stateEditorConnect?")
-        // log('open');  
-        // ws.send("client_SVG?")
-
-        // ws.send("getCurrentBranch")
-        
-        // //temporary: for now set user as Guest so I don't have to keep choosing user while developing. 
-        // ws.send("selectUser?" + "Guest");
-        
         sessionStorage.echoServer = url;
     };
     ws.onclose = function() {
-        // log('close');
+        // meh
     };
     ws.onmessage = function(e) {
-        /*if (e.data instanceof Blob) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                log('received blob: ' + encodeHexString(new Uint8Array(e.target.result)));
-            };
-            reader.readAsArrayBuffer(e.data);
-        } else */
+
         if (e.data instanceof ArrayBuffer) {
-            //log(encodeHexString(new Uint8Array(e.data)));
-            //log("received arraybuffer size: " + e.data.byteLength + " bytes");
-            
             let s = "";
             let fv = new Float32Array(e.data);
             for (var i = 0; i < fv.length; i+=3) {
                 s += "<li>" + (i/3 + ": { " + fv[i] + ", " + fv[i+1] + ", " + fv[i+2] + " }</li>");
             }
-            
-            // document.getElementById('state').innerHTML = s;     
-            
+                        
         } else {
             let message = e.data;
             let q = message.indexOf("?");
@@ -307,7 +225,7 @@ function openSocket() {
                     case "state.h":
                     stateCode = JSON.parse(arg)
                     //note, we may not pass the state using state.h, but instead could just regen it from the ast received by the next case statement below, aka 'state'
-                    sourceCard(stateCode)
+                    stateH(stateCode)
                     //get and set code in the new card
                     break;
                     
@@ -356,6 +274,15 @@ function openSocket() {
                                 //});
                                 if (rowCount <= 9) {
                                     $('#stateValues tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+
+                                   // prevent enter keypress on spinner (currently crashes the state...)
+                                   $('#' + pName).on('keyup keypress', function(e) {
+                                        var keyCode = e.keyCode || e.which;
+                                        if (keyCode === 13) { 
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                    });                                    
                                     // turn the input element into a jquery spinner
                                     $("#" + pName).spinner({
                                         step: 0.1,
@@ -370,6 +297,15 @@ function openSocket() {
                                     $("#" + pName).width(100);
                                 } else if (rowCount > 9 && rowCount <= 28) {
                                     $('#stateValues2 tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+
+                                    // prevent enter keypress on spinner (currently crashes the state...)
+                                    $('#' + pName).on('keyup keypress', function(e) {
+                                        var keyCode = e.keyCode || e.which;
+                                        if (keyCode === 13) { 
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                    });
                                     // turn the input element into a jquery spinner
                                     $("#" + pName).spinner({
                                         step: 0.1,
@@ -384,6 +320,15 @@ function openSocket() {
                                     $("#" + pName).width(100);
                                 } else {
                                     $('#stateValues3 tr:last').after('<tr height=10px id=\"row_' + pName + '\"><td>' + pName + '</td><td><h3>' + type + '</h3></td><td>' + '<input id=\"' + pName + '\" class="param" onchange="updateState(this)" value=\"' + pValue + '\"></input>' + '</td></tr>');
+
+                                    // prevent enter keypress on spinner (currently crashes the state...)
+                                    $('#' + pName).on('keyup keypress', function(e) {
+                                        var keyCode = e.keyCode || e.which;
+                                        if (keyCode === 13) { 
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                    });
                                     // turn the input element into a jquery spinner
                                     $("#" + pName).spinner({
                                         step: 0.1,
@@ -439,7 +384,7 @@ function openSocket() {
                                 break;
 
                             case "unusedParams":
-                                                                                        console.log("parameter types found but not used: " + arg)
+                                console.log("parameter types found but not used: " + arg)
                                 
                                 break;
                             }
@@ -451,13 +396,11 @@ function openSocket() {
 
 
                     default:
-                    break;
-
+                        // meh
+                        break;
                     }
         
                 } else {
-            
-                log('received: ' + e.data);
                 }
             }
         };
@@ -467,7 +410,6 @@ function openSocket() {
 }
 
 function closeSocket() {
-    log('closing');
     ws.close();
 }
 
@@ -476,33 +418,24 @@ setInterval(function(){
         if (!ws || ws.readyState === WebSocket.CLOSED) openSocket();
 }, 2000);
 
-function sourceCard(stateCode) {
-    // isRightDirty = false;
+// fill the codemirror instance with state.h code
+function stateH(stateCode) {
     if (value == null) return;
     var target = document.getElementById("stateh_source");
     target.innerHTML = "";
     dv = CodeMirror(target, {
-        //position: "relative",
         value: stateCode,
-        // origLeft: panes == 3 ? orig1 : null,
-        // origRight: orig1,
         styleActiveLine: true,
         lineNumbers: true,
         mode: "clike",
-        //highlightDifferences: "highlight",
         theme: 'one-dark',
         readOnly: false,
-        //pointer-events: none,
         //NOTE: viewportMargin, when set to 'infinity', allows for full text searching, BUT when set to a high number seems to have been the source of the sluggishness in the client app!! so now its only at 10. 
         viewportMargin: 10,
         revertButtons: true,
         allowEditingOriginals: true,
-        // autoRefresh: true,
-        // showDifferences: true,
         linewrapping: true,
-        //editing
         undoDepth: 200,
-        //cursor settings:
         cursorBlinkRate: 300,
         cursorScrollMargin: 0,                   
     });
@@ -527,19 +460,62 @@ $(function() {
     });
 });
 
+function updateState(paramName, paramValue){
+
+// Update the state.bin server-side ///////////////////////
+//the server needs to know what type each parameter is so it can pass it to the correct buffer write
+var paramType;
+Object.keys(state).forEach(function(key, value) {
+    if (paramName === state[key].paramName) {
+        paramType = state[key].type
+    }                     
+})
+//update the state.bin server-side
+let stateUpdate = [];
+ws.send("stateUpdate?" + paramName + " " + paramValue + " " + paramType)
+
+// ///////////////////////////////////////////////////
+// provide line highlighting for in the codemirror editor so user can easily spot parameters 
+// in the state.h file:
+// get the begin-end lines of each parameter within the state.h!
+Object.keys(state).forEach(function(key, value) {
+    pName = state[key].paramName;
+    begin = state[key].begin - 1;
+    end = state[key].end;
+    // tell codemirror to highlight the chosen line
+    if (pName == paramName){
+        // if the parameter is different from previous change, highlight previously modified parameter as blue in the state.h
+        if (lastLine !== undefined && lastLine !== begin) {
+            dv.addLineClass(lastLine, 'background', 'cm-highlight-lastLine');
+        }
+        // if new parameter change, tell cm where to highlight
+        var t = dv.charCoords({line: begin, ch: 0}, "local").top; 
+        var middleHeight = dv.getScrollerElement().offsetHeight / 2; 
+        // focus the editor's page around the line
+        dv.scrollTo(null, t - middleHeight - 5);
+        // apply highlight to the selected parameter-line
+        dv.addLineClass(begin, 'background', 'cm-highlight');
+        // set the cm cursor to the line
+        dv.setCursor({line: begin, ch: window.lastpo});
+        // remember the current selected line for next time we change a param
+        lastLine = begin;
+    }
+}) 
+}
 
 //// clear highlights
 $(function() {
-    $("#clearHighlights").click( function()
-        {
-        Object.keys(lines).forEach(function(key, value) {
-        console.log(lines[key].begin)
-        dv.removeLineClass(lines[key].begin, 'background');
+$("#clearHighlights").click( function()
+    {
+    Object.keys(lines).forEach(function(key, value) {
+    console.log(lines[key].begin)
+    dv.removeLineClass(lines[key].begin, 'background');
 
-        });
     });
+});
 
 })
+
 
 </script>
 
