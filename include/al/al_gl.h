@@ -828,6 +828,9 @@ struct SimpleFBO {
 	
 	Shader * texDrawShader = 0;
 	QuadMeshNorm * quadMesh = 0;
+
+	bool useMultisampling = false;
+	bool useFloatTexture = false;
 	
 	void dest_closing() {
 		if (quadMesh) {
@@ -865,16 +868,35 @@ struct SimpleFBO {
 
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, dim.x, dim.y);
+
+		if (useMultisampling) {
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, dim.x, dim.y);
+		} else {
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, dim.x, dim.y);
+		
+		}
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
+		GLenum texturetarget = useMultisampling ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, dim.x, dim.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-
+		glBindTexture(texturetarget, tex);
+		glTexParameteri(texturetarget, GL_TEXTURE_MAX_LEVEL, 0);
+		glTexParameteri(texturetarget, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(texturetarget, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		glTexParameteri(texturetarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(texturetarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		GLenum internalformat = useFloatTexture ? GL_RGBA16F : GL_RGBA8;
+		GLenum format = useFloatTexture ? GL_FLOAT : GL_UNSIGNED_BYTE;
+		if (useMultisampling) {
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, dim.x, dim.y, GL_TRUE);
+glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);  
+			//glTexImage2D(texturetarget, 0, internalformat, dim.x, dim.y, 0, GL_RGBA, format, 0);
+		} else {
+			glTexImage2D(texturetarget, 0, internalformat, dim.x, dim.y, 0, GL_RGBA, format, 0);
+		}
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texturetarget, tex, 0);
+		//glBindTexture(texturetarget, 0);
+		
 		bool result = fbo_check();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return result;
@@ -946,9 +968,9 @@ struct SimpleFBO {
 			quadMesh = new QuadMeshNorm;
 			quadMesh->dest_changed();
 		}
-		glBindTexture(GL_TEXTURE_2D, tex);
+		glBindTexture(useMultisampling ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, tex);
 		quadMesh->draw();
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(useMultisampling ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 0);
 	}
 };
 
