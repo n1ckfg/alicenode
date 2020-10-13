@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -17,13 +18,12 @@
   },
   "homepage": "https://github.com/worldmaking/alicenode#readme",
   "dependencies": {
+    "codemirror": "^5.58.1",
     "express": "^4.17.1",
+    "glob": "^7.1.6",
+    "http": "0.0.1-security",
     "reconnecting-websocket": "^4.4.0",
-    "rws": "0.0.1",
-    "universal-reconnecting-websocket": "^2.0.0",
     "web-terminal": "^0.7.0",
-    "websocket": "^1.0.32",
-    "websockets": "^0.2.0",
     "ws": "^7.3.1"
   }
 }
