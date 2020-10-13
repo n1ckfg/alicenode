@@ -1,0 +1,37 @@
+<!-- Create a simple CodeMirror instance -->
+<head>
+
+<link rel="stylesheet" href="css/codemirror.min.css">
+<script src="js/codemirror.js"></script>
+
+</head>
+<body>
+
+    <script>
+
+
+        var myCodeMirror = CodeMirror(document.body);
+
+        var myCodeMirror = CodeMirror(document.body, {
+        value: "function myScript(){return 100;}\n",
+        mode:  "javascript"
+        });
+        //   var editor = CodeMirror.fromTextArea(myTextarea, {
+        //     lineNumbers: true
+        //   });
+
+        // app.js
+        var WebSocketServer = require('websocket').server;
+        var express         = require('express');
+        var app             = express();
+        var server          = app.listen(8888);
+        var wsServer        = new WebSocketServer({ httpServer : server });
+
+        // this will make Express serve your static files
+        app.use(express.static(__dirname));
+
+        // the rest of your code
+        // wsServer.on('request', function(r) { ...
+    </script>
+
+</body>
