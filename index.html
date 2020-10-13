@@ -60,14 +60,14 @@
             <button onclick="openStateEditor()" id="openStateEditor">State Editor</button>
             <button onclick="openTerminal()" id="openTerminal">New CLI</button> -->
             
-            <input id="server" type="text" value="ws://localhost:8080" size="40">
+            <!-- <input id="server" type="text" value="ws://localhost:8080" size="40"> -->
             
             
         </th>
-        <th>
+        <!-- <th>
             <button onclick="openSocket()">Open</button>
             <button onclick="closeSocket()">Close</button>
-        </th>   
+        </th>    -->
     </tr> 
     <!-- Customize the Codemirror Instance -->
     <!-- <tr style="float: right">     
@@ -95,7 +95,7 @@
     </tr>     -->
 </table>
 <!-- git repo navigation area -->
-<table style="background-color: blue" width=100% id="gitSelector">  
+<!-- <table style="background-color: blue" width=100% id="gitSelector">  
     <tr>
         <th style="background-color:rgb(255, 150, 243); font-size: 14px; text-decoration: none; text-align: center;">
             <b>Branches</b>
@@ -129,7 +129,7 @@
             </select> 
         </td>
     </tr>
-</table>
+</table> -->
 <!-- codemirror editor Labels -->
 <table width="80%">
     <tr>
@@ -466,7 +466,7 @@ function chooseFileName () {
 /**
  * Web Socket Client
  **/
-document.getElementById('server').value = ws_url
+// document.getElementById('server').value = ws_url
 
 function openSocket () {
   log('opening')
